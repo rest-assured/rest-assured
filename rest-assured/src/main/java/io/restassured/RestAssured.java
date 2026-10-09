@@ -1597,11 +1597,14 @@ public class RestAssured {
     }
 
     /**
-     * Apply a keystore for all requests
+     * Apply a key store for all requests. The key store holds the client certificate (and its private key) that is sent
+     * to a server that asks for one (client certificate authentication, also known as mutual TLS). For example
      * <pre>
-     * given().keyStore("/truststore_javanet.jks", "test1234"). ..
+     * RestAssured.keyStore("/client_keystore.p12", "test1234");
      * </pre>
-     * </p>
+     * The password is used both for the key store and for the private key in it. The key store doesn't affect which
+     * server certificates are trusted: that's decided by the trust store if one is configured (see
+     * {@link #trustStore(String, String)}) and by the JVM's default trust otherwise.
      * <p>
      * Note that this is just a shortcut for:
      * </p>
@@ -1660,7 +1663,7 @@ public class RestAssured {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.trustSture("/truststore_javanet.jks", "test1234");
+     * RestAssured.trustStore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>

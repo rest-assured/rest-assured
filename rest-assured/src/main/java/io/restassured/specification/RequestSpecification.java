@@ -679,13 +679,36 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.keyStore("/truststore_javanet.jks", "test1234");
+     * RestAssured.trustStore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keyStore("/truststore_javanet.jks", "test1234"). ..
+     * given().trustStore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
+     * <p>
+     * Note that this is just a shortcut for:
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(path, password));
+     * </pre>
+     * </p>
+     *
+     * @param path     The path to the trust store. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system.
+     * @param password The store pass
+     * @return The request specification
+     * @see #keyStore(String, String)
+     */
+    RequestSpecification trustStore(String path, String password);
+
+    /**
+     * Use a key store that holds the client certificate (and its private key) to send to a server that asks for one
+     * (client certificate authentication, also known as mutual TLS). For example
+     * <pre>
+     * given().keyStore("/client_keystore.p12", "test1234"). ..
+     * </pre>
+     * The password is used both for the key store and for the private key in it. The key store doesn't affect which
+     * server certificates are trusted: that's decided by the trust store if one is configured (see
+     * {@link #trustStore(String, String)}) and by the JVM's default trust otherwise.
      * <p>
      * Note that this is just a shortcut for:
      * <pre>
@@ -693,9 +716,10 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
-     * @param pathToJks The path to the JKS. The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system.
+     * @param pathToJks The path to the key store. REST Assured will first look in the classpath and if not found it will look for the key store in the local file-system.
      * @param password  The store pass
      * @return The request specification
+     * @see #trustStore(String, String)
      */
     RequestSpecification keyStore(String pathToJks, String password);
 
@@ -716,25 +740,6 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification keyStore(File pathToJks, String password);
 
     /**
-     * Apply a trust store. For example
-     * <pre>
-     * given().trustStore("/truststore_javanet.jks", "test1234"). ..
-     * </pre>
-     * </p>
-     * <p>
-     * Note that this is just a shortcut for:
-     * <pre>
-     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
-     * </pre>
-     * </p>
-     *
-     * @param path     The path to the trust store. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system.
-     * @param password The store pass
-     * @return The request specification
-     */
-    RequestSpecification trustStore(String path, String password);
-
-    /**
      * Use a trust store located on the file-system. See {@link #trustStore(String, String)} for more details.
      * <p>
      * Note that this is just a shortcut for:
@@ -746,7 +751,7 @@ public interface RequestSpecification extends RequestSender {
      * @param path     The path to trust storefile on the file-system
      * @param password The password for the keystore
      * @return The request specification
-     * @see #keyStore(String, String)
+     * @see #trustStore(String, String)
      */
     RequestSpecification trustStore(File path, String password);
 
@@ -761,18 +766,22 @@ public interface RequestSpecification extends RequestSender {
      *
      * @param trustStore The truststore.
      * @return The request specification
-     * @see #keyStore(String, String)
+     * @see #trustStore(String, String)
      */
     RequestSpecification trustStore(KeyStore trustStore);
 
     /**
-     * Use the supplied keystore for HTTPS requests. Shortcut for:
+     * Use the supplied key store for the client certificate sent to a server that asks for one (see
+     * {@link #keyStore(String, String)}). Shortcut for:
      * <p>
      * <pre>
      * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(keyStore));
      * </pre>
      * </p>
      * <p/>
+     * If the private key in the key store is protected by a password, set it with
+     * {@link io.restassured.config.SSLConfig#keyStore(String)}, for example
+     * <code>given().config(RestAssured.config().sslConfig(sslConfig().keyStore(keyStore).keyStore("password")))</code>.
      *
      * @param keyStore The keyStore.
      * @return The request specification
