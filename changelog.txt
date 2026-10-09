@@ -3,6 +3,7 @@ Changelog next version
 * Non-backward compatible change: a Groovy closure used as request body now fails with an IllegalArgumentException. This could only happen when a custom ObjectMapper returned a Closure from serialize(..), in which case the closure was run as a builder (a JsonBuilder for JSON, a StreamingMarkupBuilder for XML and HTML, or with a Writer or OutputStream for text and binary content). Return a String, byte[] or InputStream from the ObjectMapper instead.
 * Non-backward compatible change: a request body that isn't a String (for example a byte[], InputStream or File) sent with content-type application/x-www-form-urlencoded now fails with an IllegalArgumentException explaining that a form url-encoded body must be a String, instead of a groovy.lang.MissingMethodException.
 * Non-backward compatible change: a groovy.lang.Writable request body sent with a text content-type is now sent as its toString() instead of what its writeTo(..) method writes. Groovy's own Writables (such as JsonBuilder and GString) produce the same output either way. A Groovy WritableFile (file.asWritable()) is now sent like any other File, read with the charset of the request content-type.
+* Fix the failure message of a body path assertion when the response body can't be parsed into something the path can navigate (for example a JSON body that is just a string), which showed the literal text $contentParser instead of the response body
 
 Changelog 6.1.0 (2026-10-09)
 ----------------------------
