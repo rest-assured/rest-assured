@@ -16,6 +16,7 @@ Changelog next version
 * Non-backward compatible change: the authentication schemes in io.restassured.authentication (BasicAuthScheme, CertAuthScheme, ExplicitNoAuthScheme, FormAuthScheme, NTLMAuthScheme, NoAuthScheme, OAuth2Scheme, OAuthScheme, PreemptiveBasicAuthScheme and PreemptiveOAuth2HeaderScheme), and the AuthenticationScheme interface are now written in Java, and the classes no longer implement groovy.lang.GroovyObject. Their constructors, getters and setters are unchanged. A custom AuthenticationScheme written in Java can now get the authentication configuration from HTTPBuilder.getAuth().
 * Non-backward compatible change: io.restassured.internal.matcher.xml.XmlXsdMatcher (the return type of RestAssuredMatchers.matchesXsd(..)) and XmlDtdMatcher are now written in Java and no longer implement groovy.lang.GroovyObject (#1920).
 * A CertAuthScheme whose key store or trust store path (setPathToKeyStore(..) or setPathToTrustStore(..)) is neither a String nor a java.io.File now fails with an IllegalArgumentException instead of a groovy.lang.MissingMethodException.
+* Fix FilterContext.send(..) for a request whose HTTP method has no method of its own in RequestSender, such as TRACE or a custom method given to request(..) (for example request("PURGE", "/x")). It failed with a groovy.lang.MissingMethodException and now sends the request. FilterContext.send(..) now always calls RequestSender.request(method, path) on the request sender it is given, instead of get(path), post(path) and so on.
 
 Changelog 6.1.0 (2026-10-09)
 ----------------------------

@@ -348,15 +348,14 @@ class FilterContextImplTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"TRACE", "PURGE"})
-    void send_fails_for_a_method_without_a_request_sender_method_of_its_own(String method) {
-        assertThatThrownBy(() -> given().
+    void send_works_for_a_method_without_a_request_sender_method_of_its_own(String method) {
+        Response response = given().
                 filter((req, res, ctx) -> ctx.send(given())).
         when().
-                request(method, "/things/5"))
-                .satisfies(e -> assertThat(e.getClass().getName()).isEqualTo("groovy.lang.MissingMethodException"))
-                .hasMessageContaining(method.toLowerCase());
+                request(method, "/things/{id}", 5);
 
-        assertThat(server.requests).isEmpty();
+        assertThat(server.requestLines()).containsExactly(method + " /things/5");
+        assertThat(response.asString()).isEqualTo(method + " /things/5");
     }
 
     private static FilterContextImpl newContext(Iterator<Filter> filters, Map<String, Object> properties) {
