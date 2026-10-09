@@ -17,7 +17,6 @@
 
 package io.restassured.internal
 
-import groovy.xml.StreamingMarkupBuilder
 import io.restassured.common.mapper.DataToDeserialize
 import io.restassured.common.mapper.TypeRef
 import io.restassured.config.DecoderConfig
@@ -135,8 +134,6 @@ class RestAssuredResponseOptionsGroovyImpl {
     try {
       if (content instanceof InputStream) {
         this.content = convertToByteArray(content)
-      } else if (content instanceof Writable) {
-        this.content = toString(content)
       } else if (content instanceof String) {
         this.content = content
       } else {
@@ -145,16 +142,6 @@ class RestAssuredResponseOptionsGroovyImpl {
     } catch (IllegalStateException e) {
       throw new IllegalStateException(CANNOT_PARSE_MSG, e)
     }
-  }
-
-  // TODO: Handle namespaces ??
-  def toString(Writable node) {
-    def writer = new StringWriter()
-    writer << new StreamingMarkupBuilder().bind {
-      // mkp.declareNamespace(dc: "http://purl.org/dc/elements/1.1/")
-      mkp.yield node
-    }
-    return writer.toString()
   }
 
   String print() {
