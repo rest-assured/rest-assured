@@ -55,8 +55,9 @@ public class MultiPartInternal {
     private Map<String, String> headers = new LinkedHashMap<>();
 
     /**
-     * @return The {@link ContentBody} for the content. A {@code byte[]} content is replaced by a stream of it and a
-     * {@link NoParameterValue} content by an empty String.
+     * @return The {@link ContentBody} for the content. A {@code byte[]} content is sent from a new stream each time, so
+     * the content can be sent again (e.g. when a specification is reused). A {@link NoParameterValue} content is
+     * replaced by an empty String.
      */
     public Object getContentBody() {
         if (content instanceof NoParameterValue) {
@@ -66,10 +67,9 @@ public class MultiPartInternal {
         if (content instanceof File) {
             return new FileBody((File) content, contentTypeWithCharset(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
         } else if (content instanceof InputStream) {
-            return returnInputStreamBody();
+            return returnInputStreamBody((InputStream) content);
         } else if (content instanceof byte[]) {
-            content = new ByteArrayInputStream((byte[]) content);
-            return returnInputStreamBody();
+            return returnInputStreamBody(new ByteArrayInputStream((byte[]) content));
         } else if (content instanceof String) {
             return returnStringBody((String) content);
         } else if (content != null) {
@@ -143,8 +143,8 @@ public class MultiPartInternal {
         return isEmpty(charset) ? baseContentType : baseContentType.withParameters(new BasicNameValuePair("charset", Charset.forName(charset).name()));
     }
 
-    private InputStreamBody returnInputStreamBody() {
-        return new InputStreamBody((InputStream) content, ContentType.parse(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
+    private InputStreamBody returnInputStreamBody(InputStream inputStream) {
+        return new InputStreamBody(inputStream, ContentType.parse(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
     }
 
     public boolean canEqual(Object other) {
@@ -175,8 +175,7 @@ public class MultiPartInternal {
     }
 
     /**
-     * Like {@code @Canonical}, this includes the content body (see {@link #getContentBody()}, which also replaces the content)
-     * and fails without content.
+     * Like {@code @Canonical}, this includes the content body (see {@link #getContentBody()}) and fails without content.
      */
     @Override
     public String toString() {

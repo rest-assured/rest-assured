@@ -67,8 +67,8 @@ filter sees:
     toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file.bin, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
 sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"; filename="file.bin"\x0d\x0aContent-Type: application/octet-stream\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
-  MultiPartSpecificationImpl controlName=ctrl fileName=file.bin hasFileName=true mimeType=application/octet-stream charset=null headers={} content=ByteArrayInputStream
-    toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file.bin, content=<inputstream>, headers=[:]
+  MultiPartSpecificationImpl controlName=ctrl fileName=file.bin hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file.bin, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
 
 == multiPart(String, String, byte[], String)
 filter sees:
@@ -76,8 +76,8 @@ filter sees:
     toString: controlName=ctrl, mimeType=application/pdf, charset=<none>, fileName=file.pdf, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
 sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"; filename="file.pdf"\x0d\x0aContent-Type: application/pdf\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
-  MultiPartSpecificationImpl controlName=ctrl fileName=file.pdf hasFileName=true mimeType=application/pdf charset=null headers={} content=ByteArrayInputStream
-    toString: controlName=ctrl, mimeType=application/pdf, charset=<none>, fileName=file.pdf, content=<inputstream>, headers=[:]
+  MultiPartSpecificationImpl controlName=ctrl fileName=file.pdf hasFileName=true mimeType=application/pdf charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/pdf, charset=<none>, fileName=file.pdf, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
 
 == multiPart(String, String, InputStream)
 filter sees:
@@ -156,8 +156,8 @@ filter sees:
     toString: controlName=ctrl, mimeType=application/pdf, charset=<none>, fileName=file.bin, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[X-A:a, X-B:b]
 sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aX-A: a\x0d\x0aX-B: b\x0d\x0aContent-Disposition: form-data; name="ctrl"; filename="file.bin"\x0d\x0aContent-Type: application/pdf\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
-  MultiPartSpecificationImpl controlName=ctrl fileName=file.bin hasFileName=true mimeType=application/pdf charset=null headers={X-A=a, X-B=b} content=ByteArrayInputStream
-    toString: controlName=ctrl, mimeType=application/pdf, charset=<none>, fileName=file.bin, content=<inputstream>, headers=[X-A:a, X-B:b]
+  MultiPartSpecificationImpl controlName=ctrl fileName=file.bin hasFileName=true mimeType=application/pdf charset=null headers={X-A=a, X-B=b} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/pdf, charset=<none>, fileName=file.bin, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[X-A:a, X-B:b]
 
 == spec String content, all set
 filter sees:
@@ -264,8 +264,8 @@ filter sees:
     toString: controlName=custom, mimeType=application/octet-stream, charset=<none>, fileName=<none>, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[X-Custom:c]
 sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aX-Custom: c\x0d\x0aContent-Disposition: form-data; name="custom"\x0d\x0aContent-Type: application/octet-stream\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
-  MultiPartSpecificationImpl controlName=custom fileName=null hasFileName=false mimeType=application/octet-stream charset=null headers={X-Custom=c} content=ByteArrayInputStream
-    toString: controlName=custom, mimeType=application/octet-stream, charset=<none>, fileName=<none>, content=<inputstream>, headers=[X-Custom:c]
+  MultiPartSpecificationImpl controlName=custom fileName=null hasFileName=false mimeType=application/octet-stream charset=null headers={X-Custom=c} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=custom, mimeType=application/octet-stream, charset=<none>, fileName=<none>, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[X-Custom:c]
 
 == multipart/mixed with charset
 filter sees:
@@ -313,8 +313,8 @@ sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposi
 afterwards:
   MultiPartSpecificationImpl controlName=one fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=one, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-  MultiPartSpecificationImpl controlName=two fileName=file.bin hasFileName=true mimeType=application/octet-stream charset=null headers={} content=ByteArrayInputStream
-    toString: controlName=two, mimeType=application/octet-stream, charset=<none>, fileName=file.bin, content=<inputstream>, headers=[:]
+  MultiPartSpecificationImpl controlName=two fileName=file.bin hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=two, mimeType=application/octet-stream, charset=<none>, fileName=file.bin, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
 
 == browser compatible mode
 filter sees:
