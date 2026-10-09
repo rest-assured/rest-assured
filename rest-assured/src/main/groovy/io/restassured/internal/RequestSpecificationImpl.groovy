@@ -1340,23 +1340,23 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
         def bodyContent = createFormParamBodyContent(assembleBodyContent(method))
         if (POST.name().equalsIgnoreCase(method)) {
-          http.post(path: targetPath, body: bodyContent,
+          http.post([path: targetPath, body: bodyContent,
                   allowContentType: allowContentType,
                   requestContentType: requestHeaders.getValue(CONTENT_TYPE),
-                  contentType: acceptContentType) { response, content ->
+                  contentType: acceptContentType], { response, content ->
             if (assertionClosure != null) {
               assertionClosure.call(response, content)
             }
-          }
+          } as HttpResponseHandler)
         } else if (PATCH.name().equalsIgnoreCase(method)) {
-          http.patch(path: targetPath, body: bodyContent,
+          http.patch([path: targetPath, body: bodyContent,
                   allowContentType: allowContentType,
                   requestContentType: requestHeaders.getValue(CONTENT_TYPE),
-                  contentType: acceptContentType) { response, content ->
+                  contentType: acceptContentType], { response, content ->
             if (assertionClosure != null) {
               assertionClosure.call(response, content)
             }
-          }
+          } as HttpResponseHandler)
         } else {
           requestBody = bodyContent
           sendHttpRequest(http, method, acceptContentType, targetPath, assertionClosure)
@@ -1647,26 +1647,29 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       allQueryParams = mergeMapsAndRetainOrder(allQueryParams, formParameters)
     }
     def hasBody = (requestBody != null)
-    http.request(method, responseContentType, hasBody) {
-      uri.path = targetPath
+    http.request(method, responseContentType, hasBody, { HTTPBuilder.RequestConfigDelegate d ->
+      // "with" resolves the properties and methods below against the delegate first
+      d.with {
+        uri.path = targetPath
 
-      if (this.allowContentType) {
-        setRequestContentType(defineRequestContentTypeAsString(method))
+        if (this.allowContentType) {
+          setRequestContentType(defineRequestContentTypeAsString(method))
+        }
+
+        if (hasBody) {
+          body = requestBody
+        }
+
+        uri.query = allQueryParams
+
+        HttpResponseHandler responseHandler = assertionClosure.getClosure() as HttpResponseHandler
+        // response handler for a success response code:
+        response.success = responseHandler
+
+        // handler for any failure status code:
+        response.failure = responseHandler
       }
-
-      if (hasBody) {
-        body = requestBody
-      }
-
-      uri.query = allQueryParams
-
-      Closure closure = assertionClosure.getClosure()
-      // response handler for a success response code:
-      response.success = closure
-
-      // handler for any failure status code:
-      response.failure = closure
-    }
+    } as RequestConfigurer)
   }
 
   private boolean hasFormParams() {

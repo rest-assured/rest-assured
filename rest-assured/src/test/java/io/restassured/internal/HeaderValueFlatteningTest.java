@@ -87,6 +87,6 @@ class HeaderValueFlatteningTest {
     }
 
     private static Collection<String> flatten(Collection<?> value) {
-        return RestAssuredHttpBuilderGroovyHelper.flattenToString(value);
+        return RestAssuredHttpBuilder.flattenToString(value);
     }
 }

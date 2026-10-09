@@ -18,9 +18,11 @@ package io.restassured.internal.http;
 
 import com.sun.net.httpserver.HttpServer;
 import io.restassured.RestAssured;
+import io.restassured.config.MultiPartConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.http.ConnectionClosedException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -121,7 +122,7 @@ class RequestDispatchTest {
         variants.put("explicit accept header", () -> given().header("Accept", "text/plain"));
         variants.put("expected response content-type", () -> given().expect().contentType(ContentType.JSON).given());
         variants.put("multipart", () -> given().multiPart("part", "content").config(RestAssured.config().multiPartConfig(
-                io.restassured.config.MultiPartConfig.multiPartConfig().defaultBoundary("BOUNDARY"))));
+                MultiPartConfig.multiPartConfig().defaultBoundary("BOUNDARY"))));
         return variants;
     }
 
@@ -179,7 +180,7 @@ class RequestDispatchTest {
                 serverThread.join(10_000);
 
                 assertThat(t).as(method).isInstanceOf(ResponseParseException.class);
-                assertThat(t.getCause()).as(method).isInstanceOf(org.apache.http.ConnectionClosedException.class)
+                assertThat(t.getCause()).as(method).isInstanceOf(ConnectionClosedException.class)
                         .hasMessageContaining("Premature end of Content-Length delimited message body");
             }
         }
@@ -217,18 +218,14 @@ class RequestDispatchTest {
 
     private String sendAndRender(Supplier<Response> request) {
         received = "    > <nothing sent>";
-        AtomicReference<String> response = new AtomicReference<>();
+        String response;
         try {
             Response r = request.get();
-            StringBuilder sb = new StringBuilder();
-            sb.append("    < ").append(r.statusLine()).append(" | status ").append(r.statusCode())
-                    .append(" | content-type ").append(r.contentType())
-                    .append(" | X-Reply ").append(r.headers().getValues("X-Reply"))
-                    .append(" | body ").append(escape(r.asByteArray()));
-            response.set(sb.toString());
+            response = "    < " + r.statusLine() + " | status " + r.statusCode() + " | content-type " + r.contentType() +
+                    " | X-Reply " + r.headers().getValues("X-Reply") + " | body " + escape(r.asByteArray());
         } catch (Throwable t) {
-            response.set("    < " + render(t, null));
+            response = "    < " + render(t, null);
         }
-        return received + "\n" + response.get();
+        return received + "\n" + response;
     }
 }
