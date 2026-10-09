@@ -27,17 +27,20 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 public class XmlXsdMatcher extends BaseMatcher<String> {
 
-    // A Source, File or URL
+    // A String, byte[], File or URL, from which a new schema is created for every match (or a Source, which can only be read once)
     private Object xsd;
     private Object resourceResolver;
 
@@ -59,17 +62,17 @@ public class XmlXsdMatcher extends BaseMatcher<String> {
 
     public static XmlXsdMatcher matchesXsd(String xsd) {
         notNull(xsd, "xsd");
-        return new XmlXsdMatcher(new StreamSource(new StringReader(xsd.trim())));
+        return new XmlXsdMatcher(xsd.trim());
     }
 
     public static XmlXsdMatcher matchesXsd(InputStream xsd) {
         notNull(xsd, "xsd");
-        return new XmlXsdMatcher(new StreamSource(xsd));
+        return new XmlXsdMatcher(readAndClose(xsd));
     }
 
     public static XmlXsdMatcher matchesXsd(Reader xsd) {
         notNull(xsd, "xsd");
-        return new XmlXsdMatcher(new StreamSource(xsd));
+        return new XmlXsdMatcher(readAndClose(xsd));
     }
 
     public static XmlXsdMatcher matchesXsd(File xsd) {
@@ -112,8 +115,30 @@ public class XmlXsdMatcher extends BaseMatcher<String> {
             return factory.newSchema((File) xsd);
         } else if (xsd instanceof URL) {
             return factory.newSchema((URL) xsd);
+        } else if (xsd instanceof String) {
+            return factory.newSchema(new StreamSource(new StringReader((String) xsd)));
+        } else if (xsd instanceof byte[]) {
+            return factory.newSchema(new StreamSource(new ByteArrayInputStream((byte[]) xsd)));
         }
         return factory.newSchema((Source) xsd);
+    }
+
+    private static byte[] readAndClose(InputStream xsd) {
+        try (InputStream stream = xsd) {
+            return stream.readAllBytes();
+        } catch (IOException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
+    }
+
+    private static String readAndClose(Reader xsd) {
+        try (Reader reader = xsd) {
+            StringWriter writer = new StringWriter();
+            reader.transferTo(writer);
+            return writer.toString();
+        } catch (IOException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
     }
 
     @Override
