@@ -37,10 +37,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -56,8 +52,6 @@
                             io.restassured.*
                         </Export-Package>
                         <Import-Package>
-                            groovy.*;version="${groovy.range}",
-                            org.apache.groovy.*;version="${groovy.range}",
                             *
                         </Import-Package>
                     </instructions>
@@ -71,15 +65,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy-xml</artifactId>
-            <version>${groovy.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
