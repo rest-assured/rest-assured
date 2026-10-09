@@ -114,12 +114,30 @@ public class XmlXsdMatcherTest {
     }
 
     @Test public void
-    xsd_given_as_string_is_read_by_the_first_match_only() throws Exception {
-        // Known quirk: the xsd is kept as a StreamSource around a Reader, which the first match consumes
-        XmlXsdMatcher matcher = XmlXsdMatcher.matchesXsd(xsd());
+    matches_xml_against_xsd_given_as_string_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlXsdMatcher.matchesXsd(xsd()));
+    }
 
-        assertThat(matcher.matches(VALID_XML)).isTrue();
-        assertThatThrownBy(() -> matcher.matches(VALID_XML)).isExactlyInstanceOf(SAXParseException.class);
+    @Test public void
+    matches_xml_against_xsd_given_as_input_stream_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlXsdMatcher.matchesXsd(new ByteArrayInputStream(xsd().getBytes(StandardCharsets.UTF_8))));
+    }
+
+    @Test public void
+    matches_xml_against_xsd_given_as_reader_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlXsdMatcher.matchesXsd(new StringReader(xsd())));
+    }
+
+    @Test public void
+    matches_xml_against_xsd_in_classpath_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlXsdMatcher.matchesXsdInClasspath("xml-matchers/greeting.xsd"));
+    }
+
+    @Test public void
+    matches_xml_against_xsd_with_resource_resolver_more_than_once() throws Exception {
+        LSResourceResolver resolver = (type, namespaceURI, publicId, systemId, baseURI) -> lsInput(INCLUDED_XSD);
+
+        assertMatchesMoreThanOnce(XmlXsdMatcher.matchesXsd(MAIN_XSD_WITH_INCLUDE).using(resolver));
     }
 
     @Test public void
@@ -206,6 +224,12 @@ public class XmlXsdMatcherTest {
     @Test public void
     rejects_xsd_that_is_not_in_classpath() {
         assertThatThrownBy(() -> XmlXsdMatcher.matchesXsdInClasspath("xml-matchers/missing.xsd")).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Couldn't find the XSD \"xml-matchers/missing.xsd\" in classpath.");
+    }
+
+    private static void assertMatchesMoreThanOnce(XmlXsdMatcher matcher) {
+        assertThat(matcher.matches(VALID_XML)).isTrue();
+        assertThat(matcher.matches(VALID_XML)).isTrue();
+        assertThatThrownBy(() -> matcher.matches(INVALID_XML)).isExactlyInstanceOf(SAXParseException.class);
     }
 
     private static String xsd() throws Exception {

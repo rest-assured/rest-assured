@@ -188,6 +188,8 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     private static final String TEMPLATE_START = "{";
     private static final String TEMPLATE_END = "}";
     private static final Pattern PATH_TEMPLATE = Pattern.compile(".*\\{\\w+\\}.*");
+    private static final Pattern PATH_PLACEHOLDER = Pattern.compile("\\{([^/]*?)\\}");
+    private static final Pattern QUERY_PLACEHOLDER = Pattern.compile("\\{([^&]*?)\\}");
     private static final String BOUNDARY_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 
     private String baseUri;
@@ -2286,8 +2288,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             int indexOfEndBracket = 0;
             while ((indexOfStartBracket = subresource.indexOf(TEMPLATE_START, indexOfEndBracket)) >= 0) {
                 indexOfEndBracket = subresource.indexOf(TEMPLATE_END, indexOfStartBracket);
+                if (indexOfEndBracket < 0) {
+                    // An unclosed "{" is not a template, so the rest of the subresource is kept as literal text
+                    break;
+                }
                 // 3 means "{" and "}" and at least one character
-                if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
+                if (subresource.length() >= 3) {
                     String pathParamValue;
                     String pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket);
                     // Get path parameter name, what's between the "{" and "}"
@@ -2696,14 +2702,24 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     public static List<String> getPlaceholders(String uri) {
-        Pattern p = Pattern.compile(Pattern.quote(TEMPLATE_START) + "(.*?)" + Pattern.quote(TEMPLATE_END));
-        Matcher m = p.matcher(uri);
+        // Same rules as PathParamFiller, which fills each path segment and each query parameter on its own: a placeholder
+        // never spans a "/" in the path or a "&" in the query, so an unclosed "{" doesn't swallow the next placeholder.
         Set<String> placeholders = new LinkedHashSet<>(); // Remove duplicates such as if we have get("/{x}/{x}")
-        while (m.find()) {
-            String placeholder = m.group(1);
-            placeholders.add(placeholder == null ? null : placeholder.trim());
+        int indexOfQuery = uri.indexOf('?');
+        if (indexOfQuery < 0) {
+            addPlaceholders(PATH_PLACEHOLDER, uri, placeholders);
+        } else {
+            addPlaceholders(PATH_PLACEHOLDER, uri.substring(0, indexOfQuery), placeholders);
+            addPlaceholders(QUERY_PLACEHOLDER, uri.substring(indexOfQuery + 1), placeholders);
         }
         return Collections.unmodifiableList(new ArrayList<>(placeholders));
+    }
+
+    private static void addPlaceholders(Pattern placeholderPattern, String uriPart, Set<String> placeholders) {
+        Matcher m = placeholderPattern.matcher(uriPart);
+        while (m.find()) {
+            placeholders.add(m.group(1).trim());
+        }
     }
 
     public static String getDerivedPath(String uri) {

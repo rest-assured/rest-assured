@@ -26,7 +26,6 @@ import org.xml.sax.SAXParseException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -92,21 +91,23 @@ public class XmlDtdMatcherTest {
     }
 
     @Test public void
-    dtd_given_as_string_is_read_by_the_first_match_only() throws Exception {
-        // Known quirk: the dtd is kept as an InputStream, which the first match consumes, so later matches validate against an empty DTD
-        Matcher<String> matcher = XmlDtdMatcher.matchesDtd(dtd());
-
-        assertThat(matcher.matches(VALID_XML)).isTrue();
-        assertThatThrownBy(() -> matcher.matches(VALID_XML)).isExactlyInstanceOf(SAXParseException.class);
+    matches_xml_against_dtd_given_as_string_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlDtdMatcher.matchesDtd(dtd()));
     }
 
     @Test public void
-    dtd_given_as_file_is_read_by_the_first_match_only() throws Exception {
-        // Known quirk: the file is opened when the matcher is created and closed by the first match
-        Matcher<String> matcher = XmlDtdMatcher.matchesDtd(dtdFile());
+    matches_xml_against_dtd_given_as_input_stream_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlDtdMatcher.matchesDtd(new ByteArrayInputStream(dtd().getBytes(StandardCharsets.UTF_8))));
+    }
 
-        assertThat(matcher.matches(VALID_XML)).isTrue();
-        assertThatThrownBy(() -> matcher.matches(VALID_XML)).isExactlyInstanceOf(IOException.class).hasMessage("Stream Closed");
+    @Test public void
+    matches_xml_against_dtd_given_as_file_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlDtdMatcher.matchesDtd(dtdFile()));
+    }
+
+    @Test public void
+    matches_xml_against_dtd_in_classpath_more_than_once() throws Exception {
+        assertMatchesMoreThanOnce(XmlDtdMatcher.matchesDtdInClasspath("xml-matchers/greeting.dtd"));
     }
 
     @Test public void
@@ -162,6 +163,12 @@ public class XmlDtdMatcherTest {
     @Test public void
     rejects_dtd_that_is_not_in_classpath() {
         assertThatThrownBy(() -> XmlDtdMatcher.matchesDtdInClasspath("xml-matchers/missing.dtd")).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Couldn't find the DTD \"xml-matchers/missing.dtd\" in classpath.");
+    }
+
+    private static void assertMatchesMoreThanOnce(Matcher<String> matcher) {
+        assertThat(matcher.matches(VALID_XML)).isTrue();
+        assertThat(matcher.matches(VALID_XML)).isTrue();
+        assertThatThrownBy(() -> matcher.matches(INVALID_XML)).isExactlyInstanceOf(SAXParseException.class);
     }
 
     private static String dtd() throws Exception {
