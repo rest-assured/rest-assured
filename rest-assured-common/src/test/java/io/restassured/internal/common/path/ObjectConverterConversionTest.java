@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -71,6 +73,19 @@ class ObjectConverterConversionTest {
         assertThat(convertObjectTo(2.5f, double.class), is(2.5d));
         assertThat(convertObjectTo("3", Long.class), is(3L));
         assertThat(convertObjectTo(3, long.class), is(3L));
+    }
+
+    @Test
+    void renders_maps_collections_and_arrays_like_groovy_when_converting_to_string() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("b", 1);
+        map.put("c", Arrays.asList(1, 2));
+
+        assertThat(convertObjectTo(map, String.class), is("[b:1, c:[1, 2]]"));
+        assertThat(convertObjectTo(new LinkedHashMap<>(), String.class), is("[:]"));
+        assertThat(convertObjectTo(Arrays.asList(map, "x"), String.class), is("[[b:1, c:[1, 2]], x]"));
+        assertThat(convertObjectTo(new int[]{1, 2}, String.class), is("[1, 2]"));
+        assertThat(convertObjectTo(new char[]{'a', 'b'}, String.class), is("ab"));
     }
 
     @Test

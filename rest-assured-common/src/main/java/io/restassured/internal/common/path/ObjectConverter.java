@@ -16,6 +16,8 @@
 
 package io.restassured.internal.common.path;
 
+import io.restassured.internal.common.util.GroovyStyleToString;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -27,7 +29,8 @@ public class ObjectConverter {
         if (object == null) {
             returnObject = null;
         } else if (!object.getClass().isAssignableFrom(explicitType)) {
-            final String toString = object.toString();
+            // Render maps, collections and arrays like Groovy did when this class was written in Groovy, e.g. [a:1]
+            final String toString = GroovyStyleToString.toString(object);
             if (explicitType.isAssignableFrom(Integer.class) || explicitType.isAssignableFrom(int.class)) {
                 returnObject = Integer.parseInt(toString);
             } else if (explicitType.isAssignableFrom(Boolean.class) || explicitType.isAssignableFrom(boolean.class)) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.restassured.internal.util;
+package io.restassured.internal.common.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
