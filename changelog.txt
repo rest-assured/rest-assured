@@ -34,6 +34,7 @@ Changelog next version
 * Fix JsonPath, and JSON body expectations such as body("lotto.lottoId", equalTo(5)), failing with "java.lang.ClassNotFoundException: groovy.lang.Script" in an OSGi container, or whenever the thread context class loader can't see Groovy. JsonPath now falls back to Groovy's own class loader when the thread context class loader can't see Groovy (#1933)
 * Fix CsrfConfig.csrfMetaTagName(..), which also set the CSRF input field name to the meta tag name. A page with both a CSRF input field and a meta tag then had its input field ignored and the token from the meta tag was sent as a header instead. The input field name is now kept (issue #1945).
 * Fix LogConfig.defaultStream(..), which always turned pretty printing back on, so logConfig().enablePrettyPrinting(false).defaultStream(..) logged pretty printed bodies. The pretty printing setting is now kept (issue #1946).
+* Non-backward compatible change: EncoderConfig.defaultCharsetForContentType(charset, contentType) now only sets the default charset of the given content type. It used to also change the default content charset (defaultContentCharset()), so the charset was used for every content type without a charset of its own. For example, after encoderConfig().defaultCharsetForContentType("UTF-16", ContentType.JSON) a plain text body was sent as "text/plain; charset=UTF-16" and is now sent as "text/plain; charset=ISO-8859-1". If you relied on this, also call defaultContentCharset(..) (issue #1962).
 
 Changelog 6.1.0 (2026-10-09)
 ----------------------------
