@@ -10,6 +10,7 @@ import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.response.Response;
 import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -74,5 +75,29 @@ public class BodyMatcherTest {
 
         assertThat(result.get("success"), equalTo(expectedSuccess));
         assertThat(result.get("errorMessage"), equalTo(expectedMessage));
+    }
+
+    @Test
+    void path_assertion_failure_message_includes_response_body_when_body_was_parsed_to_a_string() {
+        final RestAssuredConfig config = RestAssuredConfig.newConfig();
+
+        final BodyMatcher bodyMatcher = new BodyMatcher();
+        bodyMatcher.setKey("foo");
+        bodyMatcher.setMatcher(new IsEqual<>("bar"));
+        bodyMatcher.setRpr(responseParserRegistrar);
+
+        // A JSON string literal is parsed to a java.lang.String, which cannot be navigated with a path
+        final Response response = new ResponseBuilder()
+                .setStatusCode(200)
+                .setBody("\"some text\"")
+                .setContentType(ContentType.JSON)
+                .build();
+
+        final Map<String, Object> result = bodyMatcher.validate(response,
+                new ContentParser().parse(response, responseParserRegistrar, config, true),
+                config);
+
+        assertThat(result.get("success"), equalTo(false));
+        assertThat(result.get("errorMessage"), equalTo("Cannot assert that path \"foo\" matches \"bar\" because the response body equal to \"some text\"."));
     }
 }
