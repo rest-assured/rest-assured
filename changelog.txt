@@ -37,6 +37,7 @@ Changelog next version
 * Fix JsonPath, and JSON body expectations such as body("lotto.lottoId", equalTo(5)), failing with "java.lang.ClassNotFoundException: groovy.lang.Script" in an OSGi container, or whenever the thread context class loader can't see Groovy. JsonPath now falls back to Groovy's own class loader when the thread context class loader can't see Groovy (#1933)
 * Fix CsrfConfig.csrfMetaTagName(..), which also set the CSRF input field name to the meta tag name. A page with both a CSRF input field and a meta tag then had its input field ignored and the token from the meta tag was sent as a header instead. The input field name is now kept (issue #1945).
 * Fix LogConfig.defaultStream(..), which always turned pretty printing back on, so logConfig().enablePrettyPrinting(false).defaultStream(..) logged pretty printed bodies. The pretty printing setting is now kept (issue #1946).
+* Fix PATCH requests with form parameters or multipart content, which were sent without their query parameters. Query parameters given with queryParam(..), in the path (for example patch("/x?a=1")) or with param(..) are now added to the request URI, like for PUT and DELETE (issue #1001).
 
 Changelog 6.1.0 (2026-10-09)
 ----------------------------

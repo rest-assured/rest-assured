@@ -763,7 +763,7 @@ PATCH /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PATCH form params
 /s/200
-PATCH /s/200
+PATCH /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
     > Connection: [Keep-Alive]
@@ -772,7 +772,7 @@ PATCH /s/200
     > body: f=1&g=%E5%E4
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-PATCH /s/404
+PATCH /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
     > Connection: [Keep-Alive]

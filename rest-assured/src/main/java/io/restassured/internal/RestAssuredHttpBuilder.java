@@ -22,7 +22,6 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.http.*;
-import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.http.HttpEntity;
@@ -38,7 +37,6 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -51,7 +49,6 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     private static final String MULTIPART = "multipart";
     private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH = MULTIPART + "/";
 
-    private Map<String, ?> queryParameters;
     private Headers requestHeaders;
     private RestAssuredConfig config;
     private boolean allowContentType;
@@ -59,13 +56,12 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     FilterableResponseSpecification responseSpecification;
     ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure;
 
-    RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, Map<String, ?> queryParameters, Object defaultURI,
+    RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, Object defaultURI,
                            ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType,
                            Parser parser) {
         super(defaultURI, urlEncodingEnabled, orNull(config, RestAssuredConfig::getEncoderConfig), orNull(config, RestAssuredConfig::getDecoderConfig), orNull(config, RestAssuredConfig::getOAuthConfig), client);
         this.responseSpecification = responseSpecification;
         this.requestHeaders = requestHeaders;
-        this.queryParameters = queryParameters;
         this.assertionClosure = assertionClosure;
         this.config = config;
         this.allowContentType = allowContentType;
@@ -85,17 +81,10 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
      */
     @Override
     protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) throws IOException {
-        if (delegate.getRequest() instanceof HttpPost) {
-            if (assertionClosure != null) {
-                delegate.getResponse().put(
-                        Status.FAILURE.toString(),
-                        (response, content) -> assertionClosure.call(response, content));
-            }
-            try {
-                delegate.uri.setQuery(queryParameters);
-            } catch (URISyntaxException e) {
-                return SafeExceptionRethrower.safeRethrow(e);
-            }
+        if (delegate.getRequest() instanceof HttpPost && assertionClosure != null) {
+            delegate.getResponse().put(
+                    Status.FAILURE.toString(),
+                    (response, content) -> assertionClosure.call(response, content));
         }
         final HttpRequestBase reqMethod = delegate.getRequest();
         Object acceptContentType = delegate.getContentType();
