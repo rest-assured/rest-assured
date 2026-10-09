@@ -62,22 +62,7 @@ public class CrossHostSensitiveHeaderStripper implements HttpRequestInterceptor 
         }
     }
 
-    /**
-     * @return <code>true</code> if the header is one that is stripped from a request to another origin
-     */
-    public static boolean isSensitiveHeader(String headerName) {
-        for (String header : SENSITIVE_HEADERS) {
-            if (header.equalsIgnoreCase(headerName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return <code>true</code> if <code>current</code> has another host name, scheme or port than <code>origin</code>
-     */
-    public static boolean isCrossOrigin(HttpHost origin, HttpHost current) {
+    private static boolean isCrossOrigin(HttpHost origin, HttpHost current) {
         return !origin.getHostName().equalsIgnoreCase(current.getHostName())
                 || !origin.getSchemeName().equalsIgnoreCase(current.getSchemeName())
                 || effectivePort(origin) != effectivePort(current);

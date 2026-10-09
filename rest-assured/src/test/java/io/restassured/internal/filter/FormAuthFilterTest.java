@@ -40,7 +40,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.config.RedirectConfig.redirectConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SessionConfig.sessionConfig;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -105,7 +104,7 @@ class FormAuthFilterTest {
     }
 
     @Test
-    void nested_form_action_without_leading_slash_gets_a_slash_prepended() {
+    void relative_form_action_on_a_login_page_at_the_root_is_resolved_against_the_root() {
         server.route("GET /secured", securedOr(r -> Reply.html(loginPage("auth/login", ""))));
         server.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
 
@@ -269,97 +268,32 @@ class FormAuthFilterTest {
 
     @Test
     void posts_to_login_page_url_after_redirects_of_a_get_request_when_form_has_no_action() {
-        server.route("GET /secured", securedOr(r -> Reply.redirect("/a/b").withCookie("FIRST=1")));
-        server.route("GET /a/b", r -> new Reply(301, null, null, Map.of("Location", List.of("login-page?from=x"))).withCookie("SECOND=2"));
-        server.route("GET /a/login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+        server.route("GET /secured", securedOr(r -> Reply.redirect("/a/b")));
+        server.route("GET /a/b", r -> new Reply(301, null, null, Map.of("Location", List.of("login-page?from=x"))));
+        server.route("GET /a/login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE).withCookie("PAGE=p1"));
         server.route("POST /a/login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
 
-        given().auth().form("John", "Doe").cookie("mine", "m1").when().get("/secured").then().statusCode(200);
+        given().auth().form("John", "Doe").header("X-Api-Key", "k1").when().get("/secured").then().statusCode(200);
 
         assertThat(server.requestLines()).containsExactly("GET /secured", "GET /a/b", "GET /a/login-page", "POST /a/login-page", "GET /secured");
-        assertThat(server.lastRequestTo("GET /a/login-page").cookies()).isEqualTo("mine=m1; FIRST=1; SECOND=2");
+        // The HTTP client follows the redirects, with the headers of the request
+        assertThat(server.lastRequestTo("GET /a/login-page").header("X-Api-Key")).isEqualTo("k1");
         Request login = server.lastRequestTo("POST /a/login-page");
         assertThat(login.query()).isEqualTo("from=x");
-        assertThat(login.cookies()).isEqualTo("FIRST=1; SECOND=2");
+        assertThat(login.cookies()).isEqualTo("PAGE=p1");
         assertThat(login.body()).isEqualTo("user=John&pass=Doe");
     }
 
     @Test
     void posts_to_login_page_url_after_redirects_of_a_post_request_when_form_has_no_action() {
         server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/a"));
-        server.route("GET /a", r -> Reply.redirect("http://127.0.0.1:" + server.port() + "/login-page"));
+        server.route("GET /a", r -> Reply.redirect("/login-page"));
         server.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
         server.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
 
         given().auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
 
         assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /a", "GET /login-page", "POST /login-page", "POST /secured-post");
-    }
-
-    @Test
-    void sends_cookies_only_to_their_origin_when_login_page_is_redirected_to_another_origin() throws IOException {
-        try (RecordingServer otherServer = new RecordingServer()) {
-            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE).withCookie("OTHER=o"));
-            otherServer.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
-            server.route("GET /secured", securedOr(r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page").withCookie("FIRST=1")));
-
-            given().auth().form("John", "Doe").cookie("mine", "m1").when().get("/secured").then().statusCode(200);
-
-            assertThat(server.requestLines()).containsExactly("GET /secured", "GET /secured");
-            assertThat(otherServer.requestLines()).containsExactly("GET /login-page", "POST /login-page");
-            assertThat(otherServer.lastRequestTo("GET /login-page").cookies()).isNull();
-            assertThat(otherServer.lastRequestTo("POST /login-page").cookies()).isEqualTo("OTHER=o");
-        }
-    }
-
-    @Test
-    void forwards_headers_of_request_on_login_page_redirects_without_sensitive_ones_to_another_origin() throws IOException {
-        try (RecordingServer otherServer = new RecordingServer()) {
-            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
-            otherServer.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
-            server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/a"));
-            server.route("GET /a", r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page"));
-
-            given().auth().form("John", "Doe").header("X-Api-Key", "k1").header("Authorization", "Bearer secret").cookie("mine", "m1").
-                    when().post("/secured-post").then().statusCode(200);
-
-            assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /a", "POST /secured-post");
-            Request sameOriginRedirect = server.lastRequestTo("GET /a");
-            assertThat(sameOriginRedirect.header("X-Api-Key")).isEqualTo("k1");
-            assertThat(sameOriginRedirect.header("Authorization")).isEqualTo("Bearer secret");
-            assertThat(sameOriginRedirect.cookies()).isEqualTo("mine=m1");
-            Request otherOriginRedirect = otherServer.lastRequestTo("GET /login-page");
-            assertThat(otherOriginRedirect.header("X-Api-Key")).isEqualTo("k1");
-            assertThat(otherOriginRedirect.header("Authorization")).isNull();
-            assertThat(otherOriginRedirect.cookies()).isNull();
-        }
-    }
-
-    @Test
-    void forwards_sensitive_headers_to_another_origin_on_login_page_redirects_when_stripping_is_disabled() throws IOException {
-        try (RecordingServer otherServer = new RecordingServer()) {
-            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
-            otherServer.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
-            server.route("GET /secured", securedOr(r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page")));
-
-            given().config(config().redirect(redirectConfig().stripSensitiveHeadersOnCrossHostRedirect(false))).
-                    auth().form("John", "Doe").header("Authorization", "Bearer secret").cookie("mine", "m1").
-                    when().get("/secured").then().statusCode(200);
-
-            Request otherOriginRedirect = otherServer.lastRequestTo("GET /login-page");
-            assertThat(otherOriginRedirect.header("Authorization")).isEqualTo("Bearer secret");
-            assertThat(otherOriginRedirect.cookies()).isEqualTo("mine=m1");
-        }
-    }
-
-    @Test
-    void fails_when_login_page_is_redirected_more_times_than_the_maximum_number_of_redirects() {
-        server.route("GET /secured", r -> Reply.redirect("/secured"));
-
-        assertThatThrownBy(() -> given().config(config().redirect(redirectConfig().maxRedirects(3))).auth().form("John", "Doe").when().get("/secured"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("The request for the login page was redirected more than 3 times (the maximum number of redirects in RedirectConfig).");
-        assertThat(server.requestLines()).hasSize(4);
     }
 
     @Test
@@ -370,21 +304,57 @@ class FormAuthFilterTest {
         given().auth().form("John", "Doe").when().get("/app/secured").then().statusCode(200);
 
         assertThat(server.requestLines()).containsExactly("GET /app/secured", "POST /app/login", "GET /app/secured");
-        // Like a browser, "+" in the query of a form action is a space
+        // "+" in the query of a form action is decoded as a space, as servlet containers do
         assertThat(URLDecoder.decode(server.lastRequestTo("POST /app/login").query(), UTF_8)).isEqualTo("r=a b");
     }
 
     @Test
-    void posts_to_absolute_form_action() throws IOException {
+    void resolves_relative_form_action_against_base_url_of_login_page() {
+        String page = "<html><head><base href=\"/auth/\"/></head><body><form action=\"login\" method=\"POST\">" +
+                "<input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form></body></html>";
+        server.route("GET /app/secured", securedOr(r -> Reply.html(page)));
+        server.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/app/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /app/secured", "POST /auth/login", "GET /app/secured");
+    }
+
+    @Test
+    void posts_absolute_form_action_on_the_origin_of_the_request() {
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("http://127.0.0.1:" + server.port() + "/auth/login", ""))));
+        server.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /auth/login", "GET /secured");
+    }
+
+    @Test
+    void fails_when_login_form_posts_to_another_origin() throws IOException {
         try (RecordingServer otherServer = new RecordingServer()) {
-            otherServer.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
             server.route("GET /secured", securedOr(r -> Reply.html(loginPage("http://127.0.0.1:" + otherServer.port() + "/auth/login", ""))));
 
-            given().auth().form("John", "Doe").when().get("/secured");
+            assertThatThrownBy(() -> given().auth().form("John", "Doe").when().get("/secured"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("The login form on the login page posts to another origin (http://127.0.0.1:" + otherServer.port() + ") than the one of the request " +
+                            "(http://127.0.0.1:" + server.port() + "). Form authentication only posts the login form to the origin of the request. " +
+                            "Use FormAuthConfig to set the form action explicitly.");
+            assertThat(server.requestLines()).containsExactly("GET /secured");
+            assertThat(otherServer.requestLines()).isEmpty();
+        }
+    }
 
-            assertThat(server.requestLines()).containsExactly("GET /secured", "GET /secured");
-            assertThat(otherServer.requestLines()).containsExactly("POST /auth/login");
-            assertThat(otherServer.lastRequestTo("POST /auth/login").body()).isEqualTo("user=John&pass=Doe");
+    @Test
+    void fails_when_login_page_without_form_action_is_on_another_origin() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+            server.route("GET /secured", securedOr(r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page")));
+
+            assertThatThrownBy(() -> given().auth().form("John", "Doe").when().get("/secured"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageStartingWith("The login form on the login page posts to another origin (http://127.0.0.1:" + otherServer.port() + ")");
+            assertThat(otherServer.requestLines()).containsExactly("GET /login-page");
         }
     }
 
