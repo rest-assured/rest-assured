@@ -19,7 +19,7 @@ package io.restassured.internal;
 import io.restassured.RestAssured;
 import io.restassured.authentication.BasicAuthScheme;
 import io.restassured.authentication.ExplicitNoAuthScheme;
-import io.restassured.authentication.NoAuthScheme;
+import io.restassured.authentication.PreemptiveOAuth2HeaderScheme;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
@@ -489,14 +489,14 @@ class SpecificationMergerTest {
     }
 
     @Test
-    void mergeRequestSpecsOverrideAddCsrfFilter() {
+    void mergeRequestSpecsOverrideAddCsrfFilterOnlyWhenTheMergedSpecDisablesCsrf() {
         RequestSpecificationImpl merge = request(new RequestSpecBuilder());
         RequestSpecificationImpl with = request(new RequestSpecBuilder().disableCsrf());
         SpecificationMerger.merge(merge, with);
         assertThat(merge.isAddCsrfFilter()).isFalse();
 
         SpecificationMerger.merge(merge, request(new RequestSpecBuilder()));
-        assertThat(merge.isAddCsrfFilter()).isTrue();
+        assertThat(merge.isAddCsrfFilter()).isFalse();
     }
 
     @Test
@@ -509,27 +509,101 @@ class SpecificationMergerTest {
     }
 
     @Test
-    void values_that_the_merged_request_specification_does_not_define_overwrite_this_specification() {
+    void values_that_the_merged_request_specification_does_not_define_are_kept() {
         ProxySpecification proxy = ProxySpecification.host("proxy");
+        BasicAuthScheme auth = new BasicAuthScheme();
         RequestSpecificationImpl merge = request(new RequestSpecBuilder().setBaseUri("http://base").setBasePath("/basePath").setPort(1234)
-                .setAuth(new BasicAuthScheme()).setBody("body").setProxy(proxy).setUrlEncodingEnabled(false).noContentType().disableCsrf());
-        merge.path("/path");
+                .setAuth(auth).setBody("body").setProxy(proxy).setUrlEncodingEnabled(false).noContentType().disableCsrf());
+        merge.path("/path/{x}");
         merge.setMethod("PUT");
-        RequestSpecificationImpl with = request(new RequestSpecBuilder());
+        merge.buildUnnamedPathParameterTuples("1");
+        RequestSpecificationImpl with = request(new RequestSpecBuilder().addHeader("X-H", "1"));
 
         SpecificationMerger.merge(merge, with);
 
-        assertThat(merge.getBaseUri()).isEqualTo(RestAssured.DEFAULT_URI);
-        assertThat(merge.getBasePath()).isEqualTo(RestAssured.DEFAULT_PATH);
-        assertThat(merge.getRequestPort()).isEqualTo(RestAssured.UNDEFINED_PORT);
-        assertThat(merge.getAuthenticationScheme()).isInstanceOf(NoAuthScheme.class);
-        assertThat((Object) merge.getBody()).isNull();
-        assertThat(merge.getProxySpecification()).isNull();
-        assertThat(merge.isUrlEncodingEnabled()).isTrue();
-        assertThat(merge.isAllowContentType()).isTrue();
-        assertThat(merge.isAddCsrfFilter()).isTrue();
-        assertThat(merge.getMethod()).isNull();
-        assertThat(merge.getUserDefinedPath()).isEmpty();
+        assertThat(merge.getBaseUri()).isEqualTo("http://base");
+        assertThat(merge.getBasePath()).isEqualTo("/basePath");
+        assertThat(merge.getRequestPort()).isEqualTo(1234);
+        assertThat(merge.getAuthenticationScheme()).isSameAs(auth);
+        assertThat((Object) merge.getBody()).isEqualTo("body");
+        assertThat(merge.getProxySpecification()).isSameAs(proxy);
+        assertThat(merge.isUrlEncodingEnabled()).isFalse();
+        assertThat(merge.isAllowContentType()).isFalse();
+        assertThat(merge.isAddCsrfFilter()).isFalse();
+        assertThat(merge.getMethod()).isEqualTo("PUT");
+        assertThat(merge.getUserDefinedPath()).isEqualTo("/path/{x}");
+        assertThat(merge.getUnnamedPathParamValues()).containsExactly("1");
+    }
+
+    @Test
+    void values_set_on_given_survive_merging_a_specification_that_does_not_define_them() {
+        RequestSpecification headerOnly = new RequestSpecBuilder().addHeader("X-H", "1").build();
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given().auth().oauth2("token").baseUri("http://host").port(8081).basePath("/api")
+                .urlEncodingEnabled(false).body("x").noContentType().spec(headerOnly);
+
+        assertThat(spec.getAuthenticationScheme()).isInstanceOf(PreemptiveOAuth2HeaderScheme.class);
+        assertThat(spec.getBaseUri()).isEqualTo("http://host");
+        assertThat(spec.getRequestPort()).isEqualTo(8081);
+        assertThat(spec.getBasePath()).isEqualTo("/api");
+        assertThat(spec.isUrlEncodingEnabled()).isFalse();
+        assertThat((Object) spec.getBody()).isEqualTo("x");
+        assertThat(spec.isAllowContentType()).isFalse();
+        assertThat(spec.getHeaders().getValue("X-H")).isEqualTo("1");
+    }
+
+    @Test
+    void values_of_an_earlier_merged_specification_survive_merging_a_specification_that_does_not_define_them() {
+        RequestSpecification authSpec = new RequestSpecBuilder().setAuth(RestAssured.oauth2("token")).setBaseUri("http://host").build();
+        RequestSpecification headerOnly = new RequestSpecBuilder().addHeader("X-H", "1").build();
+
+        RequestSpecificationImpl viaGiven = (RequestSpecificationImpl) given().spec(authSpec).spec(headerOnly);
+        RequestSpecificationImpl viaBuilder = (RequestSpecificationImpl) new RequestSpecBuilder().addRequestSpecification(authSpec)
+                .addRequestSpecification(headerOnly).build();
+
+        for (RequestSpecificationImpl spec : asList(viaGiven, viaBuilder)) {
+            assertThat(spec.getAuthenticationScheme()).isInstanceOf(PreemptiveOAuth2HeaderScheme.class);
+            assertThat(spec.getBaseUri()).isEqualTo("http://host");
+        }
+    }
+
+    @Test
+    void values_that_a_merged_specification_got_from_an_earlier_merge_are_copied() {
+        RequestSpecification authSpec = new RequestSpecBuilder().setAuth(RestAssured.oauth2("token")).setBaseUri("http://host").setPort(1234).build();
+        RequestSpecification combined = new RequestSpecBuilder().addHeader("X-H", "1").addRequestSpecification(authSpec).build();
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given().auth().basic("u", "p").baseUri("http://other").port(5678).spec(combined);
+
+        assertThat(spec.getAuthenticationScheme()).isInstanceOf(PreemptiveOAuth2HeaderScheme.class);
+        assertThat(spec.getBaseUri()).isEqualTo("http://host");
+        assertThat(spec.getRequestPort()).isEqualTo(1234);
+    }
+
+    @Test
+    void values_that_a_merged_specification_got_from_the_defaults_do_not_overwrite_this_specification() {
+        RestAssured.baseURI = "http://default";
+        RestAssured.port = 1111;
+        RestAssured.urlEncodingEnabled = false;
+        RestAssured.requestSpecification = new RequestSpecBuilder().setBasePath("/defaultPath").setProxy("proxy").build();
+        RequestSpecification headerOnly = new RequestSpecBuilder().addHeader("X-H", "1").build();
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given().baseUri("http://host").port(8081).basePath("/api").proxy("other")
+                .urlEncodingEnabled(true).spec(headerOnly);
+
+        assertThat(spec.getBaseUri()).isEqualTo("http://host");
+        assertThat(spec.getRequestPort()).isEqualTo(8081);
+        assertThat(spec.getBasePath()).isEqualTo("/api");
+        assertThat(spec.getProxySpecification().getHost()).isEqualTo("other");
+        assertThat(spec.isUrlEncodingEnabled()).isTrue();
+    }
+
+    @Test
+    void explicit_no_auth_of_the_merged_specification_overwrites_the_authentication_scheme() {
+        RequestSpecification noAuth = new RequestSpecBuilder().setAuth(new ExplicitNoAuthScheme()).build();
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given().auth().oauth2("token").spec(noAuth);
+
+        assertThat(spec.getAuthenticationScheme()).isInstanceOf(ExplicitNoAuthScheme.class);
     }
 
     @Test

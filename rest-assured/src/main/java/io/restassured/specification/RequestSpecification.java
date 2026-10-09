@@ -1262,7 +1262,8 @@ public interface RequestSpecification extends RequestSender {
      * This is useful when you want to reuse an entire specification across multiple requests.
      * <p/>
      * The specification passed to this method is merged with the current specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * can overwrite data in the current specification. The following settings are overwritten when the supplied specification
+     * sets them (values it only got from the defaults, such as {@link io.restassured.RestAssured#baseURI}, are not copied):
      * <ul>
      * <li>Port</li>
      * <li>Authentication scheme</

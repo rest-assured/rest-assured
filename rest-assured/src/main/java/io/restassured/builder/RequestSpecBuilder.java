@@ -1046,7 +1046,8 @@ public class RequestSpecBuilder {
 
     /**
      * Merge this builder with settings from another specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * can overwrite data in the current specification. The following settings are overwritten when the supplied specification
+     * sets them (values it only got from the defaults, such as {@link RestAssured#baseURI}, are not copied):
      * <ul>
      * <li>Port</li>
      * <li>Authentication scheme</

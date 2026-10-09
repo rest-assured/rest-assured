@@ -115,6 +115,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -226,6 +227,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     private boolean addCsrfFilter;
 
+    // Set on this specification, directly or by merging a specification that set them
+    private final Set<MergeableValue> explicitlySetValues = EnumSet.noneOf(MergeableValue.class);
+
     public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
                                     ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter) {
@@ -247,6 +251,8 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.proxySpecification = proxySpecification;
         this.allowContentType = allowContentType;
         this.addCsrfFilter = addCsrfFilter;
+        // The values given to the constructor, and those of the default specification, are defaults
+        explicitlySetValues.clear();
     }
 
     @Override
@@ -723,6 +729,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification urlEncodingEnabled(boolean isEnabled) {
         this.urlEncodingEnabled = isEnabled;
+        explicitlySetValues.add(MergeableValue.URL_ENCODING_ENABLED);
         return this;
     }
 
@@ -929,7 +936,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public RequestSpecification disableCsrf() {
-        addCsrfFilter = false;
+        setAddCsrfFilter(false);
         return noFiltersOfType(CsrfFilter.class);
     }
 
@@ -942,7 +949,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         if (port < 1 && port != RestAssured.UNDEFINED_PORT) {
             throw new IllegalArgumentException("Port must be greater than 0");
         }
-        this.port = port;
+        setRequestPort(port);
         return this;
     }
 
@@ -956,14 +963,14 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification baseUri(String baseUri) {
         notNull(baseUri, "Base URI");
-        this.baseUri = baseUri;
+        setBaseUri(baseUri);
         return this;
     }
 
     @Override
     public RequestSpecification basePath(String basePath) {
         notNull(basePath, "Base Path");
-        this.basePath = basePath;
+        setBasePath(basePath);
         return this;
     }
 
@@ -1004,7 +1011,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification proxy(ProxySpecification proxySpecification) {
         notNull(proxySpecification, ProxySpecification.class);
-        this.proxySpecification = proxySpecification;
+        setProxySpecification(proxySpecification);
         return this;
     }
 
@@ -1063,20 +1070,20 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification contentType(ContentType contentType) {
         notNull(contentType, ContentType.class);
-        allowContentType = true;
+        setAllowContentType(true);
         return header(CONTENT_TYPE, contentType);
     }
 
     @Override
     public RequestSpecification contentType(String contentType) {
         notNull(contentType, "Content-Type header cannot be null");
-        allowContentType = true;
+        setAllowContentType(true);
         return header(CONTENT_TYPE, contentType);
     }
 
     @Override
     public RequestSpecification noContentType() {
-        allowContentType = false;
+        setAllowContentType(false);
         return removeHeader(CONTENT_TYPE);
     }
 
@@ -2758,6 +2765,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     public void setAuthenticationScheme(AuthenticationScheme authenticationScheme) {
         this.authenticationScheme = authenticationScheme;
+        explicitlySetValues.add(MergeableValue.AUTHENTICATION_SCHEME);
     }
 
     // Accessors for SpecificationMerger and AuthenticationSpecificationImpl. The collections are the live ones.
@@ -2768,14 +2776,17 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     void setRequestPort(int port) {
         this.port = port;
+        explicitlySetValues.add(MergeableValue.PORT);
     }
 
     void setBaseUri(String baseUri) {
         this.baseUri = baseUri;
+        explicitlySetValues.add(MergeableValue.BASE_URI);
     }
 
     void setBasePath(String basePath) {
         this.basePath = basePath;
+        explicitlySetValues.add(MergeableValue.BASE_PATH);
     }
 
     String getPath() {
@@ -2836,6 +2847,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     void setAllowContentType(boolean allowContentType) {
         this.allowContentType = allowContentType;
+        explicitlySetValues.add(MergeableValue.ALLOW_CONTENT_TYPE);
     }
 
     boolean isAddCsrfFilter() {
@@ -2844,10 +2856,24 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     void setAddCsrfFilter(boolean addCsrfFilter) {
         this.addCsrfFilter = addCsrfFilter;
+        explicitlySetValues.add(MergeableValue.ADD_CSRF_FILTER);
     }
 
     void setProxySpecification(ProxySpecification proxySpecification) {
         this.proxySpecification = proxySpecification;
+        explicitlySetValues.add(MergeableValue.PROXY);
+    }
+
+    boolean isExplicitlySet(MergeableValue value) {
+        return explicitlySetValues.contains(value);
+    }
+
+    /**
+     * Values that a specification gets from defaults (such as {@link RestAssured#baseURI}) unless they're set on it. When merging
+     * a specification, {@link SpecificationMerger} only copies the ones that it set.
+     */
+    enum MergeableValue {
+        BASE_URI, BASE_PATH, PORT, AUTHENTICATION_SCHEME, PROXY, URL_ENCODING_ENABLED, ALLOW_CONTENT_TYPE, ADD_CSRF_FILTER
     }
 
     // Unlike config(..), this doesn't change the config of the response specification

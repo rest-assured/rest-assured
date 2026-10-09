@@ -25,10 +25,19 @@ import io.restassured.filter.Filter;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.spi.AuthFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.ADD_CSRF_FILTER;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.ALLOW_CONTENT_TYPE;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.AUTHENTICATION_SCHEME;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.BASE_PATH;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.BASE_URI;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.PORT;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.PROXY;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.URL_ENCODING_ENABLED;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 public class SpecificationMerger {
@@ -71,17 +80,19 @@ public class SpecificationMerger {
 
     /**
      * Merge this builder with settings from another specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * can overwrite data in the current specification. The following settings are overwritten when the supplied
+     * specification sets them (values it only got from the defaults, such as {@link io.restassured.RestAssured#baseURI}, are not copied):
      * <ul>
-     *     <li>Port</li>
-     *     <li>Authentication scheme</
+     *     <li>Base URI, base path and port</li>
+     *     <li>Authentication scheme</li>
      *     <li>Content type</li>
      *     <li>Request body</li>
-     *     <li>Keystore</li>
+     *     <li>Method and path</li>
      *     <li>URL Encoding enabled/disabled</li>
-     *     <li>Config</li>
+     *     <li>Config (each part that the supplied specification configured)</li>
      *     <li>Proxy Specification</li>
      *     <li>Content-Type allowed/disallowed</li>
+     *     <li>CSRF disabled</li>
      * </ul>
      * The following settings are merged:
      * <ul>
@@ -99,27 +110,51 @@ public class SpecificationMerger {
         notNull(thisOne, "Specification to merge");
         notNull(with, "Specification to merge with");
 
-        thisOne.setRequestPort(with.getRequestPort());
-        thisOne.setBaseUri(with.getBaseUri());
-        thisOne.setBasePath(with.getBasePath());
+        if (with.isExplicitlySet(PORT)) {
+            thisOne.setRequestPort(with.getRequestPort());
+        }
+        if (with.isExplicitlySet(BASE_URI)) {
+            thisOne.setBaseUri(with.getBaseUri());
+        }
+        if (with.isExplicitlySet(BASE_PATH)) {
+            thisOne.setBasePath(with.getBasePath());
+        }
         thisOne.getRequestParameters().putAll(with.getRequestParameters());
         thisOne.getQueryParameters().putAll(with.getQueryParams());
         thisOne.getFormParameters().putAll(with.getFormParams());
         // Includes the unnamed path parameters of "with" that have a placeholder
         thisOne.getNamedPathParameters().putAll(with.getPathParams());
         thisOne.getMultiParts().addAll(with.getMultiParts());
-        thisOne.setAuthenticationScheme(with.getAuthenticationScheme());
+        if (with.isExplicitlySet(AUTHENTICATION_SCHEME)) {
+            thisOne.setAuthenticationScheme(with.getAuthenticationScheme());
+        }
         mergeSessionId(thisOne, with);
         thisOne.cookies(with.getCookies());
-        thisOne.setRequestBody(with.getBody());
+        Object body = with.getBody();
+        if (body != null) {
+            thisOne.setRequestBody(body);
+        }
         mergeFilters(thisOne, with);
-        thisOne.urlEncodingEnabled(with.isUrlEncodingEnabled());
-        thisOne.setAllowContentType(with.isAllowContentType());
-        thisOne.setAddCsrfFilter(with.isAddCsrfFilter());
-        thisOne.setProxySpecification(with.getProxySpecification());
-        thisOne.setMethod(with.getMethod());
-        thisOne.setUnnamedPathParamsTuples(new ArrayList<>(with.getUnnamedPathParamsTuples()));
-        thisOne.setPath(with.getPath());
+        if (with.isExplicitlySet(URL_ENCODING_ENABLED)) {
+            thisOne.urlEncodingEnabled(with.isUrlEncodingEnabled());
+        }
+        if (with.isExplicitlySet(ALLOW_CONTENT_TYPE)) {
+            thisOne.setAllowContentType(with.isAllowContentType());
+        }
+        if (with.isExplicitlySet(ADD_CSRF_FILTER)) {
+            thisOne.setAddCsrfFilter(with.isAddCsrfFilter());
+        }
+        if (with.isExplicitlySet(PROXY)) {
+            thisOne.setProxySpecification(with.getProxySpecification());
+        }
+        if (with.getMethod() != null) {
+            thisOne.setMethod(with.getMethod());
+        }
+        // The unnamed path parameters belong to the path
+        if (StringUtils.isNotEmpty(with.getPath())) {
+            thisOne.setUnnamedPathParamsTuples(new ArrayList<>(with.getUnnamedPathParamsTuples()));
+            thisOne.setPath(with.getPath());
+        }
 
         mergeConfig(thisOne, with);
         // It's important that headers are merged after the configs are merged since HeaderConfig affects that way headers are merged.
