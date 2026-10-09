@@ -215,10 +215,8 @@ public abstract class HTTPBuilder {
         /* by default assume the request body will be URLEncoded, but allow
              the 'requestContentType' named argument to override this if it is
              given */
-        if ((Boolean) args.get("allowContentType")) {
-            delegate.setRequestContentType(ContentType.URLENC.toString());
-            delegate.setPropertiesFromMap(args);
-        }
+        delegate.setRequestContentType(ContentType.URLENC.toString());
+        delegate.setPropertiesFromMap(args);
 
         if (responseHandler != null) {
             delegate.getResponse().put(Status.SUCCESS.toString(), responseHandler);
@@ -786,7 +784,12 @@ public abstract class HTTPBuilder {
             }
 
             Object body = args.get("body");
-            if (body != null) this.setBody(this.getRequestContentType(), body);
+            if (body == null) return;
+            if ((Boolean) args.get("allowContentType")) {
+                this.setBody(this.getRequestContentType(), body);
+            } else {
+                this.setBodyWithoutContentType(body);
+            }
         }
 
         /**
@@ -848,9 +851,7 @@ public abstract class HTTPBuilder {
          * @see #send(Object, Object)
          */
         public void setBody(Object requestContentType, Object body) {
-            if (!(request instanceof HttpEntityEnclosingRequest))
-                throw new IllegalArgumentException(
-                        "Cannot set a request body for a " + request.getMethod() + " method");
+            HttpEntityEnclosingRequest entityRequest = entityEnclosingRequest();
             RequestBodyEncoder encoder = encoders.getAt(requestContentType);
             HttpEntity entity;
             try {
@@ -859,7 +860,31 @@ public abstract class HTTPBuilder {
                 entity = SafeExceptionRethrower.safeRethrow(e);
             }
 
-            ((HttpEntityEnclosingRequest) this.request).setEntity(entity);
+            entityRequest.setEntity(entity);
+        }
+
+        /**
+         * Set the request body without a content-type, see {@link EncoderRegistry#encodeWithoutContentType(Object)}.
+         *
+         * @param body data sent as the request body
+         */
+        public void setBodyWithoutContentType(Object body) {
+            HttpEntityEnclosingRequest entityRequest = entityEnclosingRequest();
+            HttpEntity entity;
+            try {
+                entity = encoders.encodeWithoutContentType(body);
+            } catch (IOException e) {
+                entity = SafeExceptionRethrower.safeRethrow(e);
+            }
+
+            entityRequest.setEntity(entity);
+        }
+
+        private HttpEntityEnclosingRequest entityEnclosingRequest() {
+            if (!(request instanceof HttpEntityEnclosingRequest))
+                throw new IllegalArgumentException(
+                        "Cannot set a request body for a " + request.getMethod() + " method");
+            return (HttpEntityEnclosingRequest) request;
         }
 
         /**

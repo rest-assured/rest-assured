@@ -145,6 +145,23 @@ public class EncoderRegistry {
     }
 
     /**
+     * Encodes a request body that is sent without a content-type (see
+     * {@link io.restassured.specification.RequestSpecification#noContentType()}). Binary content (an InputStream,
+     * byte[], ByteArrayOutputStream or File) is sent as is, anything else as text in the
+     * {@link EncoderConfig#defaultContentCharset() default content charset}. The entity has no content-type.
+     *
+     * @param data the request body
+     * @return an {@link HttpEntity} encapsulating this request data
+     * @throws IOException
+     */
+    public HttpEntity encodeWithoutContentType(Object data) throws IOException {
+        if (data instanceof InputStream || data instanceof byte[] || data instanceof ByteArrayOutputStream || data instanceof File) {
+            return encodeStream(null, data);
+        }
+        return encodeText(null, data);
+    }
+
+    /**
      * Set the request body as a url-encoded list of parameters.  This is
      * typically used to simulate a HTTP form POST.
      * For multi-valued parameters, enclose the values in a list, e.g.

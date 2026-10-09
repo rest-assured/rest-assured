@@ -1951,7 +1951,11 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             }
 
             if (hasBody) {
-                delegate.setBody(delegate.getRequestContentType(), requestBody);
+                if (this.allowContentType) {
+                    delegate.setBody(delegate.getRequestContentType(), requestBody);
+                } else {
+                    delegate.setBodyWithoutContentType(requestBody);
+                }
             }
 
             delegate.getUri().setQuery(queryParams);
