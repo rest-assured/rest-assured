@@ -22,6 +22,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
+import org.codehaus.groovy.runtime.GStringImpl;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLException;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 
@@ -278,6 +280,23 @@ class TrustAndKeystoreSpecImplTest {
         KeyStore keyStore = new TrustAndKeystoreSpecImpl().createStore("PKCS12", path, PASSWORD);
 
         assertThat(keyStore.size()).isEqualTo(1);
+    }
+
+    @Test
+    void create_store_loads_from_classpath_path_given_as_gstring() throws Exception {
+        Object path = new GStringImpl(new Object[]{"self_signed_localhost"}, new String[]{"", ".p12"});
+
+        KeyStore keyStore = new TrustAndKeystoreSpecImpl().createStore("PKCS12", path, PASSWORD);
+
+        assertThat(keyStore.size()).isEqualTo(1);
+    }
+
+    @Test
+    void create_store_throws_illegal_argument_exception_for_path_that_is_neither_string_nor_file() {
+        Throwable thrown = catchThrowable(() -> new TrustAndKeystoreSpecImpl().createStore("PKCS12", Paths.get(KEYSTORE), PASSWORD));
+
+        assertThat(thrown).isExactlyInstanceOf(IllegalArgumentException.class).
+                hasMessageStartingWith("The path to a key store or trust store must be a String or a java.io.File but was ");
     }
 
     @Test

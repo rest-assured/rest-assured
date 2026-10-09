@@ -221,8 +221,8 @@ class AuthenticationSchemeAuthenticateTest {
     @Test
     void preemptive_basic_auth_scheme_encodes_the_token_in_iso_8859_1() {
         PreemptiveBasicAuthScheme scheme = new PreemptiveBasicAuthScheme();
-        scheme.setUserName("åäö");
-        scheme.setPassword("€");
+        scheme.setUserName("\u00e5\u00e4\u00f6");
+        scheme.setPassword("\u20ac");
 
         // The euro sign can't be represented in ISO-8859-1 and becomes a question mark
         assertThat(scheme.generateAuthToken()).isEqualTo("Basic 5eT2Oj8=");
