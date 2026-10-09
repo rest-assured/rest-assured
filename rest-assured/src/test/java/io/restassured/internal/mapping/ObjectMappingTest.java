@@ -295,6 +295,12 @@ class ObjectMappingTest {
     }
 
     @Test
+    void groovy_ranges_returned_by_default_object_mapper_use_their_to_string() {
+        assertThat(serializeWithDefaultMapperReturning(new groovy.lang.IntRange(1, 3))).isEqualTo("1..3");
+        assertThat(serializeWithDefaultMapperReturning(Collections.singletonMap("k", new groovy.lang.IntRange(false, 1, 3)))).isEqualTo("[k:1..<3]");
+    }
+
+    @Test
     void dom_element_returned_by_default_object_mapper_is_pretty_printed_as_xml() throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element root = document.createElement("greeting");

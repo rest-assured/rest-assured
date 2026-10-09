@@ -97,7 +97,8 @@ class MappersTest {
         jsonMappers().forEach((name, mapper) -> {
             requestedTypes.clear();
             assertThat(mapper.serialize(context(null, null))).as(name).isEqualTo("null");
-            assertThat(requestedTypes).as(name).hasSize(1);
+            // The Groovy implementation passed Groovy's internal NullObject class here
+            assertThat(requestedTypes).as(name).containsExactly(Object.class);
         });
     }
 
