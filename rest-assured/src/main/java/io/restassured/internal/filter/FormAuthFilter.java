@@ -26,6 +26,7 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.filter.session.SessionFilter;
+import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.csrf.CsrfData;
 import io.restassured.internal.csrf.CsrfTokenFinder;
 import io.restassured.internal.util.SafeExceptionRethrower;
@@ -40,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
 import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FormAuthFilter implements AuthFilter {
 
@@ -87,13 +90,11 @@ public class FormAuthFilter implements AuthFilter {
                 loginPageResponse = given().auth().none().disableCsrf().cookies(requestSpec.getCookies()).get(loginPageUrl);
                 cookiesFromLoginPage = loginPageResponse.cookies();
             } else {
-                FilterableRequestSpecification loginPageRequestSpec = (FilterableRequestSpecification) given().spec(requestSpec).auth().none();
-                // ctx.send(..) sends to the request URI, where the path parameters are already applied
-                for (String pathParamName : loginPageRequestSpec.getPathParams().keySet()) {
-                    loginPageRequestSpec.removePathParam(pathParamName);
-                }
                 loginPageUrl = requestSpec.getURI();
-                loginPageResponse = ctx.send(loginPageRequestSpec);
+                // Send to the path of the request, with its path parameters, and not to the request URI (as ctx.send(..) would),
+                // which already has the path parameters applied and is URL encoded
+                String path = ((RequestSpecificationImpl) requestSpec).getPath();
+                loginPageResponse = given().spec(requestSpec).auth().none().request(requestSpec.getMethod(), path);
                 cookiesFromLoginPage = loginPageResponse.cookies();
                 if (loginPageResponse.statusCode() == 302) {
                     // This means that Rest Assured has not done a redirect automatically.
@@ -101,8 +102,7 @@ public class FormAuthFilter implements AuthFilter {
                     // Thus we follow the Location header explicitly.
                     loginPageUrl = loginPageResponse.getHeader("Location");
                     if (loginPageUrl == null) {
-                        throw new IllegalArgumentException("The request for the login page was redirected (302) without a Location header, so REST Assured can't follow it. " +
-                                "Specify the complete FormAuthConfig to skip the login page.");
+                        throw new IllegalArgumentException("The request for the login page was redirected (302) without a Location header, so REST Assured couldn't follow the redirect to the login page.");
                     }
                     loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageUrl);
                 }
@@ -152,7 +152,13 @@ public class FormAuthFilter implements AuthFilter {
         RequestSpecification loginRequestSpec = given().auth().none().and().disableCsrf().and().formParams(userNameInputField, userName, passwordInputField, password);
 
         URI uri = toURI(requestSpec.getURI());
-        String loginUri = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort()) + formAction;
+        // The form action is URL encoded, so decode its path and send its query as query parameters to avoid encoding them twice
+        // A "+" in a path is not a space
+        String formActionPath = urlDecode(StringUtils.substringBefore(formAction, "?").replace("+", "%2B"));
+        String loginUri = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort()) + formActionPath;
+        if (formAction.contains("?")) {
+            addQueryParams(loginRequestSpec, StringUtils.substringAfter(formAction, "?"));
+        }
 
         if (cookiesFromLoginPage != null) {
             loginRequestSpec.cookies(cookiesFromLoginPage);
@@ -261,6 +267,26 @@ public class FormAuthFilter implements AuthFilter {
         URI uri = toURI(url);
         String path = Objects.toString(uri.getRawPath(), "");
         return uri.getRawQuery() == null ? path : path + "?" + uri.getRawQuery();
+    }
+
+    private static void addQueryParams(RequestSpecification requestSpec, String encodedQuery) {
+        for (String nameAndValue : StringUtils.split(encodedQuery, '&')) {
+            String name = urlDecode(StringUtils.substringBefore(nameAndValue, "="));
+            if (nameAndValue.contains("=")) {
+                requestSpec.queryParam(name, urlDecode(StringUtils.substringAfter(nameAndValue, "=")));
+            } else {
+                requestSpec.queryParam(name);
+            }
+        }
+    }
+
+    private static String urlDecode(String value) {
+        try {
+            return URLDecoder.decode(value, UTF_8);
+        } catch (IllegalArgumentException e) {
+            // Not URL encoded (for example a form action "/login?discount=10%" given in FormAuthConfig)
+            return value;
+        }
     }
 
     private static <T> T throwIfException(Supplier<T> supplier) {

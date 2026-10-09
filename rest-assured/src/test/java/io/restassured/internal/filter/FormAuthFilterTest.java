@@ -23,18 +23,25 @@ import io.restassured.config.SessionConfig;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.internal.filter.RecordingServer.Reply;
 import io.restassured.internal.filter.RecordingServer.Request;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SessionConfig.sessionConfig;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
@@ -179,7 +186,7 @@ class FormAuthFilterTest {
 
         assertThatThrownBy(() -> given().auth().form("John", "Doe").when().post("/secured-post"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("The request for the login page was redirected (302) without a Location header, so REST Assured can't follow it. Specify the complete FormAuthConfig to skip the login page.");
+                .hasMessage("The request for the login page was redirected (302) without a Location header, so REST Assured couldn't follow the redirect to the login page.");
         assertThat(server.requestLines()).containsExactly("POST /secured-post");
     }
 
@@ -200,10 +207,46 @@ class FormAuthFilterTest {
         server.route("GET /secured", securedOr(r -> Reply.html(loginPage("", ""))));
         server.route("POST /secured", r -> Reply.text("logged in").withCookie("SESSION=s1"));
 
-        given().auth().form("John", "Doe").queryParam("q", "1").when().get("/secured").then().statusCode(200);
+        given().auth().form("John", "Doe").queryParam("q", "a b&c+d/\u00e9").when().get("/secured").then().statusCode(200);
 
         assertThat(server.requestLines()).containsExactly("GET /secured", "POST /secured", "GET /secured");
-        assertThat(server.lastRequestTo("POST /secured").query()).isEqualTo("q=1");
+        String loginQuery = server.lastRequestTo("POST /secured").query();
+        assertThat(loginQuery).isEqualTo(server.requests.get(0).query());
+        assertThat(URLDecoder.decode(loginQuery, UTF_8)).isEqualTo("q=a b&c+d/\u00e9");
+    }
+
+    @Test
+    void posts_to_login_page_url_that_needs_url_encoding_when_form_has_no_action() {
+        server.route("GET /secured/a b", securedOr(r -> Reply.html(loginPage("", ""))));
+        server.route("POST /secured/a b", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/secured/{id}", "a b").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured/a b", "POST /secured/a b", "GET /secured/a b");
+        assertThat(server.lastRequestTo("POST /secured/a b").rawPath()).isEqualTo("/secured/a%20b");
+    }
+
+    @Test
+    void posts_to_url_encoded_path_of_form_action_without_encoding_it_again() {
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("/log%20in/a+b", ""))));
+        server.route("POST /log in/a+b", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /log in/a+b", "GET /secured");
+    }
+
+    @Test
+    void posts_url_encoded_query_of_form_action_without_encoding_it_again() {
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("/login?r=a%20b&s=%C3%A9%2B%26&flag", ""))));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured");
+        Request login = server.lastRequestTo("POST /login");
+        assertThat(login.query()).doesNotContain("%25");
+        assertThat(login.query().split("&")).extracting(it -> URLDecoder.decode(it, UTF_8)).containsExactly("r=a b", "s=\u00e9+&", "flag");
+        assertThat(login.body()).isEqualTo("user=John&pass=Doe");
     }
 
     @Test
@@ -250,6 +293,37 @@ class FormAuthFilterTest {
 
         assertThat(body).isEqualTo("OK");
         assertThat(server.requestLines()).containsExactly("GET /secured/1", "POST /login", "GET /secured/1");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"a b", "\u00e9"})
+    void fetches_login_page_once_url_encoded_for_an_unnamed_path_parameter_that_needs_url_encoding(String id) {
+        assertFetchesLoginPageOnceEncoded(id, () -> given().auth().form("John", "Doe").when().get("/secured/{id}", id));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"a b", "\u00e9"})
+    void fetches_login_page_once_url_encoded_for_a_named_path_parameter_that_needs_url_encoding(String id) {
+        assertFetchesLoginPageOnceEncoded(id, () -> given().auth().form("John", "Doe").pathParam("id", id).when().get("/secured/{id}"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"a b", "\u00e9"})
+    void fetches_login_page_once_url_encoded_for_a_path_that_needs_url_encoding(String id) {
+        assertFetchesLoginPageOnceEncoded(id, () -> given().auth().form("John", "Doe").when().get("/secured/" + id));
+    }
+
+    @Test
+    void fetches_login_page_with_query_parameters_of_request_url_encoded_once() {
+        server.route("GET /secured/a b", securedOr(r -> Reply.html(loginPage("/login", ""))));
+
+        given().auth().form("John", "Doe").queryParam("q", "a b&c").when().get("/secured/{id}?p=x y", "a b").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured/a b", "POST /login", "GET /secured/a b");
+        Request loginPageRequest = server.requests.get(0);
+        assertThat(loginPageRequest.rawPath()).isEqualTo("/secured/a%20b");
+        assertThat(loginPageRequest.query()).isEqualTo(server.requests.get(2).query());
+        assertThat(URLDecoder.decode(loginPageRequest.query(), UTF_8)).isEqualTo("q=a b&c&p=x y");
     }
 
     @Test
@@ -348,6 +422,17 @@ class FormAuthFilterTest {
         Method getter = FormAuthFilter.class.getMethod("get" + property);
         assertThat(getter.getReturnType()).isEqualTo(type);
         assertThat(FormAuthFilter.class.getMethod("set" + property, type)).isNotNull();
+    }
+
+    private void assertFetchesLoginPageOnceEncoded(String id, Supplier<Response> request) {
+        server.route("GET /secured/" + id, securedOr(r -> Reply.html(loginPage("/login", ""))));
+
+        assertThat(request.get().then().statusCode(200).extract().asString()).isEqualTo("OK");
+
+        assertThat(server.requestLines()).containsExactly("GET /secured/" + id, "POST /login", "GET /secured/" + id);
+        String encodedPath = "/secured/" + URLEncoder.encode(id, UTF_8).replace("+", "%20");
+        assertThat(server.requests.get(0).rawPath()).isEqualTo(encodedPath);
+        assertThat(server.requests.get(2).rawPath()).isEqualTo(encodedPath);
     }
 
     private static Function<Request, Reply> securedOr(Function<Request, Reply> loginPage) {
