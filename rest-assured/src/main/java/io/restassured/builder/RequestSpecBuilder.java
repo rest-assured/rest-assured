@@ -498,15 +498,12 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Specify a keystore.
+     * Specify a key store that holds the client certificate (and its private key) to send to a server that asks for one
+     * (client certificate authentication, also known as mutual TLS). For example
      * <pre>
-     * RestAssured.keyStore("/truststore_javanet.jks", "test1234");
+     * new RequestSpecBuilder().setKeyStore("/client_keystore.p12", "test1234"). ..
      * </pre>
-     * or
-     * <pre>
-     * given().keyStore("/truststore_javanet.jks", "test1234"). ..
-     * </pre>
-     * </p>
+     * The key store doesn't affect which server certificates are trusted, see {@link #setTrustStore(String, String)}.
      *
      * @param pathToJks The path to the JKS
      * @param password  The store pass
