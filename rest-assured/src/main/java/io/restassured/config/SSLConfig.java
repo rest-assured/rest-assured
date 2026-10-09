@@ -255,6 +255,16 @@ public class SSLConfig implements Config {
     }
 
     /**
+     * A key store to use during SSL/Certificate authentication.
+     *
+     * @param keyStore The key store to use.
+     * @return A new SSLConfig instance
+     */
+    public SSLConfig keyStore(KeyStore keyStore) {
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+    }
+
+    /**
      * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid.
      * By using this method you don't need to specify a trust store (see {@link #trustStore(java.security.KeyStore)}.
      * If you need to send an SSL certificate, then you can specify a key store (see {@link #keyStore(File, String)}

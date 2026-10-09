@@ -51,7 +51,7 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     private static final String MULTIPART = "multipart";
     private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH = MULTIPART + "/";
 
-    private Map<String, String> queryParameters;
+    private Map<String, ?> queryParameters;
     private Headers requestHeaders;
     private RestAssuredConfig config;
     private boolean allowContentType;
@@ -59,7 +59,7 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     FilterableResponseSpecification responseSpecification;
     ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure;
 
-    RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, LinkedHashMap<String, String> queryParameters, Object defaultURI,
+    RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, Map<String, ?> queryParameters, Object defaultURI,
                            ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType,
                            Parser parser) {
         super(defaultURI, urlEncodingEnabled, orNull(config, RestAssuredConfig::getEncoderConfig), orNull(config, RestAssuredConfig::getDecoderConfig), orNull(config, RestAssuredConfig::getOAuthConfig), client);
