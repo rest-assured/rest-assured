@@ -409,6 +409,16 @@ public abstract class HTTPBuilder {
     }
 
     /**
+     * Retrieve the authentication configuration of this builder, which an {@link io.restassured.authentication.AuthenticationScheme}
+     * uses to authenticate requests.
+     *
+     * @return the authentication configuration
+     */
+    public AuthConfig getAuth() {
+        return this.auth;
+    }
+
+    /**
      * Set the default content type that will be used to select the appropriate
      * request encoder and response parser.  The {@link ContentType} enum holds
      * some common content-types that may be used, i.e. <pre>
