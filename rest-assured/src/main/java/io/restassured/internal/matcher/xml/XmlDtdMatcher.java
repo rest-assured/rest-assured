@@ -35,7 +35,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +47,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 public class XmlDtdMatcher extends BaseMatcher<String> {
 
-    // An InputStream or a URL
+    // A byte[], File or URL, which is read for every match (or an InputStream, which can only be read once)
     private Object dtd;
 
     private XmlDtdMatcher(Object dtd) {
@@ -58,18 +57,24 @@ public class XmlDtdMatcher extends BaseMatcher<String> {
 
     public static Matcher<String> matchesDtd(String dtd) {
         notNull(dtd, "dtd");
-        return new XmlDtdMatcher(toInputStream(dtd));
+        return new XmlDtdMatcher(dtd.getBytes());
     }
 
     public static Matcher<String> matchesDtd(InputStream dtd) {
-        return new XmlDtdMatcher(dtd);
+        notNull(dtd, "dtd");
+        try (InputStream stream = dtd) {
+            return new XmlDtdMatcher(stream.readAllBytes());
+        } catch (IOException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
     }
 
     public static Matcher<String> matchesDtd(File dtd) {
         notNull(dtd, "file");
-        try {
-            return new XmlDtdMatcher(new FileInputStream(dtd));
-        } catch (FileNotFoundException e) {
+        // Fail fast with a FileNotFoundException if the file can't be read
+        try (InputStream ignored = new FileInputStream(dtd)) {
+            return new XmlDtdMatcher(dtd);
+        } catch (IOException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
     }
@@ -95,7 +100,7 @@ public class XmlDtdMatcher extends BaseMatcher<String> {
             DocumentBuilder db = factory.newDocumentBuilder();
 
             //parse file into DOM
-            Document doc = db.parse(toInputStream(XmlMatcherItem.toXml(item, "DTD")));
+            Document doc = db.parse(new ByteArrayInputStream(XmlMatcherItem.toXml(item, "DTD").getBytes()));
             DOMSource source = new DOMSource(doc);
 
             //now use a transformer to add the DTD element
@@ -141,6 +146,10 @@ public class XmlDtdMatcher extends BaseMatcher<String> {
     private InputStream getInputStream() throws IOException {
         if (dtd instanceof URL) {
             return ((URL) dtd).openConnection().getInputStream();
+        } else if (dtd instanceof File) {
+            return new FileInputStream((File) dtd);
+        } else if (dtd instanceof byte[]) {
+            return new ByteArrayInputStream((byte[]) dtd);
         }
         return (InputStream) dtd;
     }
@@ -156,10 +165,6 @@ public class XmlDtdMatcher extends BaseMatcher<String> {
 
     public void setDtd(Object dtd) {
         this.dtd = dtd;
-    }
-
-    private static ByteArrayInputStream toInputStream(String dtd) {
-        return new ByteArrayInputStream(dtd.getBytes());
     }
 
     private static class ExceptionThrowingErrorHandler implements ErrorHandler {

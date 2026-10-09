@@ -140,16 +140,28 @@ class MultiPartInternalTest {
     }
 
     @Test
-    void byte_array_content_becomes_input_stream_body_and_replaces_the_content_with_a_stream() throws IOException {
-        MultiPartInternal multiPart = multiPart(new byte[]{65, 66}, "application/pdf", "UTF-8");
+    void byte_array_content_becomes_input_stream_body_and_keeps_the_byte_array_content() throws IOException {
+        byte[] bytes = {65, 66};
+        MultiPartInternal multiPart = multiPart(bytes, "application/pdf", "UTF-8");
 
         ContentBody body = (ContentBody) multiPart.getContentBody();
 
         assertThat(body).isInstanceOf(InputStreamBody.class);
         assertThat(((InputStreamBody) body).getContentType().toString()).isEqualTo("application/pdf");
-        assertThat(multiPart.getContent()).isInstanceOf(ByteArrayInputStream.class);
-        assertThat(((InputStreamBody) body).getInputStream()).isSameAs(multiPart.getContent());
+        assertThat(body.getFilename()).isEqualTo("file.txt");
+        assertThat(multiPart.getContent()).isSameAs(bytes);
         assertThat(written(body)).isEqualTo("AB");
+    }
+
+    @Test
+    void byte_array_content_gives_a_new_body_with_all_bytes_each_time() throws IOException {
+        MultiPartInternal multiPart = multiPart(new byte[]{65, 66}, null, null);
+
+        String first = written(multiPart.getContentBody());
+        String second = written(multiPart.getContentBody());
+
+        assertThat(first).isEqualTo("AB");
+        assertThat(second).isEqualTo("AB");
     }
 
     @Test
@@ -339,14 +351,20 @@ class MultiPartInternalTest {
     }
 
     @Test
-    void to_string_renders_values_the_groovy_way_and_converts_byte_array_content() {
+    void to_string_renders_values_the_groovy_way_and_keeps_byte_array_content() throws IOException {
+        byte[] bytes = {65, 66};
         MultiPartInternal multiPart = new MultiPartInternal();
-        multiPart.setContent(new byte[]{1, 2});
+        multiPart.setContent(bytes);
 
-        assertThat(multiPart.toString()).matches(
-                "io\\.restassured\\.internal\\.multipart\\.MultiPartInternal\\(\\[1, 2], null, null, application/octet-stream, null, \\[:], " +
+        String first = multiPart.toString();
+        String second = multiPart.toString();
+
+        assertThat(first).matches(
+                "io\\.restassured\\.internal\\.multipart\\.MultiPartInternal\\(\\[65, 66], null, null, application/octet-stream, null, \\[:], " +
                         "org\\.apache\\.http\\.entity\\.mime\\.content\\.InputStreamBody@[0-9a-f]+\\)");
-        assertThat(multiPart.getContent()).isInstanceOf(ByteArrayInputStream.class);
+        assertThat(second).startsWith("io.restassured.internal.multipart.MultiPartInternal([65, 66], ");
+        assertThat(multiPart.getContent()).isSameAs(bytes);
+        assertThat(written(multiPart.getContentBody())).isEqualTo("AB");
     }
 
     @Test
