@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,6 +131,16 @@ public class HeaderMatcherTest {
     }
 
     @Test
+    public void renders_map_with_own_to_string_returned_by_mapping_function_the_groovy_string_interpolation_way() {
+        // Groovy string interpolation formats every map as [k:v], even one whose class declares its own toString()
+        HeaderMatcher headerMatcher = headerMatcher("X-Name", equalTo("other"));
+        headerMatcher.setMappingFunction((Function<String, Object>) value -> new ConcurrentHashMap<>(Collections.singletonMap("a", value)));
+
+        assertThat(String.valueOf(validate(headerMatcher).get("errorMessage")))
+                .startsWith("Expected header \"X-Name\" was not \"other\", was \"[a:value]\". Headers are:\n");
+    }
+
+    @Test
     public void uses_matcher_from_response_aware_matcher() {
         HeaderMatcher headerMatcher = new HeaderMatcher();
         headerMatcher.setHeaderName("X-Name");
@@ -171,6 +182,18 @@ public class HeaderMatcherTest {
         });
 
         assertThatThrownBy(() -> validate(headerMatcher)).isSameAs(exception);
+    }
+
+    @Test
+    public void looks_up_non_string_header_name_by_its_string_form() {
+        // Groovy failed with a MissingMethodException for header names that were neither a String nor a GString
+        assertThat(validate(headerMatcher(new StringBuilder("X-Name"), equalTo("value"))).get("success")).isEqualTo(true);
+
+        HeaderMatcher headerMatcher = new HeaderMatcher();
+        headerMatcher.setHeaderName(12);
+        headerMatcher.setMatcher(equalTo("other"));
+        assertThat(String.valueOf(validate(headerMatcher).get("errorMessage")))
+                .isEqualTo("Expected header \"12\" was not \"other\", was \"null\". Headers are:\n" + HEADERS + "\n");
     }
 
     @Test
