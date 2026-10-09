@@ -17,8 +17,11 @@
 package io.restassured.internal;
 
 import io.restassured.authentication.*;
+import io.restassured.filter.Filter;
+import io.restassured.internal.filter.FormAuthFilter;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
+import io.restassured.spi.AuthFilter;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +32,7 @@ import static io.restassured.authentication.CertificateAuthSettings.certAuthSett
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Runs every place where {@link AuthenticationSpecificationImpl} and {@link PreemptiveAuthSpecImpl} create an
@@ -172,6 +176,43 @@ class AuthenticationSpecificationImplTest {
 
         schemeOf(spec, ExplicitNoAuthScheme.class);
         assertThat(((FilterableRequestSpecification) spec).getHeaders().hasHeaderWithName("Authorization")).isFalse();
+    }
+
+    @Test
+    void none_removes_auth_filters_and_keeps_other_filters() {
+        Filter other = (requestSpec, responseSpec, ctx) -> ctx.next(requestSpec, responseSpec);
+        FormAuthFilter formAuthFilter = new FormAuthFilter();
+        AuthFilter authFilter = (requestSpec, responseSpec, ctx) -> ctx.next(requestSpec, responseSpec);
+
+        FilterableRequestSpecification spec = (FilterableRequestSpecification) given().filters(formAuthFilter, other, authFilter).auth().none();
+
+        assertThat(spec.getDefinedFilters()).containsExactly(other);
+    }
+
+    @Test
+    void credentials_are_required_except_for_form_auth() {
+        assertThatThrownBy(() -> given().auth().basic(null, "pass")).isInstanceOf(IllegalArgumentException.class).hasMessage("userName cannot be null");
+        assertThatThrownBy(() -> given().auth().digest("user", null)).isInstanceOf(IllegalArgumentException.class).hasMessage("password cannot be null");
+        assertThatThrownBy(() -> given().auth().ntlm("user", "pass", null, "domain")).isInstanceOf(IllegalArgumentException.class).hasMessage("workstation cannot be null");
+        assertThatThrownBy(() -> given().auth().ntlm("user", "pass", "workstation", null)).isInstanceOf(IllegalArgumentException.class).hasMessage("domain cannot be null");
+        assertThatThrownBy(() -> given().auth().certificate(null, "pass")).isInstanceOf(IllegalArgumentException.class).hasMessage("certURL cannot be null");
+        assertThatThrownBy(() -> given().auth().certificate("url", "pass", null)).isInstanceOf(IllegalArgumentException.class).hasMessage("CertificateAuthSettings cannot be null");
+        assertThatThrownBy(() -> given().auth().oauth("key", "secret", "token", null)).isInstanceOf(IllegalArgumentException.class).hasMessage("secretToken cannot be null");
+        assertThatThrownBy(() -> given().auth().oauth("key", "secret", "token", "secretToken", null)).isInstanceOf(IllegalArgumentException.class).hasMessage("signature cannot be null");
+        assertThatThrownBy(() -> given().auth().oauth2(null)).isInstanceOf(IllegalArgumentException.class).hasMessage("accessToken cannot be null");
+
+        FormAuthScheme form = schemeOf(given().auth().form(null, null, null), FormAuthScheme.class);
+        assertThat(form.getUserName()).isNull();
+        assertThat(form.getPassword()).isNull();
+        OAuth2Scheme oauth2 = schemeOf(given().auth().oauth2("accessToken", null), OAuth2Scheme.class);
+        assertThat(oauth2.getSignature()).isNull();
+    }
+
+    @Test
+    void preemptive_returns_a_preemptive_auth_spec_for_the_request_specification() {
+        RequestSpecification spec = given();
+
+        assertThat(spec.auth().preemptive()).isInstanceOf(PreemptiveAuthSpecImpl.class);
     }
 
     @Test

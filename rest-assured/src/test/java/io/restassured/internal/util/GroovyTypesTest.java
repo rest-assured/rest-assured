@@ -17,8 +17,11 @@
 package io.restassured.internal.util;
 
 import groovy.lang.Closure;
+import groovy.lang.GroovyRuntimeException;
 import groovy.lang.GroovyShell;
+import groovy.lang.MissingPropertyException;
 import org.codehaus.groovy.runtime.GStringImpl;
+import org.codehaus.groovy.runtime.InvokerInvocationException;
 import org.codehaus.groovy.runtime.MethodClosure;
 import org.junit.jupiter.api.Test;
 
@@ -54,5 +57,18 @@ class GroovyTypesTest {
         })).isFalse();
         assertThat(GroovyTypes.isClosure("abc")).isFalse();
         assertThat(GroovyTypes.isClosure(null)).isFalse();
+    }
+
+    @Test
+    void recognizes_groovy_runtime_exceptions_and_their_subclasses() {
+        assertThat(GroovyTypes.isGroovyRuntimeException(new GroovyRuntimeException("a"))).isTrue();
+        assertThat(GroovyTypes.isGroovyRuntimeException(new MissingPropertyException("a"))).isTrue();
+        assertThat(GroovyTypes.isGroovyRuntimeException(new InvokerInvocationException(new RuntimeException()))).isTrue();
+    }
+
+    @Test
+    void other_objects_are_not_groovy_runtime_exceptions() {
+        assertThat(GroovyTypes.isGroovyRuntimeException(new RuntimeException("a"))).isFalse();
+        assertThat(GroovyTypes.isGroovyRuntimeException(null)).isFalse();
     }
 }
