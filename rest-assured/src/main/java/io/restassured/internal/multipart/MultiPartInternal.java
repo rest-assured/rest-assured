@@ -16,6 +16,7 @@
 package io.restassured.internal.multipart;
 
 import io.restassured.internal.NoParameterValue;
+import io.restassured.internal.common.util.GroovyStyleToString;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -32,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.restassured.internal.util.GroovyStringConversion.callToString;
 import static io.restassured.internal.util.GroovyStringConversion.castToString;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -73,7 +73,7 @@ public class MultiPartInternal {
         } else if (content instanceof String) {
             return returnStringBody((String) content);
         } else if (content != null) {
-            return returnStringBody(callToString(content));
+            return returnStringBody(GroovyStyleToString.toString(content));
         } else {
             throw new IllegalArgumentException("Illegal content: " + content);
         }

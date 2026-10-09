@@ -16,20 +16,10 @@
 
 package io.restassured.internal.util;
 
+import io.restassured.internal.common.util.GroovyStyleToString;
 import org.w3c.dom.Element;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
 import java.lang.reflect.Array;
-import java.lang.reflect.Modifier;
-import java.util.AbstractCollection;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Map;
 
@@ -58,46 +48,6 @@ public final class GroovyStringConversion {
         return format(object);
     }
 
-    /**
-     * @return What Groovy code {@code object.toString()} returns for a non-null object. Groovy calls the
-     * {@code DefaultGroovyMethods.toString(..)} extension method, which renders like {@link #castToString(Object)}, unless the
-     * object's class overrides {@code toString()} below the class that the extension method is defined for
-     * ({@code AbstractMap}, {@code AbstractCollection} or {@code Object}) and Groovy can call that override. Groovy can't
-     * call an override declared in a non-public class of a package that isn't open to it, such as
-     * {@code Collections.unmodifiableMap(..)}.
-     */
-    public static String callToString(Object object) {
-        Class<?> type = object.getClass();
-        if (type.isArray()) {
-            return format(object);
-        }
-        Class<?> extensionMethodType = object instanceof AbstractMap ? AbstractMap.class
-                : object instanceof AbstractCollection ? AbstractCollection.class : Object.class;
-        return callableToStringDeclaringClass(type).isAssignableFrom(extensionMethodType) ? format(object) : object.toString();
-    }
-
-    private static Class<?> callableToStringDeclaringClass(Class<?> type) {
-        Module module = GroovyStringConversion.class.getModule();
-        for (Class<?> current = type; current != Object.class; current = current.getSuperclass()) {
-            String packageName = current.getPackageName();
-            boolean callable = current.getModule().isOpen(packageName, module)
-                    || (Modifier.isPublic(current.getModifiers()) && current.getModule().isExported(packageName, module));
-            if (callable && declaresToString(current)) {
-                return current;
-            }
-        }
-        return Object.class;
-    }
-
-    private static boolean declaresToString(Class<?> type) {
-        try {
-            type.getDeclaredMethod("toString");
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
-
     private static String format(Object object) {
         if (object == null) {
             return "null";
@@ -121,7 +71,7 @@ public final class GroovyStringConversion {
             return formatMap((Map<?, ?>) object);
         }
         if (object instanceof Element) {
-            return serialize((Element) object);
+            return GroovyStyleToString.serialize((Element) object);
         }
         return object.toString();
     }
@@ -188,33 +138,5 @@ public final class GroovyStringConversion {
             }
         }
         return false;
-    }
-
-    /**
-     * Same output as Groovy's {@code XmlUtil.serialize(Element)}.
-     */
-    private static String serialize(Element element) {
-        TransformerFactory factory = TransformerFactory.newInstance();
-        try {
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        } catch (TransformerConfigurationException ignored) {
-            // feature is not supported, ignore
-        }
-        try {
-            factory.setAttribute("indent-number", 2);
-        } catch (IllegalArgumentException ignored) {
-            // ignore for factories that don't support this
-        }
-        StringWriter writer = new StringWriter();
-        try {
-            Transformer transformer = factory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
-            transformer.transform(new DOMSource(element), new StreamResult(writer));
-        } catch (TransformerException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-        return writer.toString();
     }
 }
