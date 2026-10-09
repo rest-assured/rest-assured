@@ -153,6 +153,24 @@ class EncoderRegistryTest {
     }
 
     @Test
+    void writable_body_is_sent_as_its_to_string_and_not_as_its_write_to_output() {
+        groovy.lang.Writable writable = new groovy.lang.Writable() {
+            @Override
+            public Writer writeTo(Writer out) throws IOException {
+                out.write("written");
+                return out;
+            }
+
+            @Override
+            public String toString() {
+                return "to string";
+            }
+        };
+
+        assertThat(encodeAndRender("text/plain", writable)).isEqualTo("StringEntity | text/plain | 9 | to string");
+    }
+
+    @Test
     void map_and_collection_json_bodies_are_rendered_like_groovy_json_builder() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("a", 1);
