@@ -17,6 +17,7 @@ package io.restassured.internal.multipart;
 
 import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.common.util.GroovyStyleToString;
+import io.restassured.internal.util.GroovyStyleHashCode;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -28,7 +29,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -171,46 +171,7 @@ public class MultiPartInternal {
 
     @Override
     public int hashCode() {
-        // Same algorithm as Groovy's HashCodeHelper, which @Canonical used
-        int hash = 127;
-        for (Object value : new Object[]{getContent(), getControlName(), getFileName(), getMimeType(), getCharset(), getHeaders()}) {
-            if (value != this) {
-                hash = 59 * hash + hashOf(value);
-            }
-        }
-        return hash;
-    }
-
-    private static int hashOf(Object value) {
-        if (value == null) {
-            return 0;
-        } else if (value instanceof Boolean) {
-            return (Boolean) value ? 79 : 97;
-        } else if (value instanceof Object[]) {
-            return Arrays.hashCode((Object[]) value);
-        } else if (value.getClass().isArray()) {
-            return primitiveArrayHashCode(value);
-        }
-        return value.hashCode();
-    }
-
-    private static int primitiveArrayHashCode(Object array) {
-        if (array instanceof byte[]) {
-            return Arrays.hashCode((byte[]) array);
-        } else if (array instanceof int[]) {
-            return Arrays.hashCode((int[]) array);
-        } else if (array instanceof char[]) {
-            return Arrays.hashCode((char[]) array);
-        } else if (array instanceof long[]) {
-            return Arrays.hashCode((long[]) array);
-        } else if (array instanceof short[]) {
-            return Arrays.hashCode((short[]) array);
-        } else if (array instanceof boolean[]) {
-            return Arrays.hashCode((boolean[]) array);
-        } else if (array instanceof float[]) {
-            return Arrays.hashCode((float[]) array);
-        }
-        return Arrays.hashCode((double[]) array);
+        return GroovyStyleHashCode.hashCode(this, getContent(), getControlName(), getFileName(), getMimeType(), getCharset(), getHeaders());
     }
 
     /**

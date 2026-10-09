@@ -17,6 +17,7 @@ package io.restassured.internal.support;
 
 import groovy.lang.GString;
 import io.restassured.internal.NoParameterValue;
+import io.restassured.specification.FilterableRequestSpecification;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +29,10 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.config.ParamConfig.UpdateStrategy.MERGE;
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -193,6 +196,28 @@ class ParameterUpdaterTest {
     }
 
     @Test
+    void merging_a_collection_parameter_with_an_existing_iterator_flattens_the_iterator() {
+        to.put("a", Arrays.asList("x", Arrays.asList("y", "z")).iterator());
+
+        updater.updateCollectionParameter(MERGE, to, "a", Arrays.asList(1));
+
+        assertThat(to.get("a")).isEqualTo(Arrays.asList("x", "y", "z", "s(1)"));
+    }
+
+    @Test
+    void merging_a_collection_parameter_with_an_existing_optional_unwraps_the_optional() {
+        List<String> inOptional = Arrays.asList("x", "y");
+        to.put("a", Optional.of(inOptional));
+        to.put("b", Optional.empty());
+
+        updater.updateCollectionParameter(MERGE, to, "a", Arrays.asList(1));
+        updater.updateCollectionParameter(MERGE, to, "b", Arrays.asList(1));
+
+        assertThat(to.get("a")).isEqualTo(Arrays.asList(inOptional, "s(1)"));
+        assertThat(to.get("b")).isEqualTo(Arrays.asList("s(1)"));
+    }
+
+    @Test
     void merging_a_collection_parameter_with_an_existing_map_does_not_flatten_the_map() {
         Map<String, Object> existing = Collections.singletonMap("k", "v");
         to.put("a", existing);
@@ -298,6 +323,34 @@ class ParameterUpdaterTest {
 
         assertThat(to).containsOnlyKeys((String) null);
         assertThat(to.get(null)).isEqualTo("s(x)");
+    }
+
+    /**
+     * The Groovy version failed with a groovy.lang.MissingMethodException for these keys.
+     */
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void update_parameters_uses_the_string_form_of_keys_that_are_neither_strings_nor_gstrings() {
+        Map from = new LinkedHashMap();
+        from.put(1, "x");
+        from.put('c', Arrays.asList("y"));
+        from.put(Arrays.asList("a", "b"), "z");
+
+        updater.updateParameters(REPLACE, from, to);
+
+        assertThat(new ArrayList<Object>(to.entrySet())).containsExactly(
+                Map.entry("1", "s(x)"), Map.entry("c", Arrays.asList("s(y)")), Map.entry("[a, b]", "s(z)"));
+    }
+
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void request_specification_uses_the_string_form_of_parameter_names_that_are_neither_strings_nor_gstrings() {
+        Map params = new LinkedHashMap();
+        params.put(1, "x");
+
+        FilterableRequestSpecification spec = (FilterableRequestSpecification) given().queryParams(params);
+
+        assertThat(spec.getQueryParams()).containsExactly(Map.entry("1", "x"));
     }
 
     @Test
