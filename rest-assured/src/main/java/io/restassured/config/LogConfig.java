@@ -120,7 +120,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+        return new LogConfig(printStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
     }
 
     /**

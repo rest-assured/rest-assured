@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class RequestLogSpecificationImplTest {
 
     private final PrintStream stream = new PrintStream(new ByteArrayOutputStream(), true);
-    // defaultStream(..) enables pretty printing, so it goes first
     private final LogConfig logConfig = LogConfig.logConfig().defaultStream(stream);
 
     @Test
