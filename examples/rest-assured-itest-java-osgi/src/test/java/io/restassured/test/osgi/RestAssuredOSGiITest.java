@@ -25,7 +25,9 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import java.net.UnknownHostException;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.spiflyBundles;
 import static org.ops4j.pax.exam.Constants.EXAM_FAIL_ON_UNRESOLVED_KEY;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
@@ -48,7 +50,7 @@ public class RestAssuredOSGiITest {
 
                         /* Transitive dependencies needed in the Pax Exam container.
                         Some of these need to be wrapped because they are not available as OSGi bundles */
-                        mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.2.1"),
+                        spiflyBundles(),
                         mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
                         mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
@@ -62,11 +64,8 @@ public class RestAssuredOSGiITest {
                         mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject(),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
 
-                        /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the test below */
-                        mavenBundle("io.rest-assured", "json-path").versionAsInProject(),
-                        mavenBundle("io.rest-assured", "xml-path").versionAsInProject(),
-                        mavenBundle("io.rest-assured", "rest-assured").versionAsInProject(),
-                        mavenBundle("io.rest-assured", "rest-assured-common").versionAsInProject()
+                        /* Rest Assured dependencies needed in the Pax Exam container (the bundles built by this build) to be able to execute the test below */
+                        restAssuredBundles()
                 };
     }
 

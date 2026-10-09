@@ -23,7 +23,9 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.spiflyBundles;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.ops4j.pax.exam.Constants.EXAM_FAIL_ON_UNRESOLVED_KEY;
@@ -48,7 +50,7 @@ public class JsonPathOSGiITest {
 
                         /* Transitive dependencies needed in the Pax Exam container.
                         Some of these need to be wrapped because they are not available as OSGi bundles */
-                        mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.2.1"),
+                        spiflyBundles(),
                         mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
                         mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
@@ -60,11 +62,8 @@ public class JsonPathOSGiITest {
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
 
-                        /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the tests below */
-                        mavenBundle().groupId("io.rest-assured").artifactId("json-path").versionAsInProject(),
-                        mavenBundle().groupId("io.rest-assured").artifactId("xml-path").versionAsInProject(),
-                        mavenBundle().groupId("io.rest-assured").artifactId("rest-assured").versionAsInProject(),
-                        mavenBundle().groupId("io.rest-assured").artifactId("rest-assured-common").versionAsInProject()
+                        /* Rest Assured dependencies needed in the Pax Exam container (the bundles built by this build) to be able to execute the tests below */
+                        restAssuredBundles()
                 };
     }
 
