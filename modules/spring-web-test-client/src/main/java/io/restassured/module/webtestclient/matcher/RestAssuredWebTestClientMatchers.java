@@ -48,6 +48,8 @@ public class RestAssuredWebTestClientMatchers {
 	/**
 	 * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
 	 *
+	 * The stream is read fully and closed when the matcher is created, so the matcher can be used more than once.
+	 *
 	 * @param xsd The XSD to match
 	 * @return The XSD matcher
 	 */
@@ -57,6 +59,8 @@ public class RestAssuredWebTestClientMatchers {
 
 	/**
 	 * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
+	 *
+	 * The reader is read fully and closed when the matcher is created, so the matcher can be used more than once.
 	 *
 	 * @param xsd The XSD to match
 	 * @return The XSD matcher
@@ -97,6 +101,8 @@ public class RestAssuredWebTestClientMatchers {
 
 	/**
 	 * Evaluates to true if an XML string matches the supplied DTD.
+	 *
+	 * The stream is read fully and closed when the matcher is created, so the matcher can be used more than once.
 	 *
 	 * @param dtd The DTD to match
 	 * @return The DTD matcher
