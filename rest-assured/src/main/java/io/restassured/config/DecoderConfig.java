@@ -102,7 +102,7 @@ public class DecoderConfig implements Config {
         notNull(contentType, "ContentType");
         Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
         map.put(trim(contentType).toLowerCase(Locale.ROOT), trim(charset));
-        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, map);
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true, contentDecoders, map);
     }
 
     /**
@@ -143,7 +143,7 @@ public class DecoderConfig implements Config {
         for (String ct : contentType.getContentTypeStrings()) {
             map.put(ct.toLowerCase(Locale.ROOT), trim(charset));
         }
-        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, map);
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true, contentDecoders, map);
     }
 
     /**
