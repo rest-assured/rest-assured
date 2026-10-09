@@ -186,6 +186,16 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
+    void no_content_type_does_not_send_the_expected_response_content_type_as_request_content_type() {
+        server.route("PUT /j", r -> new Reply(200, "application/json", "{}", Map.of()));
+
+        given().noContentType().body("{}").expect().contentType(ContentType.JSON).when().put("/j");
+
+        assertThat(last().body()).isEqualTo("{}");
+        assertThat(last().header("Content-Type")).isNull();
+    }
+
+    @Test
     void no_content_type_sends_a_binary_body_as_is() {
         given().noContentType().body("abc".getBytes(StandardCharsets.UTF_8)).put("/x").then().statusCode(200);
 

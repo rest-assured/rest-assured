@@ -772,7 +772,8 @@ public abstract class HTTPBuilder {
             Object path = args.get("path");
             if (path != null) this.uri.setPath(path.toString());
 
-            if ((Boolean) args.get("allowContentType")) {
+            boolean allowContentType = (Boolean) args.get("allowContentType");
+            if (allowContentType) {
                 Object contentType = args.get("contentType");
                 if (contentType != null) this.setContentType(contentType);
 
@@ -785,7 +786,7 @@ public abstract class HTTPBuilder {
 
             Object body = args.get("body");
             if (body == null) return;
-            if ((Boolean) args.get("allowContentType")) {
+            if (allowContentType) {
                 this.setBody(this.getRequestContentType(), body);
             } else {
                 this.setBodyWithoutContentType(body);
