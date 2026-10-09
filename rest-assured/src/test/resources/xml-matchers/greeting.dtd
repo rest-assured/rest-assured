@@ -1,0 +1,2 @@
+<!ELEMENT greeting (name)>
+<!ELEMENT name (#PCDATA)>
