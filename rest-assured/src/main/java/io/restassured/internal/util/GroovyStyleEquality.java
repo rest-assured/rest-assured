@@ -29,21 +29,18 @@ import java.util.Set;
 import static io.restassured.internal.util.GroovyTypes.isGString;
 
 /**
- * The equality of Groovy's {@code ==} operator, for code that used to be written in Groovy and compared objects
- * a user supplies.
+ * Groovy's {@code ==} for numbers, text, arrays, lists, maps and sets, for code that used to be written in Groovy and
+ * compared objects a user supplies.
  * <p>
  * Numbers are compared by value across types ({@code 1 == 1L}, {@code 1.0G == 1.00G}), a {@code Character} equals a
  * one-character String and its code point, a GString equals the String it renders, and arrays, lists, maps and sets
  * are compared element by element with these rules. Anything else is compared with {@code compareTo} when it is
- * {@code Comparable}, and with {@code equals} otherwise.
+ * {@code Comparable}, and with {@code equals} otherwise. Unlike Groovy, a {@code Map.Entry} is compared with
+ * {@code equals}, and an array of a length other than one compared with an object that isn't an array, list or
+ * {@code Comparable} is unequal instead of failing with a {@code MissingMethodException}.
  * </p>
  */
 public final class GroovyStyleEquality {
-
-    private static final int INTEGER = 0;
-    private static final int LONG = 1;
-    private static final int BIG_INTEGER = 2;
-    private static final int BIG_DECIMAL = 3;
 
     private GroovyStyleEquality() {
     }
@@ -116,40 +113,17 @@ public final class GroovyStyleEquality {
         return numberOrCharacter instanceof Character ? (int) (Character) numberOrCharacter : (Number) numberOrCharacter;
     }
 
-    // Groovy's NumberMath: floating point wins, then BigDecimal, BigInteger, Long and Integer
+    // Groovy's NumberMath compares in floating point if either side is a Double or Float. Every other kind it
+    // promotes to converts exactly to BigDecimal, so comparing as BigDecimal gives the same equality.
     private static int compareNumbers(Number left, Number right) {
         if (isFloatingPoint(left) || isFloatingPoint(right)) {
             return Double.compare(left.doubleValue(), right.doubleValue());
         }
-        switch (Math.max(kindOf(left), kindOf(right))) {
-            case INTEGER:
-                return Integer.compare(left.intValue(), right.intValue());
-            case LONG:
-                return Long.compare(left.longValue(), right.longValue());
-            case BIG_INTEGER:
-                return toBigInteger(left).compareTo(toBigInteger(right));
-            default:
-                return toBigDecimal(left).compareTo(toBigDecimal(right));
-        }
+        return toBigDecimal(left).compareTo(toBigDecimal(right));
     }
 
     private static boolean isFloatingPoint(Number number) {
         return number instanceof Double || number instanceof Float;
-    }
-
-    private static int kindOf(Number number) {
-        if (number instanceof Long) {
-            return LONG;
-        } else if (number instanceof BigInteger) {
-            return BIG_INTEGER;
-        } else if (number instanceof Integer || number instanceof Short || number instanceof Byte) {
-            return INTEGER;
-        }
-        return BIG_DECIMAL;
-    }
-
-    private static BigInteger toBigInteger(Number number) {
-        return number instanceof BigInteger ? (BigInteger) number : BigInteger.valueOf(number.longValue());
     }
 
     private static BigDecimal toBigDecimal(Number number) {
