@@ -1091,8 +1091,9 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Build the request specification. The specification is meant to be added to a request, it can't send a request
-     * itself. Use it with {@link RestAssured#given(RequestSpecification)} or {@link RequestSpecification#spec(RequestSpecification)}, e.g.
+     * Build the request specification. Use it with {@link RestAssured#given(RequestSpecification)},
+     * {@link RequestSpecification#spec(RequestSpecification)} or
+     * {@link RestAssured#given(RequestSpecification, io.restassured.specification.ResponseSpecification)}, e.g.
      * <pre>
      * RequestSpecification requestSpec = new RequestSpecBuilder().addHeader("name", "value").build();
      *

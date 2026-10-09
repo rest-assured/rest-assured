@@ -2136,8 +2136,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig()) : String.valueOf(object);
     }
 
-    // A specification built by RequestSpecBuilder has no response specification. It's merged into the specification
-    // that given() creates, so it never sends a request (which would change it) or holds expectations itself.
+    // A specification built by RequestSpecBuilder has no response specification until it's passed to
+    // given(requestSpec, responseSpec). Otherwise it's meant to be merged into the specification that given() creates,
+    // and sending from it directly would change it.
     private void assertNotBuiltByRequestSpecBuilder() {
         if (responseSpecification == null) {
             throw new IllegalStateException("A request specification built by RequestSpecBuilder can't send a request or hold response expectations itself. " +
