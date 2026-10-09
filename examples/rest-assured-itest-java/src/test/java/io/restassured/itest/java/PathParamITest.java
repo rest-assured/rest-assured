@@ -35,12 +35,15 @@ import org.junit.jupiter.api.Test;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -602,5 +605,47 @@ public class PathParamITest extends WithJetty {
         then().
                 statusCode(200).
                 body("JohnJohn", equalTo("Doe"));
+    }
+
+    // Issue #1935: an unclosed "{" used to hang the request
+    @Test public void
+    an_unclosed_brace_in_a_path_segment_is_sent_as_literal_text() {
+        assertTimeoutPreemptively(Duration.ofSeconds(10), () ->
+                given().
+                        pathParam("lastName", "Doe").
+                        filter((requestSpec, responseSpec, ctx) -> {
+                            assertThat(requestSpec.getURI(), equalTo("http://localhost:8080/John%7Bx/Doe"));
+                            assertThat(requestSpec.getPathParamPlaceholders(), contains("lastName"));
+                            return ctx.next(requestSpec, responseSpec);
+                        }).
+                when().
+                        get("/John{x/{lastName}").
+                then().
+                        body("fullName", equalTo("John{x Doe")));
+    }
+
+    @Test public void
+    an_unclosed_brace_in_a_query_parameter_is_sent_as_literal_text() {
+        assertTimeoutPreemptively(Duration.ofSeconds(10), () ->
+                given().
+                        pathParam("lastName", "Doe").
+                        filter((requestSpec, responseSpec, ctx) -> {
+                            assertThat(requestSpec.getPathParamPlaceholders(), contains("lastName"));
+                            return ctx.next(requestSpec, responseSpec);
+                        }).
+                when().
+                        get("/greetJSON?firstName=John{x&lastName={lastName}").
+                then().
+                        body("greeting.firstName", equalTo("John{x")).
+                        body("greeting.lastName", equalTo("Doe")));
+    }
+
+    @Test public void
+    an_unnamed_path_parameter_value_that_is_a_brace_is_sent_as_literal_text() {
+        assertTimeoutPreemptively(Duration.ofSeconds(10), () ->
+                when().
+                        get("/{firstName}/{lastName}", "{", "Doe").
+                then().
+                        body("fullName", equalTo("{ Doe")));
     }
 }
