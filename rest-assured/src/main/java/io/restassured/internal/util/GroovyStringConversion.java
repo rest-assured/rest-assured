@@ -27,6 +27,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.Modifier;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Map;
 
@@ -53,6 +56,46 @@ public final class GroovyStringConversion {
             return (String) object;
         }
         return format(object);
+    }
+
+    /**
+     * @return What Groovy code {@code object.toString()} returns for a non-null object. Groovy calls the
+     * {@code DefaultGroovyMethods.toString(..)} extension method, which renders like {@link #castToString(Object)}, unless the
+     * object's class overrides {@code toString()} below the class that the extension method is defined for
+     * ({@code AbstractMap}, {@code AbstractCollection} or {@code Object}) and Groovy can call that override. Groovy can't
+     * call an override declared in a non-public class of a package that isn't open to it, such as
+     * {@code Collections.unmodifiableMap(..)}.
+     */
+    public static String callToString(Object object) {
+        Class<?> type = object.getClass();
+        if (type.isArray()) {
+            return format(object);
+        }
+        Class<?> extensionMethodType = object instanceof AbstractMap ? AbstractMap.class
+                : object instanceof AbstractCollection ? AbstractCollection.class : Object.class;
+        return callableToStringDeclaringClass(type).isAssignableFrom(extensionMethodType) ? format(object) : object.toString();
+    }
+
+    private static Class<?> callableToStringDeclaringClass(Class<?> type) {
+        Module module = GroovyStringConversion.class.getModule();
+        for (Class<?> current = type; current != Object.class; current = current.getSuperclass()) {
+            String packageName = current.getPackageName();
+            boolean callable = current.getModule().isOpen(packageName, module)
+                    || (Modifier.isPublic(current.getModifiers()) && current.getModule().isExported(packageName, module));
+            if (callable && declaresToString(current)) {
+                return current;
+            }
+        }
+        return Object.class;
+    }
+
+    private static boolean declaresToString(Class<?> type) {
+        try {
+            type.getDeclaredMethod("toString");
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     private static String format(Object object) {
