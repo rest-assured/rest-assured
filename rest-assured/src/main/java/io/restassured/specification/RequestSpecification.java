@@ -1261,19 +1261,28 @@ public interface RequestSpecification extends RequestSender {
      * <p/>
      * This is useful when you want to reuse an entire specification across multiple requests.
      * <p/>
-     * The specification passed to this method is merged with the current specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * The specification passed to this method is merged with the current specification. Settings that the supplied specification
+     * only has from the defaults (such as {@link io.restassured.RestAssured#baseURI}, {@link io.restassured.RestAssured#port}, {@link io.restassured.RestAssured#authentication} or
+     * {@link io.restassured.RestAssured#requestSpecification}) are not copied. The following settings are overwritten when the supplied specification sets them:
      * <ul>
-     * <li>Port</li>
-     * <li>Authentication scheme</
-     * <li>Content type</li>
+     * <li>Base URI, base path and port</li>
+     * <li>Authentication scheme (setting it to none, for example with <code>auth().none()</code>, also removes authentication filters such as form authentication)</li>
      * <li>Request body</li>
+     * <li>Proxy</li>
+     * <li>URL encoding enabled/disabled</li>
+     * <li>Content-Type allowed/disallowed: <code>contentType(..)</code> allows it and <code>noContentType()</code> disallows it. A Content-Type set with
+     * <code>header(..)</code> doesn't count, so it doesn't undo <code>noContentType()</code> of the current specification.</li>
+     * <li>CSRF disabled (<code>disableCsrf()</code>)</li>
+     * <li>Each part of the configuration that the supplied specification configured (for example the SSL config, which holds the keystore)</li>
+     * <li>Method and path (these are only set on the specification that a filter receives)</li>
      * </ul>
      * The following settings are merged:
      * <ul>
-     * <li>Parameters</li>
+     * <li>Parameters, query parameters, form parameters and path parameters (a parameter of the supplied specification replaces one with the same name)</li>
+     * <li>Multi-part form data parameters</li>
      * <li>Cookies</li>
-     * <li>Headers</li>
+     * <li>Headers (a Content-Type or Accept header of the supplied specification replaces the current one by default, see {@link io.restassured.config.HeaderConfig})</li>
+     * <li>Filters (a filter that is already present isn't added again, and an authentication filter replaces the current ones)</li>
      * </ul>
      * <p/>
      *
