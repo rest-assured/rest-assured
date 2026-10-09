@@ -160,7 +160,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.3.0</version>
+                    <version>2.0.1</version>
                     <executions>
                         <execution>
                             <id>duplicate-check</id>
