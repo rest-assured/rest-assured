@@ -29,7 +29,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>7.0.9</spring.version>
-        <spring.security.version>6.5.7</spring.security.version>
+        <spring.security.version>6.5.10</spring.security.version>
         <java.version>17</java.version>
     </properties>
 
