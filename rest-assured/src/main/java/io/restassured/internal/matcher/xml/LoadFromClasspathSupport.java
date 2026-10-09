@@ -20,17 +20,26 @@ import java.io.InputStream;
 
 public class LoadFromClasspathSupport {
 
+    /**
+     * Loads a resource from the thread context class loader, falling back to the class loader that loaded REST Assured.
+     * A leading "/" in the path is optional.
+     *
+     * @return the resource stream, or <code>null</code> if the resource couldn't be found.
+     */
     public static InputStream loadFromClasspath(String path) {
-        InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
-        if (stream == null) {
-            // Kept from the Groovy implementation, where getClass() in this static method returned java.lang.Class.
-            // Since Java 9 this only finds resources in the java.base module, which is why the fallback below exists.
-            stream = Class.class.getResourceAsStream(path);
-        }
-
+        InputStream stream = loadFromClassLoaders(path);
         if (stream == null && path.startsWith("/")) {
-            // The previous fallback doesn't find resources on Java 9+ so if the path starts with "/" we remove it and try again
-            stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path.substring(1));
+            // Class loaders don't accept a leading "/" in resource names
+            stream = loadFromClassLoaders(path.substring(1));
+        }
+        return stream;
+    }
+
+    private static InputStream loadFromClassLoaders(String path) {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = contextClassLoader == null ? null : contextClassLoader.getResourceAsStream(path);
+        if (stream == null) {
+            stream = LoadFromClasspathSupport.class.getClassLoader().getResourceAsStream(path);
         }
         return stream;
     }

@@ -16,8 +16,10 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.matcher.RestAssuredMatchers;
+import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import static io.restassured.RestAssured.expect;
+import static io.restassured.RestAssured.get;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XMLValidationITest extends WithJetty {
@@ -57,6 +60,16 @@ public class XMLValidationITest extends WithJetty {
         try (InputStream inputstream = getClass().getResourceAsStream("/car-records.xsd")) {
             final String xsd = IOUtils.toString(inputstream, StandardCharsets.UTF_8);
             expect().body(RestAssuredMatchers.matchesXsd(xsd)).when().get("/carRecords");
+        }
+    }
+
+    @Test
+    void xsdInputStreamMatcherInResponseSpecificationCanBeUsedMoreThanOnce() throws Exception {
+        try (InputStream xsd = getClass().getResourceAsStream("/car-records.xsd")) {
+            ResponseSpecification spec = new ResponseSpecBuilder().expectBody(RestAssuredMatchers.matchesXsd(xsd)).build();
+
+            get("/carRecords").then().spec(spec);
+            get("/carRecords").then().spec(spec);
         }
     }
 
@@ -94,6 +107,14 @@ public class XMLValidationITest extends WithJetty {
     @Test
     void validatesDtdStringInClasspathWhenPathDoesntStartsWithSlash() {
         expect().body(RestAssuredMatchers.matchesDtdInClasspath("videos.dtd")).when().get("/videos");
+    }
+
+    @Test
+    void dtdInClasspathMatcherInResponseSpecificationCanBeUsedMoreThanOnce() {
+        ResponseSpecification spec = new ResponseSpecBuilder().expectBody(RestAssuredMatchers.matchesDtdInClasspath("/videos.dtd")).build();
+
+        get("/videos").then().spec(spec);
+        get("/videos").then().spec(spec);
     }
 
     @Test
