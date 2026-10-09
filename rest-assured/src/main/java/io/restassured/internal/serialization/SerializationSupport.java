@@ -16,13 +16,13 @@
 
 package io.restassured.internal.serialization;
 
-import groovy.lang.GString;
-
 import java.time.ZoneId;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAmount;
 import java.util.Locale;
 import java.util.UUID;
+
+import static io.restassured.internal.util.GroovyTypes.isGString;
 
 public class SerializationSupport {
 
@@ -32,7 +32,7 @@ public class SerializationSupport {
         }
         Class clazz = object.getClass();
         return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
-                || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
+                || isGString(object) || Boolean.class.isAssignableFrom(clazz)
                 || Character.class.isAssignableFrom(clazz) || object instanceof Enum ||
                 Locale.class.isAssignableFrom(clazz) || Class.class.isAssignableFrom(clazz) || UUID.class.isAssignableFrom(clazz));
     }

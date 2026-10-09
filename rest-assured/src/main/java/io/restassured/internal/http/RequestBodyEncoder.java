@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
+package io.restassured.internal.http;
 
-package io.restassured.internal.mapping
+import org.apache.http.HttpEntity;
 
-import io.restassured.internal.common.ObjectDeserializationContextImpl
-import io.restassured.mapper.ObjectMapperDeserializationContext
+import java.io.IOException;
 
-class ObjectMapperDeserializationContextImpl extends ObjectDeserializationContextImpl implements ObjectMapperDeserializationContext {
+/**
+ * Encodes a request body for a given request content-type, see {@link EncoderRegistry}.
+ */
+@FunctionalInterface
+public interface RequestBodyEncoder {
 
-    def contentType
-
-    @Override
-    String getContentType() {
-        return contentType
-    }
-
+    /**
+     * @param contentType the request content-type
+     * @param body        the request body
+     * @return an {@link HttpEntity} encapsulating the request body
+     */
+    HttpEntity encode(Object contentType, Object body) throws IOException;
 }

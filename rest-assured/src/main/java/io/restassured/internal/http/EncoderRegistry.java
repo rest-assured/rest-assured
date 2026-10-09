@@ -16,13 +16,9 @@
 
 package io.restassured.internal.http;
 
-import groovy.json.JsonBuilder;
-import groovy.lang.Closure;
-import groovy.lang.GString;
-import groovy.lang.Writable;
-import groovy.xml.StreamingMarkupBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
+import io.restassured.internal.path.json.JsonBuilderSerializer;
 import io.restassured.internal.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -33,13 +29,13 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
-import org.codehaus.groovy.runtime.IOGroovyMethods;
-import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.*;
 import java.util.*;
 
 import static io.restassured.internal.support.FileReader.readToString;
+import static io.restassured.internal.util.GroovyTypes.isClosure;
+import static io.restassured.internal.util.GroovyTypes.isGString;
 
 
 /**
@@ -52,13 +48,7 @@ import static io.restassured.internal.support.FileReader.readToString;
  * cause the following:<code>body=[a:1, b:'two']</code> to be encoded as
  * the equivalent <code>a=1&b=two</code> in the request body.</p>
  * <p/>
- * <p>Most default encoders can handle a closure as a request body.  In this
- * case, the closure is executed and a suitable 'builder' passed to the
- * closure that is  used for constructing the content.  In the case of
- * binary encoding this would be an OutputStream; for TEXT encoding it would
- * be a PrintWriter, and for XML it would be an already-bound
- * {@link StreamingMarkupBuilder}. See each <code>encode...</code> method
- * for details for each particular content-type.</p>
+ * <p>A Groovy closure is not accepted as a request body.</p>
  * <p/>
  * <p>Contrary to its name, this class does not have anything to do with the
  * <code>content-encoding</code> HTTP header.  </p>
@@ -67,7 +57,7 @@ import static io.restassured.internal.support.FileReader.readToString;
  */
 public class EncoderRegistry {
 
-    private Map<String, Closure> registeredEncoders = buildDefaultEncoderMap();
+    private Map<String, RequestBodyEncoder> registeredEncoders = buildDefaultEncoderMap();
     private EncoderConfig encoderConfig = new EncoderConfig();
 
     /**
@@ -83,17 +73,15 @@ public class EncoderRegistry {
      * <ul>
      * <li>InputStream</li>
      * <li>byte[] / ByteArrayOutputStream</li>
-     * <li>Closure</li>
+     * <li>File</li>
      * </ul>
-     * If a closure is given, it is executed with an OutputStream passed
-     * as the single closure argument.  Any data sent to the stream from the
-     * body of the closure is used as the request content body.
      *
      * @param data
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
      */
     public InputStreamEntity encodeStream(Object contentType, Object data) throws UnsupportedEncodingException {
+        rejectClosure(data);
         InputStreamEntity entity = null;
 
         if (data instanceof ByteArrayInputStream) {
@@ -120,11 +108,6 @@ public class EncoderRegistry {
             ByteArrayOutputStream out = ((ByteArrayOutputStream) data);
             entity = new InputStreamEntity(new ByteArrayInputStream(
                     out.toByteArray()), out.size());
-        } else if (data instanceof Closure) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ((Closure) data).call(out); // data is written to out
-            entity = new InputStreamEntity(new ByteArrayInputStream(
-                    out.toByteArray()), out.size());
         }
 
         if (entity == null) throw new IllegalArgumentException(
@@ -139,42 +122,23 @@ public class EncoderRegistry {
      * Default handler used for a plain text content-type.  Acceptable argument
      * types are:
      * <ul>
-     * <li>Closure</li>
-     * <li>Writable</li>
      * <li>Reader</li>
+     * <li>File</li>
+     * <li>byte[] / InputStream</li>
+     * <li>any other object, whose <code>toString()</code> is sent</li>
      * </ul>
-     * For Closure argument, a {@link PrintWriter} is passed as the single
-     * argument to the closure.  Any data sent to the writer from the
-     * closure will be sent to the request content body.
      *
      * @param data
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws IOException
      */
     public HttpEntity encodeText(Object contentType, Object data) throws IOException {
+        rejectClosure(data);
         String contentTypeAsString = contentTypeToString(contentType);
-        if (data instanceof Closure) {
-            StringWriter out = new StringWriter();
-            PrintWriter writer = new PrintWriter(out);
-            ((Closure) data).call(writer);
-            writer.close();
-            out.flush();
-            data = out;
-        } else if (data instanceof Writable) {
-            StringWriter out = new StringWriter();
-            ((Writable) data).writeTo(out);
-            out.flush();
-            data = out;
-        } else if (data instanceof Reader && !(data instanceof BufferedReader)) {
-            data = new BufferedReader((Reader) data);
+        if (data instanceof Reader) {
+            data = readAndClose((Reader) data);
         } else if (data instanceof File) {
             data = toString((File) data, contentTypeAsString);
-        }
-        if (data instanceof BufferedReader) {
-            StringWriter out = new StringWriter();
-            IOGroovyMethods.leftShift(out, (BufferedReader) data);
-
-            data = out;
         }
         // if data is a String, we are already covered.
         return createEntity(contentTypeAsString, data);
@@ -223,65 +187,59 @@ public class EncoderRegistry {
     }
 
     /**
-     * Encode the content as XML.  The argument may be either an object whose
-     * <code>toString</code> produces valid markup, or a Closure which will be
-     * interpreted as a builder definition.
+     * The default encoder for a url-encoded form content-type. The body must be an already-encoded String, a GString
+     * is converted to a String.
+     */
+    private HttpEntity encodeFormBody(Object contentType, Object body) throws UnsupportedEncodingException {
+        rejectClosure(body);
+        final String formData;
+        if (body == null || body instanceof String) {
+            formData = (String) body;
+        } else if (isGString(body)) {
+            formData = body.toString();
+        } else {
+            throw new IllegalArgumentException("Don't know how to encode a request body of type " + body.getClass().getTypeName() +
+                    " as content-type " + contentType + ". A form url-encoded request body must be a String, " +
+                    "use formParam(..) or formParams(..) to send form parameters.");
+        }
+        return encodeForm(contentType, formData);
+    }
+
+    /**
+     * Encode the content as XML.  The argument may be a File, a byte[] or
+     * InputStream, or an object whose <code>toString</code> produces valid markup.
      *
      * @param xml data that defines the XML structure
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
      */
     public HttpEntity encodeXML(Object contentType, Object xml) throws UnsupportedEncodingException {
+        rejectClosure(xml);
         String contentTypeAsString = contentTypeToString(contentType);
-        if (xml instanceof Closure) {
-            StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
-            xml = smb.bind(xml);
-        } else if (xml instanceof File) {
+        if (xml instanceof File) {
             xml = toString((File) xml, contentTypeAsString);
         }
         return createEntity(contentTypeAsString, xml);
     }
 
     /**
-     * <p>Accepts a Collection or a JavaBean object which is converted to JSON.
-     * A Map or Collection will be converted to a {@link JsonBuilder}..  A
-     * String or GString will be interpreted as valid JSON and passed directly
-     * as the request body (with charset conversion if necessary.)</p>
-     * <p/>
-     * <p>If a Closure is passed as the model, it will be executed as if it were
-     * a JSON object definition passed to a {@link JsonBuilder}.  In order
-     * for the closure to be interpreted correctly, there must be a 'root'
-     * element immediately inside the closure.  For example:</p>
-     * <p/>
-     * <pre>builder.post( JSON ) {
-     *   body = {
-     *     root {
-     *       first {
-     *         one = 1
-     *         two = '2'
-     *       }
-     *       second = 'some string'
-     *     }
-     *   }
-     * }</pre>
-     * <p> will return the following JSON string:<pre>
-     * {"root":{"first":{"one":1,"two":"2"},"second":"some string"}}</pre></p>
+     * <p>A Map or Collection is converted to JSON the same way as Groovy's
+     * <code>JsonBuilder</code> does. A String or GString will be interpreted as
+     * valid JSON and passed directly as the request body (with charset
+     * conversion if necessary). A File, byte[] or InputStream is assumed to
+     * contain valid JSON.</p>
      *
      * @param model data to be converted to JSON, as specified above.
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
      */
-    @SuppressWarnings("unchecked")
     public HttpEntity encodeJSON(Object contentType, Object model) throws IOException {
+        rejectClosure(model);
         String contentTypeAsString = contentTypeToString(contentType);
         Object json;
         if (model instanceof Map || model instanceof Collection) {
-            json = new JsonBuilder(model);
-        } else if (model instanceof Closure) {
-            Closure closure = (Closure) model;
-            closure.setDelegate(new JsonBuilder());
-            json = closure.call();
-        } else if (model instanceof String || model instanceof GString || model instanceof byte[]) {
+            json = JsonBuilderSerializer.toJson(model);
+        } else if (model instanceof String || isGString(model) || model instanceof byte[]) {
             json = model; // assume valid JSON already.
         } else if (model instanceof File) {
             json = toString((File) model, contentTypeAsString);
@@ -348,21 +306,21 @@ public class EncoderRegistry {
      * <code>super.buildDefaultEncoderMap()</code> and then add or remove
      * from that result as well.
      */
-    protected Map<String, Closure> buildDefaultEncoderMap() {
-        Map<String, Closure> encoders = new HashMap<String, Closure>();
+    protected Map<String, RequestBodyEncoder> buildDefaultEncoderMap() {
+        Map<String, RequestBodyEncoder> encoders = new HashMap<>();
 
-        encoders.put(ContentType.BINARY.toString(), new MethodClosure(this, "encodeStream"));
-        encoders.put(ContentType.TEXT.toString(), new MethodClosure(this, "encodeText"));
-        encoders.put(ContentType.URLENC.toString(), new MethodClosure(this, "encodeForm"));
+        encoders.put(ContentType.BINARY.toString(), this::encodeStream);
+        encoders.put(ContentType.TEXT.toString(), this::encodeText);
+        encoders.put(ContentType.URLENC.toString(), this::encodeFormBody);
 
-        Closure encClosure = new MethodClosure(this, "encodeXML");
+        RequestBodyEncoder xmlEncoder = this::encodeXML;
         for (String ct : ContentType.XML.getContentTypeStrings())
-            encoders.put(ct, encClosure);
-        encoders.put(ContentType.HTML.toString(), encClosure);
+            encoders.put(ct, xmlEncoder);
+        encoders.put(ContentType.HTML.toString(), xmlEncoder);
 
-        encClosure = new MethodClosure(this, "encodeJSON");
+        RequestBodyEncoder jsonEncoder = this::encodeJSON;
         for (String ct : ContentType.JSON.getContentTypeStrings())
-            encoders.put(ct, encClosure);
+            encoders.put(ct, jsonEncoder);
 
         return encoders;
     }
@@ -377,54 +335,53 @@ public class EncoderRegistry {
      * @return encoder that can interpret the given content type,
      * or null.
      */
-    public Closure getAt(Object contentType) {
+    public RequestBodyEncoder getAt(Object contentType) {
         String ct = contentType.toString();
         int idx = ct.indexOf(';');
         if (idx > 0) ct = ct.substring(0, idx);
 
-        Closure closure = registeredEncoders.get(ct);
-        if (closure == null) {
+        RequestBodyEncoder encoder = registeredEncoders.get(ct);
+        if (encoder == null) {
             final ContentType foundCt = ContentType.fromContentType(ct);
             if (foundCt != null) {
-                closure = registeredEncoders.get(foundCt.toString());
+                encoder = registeredEncoders.get(foundCt.toString());
             }
         }
 
         // We couldn't find an explicit encoder for the given content-type so try to find a match
-        if (closure == null) {
-            closure = tryToFindMatchingEncoder(ct);
+        if (encoder == null) {
+            encoder = tryToFindMatchingEncoder(ct);
         }
 
         // If no encoder could be found then use binary
-        if (closure == null) {
+        if (encoder == null) {
             return getAt(ContentType.BINARY.toString());
         }
-        return closure;
+        return encoder;
     }
 
-    private Closure tryToFindMatchingEncoder(String contentType) {
-        final Closure closure;
+    private RequestBodyEncoder tryToFindMatchingEncoder(String contentType) {
+        final RequestBodyEncoder encoder;
         if (contentType == null) {
-            closure = null;
+            encoder = null;
         } else if (StringUtils.startsWithIgnoreCase(contentType, "text/") || StringUtils.containsIgnoreCase(contentType, "+text")) {
-            closure = new MethodClosure(this, "encodeText");
+            encoder = this::encodeText;
         } else {
-            closure = null;
+            encoder = null;
         }
 
-        return closure;
+        return encoder;
     }
 
     /**
      * Register a new encoder for the given content type.  If any encoder
      * previously existed for that content type it will be replaced.  The
-     * closure must return an {@link HttpEntity}.  It will also usually
-     * accept a single argument, which will be whatever is set in the request
-     * configuration closure via {@link HTTPBuilder.RequestConfigDelegate#setBody(Object)}.
+     * encoder is called with the request content-type and the request body,
+     * which is whatever is set via {@link HTTPBuilder.RequestConfigDelegate#setBody(Object, Object)}.
      *
      * @param contentType
      */
-    public void putAt(Object contentType, Closure value) {
+    public void putAt(Object contentType, RequestBodyEncoder value) {
         if (contentType instanceof ContentType) {
             for (String ct : ((ContentType) contentType).getContentTypeStrings())
                 this.registeredEncoders.put(ct, value);
@@ -432,36 +389,34 @@ public class EncoderRegistry {
     }
 
     /**
-     * Alias for {@link #getAt(Object)} to allow property-style access.
-     *
-     * @param key
-     * @return
-     */
-    public Closure propertyMissing(Object key) {
-        return this.getAt(key);
-    }
-
-    /**
-     * Alias for {@link #putAt(Object, Closure)} to allow property-style access.
-     *
-     * @param key
-     * @param value
-     */
-    public void propertyMissing(Object key, Closure value) {
-        this.putAt(key, value);
-    }
-
-    /**
      * Iterate over the entire parser map
      *
      * @return
      */
-    public Iterator<Map.Entry<String, Closure>> iterator() {
+    public Iterator<Map.Entry<String, RequestBodyEncoder>> iterator() {
         return this.registeredEncoders.entrySet().iterator();
     }
 
     private String contentTypeToString(Object contentType) {
         return contentType == null ? null : contentType.toString();
+    }
+
+    private static void rejectClosure(Object body) {
+        if (isClosure(body)) {
+            throw new IllegalArgumentException("A Groovy closure (" + body.getClass().getName() + ") is not supported as request body. " +
+                    "Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.");
+        }
+    }
+
+    private static String readAndClose(Reader reader) throws IOException {
+        StringWriter out = new StringWriter();
+        try (Reader r = reader) {
+            char[] chars = new char[8192];
+            for (int read; (read = r.read(chars)) != -1; ) {
+                out.write(chars, 0, read);
+            }
+        }
+        return out.toString();
     }
 
     private String toString(File model, String contentTypeAsString) {

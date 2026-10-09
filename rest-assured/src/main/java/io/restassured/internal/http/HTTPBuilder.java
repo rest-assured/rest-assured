@@ -22,6 +22,7 @@ import io.restassured.config.EncoderConfig;
 import io.restassured.config.OAuthConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
@@ -181,7 +182,7 @@ public abstract class HTTPBuilder {
             Map<String, ContentType> customEncoders = this.encoderConfig.contentEncoders();
             for (Map.Entry<String, ContentType> entry : customEncoders.entrySet()) {
                 // Get the pre-defined encoder for the given content-type
-                Closure actualEncoder = encoders.getAt(entry.getValue().getContentTypeStrings()[0]);
+                RequestBodyEncoder actualEncoder = encoders.getAt(entry.getValue().getContentTypeStrings()[0]);
                 encoders.putAt(entry.getKey(), actualEncoder);
             }
         }
@@ -663,6 +664,15 @@ public abstract class HTTPBuilder {
     }
 
     /**
+     * Retrieve the registry of request body encoders, see {@link EncoderRegistry}.
+     *
+     * @return the encoder registry
+     */
+    public EncoderRegistry getEncoders() {
+        return this.encoders;
+    }
+
+    /**
      * Set the default content type that will be used to select the appropriate
      * request encoder and response parser.  The {@link ContentType} enum holds
      * some common content-types that may be used, i.e. <pre>
@@ -1130,8 +1140,13 @@ public abstract class HTTPBuilder {
             if (!(request instanceof HttpEntityEnclosingRequest))
                 throw new IllegalArgumentException(
                         "Cannot set a request body for a " + request.getMethod() + " method");
-            Closure encoder = encoders.getAt(requestContentType);
-            HttpEntity entity = (HttpEntity) encoder.call(requestContentType, body);
+            RequestBodyEncoder encoder = encoders.getAt(requestContentType);
+            HttpEntity entity;
+            try {
+                entity = encoder.encode(requestContentType, body);
+            } catch (IOException e) {
+                entity = SafeExceptionRethrower.safeRethrow(e);
+            }
 
             ((HttpEntityEnclosingRequest) this.request).setEntity(entity);
         }
