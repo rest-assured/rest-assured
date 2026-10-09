@@ -303,5 +303,26 @@ public class SSLITest {
             );
             RestAssured.given().config(sslConfig).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         }
+
+        @Test
+        public void certificate_authentication_sends_the_client_certificate_of_the_key_store() {
+            // keystore.p12 holds the private key and certificate that the server also uses, so it's trusted as trust store as well
+            RestAssured.given().
+                    auth().certificate("keystore.p12", "test1234", CertificateAuthSettings.certAuthSettings().keyStoreType("PKCS12").trustStoreType("PKCS12").allowAllHostnames()).
+                    when().
+                    get("https://localhost:8443/hello").
+                    then().
+                    spec(helloWorldSpec());
+        }
+
+        @Test
+        public void statically_configured_certificate_authentication_sends_the_client_certificate_of_the_key_store() {
+            RestAssured.authentication = RestAssured.certificate("keystore.p12", "test1234", CertificateAuthSettings.certAuthSettings().keyStoreType("PKCS12").trustStoreType("PKCS12").allowAllHostnames());
+            try {
+                RestAssured.get("https://localhost:8443/hello").then().spec(helloWorldSpec());
+            } finally {
+                RestAssured.reset();
+            }
+        }
     }
 }

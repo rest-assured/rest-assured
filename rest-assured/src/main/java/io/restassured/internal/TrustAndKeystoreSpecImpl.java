@@ -81,14 +81,16 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
         if (factory == null) {
             KeyStore keyStore = this.keyStore != null ? this.keyStore : createStore(keyStoreType, keyStorePath, keyStorePassword);
             KeyStore trustStore = this.trustStore != null ? this.trustStore : createStore(trustStoreType, trustStorePath, trustStorePassword);
-            SSLSocketFactory newFactory = createSSLSocketFactory(trustStore, keyStore, keyStorePassword);
+            // Certificate authentication reads the same file as key store and trust store
+            boolean keyStoreFileIsAlsoTrustStore = this.keyStore == null && keyStorePath != null && keyStorePath.equals(trustStorePath);
+            SSLSocketFactory newFactory = createSSLSocketFactory(trustStore, keyStore, keyStorePassword, keyStoreFileIsAlsoTrustStore ? keyStorePath : null);
             newFactory.setHostnameVerifier(x509HostnameVerifier != null ? x509HostnameVerifier : ALLOW_ALL_HOSTNAME_VERIFIER);
             factory = newFactory;
         }
         return factory;
     }
 
-    private static SSLSocketFactory createSSLSocketFactory(KeyStore truststore, KeyStore keyStore, String keyPassword) {
+    private static SSLSocketFactory createSSLSocketFactory(KeyStore truststore, KeyStore keyStore, String keyPassword, Object keyStoreFileThatIsAlsoTrustStore) {
         if (truststore == null && keyStore == null) {
             return SSLSocketFactory.getSocketFactory();
         }
@@ -104,6 +106,15 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
                             "Set the key store password with SSLConfig.keyStore(String), for example " +
                             "config(sslConfig().keyStore(keyStore).keyStore(\"password\")), or, for certificate authentication, " +
                             "with the key store password given to RestAssured.certificate(..).", e);
+                }
+                if (keyStoreFileThatIsAlsoTrustStore != null) {
+                    UnrecoverableKeyException exception = new UnrecoverableKeyException("The private key in " + keyStoreFileThatIsAlsoTrustStore +
+                            " can't be read with the given password. The file given to certificate(..) is used as key store as well as " +
+                            "trust store, so its private key must have the password of the file. Use RestAssured.certificate(trustStorePath, " +
+                            "trustStorePassword, keyStorePath, keyStorePassword, CertificateAuthSettings) to use separate files, or an " +
+                            "empty key store path to use the file only as trust store.");
+                    exception.initCause(e);
+                    throw exception;
                 }
                 throw e;
             }
