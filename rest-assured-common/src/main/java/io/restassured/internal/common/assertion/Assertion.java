@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.common.assertion
+package io.restassured.internal.common.assertion;
 
-/**
- * A {@link PathFragmentEscaper} that escapes the path fragment with <code>getAt('<fragment>')</code>
- */
-abstract class GetAtPathFragmentEscaper implements PathFragmentEscaper {
+public interface Assertion {
 
-  @Override
-  String escape(String pathFragment) {
-    return "getAt('" + pathFragment + "')"
-  }
+    Object getResult(Object object, Object config);
+
+    String description();
+
 }

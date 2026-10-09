@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.common.assertion
+package io.restassured.internal.common.assertion;
 
-/**
- * A {@link PathFragmentEscaper} that escapes the path fragment with quotes
- */
-abstract class EndToEndQuoteFragmentEscaper implements PathFragmentEscaper {
+public class AssertParameter {
 
-  @Override
-  String escape(String pathFragment) {
-    return "'" + pathFragment + "'"
-  }
+    public static <T> T notNull(T object, Class<?> aClass) {
+        return notNull(object, aClass.getSimpleName());
+    }
+
+    public static <T> T notNull(T object, String parameterName) {
+        if (object == null) {
+            throw new IllegalArgumentException(parameterName + " cannot be null");
+        }
+        return object;
+    }
 }

@@ -17,9 +17,9 @@ package io.restassured.internal.support;
 
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.RestAssuredResponseOptionsImpl;
+import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.path.json.JsonPrettifier;
 import io.restassured.internal.path.xml.XmlPrettifier;
-import io.restassured.internal.util.GroovyStyleToString;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
 import io.restassured.response.ResponseBody;

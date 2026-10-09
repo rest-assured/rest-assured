@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
+package io.restassured.internal.common.path;
 
+import io.restassured.internal.common.util.GroovyStyleToString;
 
-package io.restassured.internal.common.path
+import java.math.BigDecimal;
+import java.util.UUID;
 
-class ObjectConverter {
-    def static <T> T convertObjectTo(Object object, Class<T> explicitType) {
+public class ObjectConverter {
+
+    @SuppressWarnings("unchecked")
+    public static <T> T convertObjectTo(Object object, Class<T> explicitType) {
         Object returnObject;
         if (object == null) {
             returnObject = null;
         } else if (!object.getClass().isAssignableFrom(explicitType)) {
-            final String toString = object.toString();
+            // Render maps, collections and arrays like Groovy did when this class was written in Groovy, e.g. [a:1]
+            final String toString = GroovyStyleToString.toString(object);
             if (explicitType.isAssignableFrom(Integer.class) || explicitType.isAssignableFrom(int.class)) {
                 returnObject = Integer.parseInt(toString);
             } else if (explicitType.isAssignableFrom(Boolean.class) || explicitType.isAssignableFrom(boolean.class)) {
@@ -51,7 +57,7 @@ class ObjectConverter {
                 try {
                     returnObject = explicitType.cast(object);
                 } catch (ClassCastException e) {
-                    throw new ClassCastException("Cannot convert " + object.getClass() + " to $explicitType.")
+                    throw new ClassCastException("Cannot convert " + object.getClass() + " to " + explicitType + ".");
                 }
             }
         } else {
@@ -60,12 +66,12 @@ class ObjectConverter {
         return (T) returnObject;
     }
 
-    def static boolean canConvert(object, Class type) {
+    public static boolean canConvert(Object object, Class<?> type) {
         try {
-            convertObjectTo(object, type)
-            true
+            convertObjectTo(object, type);
+            return true;
         } catch (Exception e) {
-            false
+            return false;
         }
     }
 }

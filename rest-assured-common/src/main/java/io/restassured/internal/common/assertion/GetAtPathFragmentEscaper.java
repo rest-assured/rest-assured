@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.restassured.internal.common.assertion
 
-class AssertParameter {
+package io.restassured.internal.common.assertion;
 
-  def static <T> T notNull(T object, Class aClass) {
-    notNull(object, aClass.getSimpleName())
-  }
+/**
+ * A {@link PathFragmentEscaper} that escapes the path fragment with <code>getAt('<fragment>')</code>
+ */
+public abstract class GetAtPathFragmentEscaper implements PathFragmentEscaper {
 
-  def static <T> T notNull(T object, String parameterName) {
-    if (object == null) {
-      throw new IllegalArgumentException("$parameterName cannot be null")
+    @Override
+    public String escape(String pathFragment) {
+        return "getAt('" + pathFragment + "')";
     }
-    object
-  }
 }
