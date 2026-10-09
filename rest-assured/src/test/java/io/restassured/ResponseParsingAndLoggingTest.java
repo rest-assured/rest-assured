@@ -66,6 +66,7 @@ class ResponseParsingAndLoggingTest {
     void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/json", exchange -> send(exchange, "application/json", "{\"n\":1.5,\"s\":\"x\"}"));
+        server.createContext("/colon-json", exchange -> send(exchange, "application/json", "{\"message\":{\"ErrorCode:\":0,\"ErrorMsg:\":\"Success\"}}"));
         server.createContext("/xml", exchange -> send(exchange, "application/xml", NAMESPACE_XML));
         server.createContext("/dtd", exchange -> send(exchange, "application/xml", DTD_XML));
         server.createContext("/html", exchange -> send(exchange, "text/html", HTML));
@@ -100,6 +101,13 @@ class ResponseParsingAndLoggingTest {
 
         given().config(config).get("/json").then().body("n", equalTo(new BigDecimal("1.5")));
         given().config(config).expect().body("n", equalTo(new BigDecimal("1.5"))).when().get("/json");
+    }
+
+    @Test
+    void json_body_assertions_on_keys_that_contain_a_colon() {
+        given().get("/colon-json").then().body("message.ErrorCode:", equalTo(0)).body("message.ErrorMsg:", equalTo("Success"));
+        given().expect().rootPath("message").body("ErrorCode:", equalTo(0)).when().get("/colon-json");
+        assertThat(given().get("/colon-json").jsonPath().getInt("message.ErrorCode:")).isZero();
     }
 
     @Test
