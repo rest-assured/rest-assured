@@ -17,9 +17,12 @@
 // @formatter:off
 package io.restassured.module.mockmvc;
 
+import io.restassured.config.SessionConfig;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.CookieController;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;import io.restassured.response.ResponseOptions;import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -143,6 +146,36 @@ public class CookieTest {
                 cookie("project", "rest assured");
     }
     
+    @Test public void
+    session_id_is_the_value_of_the_jsessionid_cookie_by_default() {
+        MockMvcResponse response = RestAssuredMockMvc.given().
+                queryParam("cookieName1", "JSESSIONID").
+                queryParam("cookieValue1", "abc").
+                queryParam("cookieName2", "project").
+                queryParam("cookieValue2", "rest assured").
+        when().
+                get("/setCookies");
+
+        assertThat(response.sessionId()).isEqualTo("abc");
+        assertThat(response.getSessionId()).isEqualTo("abc");
+    }
+
+    @Test public void
+    session_id_is_the_value_of_the_cookie_named_by_the_session_config() {
+        String sessionId = RestAssuredMockMvc.given().
+                config(RestAssuredMockMvcConfig.config().sessionConfig(new SessionConfig("PHPSESSID", null))).
+                queryParam("cookieName1", "JSESSIONID").
+                queryParam("cookieValue1", "abc").
+                queryParam("cookieName2", "PHPSESSID").
+                queryParam("cookieValue2", "def").
+        when().
+                get("/setCookies").
+        then().
+                extract().sessionId();
+
+        assertThat(sessionId).isEqualTo("def");
+    }
+
     @Test public void
     can_receive_detailed_cookies() {
         RestAssuredMockMvc.given().

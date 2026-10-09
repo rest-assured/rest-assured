@@ -21,6 +21,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SessionConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.time.TimingFilter;
 import io.restassured.http.Cookie;
@@ -245,7 +246,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public String header(String name) {
         notNull(name, "name");
-        return ((Headers) responseHeaders).getValue(name);
+        return headers().getValue(name);
     }
 
     public Map<String, String> cookies() {
@@ -280,7 +281,13 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     }
 
     public String sessionId() {
-        return cookie(castToString(sessionIdName));
+        String name = castToString(sessionIdName);
+        if (name == null) {
+            // Responses that aren't created by RequestSpecificationImpl (e.g. Spring MockMvc, WebTestClient and
+            // ResponseBuilder responses) have no session id name, so use the one from the config instead.
+            name = config == null ? SessionConfig.DEFAULT_SESSION_ID_NAME : config.getSessionConfig().sessionIdName();
+        }
+        return cookie(name);
     }
 
     public int statusCode() {

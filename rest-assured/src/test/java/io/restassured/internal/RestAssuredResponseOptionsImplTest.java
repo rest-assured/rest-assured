@@ -23,6 +23,7 @@ import io.restassured.config.JsonConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SessionConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.filter.time.TimingFilter;
 import io.restassured.http.Cookie;
@@ -172,8 +173,11 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void header_throws_null_pointer_exception_when_no_headers_are_set() {
-        assertThatThrownBy(() -> new RestAssuredResponseImpl().header("a")).isInstanceOf(NullPointerException.class);
+    void header_returns_null_when_no_headers_are_set() {
+        RestAssuredResponseImpl response = new RestAssuredResponseImpl();
+
+        assertThat(response.header("a")).isNull();
+        assertThat(response.getHeader("a")).isNull();
     }
 
     @Test
@@ -229,9 +233,22 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void session_id_throws_when_no_session_id_name_is_set() {
-        assertThatThrownBy(() -> new RestAssuredResponseImpl().sessionId()).isExactlyInstanceOf(IllegalArgumentException.class)
-                .hasMessage("name cannot be null");
+    void session_id_uses_the_default_session_id_name_when_no_session_id_name_or_config_is_set() {
+        RestAssuredResponseImpl response = new RestAssuredResponseImpl();
+        assertThat(response.sessionId()).isNull();
+
+        response.setCookies(new Cookies(new Cookie.Builder("JSESSIONID", "abc").build()));
+        assertThat(response.sessionId()).isEqualTo("abc");
+        assertThat(response.getSessionId()).isEqualTo("abc");
+    }
+
+    @Test
+    void session_id_uses_the_session_id_name_of_the_config_when_no_session_id_name_is_set() {
+        RestAssuredResponseImpl response = new RestAssuredResponseImpl();
+        response.setCookies(new Cookies(new Cookie.Builder("JSESSIONID", "abc").build(), new Cookie.Builder("PHPSESSID", "def").build()));
+        response.setConfig(RestAssuredConfig.config().sessionConfig(new SessionConfig("PHPSESSID", null)));
+
+        assertThat(response.sessionId()).isEqualTo("def");
     }
 
     @Test

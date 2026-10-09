@@ -20,6 +20,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.filter.time.TimingFilter;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
@@ -129,6 +131,24 @@ class ResponseAccessorsTest {
 
         assertThat(clone.asByteArray()).isEqualTo(newBody);
         assertThat(clone.asString()).isEqualTo("{\"s\":\"x\"}");
+    }
+
+    @Test
+    void built_response_without_headers_or_cookies_returns_null_for_header_and_session_id() {
+        Response response = new ResponseBuilder().setStatusCode(200).setBody("x").build();
+
+        assertThat(response.header("a")).isNull();
+        assertThat(response.getHeader("a")).isNull();
+        assertThat(response.sessionId()).isNull();
+        assertThat(response.getSessionId()).isNull();
+    }
+
+    @Test
+    void built_response_gets_the_session_id_from_the_default_session_id_cookie() {
+        Response response = new ResponseBuilder().setStatusCode(200).setBody("x")
+                .setCookies(new Cookies(new Cookie.Builder("JSESSIONID", "abc").build())).build();
+
+        assertThat(response.sessionId()).isEqualTo("abc");
     }
 
     private static void send(HttpExchange exchange, String contentType, String body) throws IOException {
