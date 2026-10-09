@@ -137,11 +137,21 @@ GET /s/404?f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == GET no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+GET /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+GET /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == GET explicit accept header
 /s/200
 GET /s/200
@@ -341,18 +351,38 @@ POST /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == POST no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+POST /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+POST /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == POST no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+POST /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+POST /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == POST explicit accept header
 /s/200
 POST /s/200
@@ -547,18 +577,38 @@ PUT /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PUT no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PUT /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PUT /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PUT no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PUT /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PUT /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PUT explicit accept header
 /s/200
 PUT /s/200
@@ -751,18 +801,38 @@ PATCH /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PATCH no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.NullPointerException
+PATCH /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.NullPointerException
+PATCH /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PATCH no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PATCH /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PATCH /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PATCH explicit accept header
 /s/200
 PATCH /s/200
@@ -944,18 +1014,38 @@ DELETE /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == DELETE no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+DELETE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+DELETE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == DELETE no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+DELETE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+DELETE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == DELETE explicit accept header
 /s/200
 DELETE /s/200
@@ -1133,18 +1223,38 @@ OPTIONS /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == OPTIONS no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+OPTIONS /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+OPTIONS /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == OPTIONS no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+OPTIONS /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+OPTIONS /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == OPTIONS explicit accept header
 /s/200
 OPTIONS /s/200
@@ -1322,18 +1432,38 @@ HEAD /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
 == HEAD no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+HEAD /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+HEAD /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
 == HEAD no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+HEAD /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+HEAD /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
 == HEAD explicit accept header
 /s/200
 HEAD /s/200
@@ -1522,18 +1652,38 @@ PURGE /s/404
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PURGE no content-type with form params
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PURGE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode f=1 as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PURGE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PURGE no content-type with body
 /s/200
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PURGE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
-    > <nothing sent>
-    < EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode text as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
+PURGE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [4]
+    > body: text
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == PURGE explicit accept header
 /s/200
 PURGE /s/200

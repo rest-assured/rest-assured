@@ -89,11 +89,11 @@ import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER
  * </pre>
  * Now you want to use this truststore in your client:
  * <pre>
- * RestAssured.config = RestAssured.newConfig().sslConfig(new SSLConfig("/truststore_javanet.jks", "test1234");
+ * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore("/truststore_javanet.jks", "test1234"));
  * </pre>
  * or
  * <pre>
- * given().config(newConfig().sslConfig(new SSLConfig("/truststore_javanet.jks", "test1234")). ..
+ * given().config(config().sslConfig(sslConfig().trustStore("/truststore_javanet.jks", "test1234"))). ..
  * </pre>
  * </p>
  */
@@ -116,6 +116,11 @@ public class SSLConfig implements Config {
     private final SSLSocketFactory sslSocketFactory;
 
     /**
+     * Use a key store that holds the client certificate (and its private key) to send to a server that asks for one
+     * (client certificate authentication, also known as mutual TLS). The password is used both for the key store and
+     * for the private key in it. The key store doesn't affect which server certificates are trusted: that's decided by
+     * the trust store if one is configured (see {@link #trustStore(String, String)}) and by the JVM's default trust otherwise.
+     *
      * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
      * @param password  The store pass
      * @return A new SSLConfig instance

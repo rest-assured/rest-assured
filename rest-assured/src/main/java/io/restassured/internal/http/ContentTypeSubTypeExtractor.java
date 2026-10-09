@@ -36,9 +36,15 @@ public class ContentTypeSubTypeExtractor {
         }
         String foundSubType = null;
         for (String parameter : contentType.split(SEMICOLON)) {
-            String[] nameAndValue = parameter.split("=");
-            if (nameAndValue.length == 2 && nameAndValue[0].trim().equalsIgnoreCase(subType)) {
-                foundSubType = StringUtils.removeEnd(StringUtils.removeStart(nameAndValue[1].trim(), "\""), "\"");
+            // Split on the first "=" only since the value may contain "=" (e.g. a multipart boundary)
+            int equalsIndex = parameter.indexOf('=');
+            if (equalsIndex < 0 || equalsIndex == parameter.length() - 1) {
+                continue;
+            }
+            String name = parameter.substring(0, equalsIndex);
+            if (name.trim().equalsIgnoreCase(subType)) {
+                String value = parameter.substring(equalsIndex + 1);
+                foundSubType = StringUtils.removeEnd(StringUtils.removeStart(value.trim(), "\""), "\"");
             }
         }
         return foundSubType;

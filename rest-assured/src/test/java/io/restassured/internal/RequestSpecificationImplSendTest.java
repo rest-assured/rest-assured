@@ -167,13 +167,49 @@ class RequestSpecificationImplSendTest {
         given().body("p").request("purge", "/x");
         assertThat(last().method()).isEqualTo("PURGE");
         assertThat(last().body()).isEqualTo("p");
+    }
 
-        assertThatThrownBy(() -> given().contentType(ContentType.JSON).noContentType().body("n").put("/x"))
-                .isExactlyInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Don't know how to encode n as a byte stream.");
-        assertThatThrownBy(() -> given().noContentType().body("n").post("/x"))
-                .isExactlyInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Don't know how to encode n as a byte stream.");
+    @Test
+    void no_content_type_sends_a_string_body_as_text_with_the_default_content_charset_and_without_a_content_type_header() {
+        for (String method : List.of("POST", "PUT", "PATCH", "DELETE")) {
+            given().contentType(ContentType.JSON).noContentType().body("n").request(method, "/x").then().statusCode(200);
+
+            assertThat(last().method()).isEqualTo(method);
+            assertThat(last().body()).isEqualTo("n");
+            assertThat(last().header("Content-Type")).isNull();
+        }
+
+        given().config(config().encoderConfig(encoderConfig().defaultContentCharset("UTF-16BE"))).noContentType().body("a").put("/x");
+        assertThat(last().body()).isEqualTo("\u0000a");
+    }
+
+    @Test
+    void no_content_type_sends_form_params_url_encoded_with_the_default_content_charset_and_without_a_content_type_header() {
+        for (String method : List.of("POST", "PUT", "PATCH")) {
+            given().noContentType().formParam("f", "ä b").request(method, "/x").then().statusCode(200);
+
+            assertThat(last().method()).isEqualTo(method);
+            assertThat(last().body()).isEqualTo("f=%E4%20b");
+            assertThat(last().header("Content-Type")).isNull();
+        }
+    }
+
+    @Test
+    void no_content_type_does_not_send_the_expected_response_content_type_as_request_content_type() {
+        server.route("PUT /j", r -> new Reply(200, "application/json", "{}", Map.of()));
+
+        given().noContentType().body("{}").expect().contentType(ContentType.JSON).when().put("/j");
+
+        assertThat(last().body()).isEqualTo("{}");
+        assertThat(last().header("Content-Type")).isNull();
+    }
+
+    @Test
+    void no_content_type_sends_a_binary_body_as_is() {
+        given().noContentType().body("abc".getBytes(StandardCharsets.UTF_8)).put("/x").then().statusCode(200);
+
+        assertThat(last().body()).isEqualTo("abc");
+        assertThat(last().header("Content-Type")).isNull();
     }
 
     @Test
@@ -240,6 +276,23 @@ class RequestSpecificationImplSendTest {
 
         // The Content-Type header of a multipart request is the one of the multipart entity
         assertThat(last().header("Content-Type")).matches("multipart/form-data; boundary=[a-zA-Z0-9_-]{30,40}");
+    }
+
+    @Test
+    void multipart_request_keeps_a_quoted_boundary_containing_an_equals_sign() {
+        given().contentType("multipart/form-data; boundary=\"a=b\"").multiPart("f", "hello").put("/x").then().statusCode(200);
+
+        assertThat(last().header("Content-Type")).isEqualTo("multipart/form-data; boundary=\"a=b\"");
+        assertThat(last().body().replace("\r\n", "\n")).isEqualTo(
+                "--a=b\nContent-Disposition: form-data; name=\"f\"\nContent-Type: text/plain\n\nhello\n--a=b--\n");
+    }
+
+    @Test
+    void multipart_request_keeps_an_unquoted_java_mail_style_boundary() {
+        given().contentType("multipart/mixed; boundary=----=_Part_0_123").multiPart("f", "hello").put("/x").then().statusCode(200);
+
+        assertThat(last().header("Content-Type")).isEqualTo("multipart/mixed; boundary=\"----=_Part_0_123\"");
+        assertThat(last().body()).startsWith("------=_Part_0_123\r\n");
     }
 
     @Test
