@@ -136,7 +136,7 @@ public class EncoderConfig implements Config {
         notNull(contentType, "ContentType");
         Map<String, String> map = new HashMap<>(contentTypeToDefaultCharset);
         map.put(trim(contentType).toLowerCase(Locale.ROOT), trim(charset));
-        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
     }
 
     /**
@@ -153,7 +153,7 @@ public class EncoderConfig implements Config {
         for (String ct : contentType.getContentTypeStrings()) {
             map.put(ct.toLowerCase(Locale.ROOT), trim(charset));
         }
-        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
     }
 
     /**
