@@ -120,13 +120,13 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
      */
     public KeyStore createStore(Object keyStoreType, Object keyStorePath, Object keyStorePassword) {
         try {
-            KeyStore keyStore = KeyStore.getInstance((String) keyStoreType);
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType.toString());
             if (keyStorePath == null || (keyStorePath instanceof String && ((String) keyStorePath).isEmpty())) {
                 return null;
             }
 
             try (InputStream inputStream = openStore(keyStorePath)) {
-                keyStore.load(inputStream, keyStorePassword == null ? null : ((String) keyStorePassword).toCharArray());
+                keyStore.load(inputStream, keyStorePassword == null ? null : keyStorePassword.toString().toCharArray());
             }
             return keyStore;
         } catch (IOException | GeneralSecurityException e) {

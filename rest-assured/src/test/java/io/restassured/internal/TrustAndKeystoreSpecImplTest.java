@@ -250,6 +250,16 @@ class TrustAndKeystoreSpecImplTest {
     }
 
     @Test
+    void create_store_accepts_gstring_type_and_password() throws Exception {
+        Object type = new GStringImpl(new Object[]{"PKCS"}, new String[]{"", "12"});
+        Object password = new GStringImpl(new Object[]{PASSWORD}, new String[]{"", ""});
+
+        KeyStore keyStore = new TrustAndKeystoreSpecImpl().createStore(type, KEYSTORE, password);
+
+        assertThat(keyStore.size()).isEqualTo(1);
+    }
+
+    @Test
     void create_store_loads_from_classpath() throws Exception {
         KeyStore keyStore = new TrustAndKeystoreSpecImpl().createStore("PKCS12", KEYSTORE, PASSWORD);
 
