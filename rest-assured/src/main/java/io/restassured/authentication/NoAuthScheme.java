@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
+package io.restassured.authentication;
 
-
-package io.restassured.authentication
-
-import io.restassured.internal.http.HTTPBuilder
+import io.restassured.internal.http.HTTPBuilder;
 
 /**
- * Authentication scheme that doesn't do any authentication.
- * This is different from NoAuthScheme because it's used to indicate
- * that a user has explicitly requested for no authentication
- * to override a default authentication scheme.
+ * Authentication scheme that doesn't do any authentication
  */
-class ExplicitNoAuthScheme implements AuthenticationScheme {
-  @Override void authenticate(HTTPBuilder httpBuilder) {
-  }
+public class NoAuthScheme implements AuthenticationScheme {
+
+    @Override
+    public void authenticate(HTTPBuilder httpBuilder) {
+    }
 }

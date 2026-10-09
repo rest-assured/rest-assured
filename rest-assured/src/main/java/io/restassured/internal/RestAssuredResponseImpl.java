@@ -21,8 +21,9 @@ import io.restassured.response.ValidatableResponse;
 
 public class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
+    @Override
     public void parseResponse(HttpResponseDecorator httpResponse, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
-        groovyResponse.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar);
+        super.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar);
     }
 
     @Override

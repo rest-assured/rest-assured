@@ -14,26 +14,36 @@
  * limitations under the License.
  */
 
+package io.restassured.authentication;
 
-
-package io.restassured.authentication
-
-import io.restassured.internal.http.HTTPBuilder
+import io.restassured.internal.http.HTTPBuilder;
 
 /**
  * Used for basic and digest authentication
  */
-class PreemptiveBasicAuthScheme implements AuthenticationScheme {
-  private static final String AUTH_ENCODING = 'iso-8859-1'
+public class BasicAuthScheme implements AuthenticationScheme {
 
-  def String userName
-  def String password
+    private String userName;
+    private String password;
 
-  @Override void authenticate(HTTPBuilder httpBuilder) {
-      httpBuilder.headers[ 'Authorization' ] =  generateAuthToken()
-  }
+    @Override
+    public void authenticate(HTTPBuilder httpBuilder) {
+        httpBuilder.getAuth().basic(userName, password);
+    }
 
-  public String generateAuthToken() {
-    ("Basic " + "$userName:$password".getBytes(AUTH_ENCODING).encodeBase64()).toString()
-  }
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

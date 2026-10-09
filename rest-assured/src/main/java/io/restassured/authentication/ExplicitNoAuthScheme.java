@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package io.restassured.authentication
+package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder
-
+import io.restassured.internal.http.HTTPBuilder;
 
 /**
- * Used for NTLM authentication
+ * Authentication scheme that doesn't do any authentication.
+ * This is different from NoAuthScheme because it's used to indicate
+ * that a user has explicitly requested for no authentication
+ * to override a default authentication scheme.
  */
-class NTLMAuthScheme implements AuthenticationScheme {
-    def String userName
-    def String password
-    def String workstation
-    def String domain
+public class ExplicitNoAuthScheme implements AuthenticationScheme {
 
-    @Override void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.auth.ntlm(userName, password,workstation,domain)
+    @Override
+    public void authenticate(HTTPBuilder httpBuilder) {
     }
 }
