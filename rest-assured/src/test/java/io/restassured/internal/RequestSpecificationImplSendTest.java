@@ -137,6 +137,15 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
+    void default_charset_for_one_content_type_does_not_change_the_charset_of_other_content_types() {
+        given().config(config().encoderConfig(encoderConfig().defaultCharsetForContentType("UTF-16", ContentType.JSON)))
+                .body("ä").put("/x");
+
+        assertThat(last().header("Content-Type")).isEqualTo("text/plain; charset=ISO-8859-1");
+        assertThat(last().body()).isEqualTo(new String("ä".getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
+    }
+
+    @Test
     void bodies_with_their_content_types() {
         given().body("text").put("/x");
         assertThat(last().body()).isEqualTo("text");
