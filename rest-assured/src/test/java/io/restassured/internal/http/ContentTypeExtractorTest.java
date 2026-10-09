@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 
 public class ContentTypeExtractorTest {
 
@@ -36,4 +37,34 @@ public class ContentTypeExtractorTest {
         assertThat(withoutCharset, equalTo("application/json"));
     }
 
+    @Test public void
+    removes_parameters_and_surrounding_whitespace() {
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset("  application/vnd.api+json ; charset=UTF-8; qs=0.5"), equalTo("application/vnd.api+json"));
+    }
+
+    @Test public void
+    removes_trailing_semicolon() {
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset("application/xml;"), equalTo("application/xml"));
+    }
+
+    @Test public void
+    keeps_case_of_content_type() {
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset("Application/JSON; Charset=UTF-8"), equalTo("Application/JSON"));
+    }
+
+    @Test public void
+    returns_null_when_content_type_is_null() {
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset(null), nullValue());
+    }
+
+    @Test public void
+    returns_empty_string_when_content_type_is_empty_or_blank() {
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset(""), equalTo(""));
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset("   "), equalTo(""));
+    }
+
+    @Test public void
+    returns_empty_string_when_content_type_starts_with_semicolon() {
+        assertThat(ContentTypeExtractor.getContentTypeWithoutCharset("; charset=UTF-8"), equalTo(""));
+    }
 }

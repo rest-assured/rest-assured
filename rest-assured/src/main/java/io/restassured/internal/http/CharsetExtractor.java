@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
+package io.restassured.internal.http;
 
+public class CharsetExtractor {
 
-package io.restassured.internal.http
+    private static final String CHARSET = "charset";
 
-import org.apache.commons.lang3.StringUtils
-
-class ContentTypeExtractor {
-
-    def static String getContentTypeWithoutCharset(String contentType) {
-        return StringUtils.trim(StringUtils.substringBefore(contentType, ";"))
+    public static String getCharsetFromContentType(String contentType) {
+        return ContentTypeSubTypeExtractor.getSubTypeValueFromContentType(contentType, CHARSET);
     }
 }

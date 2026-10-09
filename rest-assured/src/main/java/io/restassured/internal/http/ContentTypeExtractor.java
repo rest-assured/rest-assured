@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.support
+package io.restassured.internal.http;
 
+import org.apache.commons.lang3.StringUtils;
 
-class FileReader {
+public class ContentTypeExtractor {
 
-  def static String readToString(File file, String charset) {
-    file.getText(charset)
-  }
+    public static String getContentTypeWithoutCharset(String contentType) {
+        return StringUtils.trim(StringUtils.substringBefore(contentType, ";"));
+    }
 }

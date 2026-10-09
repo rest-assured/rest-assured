@@ -1,0 +1,69 @@
+/*
+ * Copyright 2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.restassured.internal.http;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class CharsetExtractorTest {
+
+    @Test
+    void shouldExtractCharsetFromTheMiddleOfTheDeclaration() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("application/ld+json; charset=UTF-8; qs=0.5")).isEqualTo("UTF-8");
+    }
+
+    @Test
+    void shouldExtractCharsetFromTheEndOfTheDeclaration() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("application/ld+json; qs=0.5; charset=UTF-8")).isEqualTo("UTF-8");
+    }
+
+    @Test
+    void shouldExtractCharsetFromTheEndOfTheDeclarationWhenCharsetIsNotLowercase() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("application/ld+json; qs=0.5; CharseT=UTF-8")).isEqualTo("UTF-8");
+    }
+
+    @Test
+    void shouldExtractNullCharsetWhenNotPresent() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("application/ld+json; qs=0.5")).isNull();
+    }
+
+    @Test
+    void shouldExtractCharsetIfQuoted() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("application/ld+json; charset=\"UTF-8\"")).isEqualTo("UTF-8");
+    }
+
+    @Test
+    void shouldExtractNullCharsetWhenContentTypeIsNull() {
+        assertThat(CharsetExtractor.getCharsetFromContentType(null)).isNull();
+    }
+
+    @Test
+    void shouldExtractNullCharsetWhenContentTypeIsEmpty() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("")).isNull();
+    }
+
+    @Test
+    void shouldNotExtractBoundaryAsCharset() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("multipart/form-data; boundary=charset")).isNull();
+    }
+
+    @Test
+    void shouldExtractCharsetFromXmlSuffixContentType() {
+        assertThat(CharsetExtractor.getCharsetFromContentType("application/soap+xml ; Charset = ISO-8859-1 ")).isEqualTo("ISO-8859-1");
+    }
+}

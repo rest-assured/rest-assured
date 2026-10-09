@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
+package io.restassured.internal.http;
 
-package io.restassured.internal.http
+public class BoundaryExtractor {
 
-class CharsetExtractor {
+    private static final String BOUNDARY = "boundary";
 
-  private static final String CHARSET = "charset"
-
-  public static String getCharsetFromContentType(String contentType) {
-    ContentTypeSubTypeExtractor.getSubTypeValueFromContentType(contentType, CHARSET);
-  }
+    public static String getBoundaryFromContentType(String contentType) {
+        return ContentTypeSubTypeExtractor.getSubTypeValueFromContentType(contentType, BOUNDARY);
+    }
 }
