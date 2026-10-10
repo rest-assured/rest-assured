@@ -50,7 +50,7 @@ public class GivenWhenThenLoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
@@ -87,6 +87,6 @@ public class GivenWhenThenLoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo(String.format("Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n")));
+                "Server: Jetty(9.4.58.v20250814)%n")));
     }
 }
