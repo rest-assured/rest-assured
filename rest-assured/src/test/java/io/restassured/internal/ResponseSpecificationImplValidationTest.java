@@ -861,10 +861,17 @@ class ResponseSpecificationImplValidationTest {
         assertThat(spec.expect()).isSameAs(spec);
         assertThat(spec.that()).isSameAs(spec);
         assertThat(spec.response()).isSameAs(spec);
-        assertThat(spec.given()).isNull();
-        assertThat(spec.when()).isNull();
-        assertThat(spec.request()).isNull();
-        assertThat(spec.with()).isNull();
+        // Without a request specification, as when built by ResponseSpecBuilder
+        assertThatThrownBy(spec::given).isInstanceOf(IllegalStateException.class).hasMessageStartingWith("A response specification built by ResponseSpecBuilder");
+        assertThatThrownBy(spec::when).isInstanceOf(IllegalStateException.class).hasMessageStartingWith("A response specification built by ResponseSpecBuilder");
+        assertThatThrownBy(spec::request).isInstanceOf(IllegalStateException.class).hasMessageStartingWith("A response specification built by ResponseSpecBuilder");
+        assertThatThrownBy(spec::with).isInstanceOf(IllegalStateException.class).hasMessageStartingWith("A response specification built by ResponseSpecBuilder");
+        RequestSpecification requestSpecification = given();
+        spec.setRequestSpecification(requestSpecification);
+        assertThat(spec.given()).isSameAs(requestSpecification);
+        assertThat(spec.when()).isSameAs(requestSpecification);
+        assertThat(spec.request()).isSameAs(requestSpecification);
+        assertThat(spec.with()).isSameAs(requestSpecification);
         assertThat(spec.logDetail(LogDetail.BODY)).isSameAs(spec);
         assertThat(spec.getLogDetail()).isEqualTo(LogDetail.BODY);
         assertThat(spec.log()).isInstanceOf(ResponseLogSpecificationImpl.class);
