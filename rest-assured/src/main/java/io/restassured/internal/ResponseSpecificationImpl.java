@@ -378,7 +378,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     }
 
     public RequestSender when() {
-        return requestSpecification;
+        return requestSpecificationOrThrow();
     }
 
     public ResponseSpecification response() {
@@ -386,7 +386,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     }
 
     public RequestSpecification given() {
-        return requestSpecification;
+        return requestSpecificationOrThrow();
     }
 
     public ResponseSpecification that() {
@@ -394,7 +394,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     }
 
     public RequestSpecification request() {
-        return requestSpecification;
+        return requestSpecificationOrThrow();
     }
 
     public ResponseSpecification parser(String contentType, Parser parser) {
@@ -781,6 +781,22 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
 
     void setRequestSpecification(RequestSpecification requestSpecification) {
         this.requestSpecification = requestSpecification;
+    }
+
+    // Null for a specification built by ResponseSpecBuilder, until it's passed to given(requestSpec, responseSpec)
+    RequestSpecification getRequestSpecification() {
+        return requestSpecification;
+    }
+
+    // A specification built by ResponseSpecBuilder has no request specification. It's meant to be merged into the
+    // specification that given(), expect() or then() creates, so there's no request for it to define or send.
+    private RequestSpecification requestSpecificationOrThrow() {
+        if (requestSpecification == null) {
+            throw new IllegalStateException("A response specification built by ResponseSpecBuilder can't define or send a request itself. " +
+                    "Use it with given().spec(requestSpec).expect().spec(responseSpec), then().spec(responseSpec) or given(requestSpec, responseSpec), " +
+                    "e.g. given().spec(requestSpec).when().get(\"/path\").then().spec(responseSpec).");
+        }
+        return requestSpecification;
     }
 
     private BodyMatcher newBodyMatcher(Object key, Matcher<?> matcher) {

@@ -29,7 +29,7 @@
     <description>Scala example of using REST Assured with Spring MockMvc</description>
 
     <properties>
-        <scala.version>2.13.0</scala.version>
+        <scala.version>2.13.18</scala.version>
     </properties>
 
     <build>
@@ -110,8 +110,8 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.12</version>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.20</version>
         </dependency>
     </dependencies>
 </project>

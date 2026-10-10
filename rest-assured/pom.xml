@@ -155,7 +155,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.eclipse</groupId>
+            <groupId>org.eclipse.yasson</groupId>
             <artifactId>yasson</artifactId>
             <optional>true</optional>
         </dependency>
