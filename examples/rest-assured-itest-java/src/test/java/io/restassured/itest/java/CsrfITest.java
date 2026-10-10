@@ -146,7 +146,7 @@ public class CsrfITest extends WithJetty {
                         "HTTP/1.1 200 OK%n" +
                         "Content-Type: text/html;charset=utf-8%n" +
                         "Content-Length: 589%n" +
-                        "Server: Jetty(9.4.34.v20201102)%n%n")));
+                        "Server: Jetty(9.4.58.v20250814)%n%n")));
     }
 
     @Test

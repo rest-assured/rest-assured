@@ -119,7 +119,7 @@ public class LoggingITest extends WithJetty {
                 containsString("Set-Cookie: cookie1=cookieValue2; Path=/; Domain=localhost; Expires="),
                 endsWith("; Max-Age=1234567; Secure\n" +
                         "Content-Length: 2\n" +
-                        "Server: Jetty(9.4.34.v20201102)\n" +
+                        "Server: Jetty(9.4.58.v20250814)\n" +
                         "\n" +
                         "OK\n")
         ));
@@ -358,7 +358,7 @@ public class LoggingITest extends WithJetty {
                         "{\"hello\":\"Hello world\"}%n" + "HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=iso-8859-1%n" +
                         "Content-Length: 23%n" +
-                        "Server: Jetty(9.4.34.v20201102)%n" +
+                        "Server: Jetty(9.4.58.v20250814)%n" +
                         "%n" +
                         "{\"hello\":\"Hello world\"}%n",
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
@@ -394,7 +394,7 @@ public class LoggingITest extends WithJetty {
                         "{\"hello\":\"Hello world\"}%n" + "HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=iso-8859-1%n" +
                         "Content-Length: 23%n" +
-                        "Server: Jetty(9.4.34.v20201102)%n" +
+                        "Server: Jetty(9.4.58.v20250814)%n" +
                         "%n" +
                         "{\"hello\":\"Hello world\"}%n",
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
@@ -430,7 +430,7 @@ public class LoggingITest extends WithJetty {
                     "HTTP/1.1 200 OK\n" +
                     "Content-Type: application/x-custom-content-type; charset=%s\n" +
                     "Content-Length: 23\n" +
-                    "Server: Jetty(9.4.34.v20201102)\n" +
+                    "Server: Jetty(9.4.58.v20250814)\n" +
                     "\n" +
                     "{\"hello\":\"Hello world\"}\n",
                     RestAssured.config().getEncoderConfig().defaultContentCharset()
@@ -459,7 +459,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
@@ -479,7 +479,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 409 Conflict%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
                 "Content-Length: 5%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "ERROR%n")));
     }
@@ -514,7 +514,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 409 Conflict%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
                 "Content-Length: 5%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "ERROR%n")));
     }
@@ -630,7 +630,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +
@@ -659,7 +659,7 @@ public class LoggingITest extends WithJetty {
                 HTTP/1.1 200 OK%n\
                 Content-Type: application/json;charset=utf-8%n\
                 Content-Length: 59%n\
-                Server: Jetty(9.4.34.v20201102)%n\
+                Server: Jetty(9.4.58.v20250814)%n\
                 %n\
                 {
                     "firstName": "John",
@@ -747,7 +747,7 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo(String.format("Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n")));
+                "Server: Jetty(9.4.58.v20250814)%n")));
     }
 
     @Test
@@ -767,7 +767,7 @@ public class LoggingITest extends WithJetty {
                 "MultiHeader: Value 1%n" +
                 "MultiHeader: Value 2%n" +
                 "Content-Length: 0%n" +
-                "Server: Jetty(9.4.34.v20201102)%n")));
+                "Server: Jetty(9.4.58.v20250814)%n")));
     }
 
     @Test
@@ -802,7 +802,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 33%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "This is not a valid JSON document%n")));
     }
@@ -1204,7 +1204,7 @@ public class LoggingITest extends WithJetty {
                 startsWith(String.format("HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=utf-8%n" +
                         "Content-Length: ")),
-                endsWith(String.format("Server: Jetty(9.4.34.v20201102)%n" +
+                endsWith(String.format("Server: Jetty(9.4.58.v20250814)%n" +
                         "%n" +
                         "<!--\n" +
                         "  ~ Copyright 2019 the original author or authors.\n" +
@@ -1513,6 +1513,6 @@ public class LoggingITest extends WithJetty {
                 "MultiHeader: [ BLACKLISTED ]%n" +
                 "MultiHeader: [ BLACKLISTED ]%n" +
                 "Content-Length: 0%n" +
-                "Server: Jetty(9.4.34.v20201102)%n")));
+                "Server: Jetty(9.4.58.v20250814)%n")));
     }
 }

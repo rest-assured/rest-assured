@@ -201,7 +201,7 @@ public class HeaderITest extends WithJetty {
                         Expected header "Not-Defined" was not "160", was "null". Headers are:
                         Content-Type=application/json;charset=utf-8
                         Content-Length=160
-                        Server=Jetty(9.4.34.v20201102)
+                        Server=Jetty(9.4.58.v20250814)
                         """);
     }
 
