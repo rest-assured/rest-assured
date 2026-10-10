@@ -70,7 +70,7 @@
         <surefire.version>3.5.4</surefire.version>
         <kotlin.version>2.2.21</kotlin.version>
         <scala.version>3.3.1</scala.version>
-        <assertj-core.version>3.27.4</assertj-core.version>
+        <assertj-core.version>3.27.7</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.7.2-jre</guava.version>
         <dokka.version>2.1.0</dokka.version>
