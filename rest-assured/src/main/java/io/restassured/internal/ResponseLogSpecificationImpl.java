@@ -134,12 +134,19 @@ public class ResponseLogSpecificationImpl extends LogSpecificationImpl implement
     }
 
     private ResponseSpecification logWith(ResponseLoggingFilter filter) {
-        responseSpecification.request().filter(filter);
+        requestSpecification().filter(filter);
         return responseSpecification;
     }
 
+    // Not request(), which throws for a specification built by ResponseSpecBuilder, so that the error below is kept
+    private RequestSpecification requestSpecification() {
+        return responseSpecification instanceof ResponseSpecificationImpl
+                ? ((ResponseSpecificationImpl) responseSpecification).getRequestSpecification()
+                : responseSpecification.request();
+    }
+
     private PrintStream getPrintStream() {
-        RequestSpecification requestSpecification = responseSpecification.request();
+        RequestSpecification requestSpecification = requestSpecification();
         if (requestSpecification == null) {
             throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.");
         }
@@ -147,7 +154,7 @@ public class ResponseLogSpecificationImpl extends LogSpecificationImpl implement
     }
 
     private boolean shouldPrettyPrint() {
-        RequestSpecification responseSpecification = this.responseSpecification.request();
+        RequestSpecification responseSpecification = requestSpecification();
         if (responseSpecification == null) {
             throw new IllegalStateException("Cannot configure logging since response specification is not defined. You may be misusing the API.");
         }

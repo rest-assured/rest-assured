@@ -47,7 +47,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
  * RequestSpecification requestSpec = new RequestSpecBuilder().addParam("parameter1", "value1").build();
  *
- * given(responseSpec, requestSpec).post("/something");
+ * given(requestSpec, responseSpec).post("/something");
  * </pre>
  * <p/>
  * or
@@ -677,7 +677,18 @@ public class ResponseSpecBuilder {
     }
 
     /**
-     * Build the response specification.
+     * Build the response specification. Use it with {@link ResponseSpecification#spec(ResponseSpecification)} (e.g.
+     * <code>given().spec(requestSpec).expect().spec(responseSpec)</code>),
+     * {@link io.restassured.response.ValidatableResponseOptions#spec(ResponseSpecification)} (e.g.
+     * <code>then().spec(responseSpec)</code>) or
+     * {@link io.restassured.RestAssured#given(io.restassured.specification.RequestSpecification, ResponseSpecification)}, e.g.
+     * <pre>
+     * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
+     *
+     * given().spec(requestSpec).when().get("/something").then().spec(responseSpec);
+     * </pre>
+     * Defining or sending a request (e.g. <code>responseSpec.when().get("/something")</code> or
+     * <code>responseSpec.given()</code>) directly from the built specification throws an {@link IllegalStateException}.
      *
      * @return The assembled response specification
      */
