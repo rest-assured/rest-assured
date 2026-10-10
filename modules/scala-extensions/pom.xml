@@ -29,7 +29,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala-maven-plugin.version>4.9.2</scala-maven-plugin.version>
-        <scala.version>3.3.3</scala.version>
+        <scala.version>3.3.8</scala.version>
     </properties>
 
     <dependencies>
