@@ -32,7 +32,7 @@
         <servlet-api.version>6.1.0</servlet-api.version>
         <spring.restdocs.version>4.0.1</spring.restdocs.version>
         <commons-io.version>2.22.0</commons-io.version>
-        <org.skyscreamer>1.5.0</org.skyscreamer>
+        <org.skyscreamer>1.5.3</org.skyscreamer>
     </properties>
 
     <build>
