@@ -59,6 +59,7 @@
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>6.0.0</junit.version>
+        <byte-buddy.version>1.18.15</byte-buddy.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.22.3</jackson2.version>
         <jackson3.version>3.2.3</jackson3.version>
@@ -429,6 +430,17 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
+            </dependency>
+            <!-- AssertJ brings an older Byte Buddy than Mockito, which doesn't support Java 25 -->
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
