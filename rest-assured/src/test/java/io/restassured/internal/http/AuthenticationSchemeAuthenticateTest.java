@@ -29,6 +29,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.security.KeyStore;
 import java.util.ArrayList;
@@ -41,10 +42,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Verifies what each {@link AuthenticationScheme} does to the {@link HTTPBuilder} it authenticates.
  */
+@SuppressWarnings("deprecation")
 class AuthenticationSchemeAuthenticateTest {
 
-    private final DefaultHttpClient client = new DefaultHttpClient();
-    private final HTTPBuilder http = httpBuilder("http://localhost:8080/base", client);
+    final DefaultHttpClient client = new DefaultHttpClient();
+    final HTTPBuilder http = httpBuilder("http://localhost:8080/base", client);
+
+    @SuppressWarnings("deprecation")
+    void authenticate(AuthenticationScheme scheme, HTTPBuilder httpBuilder) {
+        scheme.authenticate(httpBuilder);
+    }
 
     @Test
     void basic_auth_scheme_sets_credentials_for_the_host_and_port_of_the_uri() {
@@ -52,7 +59,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setUserName("user");
         scheme.setPassword("pass");
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         Credentials credentials = client.getCredentialsProvider().getCredentials(new AuthScope("localhost", 8080));
         assertThat(credentials.getUserPrincipal().getName()).isEqualTo("user");
@@ -68,7 +75,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setWorkstation("workstation");
         scheme.setDomain("domain");
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         NTCredentials credentials = (NTCredentials) client.getCredentialsProvider().getCredentials(new AuthScope("localhost", 8080));
         assertThat(credentials.getUserName()).isEqualTo("user");
@@ -85,7 +92,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setAccessToken("accessToken");
         scheme.setSecretToken("secretToken");
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         AuthConfig.OAuthSigner signer = onlyOAuthSigner();
         assertThat(signer.isOAuth1).isTrue();
@@ -105,7 +112,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setSecretToken("secretToken");
         scheme.setSignature(OAuthSignature.QUERY_STRING);
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         AuthConfig.OAuthSigner signer = onlyOAuthSigner();
         assertThat(signer.isOAuth1).isTrue();
@@ -117,7 +124,7 @@ class AuthenticationSchemeAuthenticateTest {
     void oauth_scheme_with_null_consumer_key_signs_nothing() {
         OAuthScheme scheme = new OAuthScheme();
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         assertThat(oauthSigners()).isEmpty();
     }
@@ -127,7 +134,7 @@ class AuthenticationSchemeAuthenticateTest {
         OAuth2Scheme scheme = new OAuth2Scheme();
         scheme.setAccessToken("accessToken");
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         AuthConfig.OAuthSigner signer = onlyOAuthSigner();
         assertThat(signer.isOAuth1).isFalse();
@@ -141,7 +148,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setAccessToken("accessToken");
         scheme.setSignature(OAuthSignature.QUERY_STRING);
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         AuthConfig.OAuthSigner signer = onlyOAuthSigner();
         assertThat(signer.isOAuth1).isFalse();
@@ -156,7 +163,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setTrustStorePassword("whatever");
         scheme.setPort(9443);
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         // The uri is http so the socket factory is created lazily, which is why a missing trust store doesn't fail here
         Scheme https = client.getConnectionManager().getSchemeRegistry().getScheme("https");
@@ -200,11 +207,23 @@ class AuthenticationSchemeAuthenticateTest {
         SSLSocketFactory factory = SSLSocketFactory.getSocketFactory();
         scheme.setSslSocketFactory(factory);
 
-        scheme.authenticate(https);
+        authenticate(scheme, https);
 
         Scheme httpsScheme = client.getConnectionManager().getSchemeRegistry().getScheme("https");
         assertThat(httpsScheme.getDefaultPort()).isEqualTo(8443);
         assertThat(httpsScheme.getSchemeSocketFactory()).isSameAs(factory);
+    }
+
+    @Test
+    void cert_auth_scheme_uses_the_given_ssl_context_with_strict_host_name_verification_for_an_https_uri() throws Exception {
+        HTTPBuilder https = httpBuilder("https://localhost:8443/base", client);
+        CertAuthScheme scheme = new CertAuthScheme();
+        scheme.setSslContext(SSLContext.getDefault());
+
+        authenticate(scheme, https);
+
+        SSLSocketFactory factory = (SSLSocketFactory) client.getConnectionManager().getSchemeRegistry().getScheme("https").getSchemeSocketFactory();
+        assertThat(factory.getHostnameVerifier()).isSameAs(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
     }
 
     @Test
@@ -213,7 +232,7 @@ class AuthenticationSchemeAuthenticateTest {
         scheme.setUserName("user");
         scheme.setPassword("pass");
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         assertThat(http.getHeaders().get("Authorization")).isEqualTo("Basic dXNlcjpwYXNz");
     }
@@ -249,7 +268,7 @@ class AuthenticationSchemeAuthenticateTest {
         PreemptiveOAuth2HeaderScheme scheme = new PreemptiveOAuth2HeaderScheme();
         scheme.setAccessToken("accessToken");
 
-        scheme.authenticate(http);
+        authenticate(scheme, http);
 
         assertThat(http.getHeaders().get("Authorization")).isEqualTo("Bearer accessToken");
     }
@@ -267,9 +286,9 @@ class AuthenticationSchemeAuthenticateTest {
         int interceptorCount = client.getRequestInterceptorCount();
         Scheme httpsScheme = client.getConnectionManager().getSchemeRegistry().get("https");
 
-        new NoAuthScheme().authenticate(http);
-        new ExplicitNoAuthScheme().authenticate(http);
-        formAuthScheme.authenticate(http);
+        authenticate(new NoAuthScheme(), http);
+        authenticate(new ExplicitNoAuthScheme(), http);
+        authenticate(formAuthScheme, http);
 
         assertThat(client.getCredentialsProvider().getCredentials(AuthScope.ANY)).isNull();
         assertThat(client.getRequestInterceptorCount()).isEqualTo(interceptorCount);

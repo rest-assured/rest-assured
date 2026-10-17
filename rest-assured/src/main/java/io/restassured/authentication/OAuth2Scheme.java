@@ -32,6 +32,15 @@ public class OAuth2Scheme implements AuthenticationScheme {
         }
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        if (signature != null) {
+            context.oauth2(accessToken, signature);
+        } else {
+            context.oauth2(accessToken);
+        }
+    }
+
     public String getAccessToken() {
         return accessToken;
     }

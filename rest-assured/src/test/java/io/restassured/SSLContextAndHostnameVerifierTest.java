@@ -18,8 +18,10 @@ package io.restassured;
 
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
+import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertAuthScheme;
 import io.restassured.authentication.CertificateAuthSettings;
+import io.restassured.authentication.ContextAuthenticationScheme;
 import io.restassured.config.SSLConfig;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -143,6 +145,19 @@ class SSLContextAndHostnameVerifierTest {
     void ssl_context_in_certificate_auth_settings_is_used_to_connect() throws Exception {
         given().
                 auth().certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD, certAuthSettings().sslContext(clientSslContextTrustingTheServer())).
+        when().
+                get(httpsUrl()).
+        then().
+                statusCode(200).
+                body(equalTo("secure"));
+    }
+
+    @Test
+    void certificate_scheme_used_through_an_authentication_context_connects() throws Exception {
+        AuthenticationScheme certificate = RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD, certAuthSettings().sslContext(clientSslContextTrustingTheServer()));
+        RestAssured.authentication = (ContextAuthenticationScheme) certificate::authenticate;
+
+        given().
         when().
                 get(httpsUrl()).
         then().

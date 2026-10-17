@@ -33,6 +33,11 @@ public class NTLMAuthScheme implements AuthenticationScheme {
         httpBuilder.getAuth().ntlm(userName, password, workstation, domain);
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        context.ntlm(userName, password, workstation, domain);
+    }
+
     public String getUserName() {
         return userName;
     }

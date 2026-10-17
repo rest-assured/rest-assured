@@ -6,6 +6,7 @@ Changelog next version
 * Added REST Assured's own MultipartMode enum with HttpClientConfig.multipartMode(MultipartMode) and multipartMode(), replacing httpMultipartMode(HttpMultipartMode) and httpMultipartMode(), which are now deprecated
 * Added CookieFilter.getCookies(), which returns the stored cookies as REST Assured Cookies, and CookieFilter.addCookie(Cookie), replacing getCookieStore(), which is now deprecated together with extractEffectiveUriFromContext(..)
 * Deprecated HttpClientConfig.HttpClientFactory, httpClientFactory(..) and httpClientInstance(), and QueryableRequestSpecification.getHttpClient(), since HttpClient 4 types leave the API in REST Assured 7.0.0. REST Assured 7.0.0 adds customizeClient(..) to customize the HTTP client
+* Added AuthenticationContext, AuthenticationScheme.authenticate(AuthenticationContext) and ContextAuthenticationScheme, so that a custom authentication scheme can set headers, answer Basic, Digest and NTLM challenges, sign with OAuth and use a client certificate without depending on HttpClient 4. Implement ContextAuthenticationScheme instead of AuthenticationScheme.authenticate(HTTPBuilder), which is now deprecated, since HTTPBuilder exposes HttpClient 4 and is removed in REST Assured 7.0.0
 
 Changelog 6.2.0 (2026-10-16)
 ----------------------------

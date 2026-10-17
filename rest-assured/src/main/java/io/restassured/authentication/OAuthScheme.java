@@ -35,6 +35,15 @@ public class OAuthScheme implements AuthenticationScheme {
         }
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        if (signature != null) {
+            context.oauth(consumerKey, consumerSecret, accessToken, secretToken, signature);
+        } else {
+            context.oauth(consumerKey, consumerSecret, accessToken, secretToken);
+        }
+    }
+
     public String getConsumerKey() {
         return consumerKey;
     }

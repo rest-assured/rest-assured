@@ -47,6 +47,22 @@ public class CertAuthScheme implements AuthenticationScheme {
                 port, x509HostnameVerifier, JsseToHttpClient4Ssl.toSSLSocketFactory(sslSocketFactory, sslContext, x509HostnameVerifier));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if an SSLSocketFactory is set with {@link #setSslSocketFactory(SSLSocketFactory)},
+     *                               since an {@link AuthenticationContext} only takes an {@link SSLContext}
+     */
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        if (sslSocketFactory != null) {
+            throw new IllegalStateException("An SSLSocketFactory can't be used with an AuthenticationContext. Use setSslContext(..) instead of setSslSocketFactory(..).");
+        }
+        context.certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
+                pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
+                port, JsseToHttpClient4Ssl.toHostnameVerifier(x509HostnameVerifier), sslContext);
+    }
+
     public Object getPathToKeyStore() {
         return pathToKeyStore;
     }
@@ -155,6 +171,8 @@ public class CertAuthScheme implements AuthenticationScheme {
     }
 
     /**
+     * A scheme with an SSLSocketFactory can't be used through an {@link AuthenticationContext}.
+     *
      * @deprecated Use {@link #setSslContext(SSLContext)} instead. HttpClient 4 types are removed from the API in REST
      * Assured 7.0.0.
      */

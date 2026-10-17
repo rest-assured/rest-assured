@@ -31,6 +31,10 @@ public class FormAuthScheme implements AuthenticationScheme {
     public void authenticate(HTTPBuilder httpBuilder) {
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+    }
+
     public Object getUserName() {
         return userName;
     }

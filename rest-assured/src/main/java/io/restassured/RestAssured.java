@@ -1414,7 +1414,11 @@ public class RestAssured {
         scheme.setPathToTrustStore(trustStorePath);
         scheme.setTrustStorePassword(trustStorePassword);
         scheme.setX509HostnameVerifier(certificateAuthSettings.getX509HostnameVerifier());
-        scheme.setSslSocketFactory(certificateAuthSettings.getSSLSocketFactory());
+        if (certificateAuthSettings.getSSLContext() != null) {
+            scheme.setSslContext(certificateAuthSettings.getSSLContext());
+        } else {
+            scheme.setSslSocketFactory(certificateAuthSettings.getSSLSocketFactory());
+        }
         return scheme;
     }
 

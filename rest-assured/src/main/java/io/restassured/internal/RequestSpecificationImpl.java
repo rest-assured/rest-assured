@@ -1600,7 +1600,11 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 certAuthScheme.setTrustStoreType(sslConfig.getTrustStoreType());
                 certAuthScheme.setTrustStore(sslConfig.getTrustStore());
                 certAuthScheme.setPort(sslConfig.getPort());
-                certAuthScheme.setSslSocketFactory(sslConfig.getSSLSocketFactory());
+                if (sslConfig.getSSLContext() != null) {
+                    certAuthScheme.setSslContext(sslConfig.getSSLContext());
+                } else {
+                    certAuthScheme.setSslSocketFactory(sslConfig.getSSLSocketFactory());
+                }
                 certAuthScheme.setX509HostnameVerifier(sslConfig.getX509HostnameVerifier());
                 certAuthScheme.authenticate(http);
             }

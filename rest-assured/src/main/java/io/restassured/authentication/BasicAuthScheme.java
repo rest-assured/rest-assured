@@ -31,6 +31,11 @@ public class BasicAuthScheme implements AuthenticationScheme {
         httpBuilder.getAuth().basic(userName, password);
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        context.basic(userName, password);
+    }
+
     public String getUserName() {
         return userName;
     }
