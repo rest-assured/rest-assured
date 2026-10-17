@@ -4,7 +4,7 @@ Date: 2026-10-17
 
 ## Status
 
-Proposed, for 6.3.0 and 7.0.0.
+Accepted, for 6.3.0 and 7.0.0.
 
 ## Context
 
