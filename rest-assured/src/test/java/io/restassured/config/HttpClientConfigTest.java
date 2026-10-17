@@ -19,12 +19,17 @@ package io.restassured.config;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +41,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 public class HttpClientConfigTest {
 
     private static final String CUSTOM_MAX_REDIRECTS = "100";
@@ -172,5 +178,82 @@ public class HttpClientConfigTest {
         assertThat(httpClientConfig.httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE).httpClientInstance()).isSameAs(httpClient);
         assertThat(httpClientConfig.reuseHttpClientInstance().httpClientInstance()).isSameAs(httpClient);
         assertThat(httpClientConfig.setParam(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS).httpClientInstance()).isNotSameAs(httpClient);
+    }
+
+    @Test
+    public void newSettingsHaveTheDefaultsOfTheParameters() {
+        final HttpClientConfig httpClientConfig = new HttpClientConfig();
+
+        assertThat(httpClientConfig.connectTimeout()).isNull();
+        assertThat(httpClientConfig.readTimeout()).isNull();
+        assertThat(httpClientConfig.connectionRequestTimeout()).isNull();
+        assertThat(httpClientConfig.keepsResponseCookies()).isFalse();
+        assertThat(httpClientConfig.cookieDatePatterns()).containsExactly("EEE, dd-MMM-yyyy HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z");
+        assertThat(httpClientConfig.expectsContinue()).isFalse();
+        assertThat(httpClientConfig.multipartMode()).isEqualTo(MultipartMode.STRICT);
+    }
+
+    @Test
+    public void newSettingsSetTheHttpClientParametersThatHttpClient4Reads() {
+        final HttpClientConfig httpClientConfig = new HttpClientConfig()
+                .connectTimeout(Duration.ofSeconds(1))
+                .readTimeout(Duration.ofSeconds(2))
+                .connectionRequestTimeout(Duration.ofSeconds(3))
+                .keepResponseCookies(true)
+                .cookieDatePatterns("yyyy-MM-dd")
+                .expectContinue(true)
+                .multipartMode(MultipartMode.RFC6532);
+
+        assertThat((Map<String, Object>) httpClientConfig.params()).contains(
+                entry(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000),
+                entry(CoreConnectionPNames.SO_TIMEOUT, 2000),
+                entry(ClientPNames.CONN_MANAGER_TIMEOUT, 3000L),
+                entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH),
+                entry(CookieSpecPNames.DATE_PATTERNS, Collections.singletonList("yyyy-MM-dd")),
+                entry(CoreProtocolPNames.USE_EXPECT_CONTINUE, true));
+        assertThat(httpClientConfig.httpMultipartMode()).isEqualTo(HttpMultipartMode.RFC6532);
+    }
+
+    @Test
+    public void newGettersReadTheParametersSetWithTheOldMethods() {
+        final HttpClientConfig httpClientConfig = new HttpClientConfig()
+                .setParam(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000)
+                .setParam(CoreConnectionPNames.SO_TIMEOUT, "2000")
+                .setParam(ClientPNames.CONN_MANAGER_TIMEOUT, 3000L)
+                .setParam(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                .setParam(CookieSpecPNames.DATE_PATTERNS, Collections.singletonList("yyyy-MM-dd"))
+                .setParam(CoreProtocolPNames.USE_EXPECT_CONTINUE, true)
+                .httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+        assertThat(httpClientConfig.connectTimeout()).isEqualTo(Duration.ofSeconds(1));
+        assertThat(httpClientConfig.readTimeout()).isEqualTo(Duration.ofSeconds(2));
+        assertThat(httpClientConfig.connectionRequestTimeout()).isEqualTo(Duration.ofSeconds(3));
+        assertThat(httpClientConfig.keepsResponseCookies()).isTrue();
+        assertThat(httpClientConfig.cookieDatePatterns()).containsExactly("yyyy-MM-dd");
+        assertThat(httpClientConfig.expectsContinue()).isTrue();
+        assertThat(httpClientConfig.multipartMode()).isEqualTo(MultipartMode.BROWSER_COMPATIBLE);
+    }
+
+    @Test
+    public void keepResponseCookiesFalseIgnoresCookies() {
+        final HttpClientConfig httpClientConfig = new HttpClientConfig().keepResponseCookies(true).keepResponseCookies(false);
+
+        assertThat((Map<String, Object>) httpClientConfig.params()).contains(entry(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES));
+        assertThat(httpClientConfig.keepsResponseCookies()).isFalse();
+    }
+
+    @Test
+    public void negativeTimeoutIsRejected() {
+        assertThatThrownBy(() -> new HttpClientConfig().readTimeout(Duration.ofMillis(-1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("readTimeout can't be negative, was PT-0.001S");
+    }
+
+    @Test
+    public void everyMultipartModeHasAnHttpClient4Counterpart() {
+        for (MultipartMode multipartMode : MultipartMode.values()) {
+            assertThat(new HttpClientConfig().multipartMode(multipartMode).multipartMode()).isEqualTo(multipartMode);
+        }
+        assertThat(MultipartMode.values()).hasSameSizeAs(HttpMultipartMode.values());
     }
 }

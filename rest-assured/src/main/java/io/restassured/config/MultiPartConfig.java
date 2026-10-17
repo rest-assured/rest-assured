@@ -18,7 +18,6 @@ package io.restassured.config;
 
 import io.restassured.internal.common.assertion.AssertParameter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.mime.HttpMultipartMode;
 
 import java.nio.charset.Charset;
 
@@ -152,14 +151,14 @@ public class MultiPartConfig implements Config {
      * Specify a default charset to use for multi-parts (default is US-ASCII). This affects the encoding of the multipart body (such as the
      * control name) but <i>not</i> the actual <i>content</i> (such as the a JSON or String document).
      * <p>
-     * <b>NOTE:</b> This setting is <i>only</i> taken into account if {@link HttpClientConfig#httpMultipartMode(HttpMultipartMode)} is set to
-     * something other than {@link HttpMultipartMode#STRICT} (which is the default). So if you want this setting to apply you also need to
+     * <b>NOTE:</b> This setting is <i>only</i> taken into account if {@link HttpClientConfig#multipartMode(MultipartMode)} is set to
+     * something other than {@link MultipartMode#STRICT} (which is the default). So if you want this setting to apply you also need to
      * explicitly change the multipart mode, for example:
      *
      * <pre>
      * given().
      *         config(RestAssuredConfig.config()
-     *                                 .httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(BROWSER_COMPATIBLE))
+     *                                 .httpClient(HttpClientConfig.httpClientConfig().multipartMode(BROWSER_COMPATIBLE))
      *                                 .multiPartConfig(multiPartConfig().defaultCharset("UTF-8"))).
      * when().
      *        post("/x"). ..
@@ -176,14 +175,14 @@ public class MultiPartConfig implements Config {
      * Specify a default charset to use for multi-parts (default is US-ASCII). This affects the encoding of the multipart body (such as the
      * control name) but <i>not</i> the actual <i>content</i> (such as the a JSON or String document).
      * <p>
-     * <b>NOTE:</b> This setting is <i>only</i> taken into account if {@link HttpClientConfig#httpMultipartMode(HttpMultipartMode)} is set to
-     * something other than {@link HttpMultipartMode#STRICT} (which is the default). So if you want this setting to apply you also need to
+     * <b>NOTE:</b> This setting is <i>only</i> taken into account if {@link HttpClientConfig#multipartMode(MultipartMode)} is set to
+     * something other than {@link MultipartMode#STRICT} (which is the default). So if you want this setting to apply you also need to
      * explicitly change the multipart mode, for example:
      *
      * <pre>
      * given().
      *         config(RestAssuredConfig.config()
-     *                                 .httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(BROWSER_COMPATIBLE))
+     *                                 .httpClient(HttpClientConfig.httpClientConfig().multipartMode(BROWSER_COMPATIBLE))
      *                                 .multiPartConfig(multiPartConfig().defaultCharset("UTF-8"))).
      * when().
      *        post("/x"). ..

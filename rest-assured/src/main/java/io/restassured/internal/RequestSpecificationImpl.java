@@ -48,6 +48,7 @@ import io.restassured.internal.filter.CsrfFilter;
 import io.restassured.internal.filter.FilterContextImpl;
 import io.restassured.internal.filter.FormAuthFilter;
 import io.restassured.internal.filter.SendRequestFilter;
+import io.restassured.internal.http.AllMethodsRedirectStrategy;
 import io.restassured.internal.http.BoundaryExtractor;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.http.ContentEncoding;
@@ -95,6 +96,7 @@ import org.apache.http.entity.mime.FormBodyPartBuilder;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ConnectionReuseStrategy;
@@ -1612,6 +1614,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             // Register the cross-host header stripper after authentication so it runs last in the interceptor chain.
             RedirectConfig redirectConfig = restAssuredConfig == null ? null : restAssuredConfig.getRedirectConfig();
             applyCrossHostRedirectHeaderStripping(http, redirectConfig != null ? redirectConfig : new RedirectConfig());
+            applyRedirectStrategy(http, redirectConfig != null && redirectConfig.followsRedirectsForAllMethods());
 
             if (mayHaveBody(method)) {
                 if (hasFormParams() && requestBody != null) {
@@ -1758,6 +1761,19 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         client.removeRequestInterceptorByClass(CrossHostSensitiveHeaderStripper.class);
         if (redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect()) {
             client.addRequestInterceptor(new CrossHostSensitiveHeaderStripper());
+        }
+    }
+
+    private void applyRedirectStrategy(HTTPBuilder http, boolean followRedirectsForAllMethods) {
+        if (!(http.getClient() instanceof AbstractHttpClient)) {
+            return;
+        }
+        AbstractHttpClient client = http.getClient();
+        // Only replace our own strategy when turning it off, so that a strategy installed by an HttpClientFactory stays.
+        if (followRedirectsForAllMethods && !(client.getRedirectStrategy() instanceof AllMethodsRedirectStrategy)) {
+            client.setRedirectStrategy(new AllMethodsRedirectStrategy());
+        } else if (!followRedirectsForAllMethods && client.getRedirectStrategy() instanceof AllMethodsRedirectStrategy) {
+            client.setRedirectStrategy(DefaultRedirectStrategy.INSTANCE);
         }
     }
 

@@ -29,6 +29,7 @@ public class RedirectConfig implements Config {
     private final boolean rejectRelativeRedirect;
     private final int maxRedirects;
     private final boolean stripSensitiveHeadersOnCrossHostRedirect;
+    private final boolean followRedirectsForAllMethods;
     private final boolean isUserConfigured;
 
     /**
@@ -39,10 +40,11 @@ public class RedirectConfig implements Config {
      * <li>rejectRelativeRedirect = false</li>
      * <li>maxRedirects = 100 </li>
      * <li>stripSensitiveHeadersOnCrossHostRedirect = true </li>
+     * <li>followRedirectsForAllMethods = false </li>
      * </ol>
      */
     public RedirectConfig() {
-        this(true, false, false, 100, true, false);
+        this(true, false, false, 100, true, false, false);
     }
 
     /**
@@ -55,17 +57,19 @@ public class RedirectConfig implements Config {
      */
     public RedirectConfig(boolean followRedirects, boolean allowCircularRedirects,
                           boolean rejectRelativeRedirect, int maxRedirects) {
-        this(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true, true);
+        this(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true, false, true);
     }
 
     private RedirectConfig(boolean followRedirects, boolean allowCircularRedirects,
                            boolean rejectRelativeRedirect, int maxRedirects,
-                           boolean stripSensitiveHeadersOnCrossHostRedirect, boolean isUserConfigured) {
+                           boolean stripSensitiveHeadersOnCrossHostRedirect, boolean followRedirectsForAllMethods,
+                           boolean isUserConfigured) {
         this.followRedirects = followRedirects;
         this.allowCircularRedirects = allowCircularRedirects;
         this.rejectRelativeRedirect = rejectRelativeRedirect;
         this.maxRedirects = maxRedirects;
         this.stripSensitiveHeadersOnCrossHostRedirect = stripSensitiveHeadersOnCrossHostRedirect;
+        this.followRedirectsForAllMethods = followRedirectsForAllMethods;
         this.isUserConfigured = isUserConfigured;
     }
 
@@ -76,7 +80,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig followRedirects(boolean value) {
-        return new RedirectConfig(value, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, true);
+        return new RedirectConfig(value, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, followRedirectsForAllMethods, true);
     }
 
     /**
@@ -86,7 +90,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig allowCircularRedirects(boolean value) {
-        return new RedirectConfig(followRedirects, value, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, true);
+        return new RedirectConfig(followRedirects, value, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, followRedirectsForAllMethods, true);
     }
 
     /**
@@ -96,7 +100,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig rejectRelativeRedirect(boolean value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, value, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, true);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, value, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, followRedirectsForAllMethods, true);
     }
 
     /**
@@ -106,7 +110,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig maxRedirects(int value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, value, stripSensitiveHeadersOnCrossHostRedirect, true);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, value, stripSensitiveHeadersOnCrossHostRedirect, followRedirectsForAllMethods, true);
     }
 
     /**
@@ -120,7 +124,21 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig stripSensitiveHeadersOnCrossHostRedirect(boolean value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, value, true);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, value, followRedirectsForAllMethods, true);
+    }
+
+    /**
+     * Configure whether REST Assured should follow redirects for every HTTP method. By default only redirects of
+     * <code>GET</code> and <code>HEAD</code> requests are followed automatically, as well as <code>303 See Other</code>.
+     * When enabled, redirects of for example <code>POST</code>, <code>PUT</code> and <code>DELETE</code> requests are
+     * followed too. A <code>307</code> or <code>308</code> redirect repeats the request with the same method and body,
+     * and other redirects continue with a <code>GET</code> request. Disabled by default.
+     *
+     * @param value <code>true</code> to follow redirects for every HTTP method.
+     * @return An updated RedirectConfig
+     */
+    public RedirectConfig followRedirectsForAllMethods(boolean value) {
+        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, value, true);
     }
 
     /**
@@ -163,6 +181,13 @@ public class RedirectConfig implements Config {
      */
     public boolean stripsSensitiveHeadersOnCrossHostRedirect() {
         return stripSensitiveHeadersOnCrossHostRedirect;
+    }
+
+    /**
+     * @return <code>true</code> if configured to follow redirects for every HTTP method
+     */
+    public boolean followsRedirectsForAllMethods() {
+        return followRedirectsForAllMethods;
     }
 
     /**

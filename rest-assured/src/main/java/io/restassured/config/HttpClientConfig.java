@@ -20,11 +20,17 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -109,14 +115,22 @@ import static java.util.Arrays.asList;
 
     /**
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
+     *
+     * @deprecated HttpClient 4 parameters are removed in REST Assured 8.0.0. Use the settings on HttpClientConfig,
+     * for example {@link #connectTimeout(Duration)}, {@link #readTimeout(Duration)} or {@link #keepResponseCookies(boolean)},
+     * and {@link RedirectConfig} for redirects.
      */
+    @Deprecated
     public HttpClientConfig(Map<String, ?> httpClientParams) {
         this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT, true);
     }
 
     /**
      * @return The configured parameters
+     * @deprecated HttpClient 4 parameters are removed in REST Assured 8.0.0. Use the getters on HttpClientConfig,
+     * for example {@link #connectTimeout()}, {@link #readTimeout()} or {@link #keepsResponseCookies()}.
      */
+    @Deprecated
     public Map<String, ?> params() {
         return Collections.unmodifiableMap(httpClientParams);
     }
@@ -183,7 +197,11 @@ import static java.util.Arrays.asList;
      * @param parameterValue The value of the parameter (may be null)
      * @param <T>            The parameter type
      * @return An updated HttpClientConfig
+     * @deprecated HttpClient 4 parameters are removed in REST Assured 8.0.0. Use the settings on HttpClientConfig,
+     * for example {@link #connectTimeout(Duration)}, {@link #readTimeout(Duration)} or {@link #keepResponseCookies(boolean)},
+     * and {@link RedirectConfig} for redirects.
      */
+    @Deprecated
     public <T> HttpClientConfig setParam(String parameterName, T parameterValue) {
         notNull(parameterName, "Parameter name");
         final Map<String, Object> newParams = new HashMap<String, Object>(httpClientParams);
@@ -196,7 +214,11 @@ import static java.util.Arrays.asList;
      *
      * @param httpClientParams The parameters to set.
      * @return An updated HttpClientConfig
+     * @deprecated HttpClient 4 parameters are removed in REST Assured 8.0.0. Use the settings on HttpClientConfig,
+     * for example {@link #connectTimeout(Duration)}, {@link #readTimeout(Duration)} or {@link #keepResponseCookies(boolean)},
+     * and {@link RedirectConfig} for redirects.
      */
+    @Deprecated
     public HttpClientConfig withParams(Map<String, ?> httpClientParams) {
         return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
     }
@@ -206,7 +228,11 @@ import static java.util.Arrays.asList;
      *
      * @param httpClientParams The parameters to set.
      * @return An updated HttpClientConfig
+     * @deprecated HttpClient 4 parameters are removed in REST Assured 8.0.0. Use the settings on HttpClientConfig,
+     * for example {@link #connectTimeout(Duration)}, {@link #readTimeout(Duration)} or {@link #keepResponseCookies(boolean)},
+     * and {@link RedirectConfig} for redirects.
      */
+    @Deprecated
     public HttpClientConfig setParams(Map<String, ?> httpClientParams) {
         return withParams(httpClientParams);
     }
@@ -216,7 +242,11 @@ import static java.util.Arrays.asList;
      *
      * @param httpClientParams The parameters.
      * @return An updated HttpClientConfig
+     * @deprecated HttpClient 4 parameters are removed in REST Assured 8.0.0. Use the settings on HttpClientConfig,
+     * for example {@link #connectTimeout(Duration)}, {@link #readTimeout(Duration)} or {@link #keepResponseCookies(boolean)},
+     * and {@link RedirectConfig} for redirects.
      */
+    @Deprecated
     public HttpClientConfig addParams(Map<String, ?> httpClientParams) {
         notNull(httpClientParams, "httpClientParams");
         final Map<String, Object> newParams = new HashMap<String, Object>(this.httpClientParams);
@@ -229,14 +259,19 @@ import static java.util.Arrays.asList;
      *
      * @param httpClientFactory The http client factory to use.
      * @return An updated HttpClientConfig
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use <code>customizeClient(..)</code> in 7.0.0
+     * to customize the client that REST Assured creates.
      */
+    @Deprecated
     public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
         return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
     }
 
     /**
      * @return The configured http client that will create an {@link org.apache.http.client.HttpClient} instances that's used by REST Assured when making a request.
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0, and the HTTP client becomes internal to the module that provides it.
      */
+    @Deprecated
     public HttpClient httpClientInstance() {
         if (isConfiguredToReuseTheSameHttpClientInstance()) {
             // Double-checked locking (httpClient is volatile) so that threads racing the first request share one instance
@@ -260,7 +295,9 @@ import static java.util.Arrays.asList;
      *
      * @param httpMultipartMode The multi-part mode to set.
      * @return An updated HttpClientConfig
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use {@link #multipartMode(MultipartMode)} instead.
      */
+    @Deprecated
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
         return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true);
     }
@@ -274,9 +311,173 @@ import static java.util.Arrays.asList;
 
     /**
      * @return The http multi-part mode.
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use {@link #multipartMode()} instead.
      */
+    @Deprecated
     public HttpMultipartMode httpMultipartMode() {
         return httpMultipartMode;
+    }
+
+    /**
+     * Specify how multi-part requests are written. The default is {@link MultipartMode#STRICT}.
+     *
+     * @param multipartMode The multi-part mode to use.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig multipartMode(MultipartMode multipartMode) {
+        notNull(multipartMode, "multipartMode");
+        return httpMultipartMode(HttpMultipartMode.valueOf(multipartMode.name()));
+    }
+
+    /**
+     * @return How multi-part requests are written.
+     */
+    public MultipartMode multipartMode() {
+        return MultipartMode.valueOf(httpMultipartMode.name());
+    }
+
+    /**
+     * Set how long to wait for a connection to the server to be established. By default there's no limit.
+     *
+     * @param connectTimeout The timeout. {@link Duration#ZERO} means no limit.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig connectTimeout(Duration connectTimeout) {
+        return setParam(CoreConnectionPNames.CONNECTION_TIMEOUT, toMillisAsInt(connectTimeout, "connectTimeout"));
+    }
+
+    /**
+     * @return How long to wait for a connection to the server to be established, or <code>null</code> if it's not set.
+     */
+    public Duration connectTimeout() {
+        return durationParam(CoreConnectionPNames.CONNECTION_TIMEOUT);
+    }
+
+    /**
+     * Set how long to wait for data from the server, measured as the longest time between two packets of the response.
+     * By default there's no limit.
+     *
+     * @param readTimeout The timeout. {@link Duration#ZERO} means no limit.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig readTimeout(Duration readTimeout) {
+        return setParam(CoreConnectionPNames.SO_TIMEOUT, toMillisAsInt(readTimeout, "readTimeout"));
+    }
+
+    /**
+     * @return How long to wait for data from the server, or <code>null</code> if it's not set.
+     */
+    public Duration readTimeout() {
+        return durationParam(CoreConnectionPNames.SO_TIMEOUT);
+    }
+
+    /**
+     * Set how long to wait for a connection from the connection pool. It only matters when the HTTP client has a
+     * connection pool, for example when it's reused with {@link #reuseHttpClientInstance()}.
+     *
+     * @param connectionRequestTimeout The timeout. {@link Duration#ZERO} means no limit.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig connectionRequestTimeout(Duration connectionRequestTimeout) {
+        // HttpClient 4 reads this parameter as a long
+        return setParam(ClientPNames.CONN_MANAGER_TIMEOUT, (long) toMillisAsInt(connectionRequestTimeout, "connectionRequestTimeout"));
+    }
+
+    /**
+     * @return How long to wait for a connection from the connection pool, or <code>null</code> if it's not set.
+     */
+    public Duration connectionRequestTimeout() {
+        return durationParam(ClientPNames.CONN_MANAGER_TIMEOUT);
+    }
+
+    /**
+     * Set whether the cookies a response sets are sent in the requests that follow it, for example when a redirect is
+     * followed, or across requests when the HTTP client instance is reused ({@link #reuseHttpClientInstance()}).
+     * The default is <code>false</code>. Use {@link io.restassured.filter.cookie.CookieFilter} to keep cookies across
+     * requests in general.
+     *
+     * @param keepResponseCookies <code>true</code> to keep the cookies that responses set.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig keepResponseCookies(boolean keepResponseCookies) {
+        return setParam(ClientPNames.COOKIE_POLICY, keepResponseCookies ? CookiePolicy.BEST_MATCH : CookiePolicy.IGNORE_COOKIES);
+    }
+
+    /**
+     * @return <code>true</code> if the cookies a response sets are sent in the requests that follow it.
+     */
+    public boolean keepsResponseCookies() {
+        Object cookiePolicy = httpClientParams.get(ClientPNames.COOKIE_POLICY);
+        return !CookiePolicy.IGNORE_COOKIES.equals(cookiePolicy);
+    }
+
+    /**
+     * Set the date patterns, in {@link java.text.SimpleDateFormat} syntax, used to parse an <code>expires</code>
+     * attribute of a response cookie that doesn't follow the standard format. The default patterns are
+     * <code>EEE, dd-MMM-yyyy HH:mm:ss z</code> and <code>EEE, dd MMM yyyy HH:mm:ss z</code>.
+     *
+     * @param cookieDatePatterns The date patterns.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig cookieDatePatterns(String... cookieDatePatterns) {
+        notNull(cookieDatePatterns, "cookieDatePatterns");
+        return setParam(CookieSpecPNames.DATE_PATTERNS, new ArrayList<>(asList(cookieDatePatterns)));
+    }
+
+    /**
+     * @return The date patterns used to parse a non-standard <code>expires</code> attribute of a response cookie.
+     */
+    public List<String> cookieDatePatterns() {
+        Object cookieDatePatterns = httpClientParams.get(CookieSpecPNames.DATE_PATTERNS);
+        if (!(cookieDatePatterns instanceof Collection)) {
+            return Collections.emptyList();
+        }
+        List<String> patterns = new ArrayList<>();
+        for (Object pattern : (Collection<?>) cookieDatePatterns) {
+            patterns.add(String.valueOf(pattern));
+        }
+        return Collections.unmodifiableList(patterns);
+    }
+
+    /**
+     * Set whether requests with a body send <code>Expect: 100-continue</code> and wait for the server to accept the
+     * request before sending the body. The default is <code>false</code>.
+     *
+     * @param expectContinue <code>true</code> to use <code>Expect: 100-continue</code>.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig expectContinue(boolean expectContinue) {
+        return setParam(CoreProtocolPNames.USE_EXPECT_CONTINUE, expectContinue);
+    }
+
+    /**
+     * @return <code>true</code> if requests with a body send <code>Expect: 100-continue</code>.
+     */
+    public boolean expectsContinue() {
+        Object expectContinue = httpClientParams.get(CoreProtocolPNames.USE_EXPECT_CONTINUE);
+        return expectContinue instanceof Boolean ? (Boolean) expectContinue : Boolean.parseBoolean(String.valueOf(expectContinue));
+    }
+
+    private static int toMillisAsInt(Duration duration, String name) {
+        notNull(duration, name);
+        if (duration.isNegative()) {
+            throw new IllegalArgumentException(name + " can't be negative, was " + duration);
+        }
+        long millis = duration.toMillis();
+        if (millis > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(name + " can be at most " + Integer.MAX_VALUE + " milliseconds, was " + duration);
+        }
+        return (int) millis;
+    }
+
+    private Duration durationParam(String name) {
+        Object value = httpClientParams.get(name);
+        if (value instanceof Number) {
+            return Duration.ofMillis(((Number) value).longValue());
+        } else if (value instanceof String) {
+            return Duration.ofMillis(Long.parseLong(((String) value).trim()));
+        }
+        return null;
     }
 
     private static HttpClientFactory defaultHttpClientFactory() {
@@ -297,7 +498,11 @@ import static java.util.Arrays.asList;
 
     /**
      * A factory for creating and configuring a custom http client instance that will be used by REST Assured.
+     *
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use <code>customizeClient(..)</code> in 7.0.0
+     * to customize the client that REST Assured creates.
      */
+    @Deprecated
     public interface HttpClientFactory {
         /**
          * Create an instance of {@link HttpClient} that'll be used by REST Assured when making requests. By default

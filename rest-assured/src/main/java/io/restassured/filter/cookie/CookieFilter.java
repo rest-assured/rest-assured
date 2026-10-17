@@ -19,6 +19,7 @@ package io.restassured.filter.cookie;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
 import io.restassured.filter.session.SessionFilter;
+import io.restassured.http.Cookies;
 import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
@@ -26,11 +27,13 @@ import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
+import org.apache.http.cookie.ClientCookie;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieOrigin;
 import org.apache.http.cookie.CookieSpec;
 import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.impl.cookie.DefaultCookieSpec;
 import org.apache.http.impl.cookie.RFC6265StrictSpec;
 import org.apache.http.message.BasicHeader;
@@ -41,7 +44,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * The cookie filter can be used to keep track of all the cookies sent by the server and use them in subsequent requests.
@@ -166,10 +172,87 @@ public class CookieFilter implements Filter {
         }
     }
 
+    /**
+     * @return The cookie store.
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use {@link #getCookies()} and
+     * {@link #addCookie(io.restassured.http.Cookie)} instead.
+     */
+    @Deprecated
     public CookieStore getCookieStore() {
         return cookieStore;
     }
 
+    /**
+     * @return A snapshot of the cookies this filter has stored. Expired cookies are left out.
+     */
+    public Cookies getCookies() {
+        List<io.restassured.http.Cookie> cookies = new ArrayList<>();
+        Date now = new Date();
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookie.isExpired(now)) {
+                continue;
+            }
+            io.restassured.http.Cookie.Builder builder = new io.restassured.http.Cookie.Builder(cookie.getName(), cookie.getValue())
+                    .setSecured(cookie.isSecure())
+                    .setVersion(cookie.getVersion());
+            if (cookie.getDomain() != null) {
+                builder.setDomain(cookie.getDomain());
+            }
+            if (cookie.getPath() != null) {
+                builder.setPath(cookie.getPath());
+            }
+            if (cookie.getExpiryDate() != null) {
+                builder.setExpiryDate(cookie.getExpiryDate());
+            }
+            if (cookie.getComment() != null) {
+                builder.setComment(cookie.getComment());
+            }
+            if (cookie instanceof ClientCookie && ((ClientCookie) cookie).containsAttribute("httponly")) {
+                builder.setHttpOnly(true);
+            }
+            cookies.add(builder.build());
+        }
+        return new Cookies(cookies);
+    }
+
+    /**
+     * Store a cookie in this filter, so that it's sent in the requests it matches, as if a response had set it.
+     * The cookie must have a domain, and it's sent only to that host. Without a path it's sent for every path.
+     * It replaces a stored cookie with the same name, domain and path.
+     *
+     * @param cookie The cookie to store.
+     * @return This CookieFilter
+     */
+    public CookieFilter addCookie(io.restassured.http.Cookie cookie) {
+        notNull(cookie, "cookie");
+        if (!cookie.hasDomain()) {
+            throw new IllegalArgumentException("Cookie '" + cookie.getName() + "' needs a domain to be added to a CookieFilter");
+        }
+        BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
+        clientCookie.setDomain(cookie.getDomain());
+        clientCookie.setPath(cookie.hasPath() ? cookie.getPath() : "/");
+        clientCookie.setSecure(cookie.isSecured());
+        if (cookie.hasExpiryDate()) {
+            clientCookie.setExpiryDate(cookie.getExpiryDate());
+        }
+        if (cookie.hasComment()) {
+            clientCookie.setComment(cookie.getComment());
+        }
+        if (cookie.hasVersion()) {
+            clientCookie.setVersion(cookie.getVersion());
+        }
+        if (cookie.isHttpOnly()) {
+            clientCookie.setAttribute("httponly", "");
+        }
+        cookieStore.addCookie(clientCookie);
+        return this;
+    }
+
+    /**
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0, where REST Assured itself knows the URI a
+     * response came from after redirects.
+     */
+    @Deprecated
     public static URI extractEffectiveUriFromContext(HttpContext context) {
         HttpHost targetHost = (HttpHost) context.getAttribute("http.target_host");
         CookieOrigin cookieOrigin = (CookieOrigin) context.getAttribute("http.cookie-origin");
