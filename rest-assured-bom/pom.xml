@@ -98,7 +98,17 @@
             </dependency>
             <dependency>
                 <groupId>io.rest-assured</groupId>
+                <artifactId>json-path-gpath</artifactId>
+                <version>6.2.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.rest-assured</groupId>
                 <artifactId>xml-path</artifactId>
+                <version>6.2.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>xml-path-gpath</artifactId>
                 <version>6.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
