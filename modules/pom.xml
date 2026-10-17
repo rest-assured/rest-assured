@@ -35,5 +35,6 @@
         <module>kotlin-extensions</module>
         <module>spring-mock-mvc-kotlin-extensions</module>
         <module>spring-web-test-client-kotlin-extensions</module>
+        <module>rest-assured-openrewrite</module>
     </modules>
 </project>
