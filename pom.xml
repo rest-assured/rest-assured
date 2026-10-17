@@ -224,6 +224,8 @@
                             <!-- OSGi -->
                             <ignoredClassPattern>org\.osgi.*</ignoredClassPattern>
                             <ignoredClassPattern>org\.ops4j.*</ignoredClassPattern>
+                            <!-- Each OpenRewrite Java parser (one per JDK) has the same package-info -->
+                            <ignoredClassPattern>org\.openrewrite\.java\.isolated\.package-info$</ignoredClassPattern>
                         </ignoredClassPatterns>
                     </configuration>
                 </plugin>
