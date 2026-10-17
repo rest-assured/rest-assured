@@ -47,6 +47,16 @@ public class CertAuthScheme implements AuthenticationScheme {
                 port, x509HostnameVerifier, JsseToHttpClient4Ssl.toSSLSocketFactory(sslSocketFactory, sslContext, x509HostnameVerifier));
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        if (sslSocketFactory != null) {
+            throw new IllegalStateException("An SSLSocketFactory can't be used with an AuthenticationContext. Use setSslContext(..) instead of setSslSocketFactory(..).");
+        }
+        context.certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
+                pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
+                port, JsseToHttpClient4Ssl.toHostnameVerifier(x509HostnameVerifier), sslContext);
+    }
+
     public Object getPathToKeyStore() {
         return pathToKeyStore;
     }

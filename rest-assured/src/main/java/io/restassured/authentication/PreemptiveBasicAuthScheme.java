@@ -37,6 +37,11 @@ public class PreemptiveBasicAuthScheme implements AuthenticationScheme {
         ((Map<Object, Object>) httpBuilder.getHeaders()).put("Authorization", generateAuthToken());
     }
 
+    @Override
+    public void authenticate(AuthenticationContext context) {
+        context.header("Authorization", generateAuthToken());
+    }
+
     public String generateAuthToken() {
         return "Basic " + Base64.getEncoder().encodeToString((userName + ":" + password).getBytes(ISO_8859_1));
     }

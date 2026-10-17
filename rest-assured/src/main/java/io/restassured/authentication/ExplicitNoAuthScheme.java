@@ -29,4 +29,8 @@ public class ExplicitNoAuthScheme implements AuthenticationScheme {
     @Override
     public void authenticate(HTTPBuilder httpBuilder) {
     }
+
+    @Override
+    public void authenticate(AuthenticationContext context) {
+    }
 }
