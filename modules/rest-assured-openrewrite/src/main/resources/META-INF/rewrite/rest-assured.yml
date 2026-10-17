@@ -1,0 +1,112 @@
+#
+# Copyright 2026 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.MigrateRestAssured6Deprecations
+displayName: Migrate from APIs deprecated in REST Assured 6.3.0
+description: >-
+  Replace REST Assured APIs that are deprecated in 6.3.0 with their replacements: the object mapper factories and
+  `NumberReturnType` that moved to rest-assured-common, the HttpClient 4 host name verifier setters, the httpmime
+  multipart mode and the HttpClient 4 parameters that have a setting of their own on `HttpClientConfig`. It also finds
+  subclasses of REST Assured's authentication schemes that only override `authenticate(HTTPBuilder)`.
+recipeList:
+  - io.restassured.ChangeObjectMapperFactoryPackage
+  - io.restassured.ChangeNumberReturnTypePackage
+  - io.restassured.openrewrite.ConvertNumberReturnTypeGetters
+  - io.restassured.ReplaceX509HostnameVerifierSetters
+  - io.restassured.openrewrite.ReplaceHttpMultipartMode
+  - io.restassured.openrewrite.ReplaceHttpClientParams
+  - io.restassured.openrewrite.FindAuthenticationSchemesOverridingOnlyHttpBuilder
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.ChangeObjectMapperFactoryPackage
+displayName: Use the object mapper factories in rest-assured-common
+description: >-
+  Replace the object mapper factories in `io.restassured.path.json.mapper.factory` and
+  `io.restassured.path.xml.mapper.factory` with the ones in `io.restassured.common.mapper.factory`. The Jackson 1
+  factories are left as they are, since they have no replacement.
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.GsonObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.Jackson2ObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.JohnzonObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.JsonbObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.DefaultGsonObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultGsonObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultJackson2ObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.DefaultJackson3ObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultJackson3ObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.DefaultJohnzonObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultJohnzonObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.DefaultYassonObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultYassonObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.JAXBObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.xml.mapper.factory.JakartaEEObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.JakartaEEObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultJAXBObjectMapperFactory
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.xml.mapper.factory.DefaultJakartaEEObjectMapperFactory
+      newFullyQualifiedTypeName: io.restassured.common.mapper.factory.DefaultJakartaEEObjectMapperFactory
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.ChangeNumberReturnTypePackage
+displayName: Use `NumberReturnType` in rest-assured-common
+description: >-
+  Replace `io.restassured.path.json.config.JsonPathConfig.NumberReturnType` with
+  `io.restassured.common.config.NumberReturnType`.
+recipeList:
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.path.json.config.JsonPathConfig$NumberReturnType
+      newFullyQualifiedTypeName: io.restassured.common.config.NumberReturnType
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.ReplaceX509HostnameVerifierSetters
+displayName: Use the `HostnameVerifier` setters instead of the `X509HostnameVerifier` ones
+description: >-
+  Replace `x509HostnameVerifier(..)` on `SSLConfig` and `CertificateAuthSettings`, and
+  `CertAuthScheme.setX509HostnameVerifier(..)`, which take an HttpClient 4 `X509HostnameVerifier`, with
+  `hostnameVerifier(..)` and `setHostnameVerifier(..)`, which take a `javax.net.ssl.HostnameVerifier`.
+recipeList:
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.config.SSLConfig x509HostnameVerifier(org.apache.http.conn.ssl.X509HostnameVerifier)
+      newMethodName: hostnameVerifier
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.authentication.CertificateAuthSettings x509HostnameVerifier(org.apache.http.conn.ssl.X509HostnameVerifier)
+      newMethodName: hostnameVerifier
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.authentication.CertAuthScheme setX509HostnameVerifier(org.apache.http.conn.ssl.X509HostnameVerifier)
+      newMethodName: setHostnameVerifier

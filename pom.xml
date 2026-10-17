@@ -59,6 +59,7 @@
         <groovy.range>[5.0,6.0)</groovy.range>
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <junit.version>6.0.0</junit.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.22.3</jackson2.version>
         <jackson3.version>3.2.3</jackson3.version>
@@ -425,7 +426,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>6.0.0</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
