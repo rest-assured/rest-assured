@@ -17,9 +17,12 @@
 package io.restassured.authentication;
 
 import io.restassured.internal.http.HTTPBuilder;
+import io.restassured.internal.http.JsseToHttpClient4Ssl;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
 
 public class CertAuthScheme implements AuthenticationScheme {
@@ -35,12 +38,13 @@ public class CertAuthScheme implements AuthenticationScheme {
     private KeyStore keyStore;
     private X509HostnameVerifier x509HostnameVerifier;
     private SSLSocketFactory sslSocketFactory;
+    private SSLContext sslContext;
 
     @Override
     public void authenticate(HTTPBuilder httpBuilder) {
         httpBuilder.getAuth().certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
                 pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
-                port, x509HostnameVerifier, sslSocketFactory);
+                port, x509HostnameVerifier, JsseToHttpClient4Ssl.toSSLSocketFactory(sslSocketFactory, sslContext, x509HostnameVerifier));
     }
 
     public Object getPathToKeyStore() {
@@ -115,19 +119,62 @@ public class CertAuthScheme implements AuthenticationScheme {
         this.keyStore = keyStore;
     }
 
+    /**
+     * @deprecated Use {@link #getHostnameVerifier()} instead. HttpClient 4 types are removed from the API in REST
+     * Assured 7.0.0.
+     */
+    @Deprecated
     public X509HostnameVerifier getX509HostnameVerifier() {
         return x509HostnameVerifier;
     }
 
+    /**
+     * @deprecated Use {@link #setHostnameVerifier(HostnameVerifier)} instead. HttpClient 4 types are removed from the
+     * API in REST Assured 7.0.0.
+     */
+    @Deprecated
     public void setX509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
         this.x509HostnameVerifier = x509HostnameVerifier;
     }
 
+    public HostnameVerifier getHostnameVerifier() {
+        return JsseToHttpClient4Ssl.toHostnameVerifier(x509HostnameVerifier);
+    }
+
+    public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        this.x509HostnameVerifier = JsseToHttpClient4Ssl.toX509HostnameVerifier(hostnameVerifier);
+    }
+
+    /**
+     * @deprecated Use {@link #getSslContext()} instead. HttpClient 4 types are removed from the API in REST Assured
+     * 7.0.0.
+     */
+    @Deprecated
     public SSLSocketFactory getSslSocketFactory() {
         return sslSocketFactory;
     }
 
+    /**
+     * @deprecated Use {@link #setSslContext(SSLContext)} instead. HttpClient 4 types are removed from the API in REST
+     * Assured 7.0.0.
+     */
+    @Deprecated
     public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
         this.sslSocketFactory = sslSocketFactory;
+        this.sslContext = null;
+    }
+
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
+
+    /**
+     * Use an {@link SSLContext} that you have set up yourself. It replaces an SSLSocketFactory set by
+     * {@link #setSslSocketFactory(SSLSocketFactory)}. Host names are verified strictly unless another verifier is set
+     * with {@link #setHostnameVerifier(HostnameVerifier)}.
+     */
+    public void setSslContext(SSLContext sslContext) {
+        this.sslContext = sslContext;
+        this.sslSocketFactory = null;
     }
 }
