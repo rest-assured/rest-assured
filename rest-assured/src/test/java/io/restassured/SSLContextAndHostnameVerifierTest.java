@@ -94,6 +94,16 @@ class SSLContextAndHostnameVerifierTest {
     }
 
     @Test
+    void static_certificate_authentication_keeps_ssl_context_of_static_ssl_config() throws Exception {
+        SSLContext sslContext = clientSslContextTrustingTheServer();
+        RestAssured.config = config().sslConfig(sslConfig().sslContext(sslContext));
+
+        CertAuthScheme certificate = (CertAuthScheme) RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD);
+
+        assertThat(certificate.getSslContext()).isSameAs(sslContext);
+    }
+
+    @Test
     void ssl_context_in_static_ssl_config_is_used_by_static_certificate_authentication() throws Exception {
         RestAssured.config = config().sslConfig(sslConfig().sslContext(clientSslContextTrustingTheServer()));
         RestAssured.authentication = RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD);

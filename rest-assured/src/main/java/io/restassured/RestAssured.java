@@ -1354,7 +1354,9 @@ public class RestAssured {
         SSLConfig sslConfig = config().getSSLConfig();
         CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
                 keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
-                port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory());
+                port(sslConfig.getPort());
+        // Keep an SSLContext as such, instead of turning it into an HttpClient 4 SSLSocketFactory
+        settings = sslConfig.getSSLContext() != null ? settings.sslContext(sslConfig.getSSLContext()) : settings.sslSocketFactory(sslConfig.getSSLSocketFactory());
         // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
         String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
         return certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
