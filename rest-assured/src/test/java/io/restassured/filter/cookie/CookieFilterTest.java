@@ -19,6 +19,7 @@ package io.restassured.filter.cookie;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.FilterContext;
 import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -35,6 +36,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CookieFilterTest {
 
@@ -110,6 +112,54 @@ public class CookieFilterTest {
 
         assertThat(reqOriginDomain.getCookies().hasCookieWithName("cookieName2"), Matchers.is(true));
         assertThat(reqOriginDomain.getCookies().getValue("cookieName2"), Matchers.is("cookieValue2"));
+    }
+
+    @Test
+    public void getCookiesReturnsTheStoredCookies() {
+        cookieFilter.filter(reqOriginDomain, response, testFilterContext);
+
+        Cookies cookies = cookieFilter.getCookies();
+
+        assertThat(cookies.size(), Matchers.is(2));
+        Cookie cookie = cookies.get("cookieName1");
+        assertThat(cookie.getValue(), Matchers.is("cookieValue1"));
+        assertThat(cookie.getDomain(), Matchers.is("somedomain.com"));
+        assertThat(cookie.getPath(), Matchers.is("/somepath"));
+        assertThat(cookie.isSecured(), Matchers.is(true));
+        assertThat(cookie.isHttpOnly(), Matchers.is(true));
+        assertThat(cookie.hasExpiryDate(), Matchers.is(true));
+    }
+
+    @Test
+    public void addedCookieIsSentToRequestsOnItsDomainOnly() {
+        cookieFilter.addCookie(new Cookie.Builder("added", "value").setDomain("somedomain.com").build());
+        FilterableRequestSpecification reqNonMatchingDomain =
+                (FilterableRequestSpecification) given().with().baseUri("https://someother.com/somepath");
+
+        cookieFilter.filter(reqOriginDomain, response, testFilterContext);
+        cookieFilter.filter(reqNonMatchingDomain, response, testFilterContext);
+
+        assertThat(reqOriginDomain.getCookies().getValue("added"), Matchers.is("value"));
+        assertThat(reqNonMatchingDomain.getCookies().hasCookieWithName("added"), Matchers.is(false));
+        assertThat(cookieFilter.getCookies().get("added").getPath(), Matchers.is("/"));
+    }
+
+    @Test
+    public void addedCookieReplacesStoredCookieWithTheSameNameDomainAndPath() {
+        cookieFilter.filter(reqOriginDomain, response, testFilterContext);
+
+        cookieFilter.addCookie(new Cookie.Builder("cookieName1", "replaced").setDomain("somedomain.com").setPath("/somepath").build());
+
+        assertThat(cookieFilter.getCookies().getList("cookieName1").size(), Matchers.is(1));
+        assertThat(cookieFilter.getCookies().getValue("cookieName1"), Matchers.is("replaced"));
+    }
+
+    @Test
+    public void addingCookieWithoutDomainFails() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> cookieFilter.addCookie(new Cookie.Builder("added", "value").build()));
+
+        assertThat(exception.getMessage(), Matchers.is("Cookie 'added' needs a domain to be added to a CookieFilter"));
     }
 
     private static class TestFilterContext implements FilterContext {
