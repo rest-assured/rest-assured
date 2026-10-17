@@ -16,13 +16,9 @@
 
 package io.restassured.path.xml.mapper.factory;
 
-import io.restassured.common.mapper.factory.ObjectMapperFactory;
-
-import javax.xml.bind.JAXBContext;
-
 /**
- * Interface for JAXB object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the JAXB object mapper.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.JAXBObjectMapperFactory} instead. This interface is removed in REST Assured 8.0.0.
  */
-public interface JAXBObjectMapperFactory extends ObjectMapperFactory<JAXBContext> {
+@Deprecated
+public interface JAXBObjectMapperFactory extends io.restassured.common.mapper.factory.JAXBObjectMapperFactory {
 }

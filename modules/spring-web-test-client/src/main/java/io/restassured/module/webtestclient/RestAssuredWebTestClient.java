@@ -15,6 +15,7 @@
  */
 package io.restassured.module.webtestclient;
 
+import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
@@ -56,6 +57,11 @@ import static io.restassured.config.LogConfig.logConfig;
  * </ul>
  */
 public class RestAssuredWebTestClient {
+
+    static {
+        // First, so that an older rest-assured-common gives a message instead of a NoClassDefFoundError
+        CommonVersionCheck.verify();
+    }
 
     /**
      * Define a REST Assured WebTestClient configuration. E.g.

@@ -26,6 +26,7 @@ import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
+import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
@@ -361,6 +362,11 @@ import static io.restassured.specification.ProxySpecification.host;
  * </p>
  */
 public class RestAssured {
+
+    static {
+        // First, so that an older rest-assured-common gives a message instead of a NoClassDefFoundError
+        CommonVersionCheck.verify();
+    }
 
     private static final String SSL = "SSL";
     // Guards changes to the default filters and RESPONSE_PARSER_REGISTRAR. Both are copy-on-write, so given() can copy

@@ -67,7 +67,7 @@ public class DefaultYassonObjectMapperFactoryTest {
 
     // The cache is static, so clear it to make every round race the first creation
     private static void clearCachedJsonb() throws Exception {
-        Field field = DefaultYassonObjectMapperFactory.class.getDeclaredField("cachedJsonb");
+        Field field = io.restassured.common.mapper.factory.DefaultYassonObjectMapperFactory.class.getDeclaredField("cachedJsonb");
         field.setAccessible(true);
         field.set(null, null);
     }

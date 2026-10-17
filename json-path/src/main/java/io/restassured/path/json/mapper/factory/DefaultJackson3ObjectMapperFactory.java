@@ -16,17 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-
-import java.lang.reflect.Type;
-
 /**
- * Creates a new Jackson 3.0 ObjectMapper (using the JsonMapper builder). It also registers all available modules.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.DefaultJackson3ObjectMapperFactory} instead. This class is removed in REST Assured 8.0.0.
  */
-public class DefaultJackson3ObjectMapperFactory implements Jackson3ObjectMapperFactory {
-    public ObjectMapper create(Type cls, String charset) {
-        return JsonMapper.builder().findAndAddModules().build();
-    }
+@Deprecated
+public class DefaultJackson3ObjectMapperFactory extends io.restassured.common.mapper.factory.DefaultJackson3ObjectMapperFactory implements Jackson3ObjectMapperFactory {
 }
