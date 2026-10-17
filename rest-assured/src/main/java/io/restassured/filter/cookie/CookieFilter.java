@@ -234,6 +234,9 @@ public class CookieFilter implements Filter {
         clientCookie.setSecure(cookie.isSecured());
         if (cookie.hasExpiryDate()) {
             clientCookie.setExpiryDate(cookie.getExpiryDate());
+        } else if (cookie.hasMaxAge() && cookie.getMaxAge() >= 0) {
+            // Like a Max-Age attribute in a response, which HttpClient turns into an expiry date
+            clientCookie.setExpiryDate(new Date(System.currentTimeMillis() + cookie.getMaxAge() * 1000L));
         }
         if (cookie.hasComment()) {
             clientCookie.setComment(cookie.getComment());

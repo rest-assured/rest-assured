@@ -17,6 +17,7 @@
 package io.restassured.module.webtestclient.config;
 
 import io.restassured.config.*;
+import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ClientConfig;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
@@ -33,6 +34,12 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * </p>
  */
 public class RestAssuredWebTestClientConfig implements SpecificationConfig {
+
+	static {
+		// RestAssuredWebTestClient.config = ...config()... loads this class, and the configs it creates, before the entry
+		// point itself, so that an older rest-assured-common gives a message instead of a NoClassDefFoundError
+		CommonVersionCheck.verify();
+	}
 
 	// When adding a config here don't forget to update isUserConfigured method
 	private final LogConfig logConfig;

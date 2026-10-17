@@ -155,6 +155,25 @@ public class CookieFilterTest {
     }
 
     @Test
+    public void addedCookieWithMaxAgeZeroIsNotKept() {
+        cookieFilter.addCookie(new Cookie.Builder("added", "value").setDomain("somedomain.com").setMaxAge(0).build());
+
+        cookieFilter.filter(reqOriginDomain, response, testFilterContext);
+
+        assertThat(reqOriginDomain.getCookies().hasCookieWithName("added"), Matchers.is(false));
+    }
+
+    @Test
+    public void addedCookieWithPositiveMaxAgeIsSentAndGetsAnExpiryDate() {
+        cookieFilter.addCookie(new Cookie.Builder("added", "value").setDomain("somedomain.com").setMaxAge(60).build());
+
+        cookieFilter.filter(reqOriginDomain, response, testFilterContext);
+
+        assertThat(reqOriginDomain.getCookies().getValue("added"), Matchers.is("value"));
+        assertThat(cookieFilter.getCookies().get("added").hasExpiryDate(), Matchers.is(true));
+    }
+
+    @Test
     public void addingCookieWithoutDomainFails() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> cookieFilter.addCookie(new Cookie.Builder("added", "value").build()));
