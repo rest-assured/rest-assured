@@ -21,9 +21,11 @@ import io.restassured.common.mapper.factory.DefaultGsonObjectMapperFactory;
 import io.restassured.common.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import io.restassured.common.mapper.factory.DefaultJackson3ObjectMapperFactory;
 import io.restassured.common.mapper.factory.DefaultYassonObjectMapperFactory;
+import io.restassured.common.mapper.factory.GsonObjectMapperFactory;
 import io.restassured.common.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.path.json.JsonPath;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -73,5 +75,32 @@ class JsonPathConfigCommonTypesTest {
         JsonPath jsonPath = new JsonPath("{ \"price\" : 12.1 }").using(jsonPathConfig().numberReturnType(NumberReturnType.BIG_DECIMAL));
 
         assertThat(jsonPath.<Object>get("price")).isEqualTo(new BigDecimal("12.1"));
+    }
+
+    @Test
+    void constructor_taking_the_common_number_return_type_sets_it() {
+        JsonPath jsonPath = new JsonPath("{ \"price\" : 12.1 }").using(new JsonPathConfig(NumberReturnType.BIG_DECIMAL));
+
+        assertThat(jsonPath.<Object>get("price")).isEqualTo(new BigDecimal("12.1"));
+    }
+
+    @Test
+    void subclass_of_a_common_default_factory_counts_as_custom() {
+        JsonPathConfig config = jsonPathConfig().gsonObjectMapperFactory(new DefaultGsonObjectMapperFactory() {
+        });
+
+        assertThat(config.hasCustomGsonObjectMapperFactory()).isTrue();
+    }
+
+    @Test
+    void custom_gson_factory_of_the_common_type_is_used_by_json_path() {
+        AtomicInteger calls = new AtomicInteger();
+        GsonObjectMapperFactory factory = (type, charset) -> {
+            calls.incrementAndGet();
+            return new Gson();
+        };
+
+        assertThat(new JsonPath("{ \"a\" : \"b\" }").using(factory).getObject("", Map.class)).containsEntry("a", "b");
+        assertThat(calls).hasValue(1);
     }
 }

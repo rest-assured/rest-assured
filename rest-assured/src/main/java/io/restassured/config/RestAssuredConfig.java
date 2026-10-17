@@ -16,6 +16,8 @@
 
 package io.restassured.config;
 
+import io.restassured.internal.support.CommonVersionCheck;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +33,11 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * </p>
  */
 public class RestAssuredConfig implements Config {
+
+    static {
+        // RestAssured.config = RestAssuredConfig.config()... loads this class before RestAssured itself
+        CommonVersionCheck.verify();
+    }
 
     final Map<Class<? extends Config>, Config> configs = new HashMap<>();
 

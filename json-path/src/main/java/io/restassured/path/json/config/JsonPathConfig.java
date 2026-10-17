@@ -80,6 +80,16 @@ public class JsonPathConfig {
     /**
      * Create a new JsonPathConfig that returns JSON numbers as either Doubles and Floats or BigDecimals
      */
+    public JsonPathConfig(io.restassured.common.config.NumberReturnType numberReturnType) {
+        this(numberReturnType == null ? null : NumberReturnType.valueOf(numberReturnType.name()));
+    }
+
+    /**
+     * Create a new JsonPathConfig that returns JSON numbers as either Doubles and Floats or BigDecimals
+     *
+     * @deprecated Use {@link #JsonPathConfig(io.restassured.common.config.NumberReturnType)} instead. This enum is removed in REST Assured 8.0.0.
+     */
+    @Deprecated
     public JsonPathConfig(NumberReturnType numberReturnType) {
         this(numberReturnType, null, newGsonObjectMapperFactoryOrNullIfNotInClasspath(), newJackson1ObjectMapperFactoryOrNullIfNotInClasspath(),
                 newJackson2ObjectMapperFactoryOrNullIfNotInClasspath(), newJackson3ObjectMapperFactoryOrNullIfNotInClasspath(),
