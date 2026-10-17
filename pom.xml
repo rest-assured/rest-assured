@@ -95,8 +95,10 @@
         <module>rest-assured-all</module>
         <module>examples</module>
         <module>json-path</module>
+        <module>json-path-gpath</module>
         <module>rest-assured-common</module>
         <module>xml-path</module>
+        <module>xml-path-gpath</module>
         <module>rest-assured-bom</module>
     </modules>
 

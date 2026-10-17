@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright 2026 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+  ~ xml-path-gpath is the name xml-path gets in REST Assured 7.0.0. In 6.x this pom only relocates to xml-path at the same version,
+  ~ so that you can switch to the new name before upgrading. In 7.0.0 the jar moves here and xml-path relocates to xml-path-gpath.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured-parent</artifactId>
+        <version>6.2.1-SNAPSHOT</version>
+    </parent>
+    <groupId>io.rest-assured</groupId>
+    <artifactId>xml-path-gpath</artifactId>
+    <packaging>pom</packaging>
+    <version>6.2.1-SNAPSHOT</version>
+    <name>xml-path-gpath</name>
+    <description>The REST Assured 7.0.0 name of xml-path. In 6.x it relocates to xml-path.</description>
+    <url>https://rest-assured.io/</url>
+
+    <distributionManagement>
+        <relocation>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>xml-path</artifactId>
+            <message>xml-path-gpath is the REST Assured 7.0.0 name of xml-path. In REST Assured 6.x it resolves to xml-path, so nothing changes until you upgrade.</message>
+        </relocation>
+    </distributionManagement>
+</project>
