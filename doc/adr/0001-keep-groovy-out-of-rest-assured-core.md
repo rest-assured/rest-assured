@@ -4,7 +4,7 @@ Date: 2026-10-09
 
 ## Status
 
-Accepted. Implemented in #1914 to #1932, for 7.0.0.
+Accepted. Implemented in #1914 to #1932, for 7.0.0. Amended by ADR 0006: from 7.0 Groovy no longer reaches users through `rest-assured`, only through a GPath module they add.
 
 ## Context
 
