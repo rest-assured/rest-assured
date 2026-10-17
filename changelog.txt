@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Added SSLConfig.sslContext(SSLContext) and hostnameVerifier(HostnameVerifier), with getSSLContext() and getHostnameVerifier(), the same on CertificateAuthSettings, and the matching properties on CertAuthScheme. They take the JDK's javax.net.ssl types and replace sslSocketFactory(..), x509HostnameVerifier(..) and their getters, which take Apache HttpClient 4 types and are now deprecated, since HttpClient 4 types leave the API in REST Assured 7.0.0. Host names are still verified strictly by default when you set an SSLContext
+
 Changelog 6.2.0 (2026-10-16)
 ----------------------------
 * Fix spring-web-test-client-kotlin-extensions bringing jakarta.servlet-api, jakarta.jakartaee-web-api and about 20 other Jakarta EE API jars to your classpath at runtime. They were declared with a scope that Maven doesn't know (optional), which it treated as a compile dependency, and are now provided, like in spring-mock-mvc-kotlin-extensions (#1992)
