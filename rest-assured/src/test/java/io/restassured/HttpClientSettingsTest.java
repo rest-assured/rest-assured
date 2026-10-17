@@ -23,6 +23,7 @@ import org.apache.http.client.RedirectStrategy;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,7 +121,7 @@ class HttpClientSettingsTest {
     void reused_client_gets_back_the_redirect_strategy_of_its_factory_after_following_redirects_for_all_methods() {
         RedirectStrategy factoryStrategy = new LaxRedirectStrategy();
         HttpClientConfig httpClientConfig = httpClientConfig().httpClientFactory(() -> {
-            DefaultHttpClient client = new DefaultHttpClient();
+            DefaultHttpClient client = new DefaultHttpClient(new PoolingClientConnectionManager());
             client.setRedirectStrategy(factoryStrategy);
             return client;
         }).reuseHttpClientInstance();
