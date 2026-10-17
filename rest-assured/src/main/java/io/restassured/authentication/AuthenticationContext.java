@@ -30,7 +30,7 @@ public interface AuthenticationContext {
 
     /**
      * Set a header on the request, for example an <code>Authorization</code> header that's sent without waiting for a
-     * challenge from the server.
+     * challenge from the server. It replaces a header with the same name.
      *
      * @param name  The header name
      * @param value The header value
@@ -38,7 +38,8 @@ public interface AuthenticationContext {
     void header(String name, String value);
 
     /**
-     * Answer a challenge from the server with Basic or Digest authentication.
+     * Answer a challenge from the server with Basic or Digest authentication. The credentials are only sent to the host
+     * and port of the request.
      *
      * @param userName The user name
      * @param password The password
@@ -46,7 +47,8 @@ public interface AuthenticationContext {
     void basic(String userName, String password);
 
     /**
-     * Answer a challenge from the server with NTLM authentication.
+     * Answer a challenge from the server with NTLM authentication. The credentials are only sent to the host and port of
+     * the request.
      *
      * @param userName    The user name
      * @param password    The password
@@ -56,7 +58,8 @@ public interface AuthenticationContext {
     void ntlm(String userName, String password, String workstation, String domain);
 
     /**
-     * Sign the request with OAuth 1, with the signature in the <code>Authorization</code> header.
+     * Sign the request with OAuth 1, with the signature in the <code>Authorization</code> header. It replaces earlier
+     * OAuth or OAuth 2 signing, and a <code>null</code> consumer key turns signing off.
      *
      * @param consumerKey    The consumer key
      * @param consumerSecret The consumer secret
@@ -66,7 +69,8 @@ public interface AuthenticationContext {
     void oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken);
 
     /**
-     * Sign the request with OAuth 1.
+     * Sign the request with OAuth 1. It replaces earlier OAuth or OAuth 2 signing, and a <code>null</code> consumer key
+     * turns signing off.
      *
      * @param consumerKey    The consumer key
      * @param consumerSecret The consumer secret
@@ -77,14 +81,16 @@ public interface AuthenticationContext {
     void oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, OAuthSignature signature);
 
     /**
-     * Send an OAuth 2 access token in the <code>Authorization</code> header.
+     * Send an OAuth 2 access token in the <code>Authorization</code> header. It replaces earlier OAuth or OAuth 2
+     * signing, and a <code>null</code> access token turns it off.
      *
      * @param accessToken The access token
      */
     void oauth2(String accessToken);
 
     /**
-     * Send an OAuth 2 access token.
+     * Send an OAuth 2 access token. It replaces earlier OAuth or OAuth 2 signing, and a <code>null</code> access token
+     * turns it off.
      *
      * @param accessToken The access token
      * @param signature   Where the token goes, in a header or in the query string
@@ -93,7 +99,9 @@ public interface AuthenticationContext {
 
     /**
      * Use a client certificate and trust store for the request. Each key store and trust store is given either as a
-     * path (a file or class path resource) with its password and type, or as a loaded {@link KeyStore}.
+     * path (a file or class path resource) with its password and type, or as a loaded {@link KeyStore}. When the
+     * request isn't HTTPS, the certificate is used for HTTPS connections the request is redirected to, on the given
+     * port or 443.
      *
      * @param keyStorePath       The path to the key store, or <code>null</code>
      * @param keyStorePassword   The key store password
@@ -104,7 +112,8 @@ public interface AuthenticationContext {
      * @param trustStoreType     The trust store type
      * @param trustStore         A loaded trust store, or <code>null</code>
      * @param port               The HTTPS port, or <code>-1</code> to use the port of the request
-     * @param hostnameVerifier   How host names are verified
+     * @param hostnameVerifier   How host names are verified. With <code>null</code>, any host name is allowed for
+     *                           the key store and trust store, and host names are verified strictly for an SSLContext
      * @param sslContext         An SSLContext to use instead of the key store and trust store, or <code>null</code>
      */
     void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,

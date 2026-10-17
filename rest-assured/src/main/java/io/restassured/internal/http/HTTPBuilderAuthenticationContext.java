@@ -18,6 +18,7 @@ package io.restassured.internal.http;
 
 import io.restassured.authentication.AuthenticationContext;
 import io.restassured.authentication.OAuthSignature;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -74,7 +75,7 @@ public class HTTPBuilderAuthenticationContext implements AuthenticationContext {
     public void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
                             Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
                             int port, HostnameVerifier hostnameVerifier, SSLContext sslContext) {
-        org.apache.http.conn.ssl.X509HostnameVerifier x509HostnameVerifier = JsseToHttpClient4Ssl.toX509HostnameVerifier(hostnameVerifier);
+        X509HostnameVerifier x509HostnameVerifier = JsseToHttpClient4Ssl.toX509HostnameVerifier(hostnameVerifier);
         httpBuilder.getAuth().certificate(keyStorePath, keyStorePassword, keyStoreType, keyStore,
                 trustStorePath, trustStorePassword, trustStoreType, trustStore,
                 port, x509HostnameVerifier, JsseToHttpClient4Ssl.toSSLSocketFactory(null, sslContext, x509HostnameVerifier));
