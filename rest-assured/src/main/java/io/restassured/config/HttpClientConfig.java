@@ -18,6 +18,7 @@ package io.restassured.config;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.params.CoreConnectionPNames;
@@ -259,8 +260,9 @@ import static java.util.Arrays.asList;
      *
      * @param httpClientFactory The http client factory to use.
      * @return An updated HttpClientConfig
-     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use <code>customizeClient(..)</code> in 7.0.0
-     * to customize the client that REST Assured creates.
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. For timeouts, cookies and redirects use the
+     * settings on HttpClientConfig and {@link RedirectConfig#followRedirectsForAllMethods(boolean)}, and use
+     * <code>customizeClient(..)</code> in 7.0.0 to customize the client that REST Assured creates.
      */
     @Deprecated
     public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
@@ -373,14 +375,14 @@ import static java.util.Arrays.asList;
 
     /**
      * Set how long to wait for a connection from the connection pool. It only matters when the HTTP client has a
-     * connection pool, for example when it's reused with {@link #reuseHttpClientInstance()}.
+     * pooling connection manager, which the default client doesn't have.
      *
      * @param connectionRequestTimeout The timeout. {@link Duration#ZERO} means no limit.
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig connectionRequestTimeout(Duration connectionRequestTimeout) {
         // HttpClient 4 reads this parameter as a long
-        return setParam(ClientPNames.CONN_MANAGER_TIMEOUT, (long) toMillisAsInt(connectionRequestTimeout, "connectionRequestTimeout"));
+        return setParam(ClientPNames.CONN_MANAGER_TIMEOUT, toMillis(connectionRequestTimeout, "connectionRequestTimeout"));
     }
 
     /**
@@ -400,7 +402,7 @@ import static java.util.Arrays.asList;
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig keepResponseCookies(boolean keepResponseCookies) {
-        return setParam(ClientPNames.COOKIE_POLICY, keepResponseCookies ? CookiePolicy.BEST_MATCH : CookiePolicy.IGNORE_COOKIES);
+        return setParam(ClientPNames.COOKIE_POLICY, keepResponseCookies ? CookieSpecs.DEFAULT : CookiePolicy.IGNORE_COOKIES);
     }
 
     /**
@@ -414,7 +416,9 @@ import static java.util.Arrays.asList;
     /**
      * Set the date patterns, in {@link java.text.SimpleDateFormat} syntax, used to parse an <code>expires</code>
      * attribute of a response cookie that doesn't follow the standard format. The default patterns are
-     * <code>EEE, dd-MMM-yyyy HH:mm:ss z</code> and <code>EEE, dd MMM yyyy HH:mm:ss z</code>.
+     * <code>EEE, dd-MMM-yyyy HH:mm:ss z</code> and <code>EEE, dd MMM yyyy HH:mm:ss z</code>. They're only used for
+     * the cookies kept with {@link #keepResponseCookies(boolean)}, not by {@link io.restassured.filter.cookie.CookieFilter}
+     * or when you read the cookies of a response.
      *
      * @param cookieDatePatterns The date patterns.
      * @return An updated HttpClientConfig
@@ -459,15 +463,20 @@ import static java.util.Arrays.asList;
     }
 
     private static int toMillisAsInt(Duration duration, String name) {
-        notNull(duration, name);
-        if (duration.isNegative()) {
-            throw new IllegalArgumentException(name + " can't be negative, was " + duration);
-        }
-        long millis = duration.toMillis();
+        long millis = toMillis(duration, name);
         if (millis > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(name + " can be at most " + Integer.MAX_VALUE + " milliseconds, was " + duration);
         }
         return (int) millis;
+    }
+
+    private static long toMillis(Duration duration, String name) {
+        notNull(duration, name);
+        if (duration.isNegative()) {
+            throw new IllegalArgumentException(name + " can't be negative, was " + duration);
+        }
+        // Round up, since 0 means no limit
+        return duration.isZero() ? 0 : Math.max(1, duration.toMillis());
     }
 
     private Duration durationParam(String name) {
@@ -499,8 +508,9 @@ import static java.util.Arrays.asList;
     /**
      * A factory for creating and configuring a custom http client instance that will be used by REST Assured.
      *
-     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use <code>customizeClient(..)</code> in 7.0.0
-     * to customize the client that REST Assured creates.
+     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. For timeouts, cookies and redirects use the
+     * settings on HttpClientConfig and {@link RedirectConfig#followRedirectsForAllMethods(boolean)}, and use
+     * <code>customizeClient(..)</code> in 7.0.0 to customize the client that REST Assured creates.
      */
     @Deprecated
     public interface HttpClientFactory {

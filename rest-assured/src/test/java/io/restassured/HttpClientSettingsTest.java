@@ -18,6 +18,11 @@ package io.restassured;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import io.restassured.config.HttpClientConfig;
+import org.apache.http.client.RedirectStrategy;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,12 +38,14 @@ import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RedirectConfig.redirectConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
  * The HTTP client settings added in 6.3.0 as replacements for HttpClient 4 parameters and redirect strategies.
  */
+@SuppressWarnings("deprecation")
 class HttpClientSettingsTest {
 
     private HttpServer server;
@@ -107,6 +114,22 @@ class HttpClientSettingsTest {
         then().
                 statusCode(200).
                 body(equalTo("PUT body=data cookie=null expect=null"));
+    }
+
+    @Test
+    void reused_client_gets_back_the_redirect_strategy_of_its_factory_after_following_redirects_for_all_methods() {
+        RedirectStrategy factoryStrategy = new LaxRedirectStrategy();
+        HttpClientConfig httpClientConfig = httpClientConfig().httpClientFactory(() -> {
+            DefaultHttpClient client = new DefaultHttpClient();
+            client.setRedirectStrategy(factoryStrategy);
+            return client;
+        }).reuseHttpClientInstance();
+        RestAssured.config = config().httpClient(httpClientConfig);
+
+        given().config(RestAssured.config.redirect(redirectConfig().followRedirectsForAllMethods(true))).body("data").when().put(url("/redirect-302")).then().statusCode(200);
+        given().body("data").when().put(url("/redirect-302")).then().statusCode(302);
+
+        assertThat(((AbstractHttpClient) httpClientConfig.httpClientInstance()).getRedirectStrategy()).isSameAs(factoryStrategy);
     }
 
     @Test

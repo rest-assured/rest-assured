@@ -16,12 +16,24 @@
 
 package io.restassured.internal.http;
 
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 
 /**
  * Follows redirects for every HTTP method, used for {@link io.restassured.config.RedirectConfig#followRedirectsForAllMethods(boolean)}.
+ * It remembers the strategy it replaced, so that a reused client gets that strategy back when a later request doesn't
+ * follow redirects for all methods.
  */
 public class AllMethodsRedirectStrategy extends DefaultRedirectStrategy {
+    private final RedirectStrategy replacedStrategy;
+
+    public AllMethodsRedirectStrategy(RedirectStrategy replacedStrategy) {
+        this.replacedStrategy = replacedStrategy;
+    }
+
+    public RedirectStrategy getReplacedStrategy() {
+        return replacedStrategy;
+    }
 
     @Override
     protected boolean isRedirectable(String method) {

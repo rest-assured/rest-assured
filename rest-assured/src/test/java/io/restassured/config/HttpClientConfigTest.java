@@ -17,6 +17,7 @@
 package io.restassured.config;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
@@ -208,7 +209,7 @@ public class HttpClientConfigTest {
                 entry(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000),
                 entry(CoreConnectionPNames.SO_TIMEOUT, 2000),
                 entry(ClientPNames.CONN_MANAGER_TIMEOUT, 3000L),
-                entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH),
+                entry(ClientPNames.COOKIE_POLICY, CookieSpecs.DEFAULT),
                 entry(CookieSpecPNames.DATE_PATTERNS, Collections.singletonList("yyyy-MM-dd")),
                 entry(CoreProtocolPNames.USE_EXPECT_CONTINUE, true));
         assertThat(httpClientConfig.httpMultipartMode()).isEqualTo(HttpMultipartMode.RFC6532);
@@ -247,6 +248,14 @@ public class HttpClientConfigTest {
         assertThatThrownBy(() -> new HttpClientConfig().readTimeout(Duration.ofMillis(-1)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("readTimeout can't be negative, was PT-0.001S");
+    }
+
+    @Test
+    public void timeoutUnderOneMillisecondIsRoundedUpSinceZeroMeansNoLimit() {
+        final HttpClientConfig httpClientConfig = new HttpClientConfig().readTimeout(Duration.ofNanos(1)).connectionRequestTimeout(Duration.ZERO);
+
+        assertThat(httpClientConfig.readTimeout()).isEqualTo(Duration.ofMillis(1));
+        assertThat(httpClientConfig.connectionRequestTimeout()).isEqualTo(Duration.ZERO);
     }
 
     @Test

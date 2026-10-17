@@ -132,7 +132,7 @@ public class RedirectConfig implements Config {
      * <code>GET</code> and <code>HEAD</code> requests are followed automatically, as well as <code>303 See Other</code>.
      * When enabled, redirects of for example <code>POST</code>, <code>PUT</code> and <code>DELETE</code> requests are
      * followed too. A <code>307</code> or <code>308</code> redirect repeats the request with the same method and body,
-     * and other redirects continue with a <code>GET</code> request. Disabled by default.
+     * and on other redirects a <code>POST</code>, <code>PUT</code> or other request becomes a <code>GET</code> request. Disabled by default.
      *
      * @param value <code>true</code> to follow redirects for every HTTP method.
      * @return An updated RedirectConfig

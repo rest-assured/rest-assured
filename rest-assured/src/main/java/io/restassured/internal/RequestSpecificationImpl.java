@@ -87,6 +87,7 @@ import io.restassured.specification.ResponseSpecification;
 import io.restassured.spi.AuthFilter;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.Scheme;
@@ -96,7 +97,6 @@ import org.apache.http.entity.mime.FormBodyPartBuilder;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ConnectionReuseStrategy;
@@ -1769,11 +1769,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             return;
         }
         AbstractHttpClient client = http.getClient();
-        // Only replace our own strategy when turning it off, so that a strategy installed by an HttpClientFactory stays.
-        if (followRedirectsForAllMethods && !(client.getRedirectStrategy() instanceof AllMethodsRedirectStrategy)) {
-            client.setRedirectStrategy(new AllMethodsRedirectStrategy());
-        } else if (!followRedirectsForAllMethods && client.getRedirectStrategy() instanceof AllMethodsRedirectStrategy) {
-            client.setRedirectStrategy(DefaultRedirectStrategy.INSTANCE);
+        RedirectStrategy redirectStrategy = client.getRedirectStrategy();
+        if (followRedirectsForAllMethods && !(redirectStrategy instanceof AllMethodsRedirectStrategy)) {
+            client.setRedirectStrategy(new AllMethodsRedirectStrategy(redirectStrategy));
+        } else if (!followRedirectsForAllMethods && redirectStrategy instanceof AllMethodsRedirectStrategy) {
+            // A reused client gets back the strategy it had, for example one installed by an HttpClientFactory
+            client.setRedirectStrategy(((AllMethodsRedirectStrategy) redirectStrategy).getReplacedStrategy());
         }
     }
 
