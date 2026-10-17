@@ -16,16 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.lang.reflect.Type;
-
 /**
- * Simply creates a new Jackson 2.0 ObjectMapper
+ * @deprecated Use {@link io.restassured.common.mapper.factory.DefaultJackson2ObjectMapperFactory} instead. This class is removed in REST Assured 8.0.0.
  */
-public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
-    public ObjectMapper create(Type cls, String charset) {
-        return new ObjectMapper().findAndRegisterModules();
-    }
+@Deprecated
+public class DefaultJackson2ObjectMapperFactory extends io.restassured.common.mapper.factory.DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
 }

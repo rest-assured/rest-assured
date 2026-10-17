@@ -16,13 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-import io.restassured.common.mapper.factory.ObjectMapperFactory;
-import jakarta.json.bind.Jsonb;
-
-
 /**
- * Interface for JSON-B object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Jsonb object mapper.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.JsonbObjectMapperFactory} instead. This interface is removed in REST Assured 8.0.0.
  */
-public interface JsonbObjectMapperFactory extends ObjectMapperFactory<Jsonb> {
+@Deprecated
+public interface JsonbObjectMapperFactory extends io.restassured.common.mapper.factory.JsonbObjectMapperFactory {
 }

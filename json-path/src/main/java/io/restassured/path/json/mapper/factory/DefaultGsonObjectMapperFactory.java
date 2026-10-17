@@ -16,15 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-import com.google.gson.Gson;
-
-import java.lang.reflect.Type;
-
 /**
- * Simply creates a new Gson instance.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.DefaultGsonObjectMapperFactory} instead. This class is removed in REST Assured 8.0.0.
  */
-public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
-    public Gson create(Type cls, String charset) {
-        return new Gson();
-    }
+@Deprecated
+public class DefaultGsonObjectMapperFactory extends io.restassured.common.mapper.factory.DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
 }

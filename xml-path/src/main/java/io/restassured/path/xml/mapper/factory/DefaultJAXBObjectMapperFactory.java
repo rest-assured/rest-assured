@@ -16,22 +16,9 @@
 
 package io.restassured.path.xml.mapper.factory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import java.lang.reflect.Type;
-
 /**
- * Simply creates a new JAXBContext based on the supplied class.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.DefaultJAXBObjectMapperFactory} instead. This class is removed in REST Assured 8.0.0.
  */
-public class DefaultJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
-    public JAXBContext create(Type cls, String charset) {
-        try {
-            if (cls instanceof Class) {
-                return JAXBContext.newInstance((Class<?>) cls);
-            }
-            throw new RuntimeException("JAXB does not support type" + cls);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-    }
+@Deprecated
+public class DefaultJAXBObjectMapperFactory extends io.restassured.common.mapper.factory.DefaultJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
 }

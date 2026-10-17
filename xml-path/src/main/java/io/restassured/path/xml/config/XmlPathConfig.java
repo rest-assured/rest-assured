@@ -17,6 +17,7 @@
 package io.restassured.path.xml.config;
 
 import io.restassured.common.mapper.resolver.ObjectMapperResolver;
+import io.restassured.internal.path.xml.mapping.LegacyXmlObjectMapperFactories;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory;
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
@@ -359,6 +360,15 @@ public class XmlPathConfig {
     public XmlPathConfig jaxbObjectMapperFactory(JAXBObjectMapperFactory jaxbObjectMapperFactory) {
         return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, features, declaredNamespaces,
                 properties, validating, namespaceAware, allowDocTypeDeclaration);
+    }
+
+    /**
+     * Specify a custom JAXB object mapper factory.
+     *
+     * @param jaxbObjectMapperFactory The object mapper factory
+     */
+    public XmlPathConfig jaxbObjectMapperFactory(io.restassured.common.mapper.factory.JAXBObjectMapperFactory jaxbObjectMapperFactory) {
+        return jaxbObjectMapperFactory(LegacyXmlObjectMapperFactories.toLegacy(jaxbObjectMapperFactory));
     }
 
     public boolean hasDeclaredNamespaces() {

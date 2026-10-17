@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc;
 
+import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
@@ -69,6 +70,11 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * </ul>
  */
 public class RestAssuredMockMvc {
+
+    static {
+        // First, so that an older rest-assured-common gives a message instead of a NoClassDefFoundError
+        CommonVersionCheck.verify();
+    }
 
     /**
      * Set a {@link org.springframework.test.web.servlet.MockMvc} instance that REST Assured will use when making requests unless overwritten

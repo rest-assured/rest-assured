@@ -274,6 +274,16 @@ public class XmlPath {
     }
 
     /**
+     * Configure XmlPath to use a specific JAXB object mapper factory
+     *
+     * @param factory The JAXB object mapper factory instance
+     * @return a new XmlPath instance
+     */
+    public XmlPath using(io.restassured.common.mapper.factory.JAXBObjectMapperFactory factory) {
+        return new XmlPath(this, getXmlPathConfig().jaxbObjectMapperFactory(factory));
+    }
+
+    /**
      * Configure XmlPath to with a specific XmlPathConfig.
      *
      * @param config The XmlPath config

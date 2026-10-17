@@ -16,12 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-import io.restassured.common.mapper.factory.ObjectMapperFactory;
-import org.apache.johnzon.mapper.Mapper;
-
 /**
- * Interface for Johnzon object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Gson object mapper.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.JohnzonObjectMapperFactory} instead. This interface is removed in REST Assured 8.0.0.
  */
-public interface JohnzonObjectMapperFactory extends ObjectMapperFactory<Mapper> {
+@Deprecated
+public interface JohnzonObjectMapperFactory extends io.restassured.common.mapper.factory.JohnzonObjectMapperFactory {
 }

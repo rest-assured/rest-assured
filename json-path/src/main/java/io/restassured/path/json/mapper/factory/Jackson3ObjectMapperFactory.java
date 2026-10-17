@@ -16,13 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-
-import io.restassured.common.mapper.factory.ObjectMapperFactory;
-import tools.jackson.databind.ObjectMapper;
-
 /**
- * Interface for Jackson 3 based object mapper. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Jackson 3.0 object mapper.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory} instead. This interface is removed in REST Assured 8.0.0.
  */
-public interface Jackson3ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
+@Deprecated
+public interface Jackson3ObjectMapperFactory extends io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory {
 }

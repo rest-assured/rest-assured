@@ -16,12 +16,9 @@
 
 package io.restassured.path.json.mapper.factory;
 
-import com.google.gson.Gson;
-import io.restassured.common.mapper.factory.ObjectMapperFactory;
-
 /**
- * Interface for Gson object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Gson object mapper.
+ * @deprecated Use {@link io.restassured.common.mapper.factory.GsonObjectMapperFactory} instead. This interface is removed in REST Assured 8.0.0.
  */
-public interface GsonObjectMapperFactory extends ObjectMapperFactory<Gson> {
+@Deprecated
+public interface GsonObjectMapperFactory extends io.restassured.common.mapper.factory.GsonObjectMapperFactory {
 }

@@ -15,29 +15,9 @@
  */
 package io.restassured.path.json.mapper.factory;
 
-import jakarta.json.bind.Jsonb;
-import org.eclipse.yasson.JsonBindingProvider;
-
-import java.lang.reflect.Type;
-
-public class DefaultYassonObjectMapperFactory implements JsonbObjectMapperFactory {
-
-    // Double-checked locking on a volatile so that threads racing the first call share one instance
-    private static final Object LOCK = new Object();
-    private static volatile Jsonb cachedJsonb = null;
-
-    @Override
-    public Jsonb create(Type cls, String charset) {
-        Jsonb jsonb = cachedJsonb;
-        if (jsonb == null) {
-            synchronized (LOCK) {
-                jsonb = cachedJsonb;
-                if (jsonb == null) {
-                    jsonb = new JsonBindingProvider().create().build();
-                    cachedJsonb = jsonb;
-                }
-            }
-        }
-        return jsonb;
-    }
+/**
+ * @deprecated Use {@link io.restassured.common.mapper.factory.DefaultYassonObjectMapperFactory} instead. This class is removed in REST Assured 8.0.0.
+ */
+@Deprecated
+public class DefaultYassonObjectMapperFactory extends io.restassured.common.mapper.factory.DefaultYassonObjectMapperFactory implements JsonbObjectMapperFactory {
 }

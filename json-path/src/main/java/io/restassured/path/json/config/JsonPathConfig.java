@@ -18,6 +18,7 @@ package io.restassured.path.json.config;
 
 import io.restassured.common.mapper.resolver.ObjectMapperResolver;
 import io.restassured.path.json.mapper.factory.*;
+import io.restassured.internal.path.json.mapping.LegacyJsonObjectMapperFactories;
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -147,6 +148,18 @@ public class JsonPathConfig {
      * @param numberReturnType The choice.
      * @return A new instance of JsonPathConfig with the given configuration
      */
+    public JsonPathConfig numberReturnType(io.restassured.common.config.NumberReturnType numberReturnType) {
+        return numberReturnType(numberReturnType == null ? null : NumberReturnType.valueOf(numberReturnType.name()));
+    }
+
+    /**
+     * Specifies if JsonPath should use floats and doubles or BigDecimals to represent Json numbers.
+     *
+     * @param numberReturnType The choice.
+     * @return A new instance of JsonPathConfig with the given configuration
+     * @deprecated Use {@link #numberReturnType(io.restassured.common.config.NumberReturnType)} instead. This enum is removed in REST Assured 8.0.0.
+     */
+    @Deprecated
     public JsonPathConfig numberReturnType(NumberReturnType numberReturnType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
@@ -256,6 +269,15 @@ public class JsonPathConfig {
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
+    /**
+     * Specify a custom Gson object mapper factory.
+     *
+     * @param gsonObjectMapperFactory The object mapper factory
+     */
+    public JsonPathConfig gsonObjectMapperFactory(io.restassured.common.mapper.factory.GsonObjectMapperFactory gsonObjectMapperFactory) {
+        return gsonObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(gsonObjectMapperFactory));
+    }
+
     public Jackson1ObjectMapperFactory jackson1ObjectMapperFactory() {
         return jackson1ObjectMapperFactory;
     }
@@ -264,7 +286,9 @@ public class JsonPathConfig {
      * Specify a custom Jackson 1.0 object mapper factory.
      *
      * @param jackson1ObjectMapperFactory The object mapper factory
+     * @deprecated Jackson 1 support is removed in REST Assured 7.0.0. Use Jackson 2 or 3 instead.
      */
+    @Deprecated
     public JsonPathConfig jackson1ObjectMapperFactory(Jackson1ObjectMapperFactory jackson1ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
@@ -290,6 +314,15 @@ public class JsonPathConfig {
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
+    /**
+     * Specify a custom Jackson 2.0 object mapper factory.
+     *
+     * @param jackson2ObjectMapperFactory The object mapper factory
+     */
+    public JsonPathConfig jackson2ObjectMapperFactory(io.restassured.common.mapper.factory.Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
+        return jackson2ObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(jackson2ObjectMapperFactory));
+    }
+
     public Jackson3ObjectMapperFactory jackson3ObjectMapperFactory() {
         return jackson3ObjectMapperFactory;
     }
@@ -305,6 +338,15 @@ public class JsonPathConfig {
             johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
+    /**
+     * Specify a custom Jackson 3.0 object mapper factory.
+     *
+     * @param jackson3ObjectMapperFactory The object mapper factory
+     */
+    public JsonPathConfig jackson3ObjectMapperFactory(io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory jackson3ObjectMapperFactory) {
+        return jackson3ObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(jackson3ObjectMapperFactory));
+    }
+
     public JsonbObjectMapperFactory jsonbObjectMapperFactory() {
         return jsonbObjectMapperFactory;
     }
@@ -318,6 +360,15 @@ public class JsonPathConfig {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
+    }
+
+    /**
+     * Specify a custom JSON-B object mapper factory.
+     *
+     * @param jsonbObjectMapperFactory The object mapper factory
+     */
+    public JsonPathConfig jsonbObjectMapperFactory(io.restassured.common.mapper.factory.JsonbObjectMapperFactory jsonbObjectMapperFactory) {
+        return jsonbObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(jsonbObjectMapperFactory));
     }
 
     /**
@@ -357,7 +408,10 @@ public class JsonPathConfig {
      * <ul>
      * <li>BIG_INTEGER</li>
      * </ul>
+     *
+     * @deprecated Use {@link io.restassured.common.config.NumberReturnType} instead. This enum is removed in REST Assured 8.0.0.
      */
+    @Deprecated
     public enum NumberReturnType {
         /**
          * Convert all non-integer numbers to floats and doubles (depending on the size of the number)

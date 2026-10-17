@@ -714,11 +714,23 @@ public class JsonPath {
     }
 
     /**
+     * Configure JsonPath to use a specific Gson object mapper factory
+     *
+     * @param factory The Gson object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(io.restassured.common.mapper.factory.GsonObjectMapperFactory factory) {
+        return new JsonPath(this, getJsonPathConfig().gsonObjectMapperFactory(factory));
+    }
+
+    /**
      * Configure JsonPath to use a specific Jackson object mapper factory
      *
      * @param factory The Jackson object mapper factory instance
      * @return a new JsonPath instance
+     * @deprecated Jackson 1 support is removed in REST Assured 7.0.0. Use Jackson 2 or 3 instead.
      */
+    @Deprecated
     public JsonPath using(Jackson1ObjectMapperFactory factory) {
         return new JsonPath(this, getJsonPathConfig().jackson1ObjectMapperFactory(factory));
     }
@@ -734,12 +746,32 @@ public class JsonPath {
     }
 
     /**
+     * Configure JsonPath to use a specific Jackson 2 object mapper factory
+     *
+     * @param factory The Jackson 2 object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(io.restassured.common.mapper.factory.Jackson2ObjectMapperFactory factory) {
+        return new JsonPath(this, getJsonPathConfig().jackson2ObjectMapperFactory(factory));
+    }
+
+    /**
      * Configure JsonPath to use a specific Jackson 3 object mapper factory
      *
      * @param factory The Jackson 3 object mapper factory instance
      * @return a new JsonPath instance
      */
     public JsonPath using(Jackson3ObjectMapperFactory factory) {
+        return new JsonPath(this, getJsonPathConfig().jackson3ObjectMapperFactory(factory));
+    }
+
+    /**
+     * Configure JsonPath to use a specific Jackson 3 object mapper factory
+     *
+     * @param factory The Jackson 3 object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory factory) {
         return new JsonPath(this, getJsonPathConfig().jackson3ObjectMapperFactory(factory));
     }
 
