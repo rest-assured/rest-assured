@@ -43,7 +43,6 @@ class MigrateRestAssured6DeprecationsTest implements RewriteTest {
                         import io.restassured.config.SSLConfig;
                         import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
                         import org.apache.http.client.params.ClientPNames;
-                        import org.apache.http.client.params.CookiePolicy;
                         import org.apache.http.conn.ssl.SSLSocketFactory;
                         import org.apache.http.entity.mime.HttpMultipartMode;
                         import org.apache.http.params.CoreConnectionPNames;
@@ -56,7 +55,7 @@ class MigrateRestAssured6DeprecationsTest implements RewriteTest {
                                         .httpClient(HttpClientConfig.httpClientConfig()
                                                 .setParam(CoreConnectionPNames.CONNECTION_TIMEOUT, 5000)
                                                 .setParam(CoreConnectionPNames.SO_TIMEOUT, 10000)
-                                                .setParam(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                                                .setParam(ClientPNames.COOKIE_POLICY, "default")
                                                 .setParam("http.useragent", "my-agent")
                                                 .httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE))
                                         .sslConfig(SSLConfig.sslConfig().x509HostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER))

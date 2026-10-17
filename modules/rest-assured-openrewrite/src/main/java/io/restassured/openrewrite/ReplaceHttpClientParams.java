@@ -46,6 +46,10 @@ public class ReplaceHttpClientParams extends Recipe {
             CLIENT_PNAMES + ".CONN_MANAGER_TIMEOUT", "http.conn-manager.timeout",
             CLIENT_PNAMES + ".COOKIE_POLICY", "http.protocol.cookie-policy",
             CORE_PROTOCOL_PNAMES + ".USE_EXPECT_CONTINUE", "http.protocol.expect-continue");
+    private static final Map<String, String> COOKIE_POLICY_CONSTANTS = Map.of(
+            COOKIE_POLICY + ".IGNORE_COOKIES", "ignoreCookies",
+            COOKIE_SPECS + ".IGNORE_COOKIES", "ignoreCookies",
+            COOKIE_SPECS + ".DEFAULT", "default");
 
     @Override
     public String getDisplayName() {
@@ -55,7 +59,7 @@ public class ReplaceHttpClientParams extends Recipe {
     @Override
     public String getDescription() {
         return "Replace `HttpClientConfig.setParam(..)` for the connection, socket and connection manager timeouts, " +
-                "the cookie policy and expect-continue with `connectTimeout(Duration)`, `readTimeout(Duration)`, " +
+                "the cookie policy (\"ignoreCookies\" or \"default\") and expect-continue with `connectTimeout(Duration)`, `readTimeout(Duration)`, " +
                 "`connectionRequestTimeout(Duration)`, `keepResponseCookies(boolean)` and `expectContinue(boolean)`. " +
                 "Only parameters named by a string literal or an HttpClient 4 constant are replaced.";
     }
@@ -139,18 +143,21 @@ public class ReplaceHttpClientParams extends Recipe {
     }
 
     /**
-     * @return Whether the cookie policy ignores cookies, or <code>null</code> if it isn't a string literal or one of
-     * HttpClient 4's cookie policy constants.
+     * @return Whether the cookie policy ignores cookies, or <code>null</code> if it's neither "ignoreCookies" nor
+     * "default", the two policies that <code>keepResponseCookies(..)</code> sets. Other policies, such as
+     * "compatibility", have no replacement in 6.x, so they're left as they are.
      */
     private static @Nullable Boolean ignoresCookies(Expression policy) {
-        if (policy instanceof J.Literal) {
-            Object value = ((J.Literal) policy).getValue();
-            return value instanceof String ? "ignoreCookies".equals(value) : null;
+        String name;
+        if (policy instanceof J.Literal && ((J.Literal) policy).getValue() instanceof String) {
+            name = (String) ((J.Literal) policy).getValue();
+        } else {
+            String constant = RecipeSupport.fieldName(policy);
+            name = constant == null ? null : COOKIE_POLICY_CONSTANTS.get(constant);
         }
-        String constant = RecipeSupport.fieldName(policy);
-        if (constant == null || !(constant.startsWith(COOKIE_POLICY + ".") || constant.startsWith(COOKIE_SPECS + "."))) {
-            return null;
+        if ("ignoreCookies".equals(name)) {
+            return true;
         }
-        return constant.endsWith(".IGNORE_COOKIES");
+        return "default".equals(name) ? false : null;
     }
 }

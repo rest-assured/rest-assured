@@ -44,7 +44,8 @@ public class ConvertNumberReturnTypeGetters extends Recipe {
                 "`JsonPathConfig.NumberReturnType`, so in code that imports `io.restassured.common.config.NumberReturnType` " +
                 "wrap them in `NumberReturnType.valueOf(..name())`, so that the result can be compared with and assigned " +
                 "to the new type. Calls such as `numberReturnType().isFloatOrDouble()`, which both types have, and a " +
-                "switch on the result are left as they are.";
+                "switch on the result are left as they are. Run it as part of " +
+                "`io.restassured.MigrateRestAssured6Deprecations`, after the type itself has been changed.";
     }
 
     @Override

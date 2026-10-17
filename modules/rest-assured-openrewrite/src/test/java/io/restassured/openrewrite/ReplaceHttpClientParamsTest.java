@@ -107,7 +107,7 @@ class ReplaceHttpClientParamsTest implements RewriteTest {
     }
 
     @Test
-    void replaces_statically_imported_constants_and_keeps_cookies_for_other_cookie_policies() {
+    void replaces_statically_imported_constants_and_leaves_cookie_policies_without_a_replacement() {
         rewriteRun(
                 java(
                         """
@@ -123,19 +123,25 @@ class ReplaceHttpClientParamsTest implements RewriteTest {
                             HttpClientConfig standard = new HttpClientConfig().setParam(COOKIE_POLICY, CookieSpecs.STANDARD);
                             HttpClientConfig literal = new HttpClientConfig().setParam(COOKIE_POLICY, "compatibility");
                             HttpClientConfig ignore = new HttpClientConfig().setParam(COOKIE_POLICY, CookieSpecs.IGNORE_COOKIES);
+                            HttpClientConfig defaultSpec = new HttpClientConfig().setParam(COOKIE_POLICY, CookieSpecs.DEFAULT);
                             HttpClientConfig timeout = new HttpClientConfig().setParam(CONNECTION_TIMEOUT, 1000);
                         }
                         """,
                         """
                         import io.restassured.config.HttpClientConfig;
+                        import org.apache.http.client.config.CookieSpecs;
 
                         import java.time.Duration;
 
+                        import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
+                        import static org.apache.http.client.params.CookiePolicy.BROWSER_COMPATIBILITY;
+
                         class A {
-                            HttpClientConfig browser = new HttpClientConfig().keepResponseCookies(true);
-                            HttpClientConfig standard = new HttpClientConfig().keepResponseCookies(true);
-                            HttpClientConfig literal = new HttpClientConfig().keepResponseCookies(true);
+                            HttpClientConfig browser = new HttpClientConfig().setParam(COOKIE_POLICY, BROWSER_COMPATIBILITY);
+                            HttpClientConfig standard = new HttpClientConfig().setParam(COOKIE_POLICY, CookieSpecs.STANDARD);
+                            HttpClientConfig literal = new HttpClientConfig().setParam(COOKIE_POLICY, "compatibility");
                             HttpClientConfig ignore = new HttpClientConfig().keepResponseCookies(false);
+                            HttpClientConfig defaultSpec = new HttpClientConfig().keepResponseCookies(true);
                             HttpClientConfig timeout = new HttpClientConfig().connectTimeout(Duration.ofMillis(1000));
                         }
                         """
