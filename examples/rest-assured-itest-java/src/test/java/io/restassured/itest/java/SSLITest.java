@@ -16,6 +16,8 @@
 
 package io.restassured.itest.java;
 
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 import io.restassured.RestAssured;
 import io.restassured.authentication.CertificateAuthSettings;
 import io.restassured.builder.RequestSpecBuilder;
@@ -31,10 +33,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.util.HashMap;
+import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -245,8 +255,45 @@ public class SSLITest {
 
         @Test
         public void
-        can_make_request_to_sites_that_with_valid_ssl_cert() {
-            RestAssured.get("https://duckduckgo.com/").then().statusCode(200);
+        can_make_request_to_sites_that_with_valid_ssl_cert() throws Exception {
+            // A server whose certificate is valid for localhost, trusted through the JVM's default trust store
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            try (InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("localhost_valid_cert_server.p12")) {
+                keyStore.load(keyStoreStream, "test1234".toCharArray());
+            }
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, "test1234".toCharArray());
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+
+            HttpsServer server = HttpsServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+            server.setHttpsConfigurator(new HttpsConfigurator(sslContext));
+            server.createContext("/", exchange -> {
+                exchange.sendResponseHeaders(200, -1);
+                exchange.close();
+            });
+            server.start();
+
+            String trustStore = Paths.get(Thread.currentThread().getContextClassLoader().getResource("localhost_valid_cert_truststore.p12").toURI()).toString();
+            Map<String, String> previousProperties = new HashMap<>();
+            for (String property : asList("javax.net.ssl.trustStore", "javax.net.ssl.trustStoreType", "javax.net.ssl.trustStorePassword")) {
+                previousProperties.put(property, System.getProperty(property));
+            }
+            try {
+                System.setProperty("javax.net.ssl.trustStore", trustStore);
+                System.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+                System.setProperty("javax.net.ssl.trustStorePassword", "test1234");
+                RestAssured.get("https://localhost:" + server.getAddress().getPort() + "/").then().statusCode(200);
+            } finally {
+                previousProperties.forEach((property, value) -> {
+                    if (value == null) {
+                        System.clearProperty(property);
+                    } else {
+                        System.setProperty(property, value);
+                    }
+                });
+                server.stop(0);
+            }
         }
 
         @Test
