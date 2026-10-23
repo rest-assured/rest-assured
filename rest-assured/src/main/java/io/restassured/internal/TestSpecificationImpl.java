@@ -52,6 +52,8 @@ public class TestSpecificationImpl implements RequestSender {
         this.responseSpecification = responseSpecification;
         ((ResponseSpecificationImpl) responseSpecification).setRequestSpecification(requestSpecification);
         ((RequestSpecificationImpl) requestSpecification).setResponseSpecification(responseSpecification);
+        // As with given(), so that a failed validation prints the request that logged to the request's repository too
+        ((ResponseSpecificationImpl) responseSpecification).setLogRepository(((RequestSpecificationImpl) requestSpecification).getLogRepository());
     }
 
     /**

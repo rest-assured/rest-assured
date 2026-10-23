@@ -2339,6 +2339,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         }
     }
 
+    LogRepository getLogRepository() {
+        return logRepository;
+    }
+
     public void setResponseSpecification(ResponseSpecification responseSpecification) {
         this.responseSpecification = (FilterableResponseSpecification) responseSpecification;
     }
