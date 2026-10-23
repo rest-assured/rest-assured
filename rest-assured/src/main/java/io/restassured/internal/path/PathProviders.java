@@ -61,7 +61,7 @@ public final class PathProviders {
         if (type == DocumentType.JSON) {
             return forJson(config.getJsonConfig().pathEngine(), JSON_ENGINES, path);
         }
-        return gpath(type, path);
+        return gpath(type).orElseThrow(() -> new IllegalStateException(MissingPathEngine.message(path, type)));
     }
 
     /**
@@ -72,13 +72,13 @@ public final class PathProviders {
      * @throws IllegalStateException If GPath isn't on the classpath
      */
     public static void requireGPath(DocumentType type, String method) {
-        gpath(type, method);
+        if (gpath(type).isEmpty()) {
+            throw new IllegalStateException(MissingPathEngine.forMethod(method, type));
+        }
     }
 
-    private static PathProvider gpath(DocumentType type, String path) {
-        String className = type == DocumentType.JSON ? GPATH_JSON : GPATH_XML;
-        String artifactId = type == DocumentType.JSON ? "json-path-gpath" : "xml-path-gpath";
-        return load(className, artifactId).orElseThrow(() -> new IllegalStateException(MissingPathEngine.message(path, type)));
+    private static Optional<PathProvider> gpath(DocumentType type) {
+        return type == DocumentType.JSON ? load(GPATH_JSON, "json-path-gpath") : load(GPATH_XML, "xml-path-gpath");
     }
 
     static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines) {

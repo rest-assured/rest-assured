@@ -84,6 +84,15 @@ class MissingPathEngineTest {
     }
 
     @Test
+    void message_for_a_method_names_the_method_and_otherwise_is_the_same() {
+        String forMethod = MissingPathEngine.forMethod("jsonPath()", DocumentType.JSON, "7.0.1");
+        String forPath = MissingPathEngine.message("a", DocumentType.JSON, "7.0.1");
+
+        assertThat(forMethod).startsWith("REST Assured can't run jsonPath() because no JSON path engine is on the classpath." + NL);
+        assertThat(forMethod.substring(forMethod.indexOf(NL))).isEqualTo(forPath.substring(forPath.indexOf(NL)));
+    }
+
+    @Test
     void version_is_read_from_the_version_file_of_rest_assured() {
         assertThat(MissingPathEngine.version()).matches("7\\.\\d+\\.\\d+(-SNAPSHOT)?");
         assertThat(MissingPathEngine.message("a", DocumentType.JSON)).contains("<version>" + MissingPathEngine.version() + "</version>");
@@ -111,7 +120,7 @@ class MissingPathEngineTest {
 
         assertThatThrownBy(() -> response.jsonPath())
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage(MissingPathEngine.message("jsonPath()", DocumentType.JSON));
+                .hasMessage(MissingPathEngine.forMethod("jsonPath()", DocumentType.JSON));
     }
 
     @Test
@@ -120,10 +129,10 @@ class MissingPathEngineTest {
 
         assertThatThrownBy(() -> response.xmlPath())
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage(MissingPathEngine.message("xmlPath()", DocumentType.XML));
+                .hasMessage(MissingPathEngine.forMethod("xmlPath()", DocumentType.XML));
         assertThatThrownBy(() -> response.htmlPath())
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage(MissingPathEngine.message("htmlPath()", DocumentType.HTML));
+                .hasMessage(MissingPathEngine.forMethod("htmlPath()", DocumentType.HTML));
     }
 
     @Test
