@@ -19,9 +19,6 @@ package io.restassured.internal.http;
 import io.restassured.config.EncoderConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
@@ -159,7 +156,7 @@ public class URIBuilder implements Cloneable {
     }
 
     /* TODO null/ zero-size check if this is ever made public */
-    protected URIBuilder setQueryNVP(List<NameValuePair> nvp) throws URISyntaxException {
+    protected URIBuilder setQueryNVP(List<QueryParameter> nvp) throws URISyntaxException {
         /* Passing the query string in the URI constructor will
            * double-escape query parameters and goober things up.  So we have
            * to create a full path+query+fragment and use URI#resolve() to
@@ -188,13 +185,13 @@ public class URIBuilder implements Cloneable {
      */
     public URIBuilder setQuery(Map<?, ?> params) throws URISyntaxException {
         if (params != null && params.size() >= 1) {
-            List<NameValuePair> nvp = new ArrayList<NameValuePair>(params.size());
+            List<QueryParameter> nvp = new ArrayList<QueryParameter>(params.size());
             for (Object key : params.keySet()) {
                 Object value = params.get(key);
                 if (value instanceof List) {
                     for (Object val : (List) value)
-                        nvp.add(new BasicNameValuePairWithNoValueSupport(key.toString(), val));
-                } else nvp.add(new BasicNameValuePairWithNoValueSupport(key.toString(), value));
+                        nvp.add(QueryParameter.of(key.toString(), val));
+                } else nvp.add(QueryParameter.of(key.toString(), value));
             }
             this.setQueryNVP(nvp);
         }
@@ -217,9 +214,9 @@ public class URIBuilder implements Cloneable {
      */
     public Map<String, Object> getQuery() {
         Map<String, Object> params = new TreeMap<String, Object>();
-        List<NameValuePair> pairs = this.getQueryNVP();
+        List<QueryParameter> pairs = this.getQueryNVP();
 
-        for (NameValuePair pair : pairs) {
+        for (QueryParameter pair : pairs) {
 
             String key = pair.getName();
             Object existing = params.get(key);
@@ -240,9 +237,9 @@ public class URIBuilder implements Cloneable {
         return params;
     }
 
-    protected List<NameValuePair> getQueryNVP() {
-        List<NameValuePair> nvps = parse(this.base);
-        List<NameValuePair> newList = new ArrayList<NameValuePair>();
+    protected List<QueryParameter> getQueryNVP() {
+        List<QueryParameter> nvps = parse(this.base);
+        List<QueryParameter> newList = new ArrayList<QueryParameter>();
         if (nvps != null) newList.addAll(nvps);
         return newList;
     }
@@ -267,9 +264,9 @@ public class URIBuilder implements Cloneable {
      * @throws URISyntaxException
      */
     public URIBuilder removeQueryParam(String param) throws URISyntaxException {
-        List<NameValuePair> params = getQueryNVP();
-        NameValuePair found = null;
-        for (NameValuePair nvp : params)  // BOO linear search.  Assume the list is small.
+        List<QueryParameter> params = getQueryNVP();
+        QueryParameter found = null;
+        for (QueryParameter nvp : params)  // BOO linear search.  Assume the list is small.
             if (nvp.getName().equals(param)) {
                 found = nvp;
                 break;
@@ -281,8 +278,8 @@ public class URIBuilder implements Cloneable {
         return this;
     }
 
-    protected URIBuilder addQueryParams(List<NameValuePair> nvp) throws URISyntaxException {
-        List<NameValuePair> params = getQueryNVP();
+    protected URIBuilder addQueryParams(List<QueryParameter> nvp) throws URISyntaxException {
+        List<QueryParameter> params = getQueryNVP();
         params.addAll(nvp);
         this.setQueryNVP(params);
         return this;
@@ -306,13 +303,13 @@ public class URIBuilder implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     public URIBuilder addQueryParams(Map<?, ?> params) throws URISyntaxException {
-        List<NameValuePair> nvp = new ArrayList<NameValuePair>();
+        List<QueryParameter> nvp = new ArrayList<QueryParameter>();
         for (Object key : params.keySet()) {
             Object value = params.get(key);
             if (value instanceof List) {
                 for (Object val : (List) value)
-                    nvp.add(new BasicNameValuePairWithNoValueSupport(key.toString(), val));
-            } else nvp.add(new BasicNameValuePairWithNoValueSupport(key.toString(), value));
+                    nvp.add(QueryParameter.of(key.toString(), val));
+            } else nvp.add(QueryParameter.of(key.toString(), value));
         }
         this.addQueryParams(nvp);
         return this;
@@ -401,23 +398,24 @@ public class URIBuilder implements Cloneable {
      * Returns a String that is suitable for use as an <code>application/x-www-form-urlencoded</code>
      * list of parameters in an HTTP PUT or HTTP POST.
      * <p>
-     * This is a copy of {@link URLEncodedUtils#format(java.util.List, String)} that also handles {@link BasicNameValuePairWithNoValueSupport}.
+     * Based on HttpClient 4's <code>URLEncodedUtils.format</code>, but a parameter without a value is written without an
+     * equals sign and names and values are encoded with {@link #encode(String, String)}.
      * </p>
      *
      * @param parameters The parameters to include.
      * @param encoding   The encoding to use.
      */
     private static String format(
-            final List<? extends NameValuePair> parameters,
+            final List<QueryParameter> parameters,
             final boolean isUrlEncodingEnabled,
             final String encoding) {
         final StringBuilder result = new StringBuilder();
-        for (final NameValuePair parameter : parameters) {
+        for (final QueryParameter parameter : parameters) {
             if (result.length() > 0)
                 result.append(PARAMETER_SEPARATOR);
             final String encodedName = isUrlEncodingEnabled ? encode(parameter.getName(), encoding) : parameter.getName();
             result.append(encodedName);
-            if (hasValue(parameter)) {
+            if (parameter.hasValue()) {
                 final String value = parameter.getValue();
                 final String encodedValue = value != null ? isUrlEncodingEnabled ? encode(value, encoding) : value : "";
                 result.append(NAME_VALUE_SEPARATOR);
@@ -427,15 +425,7 @@ public class URIBuilder implements Cloneable {
         return result.toString();
     }
 
-    private static boolean hasValue(NameValuePair parameter) {
-        if (!(parameter instanceof BasicNameValuePairWithNoValueSupport)) {
-            return true;
-        }
-
-        return ((BasicNameValuePairWithNoValueSupport) parameter).hasValue();
-    }
-
-    // Copy of  the private method in URLEncodedUtils
+    // Encodes as java.net.URLEncoder does, except that a space becomes %20
     public static String encode(final String content, final String encoding) {
         try {
             String encoded = URLEncoder.encode(content, encoding != null ? encoding : Charset.defaultCharset().toString());
@@ -451,14 +441,14 @@ public class URIBuilder implements Cloneable {
      * Adds all parameters within the Scanner to the list of
      * <code>parameters</code>, as encoded by <code>encoding</code>. For
      * example, a scanner containing the string <code>a=1&b=2&c=3</code> would
-     * add the {@link NameValuePair NameValuePairs} a=1, b=2, and c=3 to the
-     * list of parameters.
+     * add the parameters a=1, b=2, and c=3 to the list of parameters.
      * <p>
-     * Note that this method has been copied from {@link URLEncodedUtils#parse(java.util.List, java.util.Scanner, String)} but it doesn't do URL decoding.
+     * Note that this method has been copied from HttpClient 4's <code>URLEncodedUtils.parse(List, Scanner, String)</code>
+     * but it doesn't do URL decoding.
      * </p>
      */
-    private List<NameValuePair> parse(URI uri) {
-        List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+    private List<QueryParameter> parse(URI uri) {
+        List<QueryParameter> parameters = new ArrayList<QueryParameter>();
         final String query = uri.getRawQuery();
         if (query != null && query.length() > 0) {
             final Scanner scanner = new Scanner(query);
@@ -474,7 +464,7 @@ public class URIBuilder implements Cloneable {
                 } else {
                     name = token.trim();
                 }
-                parameters.add(new BasicNameValuePair(name, value));
+                parameters.add(QueryParameter.parsed(name, value));
             }
         }
         return parameters;
