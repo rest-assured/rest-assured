@@ -32,6 +32,7 @@ import io.restassured.internal.assertion.BodyMatcherGroup;
 import io.restassured.internal.assertion.CookieMatcher;
 import io.restassured.internal.common.spi.path.GPathRootPath;
 import io.restassured.internal.log.LogRepository;
+import io.restassured.internal.path.PathArguments;
 import io.restassured.internal.transport.TransportResponse;
 import io.restassured.internal.util.MatcherErrorMessageBuilder;
 import io.restassured.listener.ResponseValidationFailureListener;
@@ -68,8 +69,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
-    // A format specifier as java.util.Formatter parses it: %[index$][flags][width][.precision][t]conversion
-    private static final Pattern FORMAT_SPECIFIER = Pattern.compile("%(\\d+\\$)?([-#+ 0,(<]*)(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
     private static final Pattern CONTENT_TYPE_WITHOUT_PARAMETERS = Pattern.compile("(^[\\w\\d_\\-]+/[\\w\\d_\\-]+)\\s*(?:;)");
 
     private Matcher<Integer> expectedStatusCode;
@@ -306,46 +305,50 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         notNull(matcher, "matcher");
 
         validateResponseIfRequired(() -> {
-            bodyMatchers.add(newBodyMatcher(applyArguments(GPathRootPath.join(bodyRootPath, key), arguments), matcher));
+            bodyMatchers.add(newBodyMatcher(key, checkedArguments(key, Collections.singletonList(arguments)), matcher));
             if (additionalKeyMatcherPairs != null && additionalKeyMatcherPairs.length > 0) {
                 // The keys are Strings or, when only arguments are given, lists of arguments
                 Map<?, ?> pairs = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, additionalKeyMatcherPairs);
                 for (Map.Entry<?, ?> pair : pairs.entrySet()) {
                     Object matchingKey = pair.getKey();
                     Object matchingValue = pair.getValue();
-                    String keyWithRoot;
+                    String pathKey;
+                    List<List<Argument>> pathArguments;
                     Object hamcrestMatcher;
                     if (matchingKey instanceof List) {
-                        // If matching key is instance of list (we assume it's a list of arguments) then we should simply return the merged path,
-                        // otherwise merge the current path with the supplied key
-                        keyWithRoot = applyArguments(GPathRootPath.join(bodyRootPath, ""), toArguments(matchingKey));
+                        // If matching key is instance of list (we assume it's a list of arguments) then the path is the root path alone
+                        pathKey = "";
+                        pathArguments = checkedArguments(pathKey, Collections.singletonList(toArguments(matchingKey)));
                         hamcrestMatcher = matchingValue;
                     } else if (matchingValue instanceof ArgsAndValue) {
                         // A key that is not a String (for example a GString) is used in its string form
-                        String mergedPath = GPathRootPath.join(bodyRootPath, castToString(matchingKey));
-                        keyWithRoot = applyArguments(mergedPath, ((ArgsAndValue) matchingValue).getArgs());
+                        pathKey = castToString(matchingKey);
+                        pathArguments = checkedArguments(pathKey, Collections.singletonList(((ArgsAndValue) matchingValue).getArgs()));
                         hamcrestMatcher = ((ArgsAndValue) matchingValue).getValue();
                     } else {
-                        keyWithRoot = GPathRootPath.join(bodyRootPath, castToString(matchingKey));
+                        pathKey = castToString(matchingKey);
+                        pathArguments = checkedArguments(pathKey, Collections.emptyList());
                         hamcrestMatcher = matchingValue;
                     }
 
                     if (hamcrestMatcher instanceof List) {
                         for (Object m : (List<?>) hamcrestMatcher) {
-                            String keyToUse;
+                            List<List<Argument>> argumentsToUse;
                             Object matcherToUse;
                             if (m instanceof ArgsAndValue) {
-                                keyToUse = applyArguments(keyWithRoot, ((ArgsAndValue) m).getArgs());
+                                argumentsToUse = new ArrayList<>(pathArguments);
+                                argumentsToUse.add(((ArgsAndValue) m).getArgs());
+                                checkedArguments(pathKey, argumentsToUse);
                                 matcherToUse = ((ArgsAndValue) m).getValue();
                             } else {
                                 // Plain hamcrest matcher, what happens is that if a user has specified body("x", greaterThan(2), "x", lessThan(10)) then "x" will have a list of these hamcrest matchers
-                                keyToUse = keyWithRoot;
+                                argumentsToUse = pathArguments;
                                 matcherToUse = m;
                             }
-                            bodyMatchers.add(newBodyMatcher(keyToUse, toMatcher(matcherToUse)));
+                            bodyMatchers.add(newBodyMatcher(pathKey, argumentsToUse, toMatcher(matcherToUse)));
                         }
                     } else {
-                        bodyMatchers.add(newBodyMatcher(keyWithRoot, toMatcher(hamcrestMatcher)));
+                        bodyMatchers.add(newBodyMatcher(pathKey, pathArguments, toMatcher(hamcrestMatcher)));
                     }
                 }
             }
@@ -448,7 +451,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     public ResponseSpecification rootPath(String rootPath, List<Argument> arguments) {
         notNull(rootPath, "Root path");
         notNull(arguments, "Arguments");
-        this.bodyRootPath = applyArguments(rootPath, arguments);
+        this.bodyRootPath = PathArguments.apply(rootPath, arguments);
         return this;
     }
 
@@ -792,6 +795,26 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         return bodyMatcher;
     }
 
+    /**
+     * A body matcher for a path. It keeps the current root path, which the path engine joins with the key when the
+     * response is validated, and then applies the arguments in order.
+     */
+    private BodyMatcher newBodyMatcher(String key, List<List<Argument>> arguments, Matcher<?> matcher) {
+        BodyMatcher bodyMatcher = newBodyMatcher(key, matcher);
+        bodyMatcher.setRootPath(bodyRootPath);
+        bodyMatcher.setArguments(arguments);
+        return bodyMatcher;
+    }
+
+    /**
+     * Joins the root path and the key as GPath does and applies the arguments, only so that an invalid argument fails
+     * here, as it did before the path engine joined them at validation.
+     */
+    private List<List<Argument>> checkedArguments(String key, List<List<Argument>> arguments) {
+        PathArguments.applyInOrder(GPathRootPath.join(bodyRootPath, key), arguments);
+        return arguments;
+    }
+
     private static HeaderMatcher newHeaderMatcher(Object headerName, Matcher<?> matcher) {
         HeaderMatcher headerMatcher = new HeaderMatcher();
         headerMatcher.setHeaderName(headerName);
@@ -829,34 +852,6 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
             }
         }
         return (List<Argument>) key;
-    }
-
-    private String applyArguments(String path, List<Argument> arguments) {
-        if (arguments == null || arguments.isEmpty()) {
-            return path;
-        }
-        List<Object> args = new ArrayList<>(arguments.size());
-        for (Object argument : arguments) {
-            if (!(argument instanceof Argument)) {
-                throw new IllegalArgumentException("Path arguments must be instances of " + Argument.class.getName() + ", use withArgs(..) to create them. Was '" + format(arguments) + "'.");
-            }
-            args.add(((Argument) argument).getArgument());
-        }
-        // Placeholders that have no argument are kept as they are, so that a later withArgs(..) can fill them in
-        java.util.regex.Matcher specifiers = FORMAT_SPECIFIER.matcher(path);
-        StringBuilder pathToFormat = new StringBuilder();
-        int placeholders = 0;
-        while (specifiers.find()) {
-            String conversion = specifiers.group(6);
-            boolean takesNoArgument = specifiers.group(5) == null && (conversion.equals("%") || conversion.equals("n"));
-            boolean hasExplicitIndex = specifiers.group(1) != null || specifiers.group(2).contains("<");
-            if (!takesNoArgument && !hasExplicitIndex && ++placeholders > arguments.size()) {
-                args.add(specifiers.group());
-                specifiers.appendReplacement(pathToFormat, "%s");
-            }
-        }
-        specifiers.appendTail(pathToFormat);
-        return String.format(pathToFormat.toString(), args.toArray());
     }
 
     public void throwIllegalStateExceptionIfRootPathIsNotDefined(String description) {

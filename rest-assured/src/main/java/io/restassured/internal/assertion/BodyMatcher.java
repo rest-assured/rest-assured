@@ -5,9 +5,11 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.common.spi.path.PathProvider;
+import io.restassured.internal.path.PathArguments;
 import io.restassured.internal.path.PathAssertion;
 import io.restassured.internal.path.PathProviders;
 import io.restassured.response.Response;
+import io.restassured.specification.Argument;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -19,7 +21,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -32,6 +36,10 @@ public class BodyMatcher {
 
     private static final String XPATH = "XPath";
     private Object key;
+    // The root path when the expectation was defined, which the path engine joins with the key, and the arguments of
+    // withArgs(..), which are applied to the joined path in order
+    private String rootPath;
+    private List<List<Argument>> arguments = Collections.emptyList();
     private Matcher matcher;
     private ResponseParserRegistrar rpr;
 
@@ -93,17 +101,17 @@ public class BodyMatcher {
 
         } else {
             PathAssertion assertion = StreamVerifier.newAssertion(response, key, rpr);
-            PathProvider provider = null;
+            PathProvider provider = PathProviders.forType(assertion.documentType(), config);
+            String path = PathArguments.applyInOrder(provider.joinRootPath(rootPath, assertion.key()), arguments);
             Object result = null;
             if (contentParser != null) {
                 if (contentParser instanceof String) {
                     // This happens for example when expecting JSON/XML assertion but response content is empty
                     boolean isEmpty = ((String) contentParser).isEmpty();
-                    errorMessage = format("Cannot assert that path \"%s\" matches %s because the response body %s.", key, matcher, isEmpty ? "is empty" : "equal to \"" + contentParser + "\"");
+                    errorMessage = format("Cannot assert that path \"%s\" matches %s because the response body %s.", path, matcher, isEmpty ? "is empty" : "equal to \"" + contentParser + "\"");
                     success = false;
                 } else {
-                    provider = PathProviders.forType(assertion.documentType(), config);
-                    result = PathProviders.valueOf(provider.evaluate(contentParser, assertion.documentType(), assertion.key()));
+                    result = PathProviders.valueOf(provider.evaluate(contentParser, assertion.documentType(), path));
                 }
             }
 
@@ -113,9 +121,9 @@ public class BodyMatcher {
                     if (result instanceof Object[]) {
                         result = Arrays.stream((Object[]) result).map(Objects::toString).collect(Collectors.joining(","));
                     }
-                    errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", provider.description(assertion.documentType()), key, removeQuotesIfString(matcher.toString()), removeQuotesIfString(new StringDescription().appendValue(result).toString()));
+                    errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", provider.description(assertion.documentType()), path, removeQuotesIfString(matcher.toString()), removeQuotesIfString(new StringDescription().appendValue(result).toString()));
                 } else {
-                    errorMessage = String.format("%s %s doesn't match.\n%s", provider.description(assertion.documentType()), key, getDescription(matcher, result));
+                    errorMessage = String.format("%s %s doesn't match.\n%s", provider.description(assertion.documentType()), path, getDescription(matcher, result));
                 }
 
             }
@@ -176,6 +184,20 @@ public class BodyMatcher {
 
     public void setKey(Object key) {
         this.key = key;
+    }
+
+    /**
+     * @param rootPath The root path to join with the key, or {@code null} for none.
+     */
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
+
+    /**
+     * @param arguments The lists of arguments to apply, in order, to the path joined from the root path and the key.
+     */
+    public void setArguments(List<List<Argument>> arguments) {
+        this.arguments = arguments;
     }
 
     public Matcher getMatcher() {
