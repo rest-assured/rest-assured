@@ -32,6 +32,7 @@ public class JsonConfig implements Config {
     public static final int DEFAULT_NUMBER_LENGTH_LIMIT = 1000;
     private final JsonPathConfig.NumberReturnType numberReturnType;
     private final int numberLengthLimit;
+    private final JsonPathEngine pathEngine;
     private final boolean isUserDefined;
 
     /**
@@ -66,9 +67,14 @@ public class JsonConfig implements Config {
     }
 
     private JsonConfig(JsonPathConfig.NumberReturnType numberReturnType, int numberLengthLimit, boolean isUserDefined) {
+        this(numberReturnType, numberLengthLimit, null, isUserDefined);
+    }
+
+    private JsonConfig(JsonPathConfig.NumberReturnType numberReturnType, int numberLengthLimit, JsonPathEngine pathEngine, boolean isUserDefined) {
         Validate.notNull(numberReturnType, "numberReturnType cannot be null");
         this.numberReturnType = numberReturnType;
         this.numberLengthLimit = numberLengthLimit;
+        this.pathEngine = pathEngine;
         this.isUserDefined = isUserDefined;
     }
 
@@ -94,7 +100,7 @@ public class JsonConfig implements Config {
      * @return A new instance of JsonConfig with the given configuration
      */
     public JsonConfig numberReturnType(NumberReturnType numberReturnType) {
-        return new JsonConfig(toLegacy(numberReturnType), numberLengthLimit, true);
+        return new JsonConfig(toLegacy(numberReturnType), numberLengthLimit, pathEngine, true);
     }
 
     /**
@@ -106,7 +112,7 @@ public class JsonConfig implements Config {
      */
     @Deprecated
     public JsonConfig numberReturnType(JsonPathConfig.NumberReturnType numberReturnType) {
-        return new JsonConfig(numberReturnType, numberLengthLimit, true);
+        return new JsonConfig(numberReturnType, numberLengthLimit, pathEngine, true);
     }
 
     private static JsonPathConfig.NumberReturnType toLegacy(NumberReturnType numberReturnType) {
@@ -123,7 +129,26 @@ public class JsonConfig implements Config {
      * @return A new instance of JsonConfig with the given configuration
      */
     public JsonConfig numberLengthLimit(int numberLengthLimit) {
-        return new JsonConfig(numberReturnType, numberLengthLimit, true);
+        return new JsonConfig(numberReturnType, numberLengthLimit, pathEngine, true);
+    }
+
+    /**
+     * Specifies the engine that evaluates JSON paths, in {@code body(..)} expectations, {@code path(..)} and
+     * {@code extract().path(..)}. It doesn't change {@code jsonPath()}, which always uses GPath. When no engine is
+     * specified (the default), REST Assured uses GPath.
+     *
+     * @param pathEngine The engine, or {@code null} to let REST Assured pick it.
+     * @return A new instance of JsonConfig with the given configuration
+     */
+    public JsonConfig pathEngine(JsonPathEngine pathEngine) {
+        return new JsonConfig(numberReturnType, numberLengthLimit, pathEngine, true);
+    }
+
+    /**
+     * @return The engine that evaluates JSON paths, or {@code null} if REST Assured picks it.
+     */
+    public JsonPathEngine pathEngine() {
+        return pathEngine;
     }
 
     /**
