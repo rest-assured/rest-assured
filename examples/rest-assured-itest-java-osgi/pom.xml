@@ -29,6 +29,8 @@
 
     <properties>
         <animal.sniffer.skip>true</animal.sniffer.skip>
+        <!-- mvn_release.sh sets it when run with SKIP_OSGI=true -->
+        <skipOsgiTests>false</skipOsgiTests>
         <pax-exam.version>4.13.4</pax-exam.version>
         <spifly.version>1.3.8</spifly.version>
         <surefire.version>2.18</surefire.version>
@@ -147,6 +149,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <skip>${skipOsgiTests}</skip>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
                     <excludes>

@@ -310,16 +310,6 @@
                         <excludeArtifact>scala3-example</excludeArtifact>
                         <excludeArtifact>jackson3-example</excludeArtifact>
                         <excludeArtifact>spring7-mvc-webapp</excludeArtifact>
-                        <!-- Dist -->
-                        <excludeArtifact>dist</excludeArtifact>
-                        <excludeArtifact>dist-rest-assured</excludeArtifact>
-                        <excludeArtifact>dist-json-path</excludeArtifact>
-                        <excludeArtifact>dist-xml-path</excludeArtifact>
-                        <excludeArtifact>dist-json-schema-validator</excludeArtifact>
-                        <excludeArtifact>dist-spring-mock-mvc</excludeArtifact>
-                        <excludeArtifact>dist-spring-web-test-client</excludeArtifact>
-                        <excludeArtifact>dist-scala-support</excludeArtifact>
-                        <excludeArtifact>dist-kotlin-extensions</excludeArtifact>
                     </excludeArtifacts>
                 </configuration>
             </plugin>
@@ -384,18 +374,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>dist</id>
-            <!-- Active profile when running release -->
-            <activation>
-                <property>
-                    <name>release</name>
-                </property>
-            </activation>
-            <modules>
-                <module>dist</module>
-            </modules>
         </profile>
     </profiles>
 
