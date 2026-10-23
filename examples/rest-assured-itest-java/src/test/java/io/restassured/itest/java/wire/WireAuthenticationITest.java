@@ -48,8 +48,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class WireAuthenticationITest extends WireTest {
     private static final String USER = "user";
     private static final String PASSWORD = "pass";
-    // Base64 of "user:pass"
-    private static final String BASIC_USER_PASS = "Basic dXNlcjpwYXNz";
+    private static final String BASIC_USER_PASS = basicAuthorization(USER, PASSWORD);
     private static final String REALM = "wire";
     private static final String NONCE = "dcd98b7102dd2f0e8b11d0f600bfb0c093";
     private static final String OPAQUE = "5ccc069c403ebaf9f0171e9517f40e41";
@@ -196,7 +195,7 @@ public class WireAuthenticationITest extends WireTest {
 
         List<RecordedRequest> requests = server.requests();
         assertThat(requests).hasSize(2);
-        assertThat(requests.get(1).header("Authorization")).isEqualTo("Basic " + base64("user:wrong"));
+        assertThat(requests.get(1).header("Authorization")).isEqualTo(basicAuthorization(USER, "wrong"));
     }
 
     @Test public void
@@ -240,7 +239,7 @@ public class WireAuthenticationITest extends WireTest {
                 statusCode(401);
 
         // Today's behavior: HttpClient 4 encodes the credentials as US-ASCII, so non-ASCII characters become '?'
-        assertThat(server.lastRequest().header("Authorization")).isEqualTo("Basic " + base64("j?hn:p?ssword"));
+        assertThat(server.lastRequest().header("Authorization")).isEqualTo(basicAuthorization("j?hn", "p?ssword"));
     }
 
     // Preemptive basic
@@ -283,7 +282,7 @@ public class WireAuthenticationITest extends WireTest {
         then().
                 statusCode(401);
 
-        assertThat(server.onlyRequest().header("Authorization")).isEqualTo("Basic " + base64("user:wrong"));
+        assertThat(server.onlyRequest().header("Authorization")).isEqualTo(basicAuthorization(USER, "wrong"));
     }
 
     @Test public void
@@ -459,7 +458,7 @@ public class WireAuthenticationITest extends WireTest {
                 containsEntry("oauth_signature_method", "HMAC-SHA1").containsEntry("oauth_version", "1.0");
         assertThat(params.get("oauth_nonce")).isNotEmpty();
         assertThat(params.get("oauth_timestamp")).matches("\\d+");
-        assertThat(oauthSignatureIsValid(request, params, server.url("/oauth"))).isTrue();
+        assertThat(oauthHeaderSignatureIsValid(request, server.url("/oauth"))).isTrue();
     }
 
     @Test public void
@@ -474,8 +473,7 @@ public class WireAuthenticationITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.bodyAsString()).isEqualTo("name=a%20b");
-        Map<String, String> params = authParams(request.header("Authorization"), "OAuth");
-        assertThat(oauthSignatureIsValid(request, params, server.url("/oauth"))).isTrue();
+        assertThat(oauthHeaderSignatureIsValid(request, server.url("/oauth"))).isTrue();
     }
 
     @Test public void
@@ -496,10 +494,7 @@ public class WireAuthenticationITest extends WireTest {
         assertThat(params).containsOnlyKeys("q", "oauth_consumer_key", "oauth_nonce", "oauth_signature", "oauth_signature_method", "oauth_timestamp", "oauth_token", "oauth_version");
         assertThat(params).containsEntry("q", "a").containsEntry("oauth_consumer_key", CONSUMER_KEY).containsEntry("oauth_token", ACCESS_TOKEN).
                 containsEntry("oauth_signature_method", "HMAC-SHA1").containsEntry("oauth_version", "1.0");
-        Map<String, String> oauthParams = new HashMap<>(params);
-        oauthParams.remove("q");
-        assertThat(oauthSignatureIsValid(new RecordedRequest(request.method(), "/oauth?q=a", request.protocol(), request.host(), request.localPort(), request.headers(), request.body()),
-                oauthParams, server.url("/oauth"))).isTrue();
+        assertThat(oauthSignatureIsValid(request.method(), server.url("/oauth"), List.of(params))).isTrue();
     }
 
     @Test public void
@@ -517,8 +512,8 @@ public class WireAuthenticationITest extends WireTest {
         assertThat(requests).extracting(RecordedRequest::target).containsExactly("/oauth", "/target");
         Map<String, String> first = authParams(requests.get(0).header("Authorization"), "OAuth");
         Map<String, String> second = authParams(requests.get(1).header("Authorization"), "OAuth");
-        assertThat(oauthSignatureIsValid(requests.get(0), first, server.url("/oauth"))).isTrue();
-        assertThat(oauthSignatureIsValid(requests.get(1), second, server.url("/target"))).isTrue();
+        assertThat(oauthHeaderSignatureIsValid(requests.get(0), server.url("/oauth"))).isTrue();
+        assertThat(oauthHeaderSignatureIsValid(requests.get(1), server.url("/target"))).isTrue();
         assertThat(second.get("oauth_nonce")).isNotEqualTo(first.get("oauth_nonce"));
     }
 
@@ -552,7 +547,7 @@ public class WireAuthenticationITest extends WireTest {
                 statusCode(200);
 
         RecordedRequest hop = server.lastRequest();
-        assertThat(oauthSignatureIsValid(hop, authParams(hop.header("Authorization"), "OAuth"), server.url("127.0.0.1", "/target"))).isTrue();
+        assertThat(oauthHeaderSignatureIsValid(hop, server.url("127.0.0.1", "/target"))).isTrue();
     }
 
     // OAuth 2
@@ -703,7 +698,7 @@ public class WireAuthenticationITest extends WireTest {
     }
 
     private static Responder basicServer(String user, String password, Responder whenAuthenticated) {
-        String expected = "Basic " + base64(user + ":" + password);
+        String expected = basicAuthorization(user, password);
         return (request, response) -> {
             if (expected.equals(request.header("Authorization"))) {
                 whenAuthenticated.respond(request, response);
@@ -738,30 +733,41 @@ public class WireAuthenticationITest extends WireTest {
         return expected.equals(params.get("response"));
     }
 
-    // RFC 5849 section 3.4 with HMAC-SHA1
-    private static boolean oauthSignatureIsValid(RecordedRequest request, Map<String, String> oauthParams, String baseUrl) {
-        List<String> pairs = new ArrayList<>();
-        oauthParams.forEach((name, value) -> {
-            if (!name.equals("oauth_signature")) {
-                pairs.add(percentEncode(name) + "=" + percentEncode(value));
-            }
-        });
-        int queryStart = request.target().indexOf('?');
-        if (queryStart >= 0) {
-            queryParams(request.target()).forEach((name, value) -> pairs.add(percentEncode(name) + "=" + percentEncode(value)));
+    // The OAuth parameters of the Authorization header, the query and the form parameters of the body are signed
+    private static boolean oauthHeaderSignatureIsValid(RecordedRequest request, String baseUrl) {
+        List<Map<String, String>> params = new ArrayList<>();
+        params.add(authParams(request.header("Authorization"), "OAuth"));
+        if (request.target().indexOf('?') >= 0) {
+            params.add(queryParams(request.target()));
         }
         String contentType = request.header("Content-Type");
         if (contentType != null && contentType.startsWith("application/x-www-form-urlencoded")) {
-            formParams(request.bodyAsString()).forEach((name, value) -> pairs.add(percentEncode(name) + "=" + percentEncode(value)));
+            params.add(formParams(request.bodyAsString()));
+        }
+        return oauthSignatureIsValid(request.method(), baseUrl, params);
+    }
+
+    // RFC 5849 section 3.4 with HMAC-SHA1: oauth_signature is among the params, and signs all the others
+    private static boolean oauthSignatureIsValid(String method, String baseUrl, List<Map<String, String>> params) {
+        String signature = null;
+        List<String> pairs = new ArrayList<>();
+        for (Map<String, String> source : params) {
+            for (Map.Entry<String, String> param : source.entrySet()) {
+                if (param.getKey().equals("oauth_signature")) {
+                    signature = param.getValue();
+                } else {
+                    pairs.add(percentEncode(param.getKey()) + "=" + percentEncode(param.getValue()));
+                }
+            }
         }
         pairs.sort(null);
-        String baseString = request.method() + "&" + percentEncode(baseUrl) + "&" + percentEncode(String.join("&", pairs));
+        String baseString = method + "&" + percentEncode(baseUrl) + "&" + percentEncode(String.join("&", pairs));
         String key = percentEncode(CONSUMER_SECRET) + "&" + percentEncode(TOKEN_SECRET);
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
             mac.init(new SecretKeySpec(key.getBytes(UTF_8), "HmacSHA1"));
             String expected = Base64.getEncoder().encodeToString(mac.doFinal(baseString.getBytes(UTF_8)));
-            return expected.equals(oauthParams.get("oauth_signature"));
+            return expected.equals(signature);
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -793,10 +799,6 @@ public class WireAuthenticationITest extends WireTest {
 
     private static String percentEncode(String value) {
         return URLEncoder.encode(value, UTF_8).replace("+", "%20").replace("*", "%2A").replace("%7E", "~");
-    }
-
-    private static String base64(String value) {
-        return Base64.getEncoder().encodeToString(value.getBytes(UTF_8));
     }
 
     private static String md5(String value) {

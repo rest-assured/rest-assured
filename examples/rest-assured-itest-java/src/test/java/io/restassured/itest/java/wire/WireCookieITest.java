@@ -158,6 +158,7 @@ public class WireCookieITest extends WireTest {
     }
 
     // The tests below read each response body (asString()), which a reused HTTP client needs before the next request
+    // (see WireConnectionITest)
 
     @Test public void
     response_cookies_are_not_sent_on_the_next_request_with_keep_response_cookies_without_reusing_the_http_client() {
@@ -245,7 +246,6 @@ public class WireCookieITest extends WireTest {
 
         // An asctime date matches no pattern, which makes the cookie invalid. Today's behavior: the two-digit year 99 is
         // read as the year 99, so that cookie has already expired
-
         assertThat(server.lastRequest().headers("Cookie")).containsExactly("dashes=1; spaces=1");
     }
 
@@ -284,21 +284,6 @@ public class WireCookieITest extends WireTest {
         given().config(config).get(server.url("/p")).asString();
 
         assertThat(server.lastRequest().headers("Cookie")).containsExactly("a=1");
-    }
-
-    @Test public void
-    the_next_request_on_a_reused_http_client_fails_when_the_previous_response_body_was_not_read() {
-        // Not a cookie behavior, but every test that keeps cookies across requests with a reused client depends on it
-        RestAssuredConfig config = reuseAndKeepResponseCookies();
-        server.respond("/set", setCookies("a=1"));
-
-        given().config(config).get(server.url("/set")).then().statusCode(200);
-
-        // Today's behavior: checking the status doesn't read the body, so the connection is still allocated
-        assertThatThrownBy(() -> given().config(config).get(server.url("/p")))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("connection still allocated");
-        assertThat(server.requests()).hasSize(1);
     }
 
     // CookieFilter

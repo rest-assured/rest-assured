@@ -203,7 +203,7 @@ public final class WireServer implements AutoCloseable {
             }
             byte[] body = request.getInputStream().readAllBytes();
             RecordedRequest recorded = new RecordedRequest(request.getMethod(), requestTarget(request, baseRequest.getHttpURI()),
-                    request.getProtocol(), request.getServerName(), request.getLocalPort(), headers, body);
+                    request.getProtocol(), request.getServerName(), request.getLocalAddr(), request.getLocalPort(), headers, body);
             requests.add(recorded);
 
             if (CONNECT.is(request.getMethod())) {

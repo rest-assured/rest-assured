@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -138,38 +139,23 @@ public class WireFormAndMultipartITest extends WireTest {
         assertThat(request.bodyAsString()).isEqualTo("p=2&f=1");
     }
 
-    @Test public void
-    form_params_on_put_are_sent_in_the_body() {
-        given().formParam("a", "b c").put(server.url("/form"));
+    @ParameterizedTest
+    @ValueSource(strings = {"PUT", "PATCH"})
+    public void
+    form_params_are_sent_in_the_body(String method) {
+        given().formParam("a", "b c").request(method, server.url("/form"));
 
         RecordedRequest request = server.onlyRequest();
-        assertThat(request.requestLine()).isEqualTo("PUT /form HTTP/1.1");
+        assertThat(request.requestLine()).isEqualTo(method + " /form HTTP/1.1");
         assertThat(request.header("Content-Type")).isEqualTo(FORM + "; charset=ISO-8859-1");
         assertThat(request.bodyAsString()).isEqualTo("a=b%20c");
     }
 
-    @Test public void
-    params_on_put_are_sent_in_the_query() {
-        given().formParam("f", "1").param("p", "a b").put(server.url("/form"));
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.target()).isEqualTo("/form?p=a%20b");
-        assertThat(request.bodyAsString()).isEqualTo("f=1");
-    }
-
-    @Test public void
-    form_params_on_patch_are_sent_in_the_body() {
-        given().formParam("a", "b c").patch(server.url("/form"));
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.requestLine()).isEqualTo("PATCH /form HTTP/1.1");
-        assertThat(request.header("Content-Type")).isEqualTo(FORM + "; charset=ISO-8859-1");
-        assertThat(request.bodyAsString()).isEqualTo("a=b%20c");
-    }
-
-    @Test public void
-    params_on_patch_are_sent_in_the_query() {
-        given().formParam("f", "1").param("p", "a b").patch(server.url("/form"));
+    @ParameterizedTest
+    @ValueSource(strings = {"PUT", "PATCH"})
+    public void
+    params_are_sent_in_the_query(String method) {
+        given().formParam("f", "1").param("p", "a b").request(method, server.url("/form"));
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.target()).isEqualTo("/form?p=a%20b");
@@ -239,19 +225,16 @@ public class WireFormAndMultipartITest extends WireTest {
 
     // Multipart: the part types, in the default (strict) mode
 
-    @Test public void
-    string_part() {
-        givenBoundary().multiPart("name", "value").post(server.url("/multipart"));
+    @ParameterizedTest
+    @ValueSource(strings = {"POST", "PUT", "PATCH"})
+    public void
+    string_part(String method) {
+        givenBoundary().multiPart("name", "value").request(method, server.url("/multipart"));
 
         RecordedRequest request = server.onlyRequest();
+        assertThat(request.requestLine()).isEqualTo(method + " /multipart HTTP/1.1");
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(textPart("name", "value")));
     }
 
     @Test public void
@@ -259,52 +242,28 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary().multiPart("text", "åäö").post(server.url("/multipart"));
 
         // Today's behavior: a String part without a charset is encoded as US-ASCII
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"text\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "???" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(textPart("text", "???")));
     }
 
     @Test public void
     string_part_with_mime_type() {
         givenBoundary().multiPart("name", "{\"a\":1}", "application/json").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: application/json" + CRLF +
-                CRLF +
-                "{\"a\":1}" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("{\"a\":1}", formData("name"), "Content-Type: application/json")));
     }
 
     @Test public void
     string_part_with_charset_in_the_mime_type() {
         givenBoundary().multiPart("text", "åäö", "text/plain; charset=UTF-8").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"text\"" + CRLF +
-                "Content-Type: text/plain; charset=UTF-8" + CRLF +
-                CRLF +
-                utf8("åäö") + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part(utf8("åäö"), formData("text"), "Content-Type: text/plain; charset=UTF-8")));
     }
 
     @Test public void
     string_part_with_mime_type_and_charset_from_the_spec_builder() {
         givenBoundary().multiPart(new MultiPartSpecBuilder("åäö").controlName("text").mimeType("text/plain").charset(UTF_8).build()).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"text\"" + CRLF +
-                "Content-Type: text/plain; charset=UTF-8" + CRLF +
-                CRLF +
-                utf8("åäö") + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part(utf8("åäö"), formData("text"), "Content-Type: text/plain; charset=UTF-8")));
     }
 
     @Test public void
@@ -312,52 +271,29 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary().multiPart(new MultiPartSpecBuilder("content").controlName("ctrl").fileName("name.txt").build()).post(server.url("/multipart"));
 
         // Today's behavior: the file name of a String part is dropped
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"ctrl\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "content" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(textPart("ctrl", "content")));
     }
 
     @Test public void
     object_part_is_serialized_with_the_mime_type() {
         givenBoundary().multiPart("json", Map.of("a", 1), "application/json").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"json\"" + CRLF +
-                "Content-Type: application/json" + CRLF +
-                CRLF +
-                "{\"a\":1}" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("{\"a\":1}", formData("json"), "Content-Type: application/json")));
     }
 
     @Test public void
     byte_array_part_with_file_name() {
         givenBoundary().multiPart("data", "data.bin", new byte[]{0, 1, (byte) 0xFF}).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"data\"; filename=\"data.bin\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                new String(new byte[]{0, 1, (byte) 0xFF}, ISO_8859_1) + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part(new String(new byte[]{0, 1, (byte) 0xFF}, ISO_8859_1), formData("data", "data.bin"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
     byte_array_part_with_file_name_and_mime_type() {
         givenBoundary().multiPart("data", "data.txt", "abc".getBytes(UTF_8), "text/plain").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"data\"; filename=\"data.txt\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "abc" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("abc", formData("data", "data.txt"), "Content-Type: text/plain")));
     }
 
     @Test public void
@@ -365,13 +301,7 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary().multiPart("data", "abc".getBytes(UTF_8)).post(server.url("/multipart"));
 
         // Today's behavior: multiPart(String, Object) serializes a byte[] (with Jackson here) instead of sending its bytes
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"data\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "\"YWJj\"" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(textPart("data", "\"YWJj\"")));
     }
 
     @Test public void
@@ -387,13 +317,8 @@ public class WireFormAndMultipartITest extends WireTest {
 
         givenBoundary().multiPart("doc", file).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"doc\"; filename=\"upload.txt\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "file content" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part("file content", formData("doc", "upload.txt"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
@@ -402,13 +327,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         givenBoundary().multiPart("doc", file, "application/json").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"doc\"; filename=\"upload.json\"" + CRLF +
-                "Content-Type: application/json" + CRLF +
-                CRLF +
-                "{}" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("{}", formData("doc", "upload.json"), "Content-Type: application/json")));
     }
 
     @Test public void
@@ -417,13 +336,8 @@ public class WireFormAndMultipartITest extends WireTest {
 
         givenBoundary().multiPart(file).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"upload.txt\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "x" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part("x", formData("file", "upload.txt"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
@@ -433,65 +347,36 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary().multiPart(new MultiPartSpecBuilder(file).controlName("doc").mimeType("text/plain").charset(UTF_8).build()).post(server.url("/multipart"));
 
         // Today's behavior: the spec builder sends the default file name, not the name of the file
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"doc\"; filename=\"file\"" + CRLF +
-                "Content-Type: text/plain; charset=UTF-8" + CRLF +
-                CRLF +
-                "x" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("x", formData("doc", "file"), "Content-Type: text/plain; charset=UTF-8")));
     }
 
     @Test public void
     input_stream_part() {
         givenBoundary().multiPart("stream", "stream.txt", new ByteArrayInputStream("streamed".getBytes(UTF_8))).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"stream\"; filename=\"stream.txt\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "streamed" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part("streamed", formData("stream", "stream.txt"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
     input_stream_part_with_mime_type() {
         givenBoundary().multiPart("stream", "stream.xml", new ByteArrayInputStream("<a/>".getBytes(UTF_8)), "application/xml").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"stream\"; filename=\"stream.xml\"" + CRLF +
-                "Content-Type: application/xml" + CRLF +
-                CRLF +
-                "<a/>" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("<a/>", formData("stream", "stream.xml"), "Content-Type: application/xml")));
     }
 
     @Test public void
     spec_builder_without_control_name_and_file_name_uses_the_defaults() {
         givenBoundary().multiPart(new MultiPartSpecBuilder("abc".getBytes(UTF_8)).build()).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"file\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "abc" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("abc", formData("file", "file"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
     spec_builder_with_empty_file_name_sends_no_file_name() {
         givenBoundary().multiPart(new MultiPartSpecBuilder("abc".getBytes(UTF_8)).controlName("data").emptyFileName().build()).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"data\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "abc" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("abc", formData("data"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
@@ -499,13 +384,8 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary(multiPartConfig().defaultControlName("ctrl").defaultFileName("default.bin"))
                 .multiPart(new MultiPartSpecBuilder("abc".getBytes(UTF_8)).build()).post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"ctrl\"; filename=\"default.bin\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "abc" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part("abc", formData("ctrl", "default.bin"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
@@ -513,13 +393,7 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary(multiPartConfig().emptyDefaultFileName()).multiPart(new MultiPartSpecBuilder("abc".getBytes(UTF_8)).controlName("data").build())
                 .post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"data\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "abc" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("abc", formData("data"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void
@@ -527,16 +401,8 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundary().multiPart(new MultiPartSpecBuilder("value").controlName("name").header("X-B", "2").header("X-A", "1").header("Content-ID", "<part1>").build())
                 .post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-ID: <part1>" + CRLF +
-                "X-A: 1" + CRLF +
-                "X-B: 2" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part("value", "Content-ID: <part1>", "X-A: 1", "X-B: 2", formData("name"), "Content-Type: text/plain")));
     }
 
     @Test public void
@@ -545,36 +411,18 @@ public class WireFormAndMultipartITest extends WireTest {
                         .header("Content-Disposition", "attachment; name=\"other\"").header("Content-Type", "text/csv").build())
                 .post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: attachment; name=\"other\"" + CRLF +
-                "Content-Type: text/csv" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part("value", "Content-Disposition: attachment; name=\"other\"", "Content-Type: text/csv")));
     }
 
     @Test public void
     several_parts_with_the_same_name_are_all_sent_in_order() {
         givenBoundary().multiPart("name", "one").multiPart("name", "two").multiPart("other", "three").post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "one" + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "two" + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"other\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "three" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                textPart("name", "one"),
+                textPart("name", "two"),
+                textPart("other", "three")));
     }
 
     @Test public void
@@ -583,65 +431,12 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.target()).isEqualTo("/multipart");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"a.txt\"" + CRLF +
-                "Content-Type: application/octet-stream" + CRLF +
-                CRLF +
-                "x" + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"p\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "3" + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"f\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "1" + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"f\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "2" + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"empty\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                CRLF +
-                "--wire-boundary--" + CRLF);
-    }
-
-    @Test public void
-    multipart_put_sends_the_same_body_as_post() {
-        givenBoundary().multiPart("name", "value").put(server.url("/multipart"));
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.requestLine()).isEqualTo("PUT /multipart HTTP/1.1");
-        assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
-    }
-
-    @Test public void
-    multipart_patch_sends_the_same_body_as_post() {
-        givenBoundary().multiPart("name", "value").patch(server.url("/multipart"));
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.requestLine()).isEqualTo("PATCH /multipart HTTP/1.1");
-        assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(
+                part("x", formData("file", "a.txt"), "Content-Type: application/octet-stream"),
+                textPart("p", "3"),
+                textPart("f", "1"),
+                textPart("f", "2"),
+                textPart("empty", "")));
     }
 
     // Multipart: the boundary, the subtype and the charset of the request
@@ -672,13 +467,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=explicit");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--explicit" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--explicit--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipartWithBoundary("explicit", textPart("name", "value")));
     }
 
     @Test public void
@@ -696,13 +485,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/mixed; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(textPart("name", "value")));
     }
 
     @Test public void
@@ -711,13 +494,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/related; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(textPart("name", "value")));
     }
 
     @Test public void
@@ -736,13 +513,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary; charset=UTF-8");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(textPart("name", "value")));
     }
 
     @Test public void
@@ -751,13 +522,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary; charset=UTF-8");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"name\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(textPart("name", "value")));
     }
 
     @Test public void
@@ -781,18 +546,9 @@ public class WireFormAndMultipartITest extends WireTest {
                 .post(server.url("/multipart"));
 
         // Today's behavior: part headers are written as US-ASCII
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"n?me\"; filename=\"f?le.txt\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                utf8("ä") + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"?\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(
+                part(utf8("ä"), formData("n?me", "f?le.txt"), "Content-Type: text/plain"),
+                textPart("?", "value")));
     }
 
     @Test public void
@@ -800,13 +556,7 @@ public class WireFormAndMultipartITest extends WireTest {
         givenBoundaryAndMode(MultipartMode.STRICT, multiPartConfig().defaultCharset(UTF_8)).multiPart("näme", "fïle.txt", "ä".getBytes(UTF_8), "text/plain")
                 .post(server.url("/multipart"));
 
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"n?me\"; filename=\"f?le.txt\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                utf8("ä") + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part(utf8("ä"), formData("n?me", "f?le.txt"), "Content-Type: text/plain")));
     }
 
     @Test public void
@@ -817,17 +567,9 @@ public class WireFormAndMultipartITest extends WireTest {
         // Today's behavior: without a charset the names are written as US-ASCII
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"n?me\"; filename=\"f?le.txt\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                utf8("ä") + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"?\"" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(
+                part(utf8("ä"), formData("n?me", "f?le.txt"), "Content-Type: text/plain"),
+                part("value", formData("?"))));
     }
 
     @Test public void
@@ -837,13 +579,8 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary; charset=UTF-8");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"" + utf8("näme") + "\"; filename=\"" + utf8("fïle.txt") + "\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                utf8("ä") + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(
+                part(utf8("ä"), formData(utf8("näme"), utf8("fïle.txt")), "Content-Type: text/plain")));
     }
 
     @Test public void
@@ -853,13 +590,7 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary; charset=ISO-8859-1");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"näme\"; filename=\"fïle.txt\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                utf8("ä") + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(part(utf8("ä"), formData("näme", "fïle.txt"), "Content-Type: text/plain")));
     }
 
     @Test public void
@@ -869,18 +600,9 @@ public class WireFormAndMultipartITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary");
-        assertThat(request.bodyAsString()).isEqualTo(
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"" + utf8("näme") + "\"; filename=\"" + utf8("fïle.txt") + "\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                utf8("ä") + CRLF +
-                "--wire-boundary" + CRLF +
-                "Content-Disposition: form-data; name=\"" + utf8("ö") + "\"" + CRLF +
-                "Content-Type: text/plain" + CRLF +
-                CRLF +
-                "value" + CRLF +
-                "--wire-boundary--" + CRLF);
+        assertThat(request.bodyAsString()).isEqualTo(multipart(
+                part(utf8("ä"), formData(utf8("näme"), utf8("fïle.txt")), "Content-Type: text/plain"),
+                part("value", formData(utf8("ö")), "Content-Type: text/plain")));
     }
 
     @ParameterizedTest
@@ -948,6 +670,43 @@ public class WireFormAndMultipartITest extends WireTest {
         RecordedRequest request = server.onlyRequest();
         assertThat(request.header("Transfer-Encoding")).isEqualTo("chunked");
         assertThat(request.hasHeader("Content-Length")).isFalse();
+    }
+
+    /**
+     * @return the body of a multipart request with {@link #BOUNDARY} and these parts
+     */
+    private static String multipart(String... parts) {
+        return multipartWithBoundary(BOUNDARY, parts);
+    }
+
+    private static String multipartWithBoundary(String boundary, String... parts) {
+        StringBuilder body = new StringBuilder();
+        for (String part : parts) {
+            body.append("--").append(boundary).append(CRLF).append(part).append(CRLF);
+        }
+        return body.append("--").append(boundary).append("--").append(CRLF).toString();
+    }
+
+    /**
+     * @return a part as it is written between two boundaries: each header on its own line, an empty line, the content
+     */
+    private static String part(String content, String... headers) {
+        return String.join(CRLF, headers) + CRLF + CRLF + content;
+    }
+
+    /**
+     * @return a part as REST Assured writes a String part without mime type
+     */
+    private static String textPart(String name, String content) {
+        return part(content, formData(name), "Content-Type: text/plain");
+    }
+
+    private static String formData(String name) {
+        return "Content-Disposition: form-data; name=\"" + name + "\"";
+    }
+
+    private static String formData(String name, String fileName) {
+        return formData(name) + "; filename=\"" + fileName + "\"";
     }
 
     private RequestSpecification givenBoundary() {

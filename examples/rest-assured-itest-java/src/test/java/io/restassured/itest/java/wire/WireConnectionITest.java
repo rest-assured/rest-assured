@@ -20,8 +20,8 @@ import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.response.Response;
 import org.apache.http.conn.ConnectTimeoutException;
-import org.eclipse.jetty.server.HttpConnection;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -50,6 +49,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.ConnectionConfig.connectionConfig;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
+import static io.restassured.itest.java.wire.Responder.REMOTE_PORT_HEADER;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,10 +61,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 @Timeout(10)
 public class WireConnectionITest extends WireTest {
-    private static final String REMOTE_PORT_HEADER = "X-Remote-Port";
     private static final int LARGE_BODY_SIZE = 1024 * 1024;
     // Larger than the 8 KiB the client buffers along with the headers, small enough for the socket buffers to take
     private static final int UNREAD_BODY_SIZE = 200 * 1024;
+    // How long the server holds a response back at most, when the test doesn't release it
+    private static final int SERVER_HOLD_SECONDS = 5;
 
     private CountDownLatch releaseServer;
     private ExecutorService executor;
@@ -72,10 +73,10 @@ public class WireConnectionITest extends WireTest {
     @BeforeEach
     void answerWithTheRemotePort() {
         releaseServer = new CountDownLatch(1);
-        server.respond("/port", withRemotePort(Responder.ok()));
-        server.respond("/large", withRemotePort(bodyOfSize(LARGE_BODY_SIZE)));
-        server.respond("/unread", withRemotePort(bodyOfSize(UNREAD_BODY_SIZE)));
-        server.respond("/slow", withRemotePort(slowBody()));
+        server.respond("/port", Responder.ok().withRemotePort());
+        server.respond("/large", bodyOfSize(LARGE_BODY_SIZE).withRemotePort());
+        server.respond("/unread", bodyOfSize(UNREAD_BODY_SIZE).withRemotePort());
+        server.respond("/slow", slowBody(releaseServer).withRemotePort());
         executor = Executors.newSingleThreadExecutor();
     }
 
@@ -100,8 +101,9 @@ public class WireConnectionITest extends WireTest {
 
     @Test public void
     a_read_timeout_throws_socket_timeout_exception() {
+        CountDownLatch release = releaseServer;
         server.respond("/wait", (request, response) -> {
-            awaitRelease();
+            await(release);
             Responder.ok().respond(request, response);
         });
 
@@ -135,8 +137,8 @@ public class WireConnectionITest extends WireTest {
     a_reused_http_client_instance_sends_the_next_request_on_the_same_connection() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
 
-        String first = remotePortOfReadResponse(config);
-        String second = remotePortOfReadResponse(config);
+        String first = remotePortOfReadResponse(config, server.url("/port"));
+        String second = remotePortOfReadResponse(config, server.url("/port"));
 
         assertThat(second).isEqualTo(first);
     }
@@ -145,8 +147,8 @@ public class WireConnectionITest extends WireTest {
     close_idle_connections_after_each_response_sends_the_next_request_on_a_new_connection() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance()).connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponse());
 
-        String first = remotePortOfReadResponse(config);
-        String second = remotePortOfReadResponse(config);
+        String first = remotePortOfReadResponse(config, server.url("/port"));
+        String second = remotePortOfReadResponse(config, server.url("/port"));
 
         assertThat(second).isNotEqualTo(first);
     }
@@ -155,8 +157,8 @@ public class WireConnectionITest extends WireTest {
     close_idle_connections_after_an_idle_time_keeps_connections_that_were_idle_for_less() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance()).connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponseAfter(1, TimeUnit.HOURS));
 
-        String first = remotePortOfReadResponse(config);
-        String second = remotePortOfReadResponse(config);
+        String first = remotePortOfReadResponse(config, server.url("/port"));
+        String second = remotePortOfReadResponse(config, server.url("/port"));
 
         assertThat(second).isEqualTo(first);
     }
@@ -186,14 +188,11 @@ public class WireConnectionITest extends WireTest {
         InputStream body = given().get(server.url("/slow")).asInputStream();
         assertThat(body.readNBytes(5)).isEqualTo("first".getBytes(ISO_8859_1));
 
-        Future<?> closing = executor.submit(() -> {
-            body.close();
-            return null;
-        });
+        Future<?> closing = closeInBackground(body);
 
         assertThatThrownBy(() -> closing.get(300, TimeUnit.MILLISECONDS)).isInstanceOf(TimeoutException.class);
         releaseServer.countDown();
-        closing.get(5, TimeUnit.SECONDS);
+        closing.get(SERVER_HOLD_SECONDS, TimeUnit.SECONDS);
     }
 
     @Test public void
@@ -216,7 +215,7 @@ public class WireConnectionITest extends WireTest {
             assertThat(body.readNBytes(100)).hasSize(100);
         }
 
-        String next = remotePortOfReadResponse(config);
+        String next = remotePortOfReadResponse(config, server.url("/port"));
 
         assertThat(next).isEqualTo(streamed.header(REMOTE_PORT_HEADER));
     }
@@ -228,13 +227,11 @@ public class WireConnectionITest extends WireTest {
         InputStream body = streamed.asInputStream();
         assertThat(body.readNBytes(5)).isEqualTo("first".getBytes(ISO_8859_1));
 
-        Future<?> closing = executor.submit(() -> {
-            body.close();
-            return null;
-        });
+        Future<?> closing = closeInBackground(body);
 
-        closing.get(5, TimeUnit.SECONDS);
-        String next = remotePortOfReadResponse(config);
+        // Well before the server sends the rest, which it holds back for up to SERVER_HOLD_SECONDS
+        closing.get(SERVER_HOLD_SECONDS / 2, TimeUnit.SECONDS);
+        String next = remotePortOfReadResponse(config, server.url("/port"));
         assertThat(next).isNotEqualTo(streamed.header(REMOTE_PORT_HEADER));
     }
 
@@ -267,28 +264,23 @@ public class WireConnectionITest extends WireTest {
         // Today's behavior: only body expectations read the body, so the connection stays allocated
         assertThatThrownBy(() -> given().config(config).get(server.url("/port")))
                 .isExactlyInstanceOf(IllegalStateException.class);
+        assertThat(server.requests()).hasSize(1);
     }
 
-    private String remotePortOfReadResponse(RestAssuredConfig config) {
-        Response response = given().config(config).get(server.url("/port"));
-        response.asString();
-        return response.header(REMOTE_PORT_HEADER);
+    private Future<?> closeInBackground(InputStream body) {
+        return executor.submit(() -> {
+            body.close();
+            return null;
+        });
     }
 
-    private void awaitRelease() {
+    // A server thread waits for the latch of the test that registered its responder, not for that of a later test
+    private static void await(CountDownLatch release) {
         try {
-            releaseServer.await(5, TimeUnit.SECONDS);
+            release.await(SERVER_HOLD_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private static Responder withRemotePort(Responder responder) {
-        return (request, response) -> {
-            InetSocketAddress remote = (InetSocketAddress) HttpConnection.getCurrentConnection().getEndPoint().getRemoteAddress();
-            response.setHeader(REMOTE_PORT_HEADER, String.valueOf(remote.getPort()));
-            responder.respond(request, response);
-        };
     }
 
     private static Responder bodyOfSize(int size) {
@@ -303,13 +295,13 @@ public class WireConnectionITest extends WireTest {
     }
 
     // Sends the start of the body, then the rest once the test releases the server
-    private Responder slowBody() {
+    private static Responder slowBody(CountDownLatch release) {
         return (request, response) -> {
             response.setStatus(200);
             response.setContentType("text/plain;charset=ISO-8859-1");
             response.getOutputStream().write("first part".getBytes(ISO_8859_1));
             response.flushBuffer();
-            awaitRelease();
+            await(release);
             response.getOutputStream().write(", rest".getBytes(ISO_8859_1));
         };
     }
@@ -329,19 +321,24 @@ public class WireConnectionITest extends WireTest {
 
         static UnresponsiveServer start() throws IOException {
             UnresponsiveServer server = new UnresponsiveServer(new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")));
-            // Linux queues backlog + 1 connections, other systems may queue a few more
-            while (server.queued.size() < 64) {
-                Socket socket = new Socket();
-                try {
-                    socket.connect(server.serverSocket.getLocalSocketAddress(), 200);
-                } catch (SocketTimeoutException e) {
-                    socket.close();
-                    return server;
+            try {
+                // Linux queues backlog + 1 connections, other systems may queue a few more
+                while (server.queued.size() < 64) {
+                    Socket socket = new Socket();
+                    server.queued.add(socket);
+                    try {
+                        socket.connect(server.serverSocket.getLocalSocketAddress(), 200);
+                    } catch (SocketTimeoutException e) {
+                        return server;
+                    } catch (ConnectException e) {
+                        Assumptions.abort("This system refuses connections when the accept queue is full instead of dropping them");
+                    }
                 }
-                server.queued.add(socket);
+                throw new IllegalStateException("Couldn't fill the accept queue of the server socket");
+            } catch (IOException | RuntimeException e) {
+                server.close();
+                throw e;
             }
-            server.close();
-            throw new IllegalStateException("Couldn't fill the accept queue of the server socket");
         }
 
         int port() {

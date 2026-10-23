@@ -16,8 +16,11 @@
 
 package io.restassured.itest.java.wire;
 
+import org.eclipse.jetty.server.HttpConnection;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -25,6 +28,10 @@ import java.nio.charset.StandardCharsets;
  */
 @FunctionalInterface
 public interface Responder {
+    /**
+     * The response header that {@link #withRemotePort()} sets
+     */
+    String REMOTE_PORT_HEADER = "X-Remote-Port";
 
     void respond(RecordedRequest request, HttpServletResponse response) throws IOException;
 
@@ -65,6 +72,18 @@ public interface Responder {
     default Responder withHeader(String name, String value) {
         return (request, response) -> {
             response.addHeader(name, value);
+            respond(request, response);
+        };
+    }
+
+    /**
+     * @return a responder that sets the client port of the connection in {@link #REMOTE_PORT_HEADER} and then answers
+     * like this one, so that a test can tell which connection a request arrived on
+     */
+    default Responder withRemotePort() {
+        return (request, response) -> {
+            InetSocketAddress remote = (InetSocketAddress) HttpConnection.getCurrentConnection().getEndPoint().getRemoteAddress();
+            response.setHeader(REMOTE_PORT_HEADER, String.valueOf(remote.getPort()));
             respond(request, response);
         };
     }

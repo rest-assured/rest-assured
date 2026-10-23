@@ -19,7 +19,6 @@ package io.restassured.itest.java.wire;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
-import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
@@ -35,7 +34,6 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -68,7 +66,6 @@ public class WireSslITest extends WireTest {
     private static final String VALID_TRUST_STORE = "localhost_valid_cert_truststore.p12";
     private static final String MISMATCHED_NAME_TRUST_STORE = "wire_mismatched_name_truststore.p12";
     private static final String TLS_HEADER = "X-Tls-Protocol";
-    private static final String REMOTE_PORT_HEADER = "X-Remote-Port";
 
     private WireServer mismatchedNameServer;
 
@@ -90,8 +87,8 @@ public class WireSslITest extends WireTest {
     @BeforeEach
     void answerWithTheConnectionDetails() {
         mismatchedNameServer.reset();
-        server.respond("/tls", connectionDetails());
-        mismatchedNameServer.respond("/tls", connectionDetails());
+        server.respond("/tls", withTlsProtocol(Responder.ok().withRemotePort()));
+        mismatchedNameServer.respond("/tls", withTlsProtocol(Responder.ok()));
     }
 
     private String validUrl() {
@@ -138,11 +135,8 @@ public class WireSslITest extends WireTest {
     @Test public void
     a_trust_store_set_statically_makes_the_certificate_trusted() {
         RestAssured.trustStore(VALID_TRUST_STORE, PASSWORD);
-        try {
-            given().get(validUrl()).then().statusCode(200);
-        } finally {
-            RestAssured.reset();
-        }
+
+        given().get(validUrl()).then().statusCode(200);
     }
 
     @Test public void
@@ -150,12 +144,13 @@ public class WireSslITest extends WireTest {
         with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).when().get(server.httpsUrl("127.0.0.1", "/tls")).then().statusCode(200);
     }
 
-    // Certificates whose name doesn't match the host
+    // Certificates whose name doesn't match the host. HttpClient 4's host name check throws a plain SSLException, while a
+    // client that checks the name during the handshake throws an SSLHandshakeException, so any SSLException will do.
 
     @Test public void
     a_trusted_certificate_whose_name_doesnt_match_fails_by_default() {
         assertThatThrownBy(() -> with(sslConfig().trustStore(MISMATCHED_NAME_TRUST_STORE, PASSWORD)).get(mismatchedNameUrl()))
-                .isExactlyInstanceOf(SSLException.class);
+                .isInstanceOf(SSLException.class);
         assertThat(mismatchedNameServer.requests()).isEmpty();
     }
 
@@ -171,7 +166,7 @@ public class WireSslITest extends WireTest {
     @Test public void
     strict_hostnames_undoes_allow_all_hostnames() {
         assertThatThrownBy(() -> with(sslConfig().trustStore(MISMATCHED_NAME_TRUST_STORE, PASSWORD).allowAllHostnames().strictHostnames()).get(mismatchedNameUrl()))
-                .isExactlyInstanceOf(SSLException.class);
+                .isInstanceOf(SSLException.class);
     }
 
     @Test public void
@@ -183,7 +178,7 @@ public class WireSslITest extends WireTest {
     @Test public void
     a_trust_store_key_store_in_the_request_specification_verifies_host_names() throws Exception {
         assertThatThrownBy(() -> given().trustStore(keyStore(MISMATCHED_NAME_TRUST_STORE)).get(mismatchedNameUrl()))
-                .isExactlyInstanceOf(SSLException.class);
+                .isInstanceOf(SSLException.class);
     }
 
     // Relaxed HTTPS validation
@@ -245,7 +240,7 @@ public class WireSslITest extends WireTest {
     @Test public void
     host_names_are_still_verified_with_an_ssl_context() throws Exception {
         assertThatThrownBy(() -> with(sslConfig().sslContext(sslContextTrusting(MISMATCHED_NAME_TRUST_STORE))).get(mismatchedNameUrl()))
-                .isExactlyInstanceOf(SSLException.class);
+                .isInstanceOf(SSLException.class);
     }
 
     @Test public void
@@ -297,16 +292,13 @@ public class WireSslITest extends WireTest {
         assertThat(overHttps.localPort()).isEqualTo(server.httpsPort());
         assertThat(overHttp.localPort()).isEqualTo(server.port());
         for (RecordedRequest request : List.of(overHttp, overHttps)) {
-            assertThat(request.method()).isEqualTo("POST");
-            assertThat(request.target()).isEqualTo("/p/a%20b?q=a%20b");
-            assertThat(request.protocol()).isEqualTo("HTTP/1.1");
-            assertThat(request.header("Accept")).isEqualTo("*/*");
-            assertThat(request.header("x-Mixed-Case")).isEqualTo("1");
-            assertThat(request.header("Content-Type")).isEqualTo("text/plain; charset=ISO-8859-1");
-            assertThat(request.header("Content-Length")).isEqualTo("5");
+            assertThat(request.requestLine()).isEqualTo("POST /p/a%20b?q=a%20b HTTP/1.1");
+            assertThat(request.headers("Accept")).containsExactly("*/*");
+            assertThat(request.headers("x-Mixed-Case")).containsExactly("1");
+            assertThat(request.headers("Content-Type")).containsExactly("text/plain; charset=ISO-8859-1");
+            assertThat(request.headers("Content-Length")).containsExactly("5");
             assertThat(request.bodyAsString(ISO_8859_1)).isEqualTo("hällo");
         }
-        assertThat(overHttps.headers("x-Mixed-Case")).isEqualTo(overHttp.headers("x-Mixed-Case"));
     }
 
     private RecordedRequest sendPost(String url) {
@@ -329,26 +321,20 @@ public class WireSslITest extends WireTest {
         // Intentional: a connection made with request specific SSL settings mustn't serve a later request with other ones
         RestAssuredConfig config = config().sslConfig(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).httpClient(httpClientConfig().reuseHttpClientInstance());
 
-        String first = remotePortOfReadResponse(config);
-        String second = remotePortOfReadResponse(config);
+        String first = remotePortOfReadResponse(config, validUrl());
+        String second = remotePortOfReadResponse(config, validUrl());
 
         assertThat(second).isNotEqualTo(first);
     }
 
-    private String remotePortOfReadResponse(RestAssuredConfig config) {
-        Response response = given().config(config).get(validUrl());
-        response.asString();
-        return response.header(REMOTE_PORT_HEADER);
-    }
-
-    private static Responder connectionDetails() {
+    // Answers like the responder, with the TLS protocol of the connection in TLS_HEADER
+    private static Responder withTlsProtocol(Responder responder) {
         return (request, response) -> {
             EndPoint endPoint = HttpConnection.getCurrentConnection().getEndPoint();
-            response.setHeader(REMOTE_PORT_HEADER, String.valueOf(((InetSocketAddress) endPoint.getRemoteAddress()).getPort()));
-            if (endPoint instanceof SslConnection.DecryptedEndPoint) {
-                response.setHeader(TLS_HEADER, ((SslConnection.DecryptedEndPoint) endPoint).getSslConnection().getSSLEngine().getSession().getProtocol());
+            if (endPoint instanceof SslConnection.DecryptedEndPoint decrypted) {
+                response.setHeader(TLS_HEADER, decrypted.getSslConnection().getSSLEngine().getSession().getProtocol());
             }
-            Responder.ok().respond(request, response);
+            responder.respond(request, response);
         };
     }
 

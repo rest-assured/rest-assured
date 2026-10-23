@@ -21,6 +21,9 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
@@ -39,10 +43,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * How REST Assured encodes the request target, the body and its Content-Type, and the explicit headers. URI and body
- * encoding move from HTTP Client 4 into REST Assured's core later, so these tests check the exact bytes.
+ * encoding move from HttpClient 4 into REST Assured's core later, so these tests check the exact bytes.
  */
 public class WireRequestEncodingITest extends WireTest {
 
@@ -51,133 +56,52 @@ public class WireRequestEncodingITest extends WireTest {
 
     // Paths
 
-    @Test public void
-    space_in_literal_path_is_percent_encoded() {
-        given().get(server.url("/a b/c"));
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("literalPaths")
+    public void
+    literal_path_is_percent_encoded(String path, String expectedTarget) {
+        given().get(server.url(path));
 
-        assertThat(server.onlyRequest().target()).isEqualTo("/a%20b/c");
+        assertThat(server.onlyRequest().target()).isEqualTo(expectedTarget);
     }
 
-    @Test public void
-    percent_in_literal_path_is_percent_encoded() {
-        given().get(server.url("/a%b"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/a%25b");
+    static Stream<Arguments> literalPaths() {
+        return Stream.of(
+                arguments("/a b/c", "/a%20b/c"),
+                arguments("/a%b", "/a%25b"),
+                // Today's behavior: the % of an already encoded path is encoded again
+                arguments("/a%20b", "/a%2520b"),
+                arguments("/a+b", "/a%2Bb"),
+                arguments("/" + A_UML + EURO, "/%C3%A4%E2%82%AC"),
+                // The fragment isn't sent
+                arguments("/a#b", "/a"),
+                // Today's behavior: characters that RFC 3986 allows in a path segment are encoded anyway, except *
+                arguments("/a;b=c/d:e@f/!$&'()*,=", "/a%3Bb%3Dc/d%3Ae%40f/%21%24%26%27%28%29*%2C%3D"),
+                arguments("/a/", "/a/"),
+                // Today's behavior: the empty segment turns into an encoded "//"
+                arguments("/a//b", "/a%2F%2Fb"));
     }
 
-    @Test public void
-    already_encoded_literal_path_is_encoded_again() {
-        given().get(server.url("/a%20b"));
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("pathParams")
+    public void
+    path_param_is_percent_encoded(String value, String expectedTarget) {
+        given().pathParam("p", value).get(server.url("/x/{p}"));
 
-        // Today's behavior: the % of an already encoded path is encoded again
-        assertThat(server.onlyRequest().target()).isEqualTo("/a%2520b");
+        assertThat(server.onlyRequest().target()).isEqualTo(expectedTarget);
     }
 
-    @Test public void
-    plus_in_literal_path_is_percent_encoded() {
-        given().get(server.url("/a+b"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/a%2Bb");
-    }
-
-    @Test public void
-    unicode_in_literal_path_is_utf_8_percent_encoded() {
-        given().get(server.url("/" + A_UML + EURO));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/%C3%A4%E2%82%AC");
-    }
-
-    @Test public void
-    fragment_in_literal_path_is_not_sent() {
-        given().get(server.url("/a#b"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/a");
-    }
-
-    @Test public void
-    sub_delimiters_in_literal_path_are_percent_encoded() {
-        given().get(server.url("/a;b=c/d:e@f/!$&'()*,="));
-
-        // Today's behavior: characters that RFC 3986 allows in a path segment are encoded anyway, except *
-        assertThat(server.onlyRequest().target()).isEqualTo("/a%3Bb%3Dc/d%3Ae%40f/%21%24%26%27%28%29*%2C%3D");
-    }
-
-    @Test public void
-    trailing_slash_in_literal_path_is_kept() {
-        given().get(server.url("/a/"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/a/");
-    }
-
-    @Test public void
-    double_slash_in_literal_path_is_percent_encoded() {
-        given().get(server.url("/a//b"));
-
-        // Today's behavior: the empty segment turns into an encoded "//"
-        assertThat(server.onlyRequest().target()).isEqualTo("/a%2F%2Fb");
-    }
-
-    @Test public void
-    space_in_path_param_is_percent_encoded() {
-        given().pathParam("p", "a b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%20b");
-    }
-
-    @Test public void
-    slash_in_path_param_is_percent_encoded() {
-        given().pathParam("p", "a/b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%2Fb");
-    }
-
-    @Test public void
-    percent_in_path_param_is_percent_encoded() {
-        given().pathParam("p", "a%b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%25b");
-    }
-
-    @Test public void
-    already_encoded_path_param_is_encoded_again() {
-        given().pathParam("p", "a%20b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%2520b");
-    }
-
-    @Test public void
-    plus_in_path_param_is_percent_encoded() {
-        given().pathParam("p", "a+b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%2Bb");
-    }
-
-    @Test public void
-    question_mark_in_path_param_is_percent_encoded() {
-        given().pathParam("p", "a?b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%3Fb");
-    }
-
-    @Test public void
-    hash_in_path_param_is_percent_encoded() {
-        given().pathParam("p", "a#b").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%23b");
-    }
-
-    @Test public void
-    ampersand_and_equals_in_path_param_are_percent_encoded() {
-        given().pathParam("p", "a&b=c").get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/a%26b%3Dc");
-    }
-
-    @Test public void
-    unicode_in_path_param_is_utf_8_percent_encoded() {
-        given().pathParam("p", A_UML + EURO).get(server.url("/x/{p}"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/x/%C3%A4%E2%82%AC");
+    static Stream<Arguments> pathParams() {
+        return Stream.of(
+                arguments("a b", "/x/a%20b"),
+                arguments("a/b", "/x/a%2Fb"),
+                arguments("a%b", "/x/a%25b"),
+                arguments("a%20b", "/x/a%2520b"),
+                arguments("a+b", "/x/a%2Bb"),
+                arguments("a?b", "/x/a%3Fb"),
+                arguments("a#b", "/x/a%23b"),
+                arguments("a&b=c", "/x/a%26b%3Dc"),
+                arguments(A_UML + EURO, "/x/%C3%A4%E2%82%AC"));
     }
 
     @Test public void
@@ -255,61 +179,27 @@ public class WireRequestEncodingITest extends WireTest {
 
     // Query parameters
 
-    @Test public void
-    space_in_query_param_is_percent_encoded_not_plus() {
-        given().queryParam("a", "b c").get(server.url("/q"));
+    @ParameterizedTest(name = "{0}={1} -> {2}")
+    @MethodSource("queryParams")
+    public void
+    query_param_is_percent_encoded(String name, String value, String expectedTarget) {
+        given().queryParam(name, value).get(server.url("/q"));
 
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%20c");
+        assertThat(server.onlyRequest().target()).isEqualTo(expectedTarget);
     }
 
-    @Test public void
-    plus_in_query_param_is_percent_encoded() {
-        given().queryParam("a", "b+c").get(server.url("/q"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%2Bc");
-    }
-
-    @Test public void
-    ampersand_and_equals_in_query_param_name_and_value_are_percent_encoded() {
-        given().queryParam("a&b", "c=d&e").get(server.url("/q"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a%26b=c%3Dd%26e");
-    }
-
-    @Test public void
-    space_in_query_param_name_is_percent_encoded() {
-        given().queryParam("a b", "c").get(server.url("/q"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a%20b=c");
-    }
-
-    @Test public void
-    unicode_in_query_param_is_utf_8_percent_encoded() {
-        given().queryParam(A_UML, EURO).get(server.url("/q"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?%C3%A4=%E2%82%AC");
-    }
-
-    @Test public void
-    reserved_characters_in_query_param_are_percent_encoded() {
-        given().queryParam("a", "/?#%:@!$'()*,;[]~").get(server.url("/q"));
-
-        // Today's behavior: ~ is encoded although it is unreserved, * is not
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=%2F%3F%23%25%3A%40%21%24%27%28%29*%2C%3B%5B%5D%7E");
-    }
-
-    @Test public void
-    already_encoded_query_param_is_encoded_again() {
-        given().queryParam("a", "b%20c").get(server.url("/q"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%2520c");
-    }
-
-    @Test public void
-    empty_query_param_value_is_sent_with_equals_sign() {
-        given().queryParam("a", "").get(server.url("/q"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=");
+    static Stream<Arguments> queryParams() {
+        return Stream.of(
+                // A space is %20, not +
+                arguments("a", "b c", "/q?a=b%20c"),
+                arguments("a b", "c", "/q?a%20b=c"),
+                arguments("a", "b+c", "/q?a=b%2Bc"),
+                arguments("a&b", "c=d&e", "/q?a%26b=c%3Dd%26e"),
+                arguments(A_UML, EURO, "/q?%C3%A4=%E2%82%AC"),
+                // Today's behavior: ~ is encoded although it is unreserved, * is not
+                arguments("a", "/?#%:@!$'()*,;[]~", "/q?a=%2F%3F%23%25%3A%40%21%24%27%28%29*%2C%3B%5B%5D%7E"),
+                arguments("a", "b%20c", "/q?a=b%2520c"),
+                arguments("a", "", "/q?a="));
     }
 
     @Test public void
@@ -382,41 +272,24 @@ public class WireRequestEncodingITest extends WireTest {
         assertThat(server.onlyRequest().target()).isEqualTo("/q?a=2&a=1");
     }
 
-    @Test public void
-    query_in_the_url_is_decoded_into_params_and_encoded_again() {
-        given().get(server.url("/q?a=b c&d=%20&e=&f"));
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("urlQueries")
+    public void
+    query_in_the_url_is_decoded_into_params_and_encoded_again(String pathAndQuery, String expectedTarget) {
+        given().get(server.url(pathAndQuery));
 
-        // Today's behavior: an already encoded value in the url is encoded again
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%20c&d=%2520&e=&f");
+        assertThat(server.onlyRequest().target()).isEqualTo(expectedTarget);
     }
 
-    @Test public void
-    plus_in_url_query_is_percent_encoded() {
-        given().get(server.url("/q?a=b+c"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%2Bc");
-    }
-
-    @Test public void
-    equals_in_url_query_value_is_percent_encoded() {
-        given().get(server.url("/q?a=b=c"));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%3Dc");
-    }
-
-    @Test public void
-    unicode_in_url_query_is_utf_8_percent_encoded() {
-        given().get(server.url("/q?a=" + A_UML));
-
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=%C3%A4");
-    }
-
-    @Test public void
-    fragment_after_url_query_is_sent_as_part_of_the_last_value() {
-        given().get(server.url("/q?a=b#frag"));
-
-        // Today's behavior: unlike a fragment after a path, it isn't dropped but sent encoded
-        assertThat(server.onlyRequest().target()).isEqualTo("/q?a=b%23frag");
+    static Stream<Arguments> urlQueries() {
+        return Stream.of(
+                // Today's behavior: an already encoded value in the url is encoded again
+                arguments("/q?a=b c&d=%20&e=&f", "/q?a=b%20c&d=%2520&e=&f"),
+                arguments("/q?a=b+c", "/q?a=b%2Bc"),
+                arguments("/q?a=b=c", "/q?a=b%3Dc"),
+                arguments("/q?a=" + A_UML, "/q?a=%C3%A4"),
+                // Today's behavior: unlike a fragment after a path, it isn't dropped but sent encoded as part of the last value
+                arguments("/q?a=b#frag", "/q?a=b%23frag"));
     }
 
     @Test public void

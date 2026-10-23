@@ -25,9 +25,10 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * A request as {@link WireServer} received it: the request line, the headers in the order they were sent and the
- * body bytes (after the transfer encoding is removed, but before any content encoding is).
+ * body bytes (after the transfer encoding is removed, but before any content encoding is). {@code host} is the host of
+ * the {@code Host} header, {@code localAddress} and {@code localPort} are where the connection arrived.
  */
-public record RecordedRequest(String method, String target, String protocol, String host, int localPort,
+public record RecordedRequest(String method, String target, String protocol, String host, String localAddress, int localPort,
                               List<Map.Entry<String, String>> headers, byte[] body) {
 
     public RecordedRequest {
@@ -53,13 +54,6 @@ public record RecordedRequest(String method, String target, String protocol, Str
      */
     public List<String> headers(String name) {
         return headers.stream().filter(h -> h.getKey().equalsIgnoreCase(name)).map(Map.Entry::getValue).collect(Collectors.toList());
-    }
-
-    /**
-     * @return the header names in lower case, in the order they were sent
-     */
-    public List<String> headerNames() {
-        return headers.stream().map(h -> h.getKey().toLowerCase()).collect(Collectors.toList());
     }
 
     public boolean hasHeader(String name) {

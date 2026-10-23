@@ -19,17 +19,23 @@ package io.restassured.itest.java.wire;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Which method, body and body headers REST Assured sends for each HTTP method, with and without a body.
@@ -38,15 +44,46 @@ public class WireRequestMethodITest extends WireTest {
 
     private static final String TEXT_PLAIN_ISO_8859_1 = "text/plain; charset=ISO-8859-1";
 
-    @Test public void
-    get_without_body_sends_neither_content_type_nor_content_length() {
-        given().get(server.url("/m")).then().statusCode(200).body(equalTo("ok"));
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("methodsSentWithoutBodyHeaders")
+    public void
+    method_without_body_sends_neither_content_type_nor_content_length(String method, Send send) {
+        send.apply(given(), server.url("/m")).then().statusCode(200);
 
         RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("GET");
-        assertThat(request.target()).isEqualTo("/m");
+        assertThat(request.requestLine()).isEqualTo(method + " /m HTTP/1.1");
         assertSendsNoBodyHeaders(request);
         assertThat(request.body()).isEmpty();
+    }
+
+    static Stream<Arguments> methodsSentWithoutBodyHeaders() {
+        return Stream.of(
+                arguments("GET", send(RequestSpecification::get)),
+                arguments("DELETE", send(RequestSpecification::delete)),
+                arguments("HEAD", send(RequestSpecification::head)),
+                arguments("OPTIONS", send(RequestSpecification::options)),
+                arguments("TRACE", send((spec, url) -> spec.request(Method.TRACE, url))));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("methodsSentWithAnEmptyBody")
+    public void
+    method_without_body_sends_content_length_zero_and_no_content_type(String method, Send send) {
+        send.apply(given(), server.url("/m")).then().statusCode(200);
+
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.requestLine()).isEqualTo(method + " /m HTTP/1.1");
+        assertThat(request.hasHeader("Content-Type")).isFalse();
+        assertThat(request.header("Content-Length")).isEqualTo("0");
+        assertThat(request.body()).isEmpty();
+    }
+
+    static Stream<Arguments> methodsSentWithAnEmptyBody() {
+        return Stream.of(
+                arguments("PUT", send(RequestSpecification::put)),
+                arguments("PATCH", send(RequestSpecification::patch)),
+                arguments("QUERY", send((spec, url) -> spec.request(Method.QUERY, url))),
+                arguments("PURGE", send((spec, url) -> spec.request("PURGE", url))));
     }
 
     @Test public void
@@ -54,47 +91,9 @@ public class WireRequestMethodITest extends WireTest {
         given().post(server.url("/m")).then().statusCode(200);
 
         RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("POST");
+        assertThat(request.requestLine()).isEqualTo("POST /m HTTP/1.1");
         assertThat(request.header("Content-Type")).isEqualTo("application/x-www-form-urlencoded; charset=ISO-8859-1");
         assertThat(request.header("Content-Length")).isEqualTo("0");
-        assertThat(request.body()).isEmpty();
-    }
-
-    @Test public void
-    put_without_body_sends_content_length_zero_and_no_content_type() {
-        given().put(server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("PUT");
-        assertSendsEmptyBodyWithoutContentType(request);
-    }
-
-    @Test public void
-    patch_without_body_sends_content_length_zero_and_no_content_type() {
-        given().patch(server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("PATCH");
-        assertSendsEmptyBodyWithoutContentType(request);
-    }
-
-    @Test public void
-    delete_without_body_sends_neither_content_type_nor_content_length() {
-        given().delete(server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("DELETE");
-        assertSendsNoBodyHeaders(request);
-        assertThat(request.body()).isEmpty();
-    }
-
-    @Test public void
-    head_without_body_sends_neither_content_type_nor_content_length() {
-        given().head(server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("HEAD");
-        assertSendsNoBodyHeaders(request);
         assertThat(request.body()).isEmpty();
     }
 
@@ -105,44 +104,6 @@ public class WireRequestMethodITest extends WireTest {
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.header("Content-Length")).isEqualTo("2");
         assertThat(response.asString()).isEmpty();
-    }
-
-    @Test public void
-    options_without_body_sends_neither_content_type_nor_content_length() {
-        given().options(server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("OPTIONS");
-        assertSendsNoBodyHeaders(request);
-        assertThat(request.body()).isEmpty();
-    }
-
-    @Test public void
-    trace_without_body_sends_neither_content_type_nor_content_length() {
-        given().request(Method.TRACE, server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("TRACE");
-        assertSendsNoBodyHeaders(request);
-        assertThat(request.body()).isEmpty();
-    }
-
-    @Test public void
-    query_without_body_sends_content_length_zero_and_no_content_type() {
-        given().request(Method.QUERY, server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("QUERY");
-        assertSendsEmptyBodyWithoutContentType(request);
-    }
-
-    @Test public void
-    custom_method_without_body_sends_content_length_zero_and_no_content_type() {
-        given().request("PURGE", server.url("/m")).then().statusCode(200);
-
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("PURGE");
-        assertSendsEmptyBodyWithoutContentType(request);
     }
 
     @ParameterizedTest
@@ -316,10 +277,12 @@ public class WireRequestMethodITest extends WireTest {
         assertThat(request.hasHeader("Transfer-Encoding")).isFalse();
     }
 
-    private static void assertSendsEmptyBodyWithoutContentType(RecordedRequest request) {
-        assertThat(request.hasHeader("Content-Type")).isFalse();
-        assertThat(request.header("Content-Length")).isEqualTo("0");
-        assertThat(request.body()).isEmpty();
+    // Sends the request to the url, typed so that a method reference or lambda can be an argument of a parameterized test
+    interface Send extends BiFunction<RequestSpecification, String, Response> {
+    }
+
+    private static Send send(Send send) {
+        return send;
     }
 
     public static class Item {

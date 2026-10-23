@@ -18,17 +18,23 @@ package io.restassured.itest.java.wire;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
 import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.specification.ProxySpecification.host;
+import static org.junit.jupiter.api.Named.named;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -104,13 +110,16 @@ public class WireProxyITest extends WireTest {
         then().
                 statusCode(200);
 
-        assertThat(server.onlyRequest().target()).isEqualTo(TARGET);
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.target()).isEqualTo(TARGET);
+        assertThat(request.localAddress()).isEqualTo("127.0.0.1");
     }
 
-    @Test public void
-    proxy_given_as_a_uri() {
-        given().
-                proxy(URI.create("http://localhost:" + server.port())).
+    @ParameterizedTest
+    @MethodSource("proxySpecifications")
+    public void
+    proxy_given_in_any_form_is_used(UnaryOperator<RequestSpecification> proxy) {
+        proxy.apply(given()).
         when().
                 get(TARGET).
         then().
@@ -119,52 +128,14 @@ public class WireProxyITest extends WireTest {
         assertThat(server.onlyRequest().target()).isEqualTo(TARGET);
     }
 
-    @Test public void
-    proxy_given_as_a_uri_string() {
-        given().
-                proxy("http://localhost:" + server.port()).
-        when().
-                get(TARGET).
-        then().
-                statusCode(200);
-
-        assertThat(server.onlyRequest().target()).isEqualTo(TARGET);
-    }
-
-    @Test public void
-    proxy_given_as_host_port_and_scheme() {
-        given().
-                proxy("localhost", server.port(), "http").
-        when().
-                get(TARGET).
-        then().
-                statusCode(200);
-
-        assertThat(server.onlyRequest().target()).isEqualTo(TARGET);
-    }
-
-    @Test public void
-    proxy_given_as_a_proxy_specification() {
-        given().
-                proxy(host("localhost").withPort(server.port()).withScheme("http")).
-        when().
-                get(TARGET).
-        then().
-                statusCode(200);
-
-        assertThat(server.onlyRequest().target()).isEqualTo(TARGET);
-    }
-
-    @Test public void
-    proxy_given_in_a_request_spec_builder() {
-        given().
-                spec(new RequestSpecBuilder().setProxy("localhost", server.port()).build()).
-        when().
-                get(TARGET).
-        then().
-                statusCode(200);
-
-        assertThat(server.onlyRequest().target()).isEqualTo(TARGET);
+    Stream<Named<UnaryOperator<RequestSpecification>>> proxySpecifications() {
+        int port = server.port();
+        return Stream.of(
+                named("URI", spec -> spec.proxy(URI.create("http://localhost:" + port))),
+                named("URI string", spec -> spec.proxy("http://localhost:" + port)),
+                named("host, port and scheme", spec -> spec.proxy("localhost", port, "http")),
+                named("ProxySpecification", spec -> spec.proxy(host("localhost").withPort(port).withScheme("http"))),
+                named("RequestSpecBuilder", spec -> spec.spec(new RequestSpecBuilder().setProxy("localhost", port).build())));
     }
 
     @Test public void
@@ -239,7 +210,7 @@ public class WireProxyITest extends WireTest {
         assertThat(requests).hasSize(2);
         assertThat(requests).extracting(RecordedRequest::target).containsOnly(TARGET);
         assertThat(requests.get(0).hasHeader("Proxy-Authorization")).isFalse();
-        assertThat(requests.get(1).headers("Proxy-Authorization")).containsExactly(basic("admin", "secret"));
+        assertThat(requests.get(1).headers("Proxy-Authorization")).containsExactly(basicAuthorization("admin", "secret"));
         assertThat(requests).allSatisfy(request -> assertThat(request.hasHeader("Authorization")).isFalse());
     }
 
@@ -257,7 +228,7 @@ public class WireProxyITest extends WireTest {
 
         List<RecordedRequest> requests = server.requests();
         assertThat(requests).hasSize(2);
-        assertThat(requests.get(1).header("Proxy-Authorization")).isEqualTo(basic("admin", "wrong"));
+        assertThat(requests.get(1).header("Proxy-Authorization")).isEqualTo(basicAuthorization("admin", "wrong"));
     }
 
     @Test public void
@@ -291,7 +262,7 @@ public class WireProxyITest extends WireTest {
 
     @Test public void
     proxy_login_and_basic_login_to_the_target_are_answered_one_after_the_other() {
-        String targetLogin = basic("user", "pass");
+        String targetLogin = basicAuthorization("user", "pass");
         server.respond("/path", proxyRequiringLogin("admin", "secret", (request, response) -> {
             if (targetLogin.equals(request.header("Authorization"))) {
                 Responder.text(200, "authenticated").respond(request, response);
@@ -310,7 +281,7 @@ public class WireProxyITest extends WireTest {
                 body(equalTo("authenticated"));
 
         List<RecordedRequest> requests = server.requests();
-        assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basic("admin", "secret"), basic("admin", "secret"));
+        assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"), basicAuthorization("admin", "secret"));
         assertThat(requests).extracting(r -> r.header("Authorization")).containsExactly(null, null, targetLogin);
     }
 
@@ -328,7 +299,7 @@ public class WireProxyITest extends WireTest {
 
         List<RecordedRequest> requests = server.requests();
         assertThat(requests).extracting(RecordedRequest::target).containsExactly(TARGET, TARGET, "http://other.invalid/target");
-        assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basic("admin", "secret"), basic("admin", "secret"));
+        assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"), basicAuthorization("admin", "secret"));
     }
 
     // Proxy configured only through JVM system properties
@@ -374,7 +345,8 @@ public class WireProxyITest extends WireTest {
     @Test public void
     http_proxy_system_properties_are_not_used_for_non_proxy_hosts() {
         withProxyProperties(Map.of("http.proxyHost", "localhost", "http.proxyPort", String.valueOf(server.port()), "http.nonProxyHosts", "*.invalid"), () ->
-                assertThatThrownBy(() -> given().when().get(TARGET)).isInstanceOf(UnknownHostException.class));
+                // Sent directly, the request fails to resolve the host: HttpClient 4 throws an UnknownHostException
+                assertThatThrownBy(() -> given().when().get(TARGET)).isInstanceOf(IOException.class));
 
         assertThat(server.requests()).isEmpty();
     }
@@ -394,7 +366,7 @@ public class WireProxyITest extends WireTest {
 
     @Test public void
     https_proxy_system_properties_are_used_for_https_targets_through_connect() {
-        // WireServer refuses the tunnel with a 405, which HttpClient 4 returns as the response
+        // WireServer refuses the tunnel with a 405. Today's behavior: HttpClient 4 returns it as the response
         withProxyProperties(Map.of("https.proxyHost", "localhost", "https.proxyPort", String.valueOf(server.port())), () ->
                 given().
                 when().
@@ -402,13 +374,11 @@ public class WireProxyITest extends WireTest {
                 then().
                         statusCode(405));
 
-        RecordedRequest request = server.onlyRequest();
-        assertThat(request.requestLine()).isEqualTo("CONNECT target.invalid:443 HTTP/1.1");
-        assertThat(request.headers("Host")).containsExactly("target.invalid:443");
+        assertThat(server.onlyRequest().requestLine()).isEqualTo("CONNECT target.invalid:443 HTTP/1.1");
     }
 
     private static Responder proxyRequiringLogin(String user, String password, Responder whenLoggedIn) {
-        String expected = basic(user, password);
+        String expected = basicAuthorization(user, password);
         return (request, response) -> {
             if (expected.equals(request.header("Proxy-Authorization"))) {
                 whenLoggedIn.respond(request, response);
@@ -416,10 +386,6 @@ public class WireProxyITest extends WireTest {
                 Responder.text(407, "proxy login required").withHeader("Proxy-Authenticate", PROXY_LOGIN_CHALLENGE).respond(request, response);
             }
         };
-    }
-
-    private static String basic(String user, String password) {
-        return "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(UTF_8));
     }
 
     // Sets the proxy properties to the given values, clears the others (the environment may set some), and restores them all

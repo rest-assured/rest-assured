@@ -19,6 +19,9 @@ package io.restassured.itest.java.wire;
 import io.restassured.config.DecoderConfig;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,6 +29,7 @@ import java.io.UncheckedIOException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
 import static io.restassured.RestAssured.given;
@@ -37,6 +41,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Which encodings REST Assured asks for, and what the user gets back for each {@code Content-Encoding} of a response.
@@ -55,25 +61,21 @@ public class WireContentDecodingITest extends WireTest {
         assertThat(server.onlyRequest().headers("Accept-Encoding")).containsExactly("gzip,deflate");
     }
 
-    @Test public void
-    accepts_only_deflate_when_it_is_the_only_decoder() {
-        given().config(config().decoderConfig(decoderConfig().contentDecoders(DEFLATE))).get(server.url("/plain"));
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("acceptEncodings")
+    public void
+    accept_encoding_lists_the_configured_decoders_in_order(DecoderConfig decoderConfig, String acceptEncoding) {
+        given().config(config().decoderConfig(decoderConfig)).get(server.url("/plain"));
 
-        assertThat(server.onlyRequest().headers("Accept-Encoding")).containsExactly("deflate");
+        assertThat(server.onlyRequest().headers("Accept-Encoding")).containsExactly(acceptEncoding);
     }
 
-    @Test public void
-    accepts_only_gzip_when_it_is_the_only_decoder() {
-        given().config(config().decoderConfig(decoderConfig().contentDecoders(GZIP))).get(server.url("/plain"));
-
-        assertThat(server.onlyRequest().headers("Accept-Encoding")).containsExactly("gzip");
-    }
-
-    @Test public void
-    accepts_the_decoders_in_the_order_they_are_configured() {
-        given().config(config().decoderConfig(decoderConfig().contentDecoders(DEFLATE, GZIP))).get(server.url("/plain"));
-
-        assertThat(server.onlyRequest().headers("Accept-Encoding")).containsExactly("deflate,gzip");
+    static Stream<Arguments> acceptEncodings() {
+        return Stream.of(
+                arguments(named("DEFLATE", decoderConfig().contentDecoders(DEFLATE)), "deflate"),
+                arguments(named("GZIP", decoderConfig().contentDecoders(GZIP)), "gzip"),
+                arguments(named("DEFLATE, GZIP", decoderConfig().contentDecoders(DEFLATE, GZIP)), "deflate,gzip"),
+                arguments(named("new DecoderConfig(GZIP)", new DecoderConfig(GZIP)), "gzip"));
     }
 
     @Test public void
@@ -214,52 +216,25 @@ public class WireContentDecodingITest extends WireTest {
         response.then().header("Content-Encoding", "br").header("Content-Length", "4");
     }
 
-    @Test public void
-    gzip_response_is_not_decoded_without_decoders() {
-        byte[] compressed = gzip(JSON_BYTES);
-        server.respond("/encoded", encoded("gzip", compressed));
+    @ParameterizedTest(name = "{0} response with {1}")
+    @MethodSource("encodingsWithoutTheirDecoder")
+    public void
+    response_is_not_decoded_without_the_decoder_for_its_encoding(String contentEncoding, DecoderConfig decoderConfig) {
+        byte[] compressed = contentEncoding.equals("gzip") ? gzip(JSON_BYTES) : zlibDeflate(JSON_BYTES);
+        server.respond("/encoded", encoded(contentEncoding, compressed));
 
-        Response response = given().config(config().decoderConfig(decoderConfig().noContentDecoders())).get(server.url("/encoded"));
-
-        assertThat(response.asByteArray()).isEqualTo(compressed);
-        response.then().header("Content-Encoding", "gzip").header("Content-Length", String.valueOf(compressed.length));
-    }
-
-    @Test public void
-    deflate_response_is_not_decoded_without_decoders() {
-        byte[] compressed = zlibDeflate(JSON_BYTES);
-        server.respond("/encoded", encoded("deflate", compressed));
-
-        Response response = given().config(config().decoderConfig(decoderConfig().noContentDecoders())).get(server.url("/encoded"));
+        Response response = given().config(config().decoderConfig(decoderConfig)).get(server.url("/encoded"));
 
         assertThat(response.asByteArray()).isEqualTo(compressed);
+        response.then().header("Content-Encoding", contentEncoding).header("Content-Length", String.valueOf(compressed.length));
     }
 
-    @Test public void
-    gzip_response_is_not_decoded_when_only_deflate_is_configured() {
-        byte[] compressed = gzip(JSON_BYTES);
-        server.respond("/encoded", encoded("gzip", compressed));
-
-        Response response = given().config(config().decoderConfig(decoderConfig().contentDecoders(DEFLATE))).get(server.url("/encoded"));
-
-        assertThat(response.asByteArray()).isEqualTo(compressed);
-    }
-
-    @Test public void
-    deflate_response_is_not_decoded_when_only_gzip_is_configured() {
-        byte[] compressed = zlibDeflate(JSON_BYTES);
-        server.respond("/encoded", encoded("deflate", compressed));
-
-        Response response = given().config(config().decoderConfig(decoderConfig().contentDecoders(GZIP))).get(server.url("/encoded"));
-
-        assertThat(response.asByteArray()).isEqualTo(compressed);
-    }
-
-    @Test public void
-    decoder_config_constructor_with_decoders_sets_the_accept_encoding() {
-        given().config(config().decoderConfig(new DecoderConfig(GZIP))).get(server.url("/plain"));
-
-        assertThat(server.onlyRequest().headers("Accept-Encoding")).containsExactly("gzip");
+    static Stream<Arguments> encodingsWithoutTheirDecoder() {
+        return Stream.of(
+                arguments("gzip", named("no decoders", decoderConfig().noContentDecoders())),
+                arguments("deflate", named("no decoders", decoderConfig().noContentDecoders())),
+                arguments("gzip", named("only DEFLATE", decoderConfig().contentDecoders(DEFLATE))),
+                arguments("deflate", named("only GZIP", decoderConfig().contentDecoders(GZIP))));
     }
 
     private static Responder encoded(String contentEncoding, byte[] body) {
