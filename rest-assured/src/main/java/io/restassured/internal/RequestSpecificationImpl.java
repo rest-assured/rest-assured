@@ -2803,11 +2803,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         BASE_URI, BASE_PATH, PORT, AUTHENTICATION_SCHEME, BODY, PROXY, URL_ENCODING_ENABLED, ALLOW_CONTENT_TYPE, ADD_CSRF_FILTER
     }
 
-    // Unlike config(..), this doesn't change the config of the response specification
-    void setRestAssuredConfig(RestAssuredConfig restAssuredConfig) {
-        this.restAssuredConfig = restAssuredConfig;
-    }
-
     private static int getFilterOrder(Filter filter) {
         return (filter instanceof OrderedFilter) ? ((OrderedFilter) filter).getOrder()
                 : OrderedFilter.DEFAULT_PRECEDENCE;

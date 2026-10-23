@@ -143,7 +143,8 @@ public class SpecificationMerger {
         RestAssuredConfig thisConfig = thisOne.restAssuredConfig();
         RestAssuredConfig merged = mergeConfig(thisConfig, other.restAssuredConfig());
         if (merged != thisConfig) {
-            thisOne.setRestAssuredConfig(merged);
+            // Like given().config(..), so that expect() validates with it too
+            thisOne.config(merged);
         }
     }
 
