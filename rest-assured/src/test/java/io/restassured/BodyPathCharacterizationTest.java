@@ -29,7 +29,6 @@ import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.withArgs;
@@ -263,9 +262,16 @@ class BodyPathCharacterizationTest {
     }
 
     @Test
-    void a_leading_dollar_dot_is_not_the_root_on_an_object() {
-        json().body("$.store", nullValue()).body("$['store']", nullValue()).body("$[0]", nullValue());
-        assertThat((Object) response("application/json", JSON).path("$.store")).isNull();
+    void a_leading_dollar_dot_or_bracket_starts_at_the_root() {
+        json().body("$.store.bicycle.color", equalTo("red")).body("$['store']['bicycle']['color']", equalTo("red"))
+                .body("$.store.book.title", contains("A", "B")).body("$.a.b.c", equalTo(1)).body("$[0]", nullValue());
+        assertThat((String) response("application/json", JSON).path("$.store.book[1].title")).isEqualTo("B");
+    }
+
+    @Test
+    void a_leading_dollar_dot_starts_at_the_root_path_too() {
+        json().rootPath("$.store").body("bicycle.color", equalTo("red"));
+        json().rootPath("$").body("store.bicycle.color", equalTo("red"));
     }
 
     @Test
@@ -274,9 +280,9 @@ class BodyPathCharacterizationTest {
     }
 
     @Test
-    void a_leading_dollar_dot_spreads_over_an_array() {
-        then("application/json", JSON_ARRAY).body("$", org.hamcrest.Matchers.hasSize(2)).body("$.name", equalTo(Collections.emptyList()))
-                .body("[0].name", equalTo("x")).body("name", equalTo(Arrays.asList("x", "y")));
+    void a_leading_dollar_dot_or_bracket_starts_at_the_root_of_an_array() {
+        then("application/json", JSON_ARRAY).body("$", org.hamcrest.Matchers.hasSize(2)).body("$.name", equalTo(Arrays.asList("x", "y")))
+                .body("$[0].name", equalTo("x")).body("[0].name", equalTo("x")).body("name", equalTo(Arrays.asList("x", "y")));
     }
 
     // XML and HTML

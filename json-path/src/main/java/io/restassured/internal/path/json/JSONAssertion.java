@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.InvokerHelper;
@@ -44,7 +43,6 @@ public class JSONAssertion implements Assertion {
 
   private static final String ROOT = "restAssuredJsonRootObject";
   private static final String SCRIPT_NAME = "Script1";
-  private static final Pattern KEY_PATTERN = Pattern.compile("^\\[-?\\d+(\\.\\.<?-?\\d+)?].*");
 
   String key;
   Map<String, Object> params;
@@ -59,6 +57,16 @@ public class JSONAssertion implements Assertion {
     return "JSON path";
   }
 
+  // A path that starts with "$." or "$[", as in Jayway JsonPath, starts at the root, like "$" alone
+  private static String withoutLeadingDollar(String key) {
+    if (key.startsWith("$.") && !key.startsWith("$..")) {
+      return key.substring(2);
+    } else if (key.startsWith("$[")) {
+      return key.substring(1);
+    }
+    return key;
+  }
+
   public void setKey(String key) {
     this.key = key;
   }
@@ -68,6 +76,7 @@ public class JSONAssertion implements Assertion {
   }
 
   public Object getAsJsonObject(Object object) {
+    key = withoutLeadingDollar(key);
     key = (String) escapePath(
         key,
         (PathFragmentEscaper) hyphen(),
@@ -83,7 +92,8 @@ public class JSONAssertion implements Assertion {
     } else {
       try {
         String expr;
-        if (KEY_PATTERN.matcher(key).matches()) {
+        // A subscript, such as [0] or ['name'], follows the root directly
+        if (key.startsWith("[")) {
           expr = ROOT + key;
         } else {
           expr = ROOT + '.' + key;
