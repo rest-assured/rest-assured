@@ -17,7 +17,6 @@ package io.restassured.internal;
 
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
-import io.restassured.authentication.CertAuthScheme;
 import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.config.ConnectionConfig;
@@ -48,15 +47,12 @@ import io.restassured.internal.filter.CsrfFilter;
 import io.restassured.internal.filter.FilterContextImpl;
 import io.restassured.internal.filter.FormAuthFilter;
 import io.restassured.internal.filter.SendRequestFilter;
-import io.restassured.internal.http.AllMethodsRedirectStrategy;
 import io.restassured.internal.http.BoundaryExtractor;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.http.ContentDecoding;
 import io.restassured.internal.http.ContentTypeExtractor;
-import io.restassured.internal.http.CrossHostSensitiveHeaderStripper;
 import io.restassured.internal.http.HTTPBuilder;
 import io.restassured.internal.http.HttpClient4Transport;
-import io.restassured.internal.http.NoSecureConnectionReuseStrategy;
 import io.restassured.internal.http.RequestBody;
 import io.restassured.internal.http.RequestBodyEncoder;
 import io.restassured.internal.http.URIBuilder;
@@ -66,8 +62,6 @@ import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartInternal;
 import io.restassured.internal.multipart.MultiPartSpecificationImpl;
 import io.restassured.internal.multipart.MultipartWriter;
-import io.restassured.internal.proxy.RestAssuredProxySelector;
-import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner;
 import io.restassured.internal.support.ParameterUpdater;
 import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.transport.TransportRequest;
@@ -87,24 +81,13 @@ import io.restassured.specification.RequestLogSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import io.restassured.spi.AuthFilter;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.RedirectStrategy;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.params.HttpParams;
-import org.apache.http.ConnectionReuseStrategy;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -1569,7 +1552,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         EncoderConfig encoderConfig = config == null ? new EncoderConfig() : config.getEncoderConfig();
         HTTPBuilder http = new HTTPBuilder(targetUri, urlEncodingEnabled, encoderConfig, config == null ? null : config.getDecoderConfig(),
                 config == null ? null : config.getOAuthConfig(), (AbstractHttpClient) requestSpecification.getHttpClient());
-        applyProxySettings(http);
         applyRestAssuredConfig(http);
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http);
@@ -1598,47 +1580,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         responseSpecification.setRestAssuredResponse(restAssuredResponse);
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
-        // Applying the SSL config or certificate authentication replaces the https scheme of the http client's scheme registry.
-        // Restore the original scheme once the request has been sent, and don't keep https connections established with the
-        // request specific scheme alive, so that the SSL settings of this request don't leak into later requests if the http
-        // client instance (or its connection manager) is reused.
-        AbstractHttpClient client = http.getClient();
-        SchemeRegistry schemeRegistry = client.getConnectionManager().getSchemeRegistry();
-        Scheme originalHttpsScheme = schemeRegistry.get("https");
-        ConnectionReuseStrategy originalReuseStrategy = client.getConnectionReuseStrategy();
+        // Authenticates the request, so the request is built afterwards
+        HttpClient4Transport transport = new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, authenticationScheme);
         try {
-            if (shouldApplySSLConfig(http, cfg)) {
-                SSLConfig sslConfig = cfg.getSSLConfig();
-                CertAuthScheme certAuthScheme = new CertAuthScheme();
-                certAuthScheme.setPathToKeyStore(sslConfig.getPathToKeyStore());
-                certAuthScheme.setKeyStorePassword(sslConfig.getKeyStorePassword());
-                certAuthScheme.setKeystoreType(sslConfig.getKeyStoreType());
-                certAuthScheme.setKeyStore(sslConfig.getKeyStore());
-                certAuthScheme.setPathToTrustStore(sslConfig.getPathToTrustStore());
-                certAuthScheme.setTrustStorePassword(sslConfig.getTrustStorePassword());
-                certAuthScheme.setTrustStoreType(sslConfig.getTrustStoreType());
-                certAuthScheme.setTrustStore(sslConfig.getTrustStore());
-                certAuthScheme.setPort(sslConfig.getPort());
-                if (sslConfig.getSSLContext() != null) {
-                    certAuthScheme.setSslContext(sslConfig.getSSLContext());
-                } else {
-                    certAuthScheme.setSslSocketFactory(sslConfig.getSSLSocketFactory());
-                }
-                certAuthScheme.setX509HostnameVerifier(sslConfig.getX509HostnameVerifier());
-                certAuthScheme.authenticate(http);
-            }
-
-            authenticationScheme.authenticate(http);
-
-            if (schemeRegistry.get("https") != originalHttpsScheme) {
-                client.setReuseStrategy(new NoSecureConnectionReuseStrategy(originalReuseStrategy));
-            }
-
-            // Register the cross-host header stripper after authentication so it runs last in the interceptor chain.
-            RedirectConfig redirectConfig = restAssuredConfig == null ? null : restAssuredConfig.getRedirectConfig();
-            applyCrossHostRedirectHeaderStripping(http, redirectConfig != null ? redirectConfig : new RedirectConfig());
-            applyRedirectStrategy(http, redirectConfig != null && redirectConfig.followsRedirectsForAllMethods());
-
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
             TransportRequest request;
             if (mayHaveBody(method)) {
@@ -1659,17 +1603,11 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding);
             }
 
-            HttpClient4Transport transport = new HttpClient4Transport(http, cfg.getConnectionConfig());
             TransportResponse response = transport.send(request);
             restAssuredResponse.setApacheHttpContext(transport.context());
             RequestDispatcher.receive(response, contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
         } finally {
-            if (originalHttpsScheme == null) {
-                schemeRegistry.unregister("https");
-            } else {
-                schemeRegistry.register(originalHttpsScheme);
-            }
-            client.setReuseStrategy(originalReuseStrategy);
+            transport.restore();
         }
         return restAssuredResponse;
     }
@@ -1755,64 +1693,13 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         }
     }
 
-    public boolean shouldApplySSLConfig(HTTPBuilder http, RestAssuredConfig cfg) {
-        URI uri = ((URIBuilder) http.getUri()).toURI();
-        if (uri == null) throw new IllegalStateException("a default URI must be set");
-        if (!cfg.getSSLConfig().isUserConfigured() || authenticationScheme instanceof CertAuthScheme) {
-            return false;
-        }
-        if (uri.getScheme() != null && "https".equals(uri.getScheme().toLowerCase(Locale.ROOT))) {
-            return true;
-        }
-        // A non-https request may be redirected to https (see issue #790) so the SSL config is applied to it as well (the SSL
-        // socket factory is then created lazily, see AuthConfig#certificate). This is only done for http clients created by
-        // REST Assured's default http client factory since a custom factory may have registered its own https scheme that
-        // must not be replaced for requests that don't start out as https.
-        return cfg.getHttpClientConfig().usesDefaultHttpClientFactory();
-    }
-
+    // The http client params, which HttpClient4Transport sets on the client, are collected in httpClientParams
     public void applyRestAssuredConfig(HTTPBuilder http) {
         if (restAssuredConfig != null) {
             applyRedirectConfig(restAssuredConfig.getRedirectConfig());
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig());
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig());
             applySessionConfig(restAssuredConfig.getSessionConfig());
-        }
-        if (!httpClientParams.isEmpty()) {
-            HttpParams p = http.getClient().getParams();
-
-            // Groovy callers may use GString keys, which Groovy converted to String
-            for (Entry<?, ?> entry : ((Map<?, ?>) httpClientParams).entrySet()) {
-                p.setParameter(castToString(entry.getKey()), entry.getValue());
-            }
-        }
-    }
-
-    private void applyCrossHostRedirectHeaderStripping(HTTPBuilder http, RedirectConfig redirectConfig) {
-        if (!(http.getClient() instanceof AbstractHttpClient)) {
-            return;
-        }
-        AbstractHttpClient client = http.getClient();
-        // Remove first so repeated configuration (e.g. a reused HttpClient instance) never stacks duplicates.
-        // Register last (after authentication schemes have added their interceptors) so that an auth interceptor
-        // such as the OAuth/OAuth2 signer cannot re-add Authorization after we have stripped it on a redirect.
-        client.removeRequestInterceptorByClass(CrossHostSensitiveHeaderStripper.class);
-        if (redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect()) {
-            client.addRequestInterceptor(new CrossHostSensitiveHeaderStripper());
-        }
-    }
-
-    private void applyRedirectStrategy(HTTPBuilder http, boolean followRedirectsForAllMethods) {
-        if (!(http.getClient() instanceof AbstractHttpClient)) {
-            return;
-        }
-        AbstractHttpClient client = http.getClient();
-        RedirectStrategy redirectStrategy = client.getRedirectStrategy();
-        if (followRedirectsForAllMethods && !(redirectStrategy instanceof AllMethodsRedirectStrategy)) {
-            client.setRedirectStrategy(new AllMethodsRedirectStrategy(redirectStrategy));
-        } else if (!followRedirectsForAllMethods && redirectStrategy instanceof AllMethodsRedirectStrategy) {
-            // A reused client gets back the strategy it had, for example one installed by an HttpClientFactory
-            client.setRedirectStrategy(((AllMethodsRedirectStrategy) redirectStrategy).getReplacedStrategy());
         }
     }
 
@@ -2654,23 +2541,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         notNull(filterType, "Filter type");
         this.filters.removeIf(it -> isInstanceOf(it, filterType));
         return this;
-    }
-
-    private void applyProxySettings(HTTPBuilder http) {
-        // make client aware of JRE proxy settings http://freeside.co/betamax/
-        RestAssuredProxySelector proxySelector = new RestAssuredProxySelector();
-        proxySelector.setDelegatingProxySelector(ProxySelector.getDefault());
-        proxySelector.setProxySpecification(proxySpecification);
-        http.getClient().setRoutePlanner(new RestAssuredProxySelectorRoutePlanner(http.getClient().getConnectionManager().getSchemeRegistry(), proxySelector, proxySpecification));
-        if (proxySpecification != null && (proxySpecification.getUsername() != null || proxySpecification.getPassword() != null)) {
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            InetSocketAddress address = new InetSocketAddress(proxySpecification.getHost(), proxySpecification.getPort());
-            // We need to convert the host to an IP since that's what our proxy selector (RestAssuredProxySelector) expects
-            AuthScope authScope = new AuthScope(address.getAddress().getHostAddress(), proxySpecification.getPort());
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(proxySpecification.getUsername(), proxySpecification.getPassword());
-            credsProvider.setCredentials(authScope, credentials);
-            http.getClient().setCredentialsProvider(credsProvider);
-        }
     }
 
     private String assembleCompleteTargetPath(String requestPath) {
