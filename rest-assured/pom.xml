@@ -51,7 +51,10 @@
                             !io.restassured.internal.common.*,
                             io.restassured.*
                         </Export-Package>
+                        <!-- The path providers are loaded by class name, which bnd can't see -->
                         <Import-Package>
+                            io.restassured.internal.path.json,
+                            io.restassured.internal.path.xml,
                             *
                         </Import-Package>
                     </instructions>

@@ -17,25 +17,28 @@
 package io.restassured.assertion;
 
 import io.restassured.internal.ResponseParserRegistrar;
+import io.restassured.internal.common.spi.path.DocumentType;
 import io.restassured.internal.http.ContentTypeExtractor;
-import io.restassured.internal.path.json.JSONAssertion;
-import io.restassured.internal.path.xml.XMLAssertion;
+import io.restassured.internal.path.PathAssertion;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 
 import static io.restassured.internal.util.GroovyStringConversion.castToString;
 
+/**
+ * Picks the type of document that a path is evaluated on from the content type of the response and the registered parsers.
+ */
 public class StreamVerifier {
 
-    public static Object newAssertion(Response response, Object key, ResponseParserRegistrar rpr) {
+    public static PathAssertion newAssertion(Response response, Object key, ResponseParserRegistrar rpr) {
         String contentType = response.getContentType();
         Parser parserType = Parser.fromContentType(contentType);
         if (rpr.hasCustomParser(contentType)) {
             return createAssertionForCustomParser(rpr, contentType, key);
         } else if (parserType == Parser.JSON) {
-            return jsonAssertion(key);
+            return assertion(DocumentType.JSON, key);
         } else if (parserType == Parser.XML || parserType == Parser.HTML) {
-            return xmlAssertion(key);
+            return assertion(parserType == Parser.HTML ? DocumentType.HTML : DocumentType.XML, key);
         }
         String content = response.asString();
         if (contentType != null && contentType.isEmpty()) {
@@ -51,25 +54,17 @@ public class StreamVerifier {
                 "Content was:\n" + content + "\n");
     }
 
-    public static Object createAssertionForCustomParser(ResponseParserRegistrar rpr, String contentType, Object key) {
+    public static PathAssertion createAssertionForCustomParser(ResponseParserRegistrar rpr, String contentType, Object key) {
         Parser parser = rpr.getNonDefaultParser(contentType);
         if (parser == Parser.JSON) {
-            return jsonAssertion(key);
+            return assertion(DocumentType.JSON, key);
         } else if (parser == Parser.XML || parser == Parser.HTML) {
-            return xmlAssertion(key);
+            return assertion(parser == Parser.HTML ? DocumentType.HTML : DocumentType.XML, key);
         }
         return null;
     }
 
-    private static JSONAssertion jsonAssertion(Object key) {
-        JSONAssertion assertion = new JSONAssertion();
-        assertion.setKey(castToString(key));
-        return assertion;
-    }
-
-    private static XMLAssertion xmlAssertion(Object key) {
-        XMLAssertion assertion = new XMLAssertion();
-        assertion.setKey(castToString(key));
-        return assertion;
+    private static PathAssertion assertion(DocumentType documentType, Object key) {
+        return new PathAssertion(documentType, castToString(key));
     }
 }

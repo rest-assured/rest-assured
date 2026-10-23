@@ -15,72 +15,63 @@
  */
 package io.restassured.internal;
 
-import io.restassured.config.JsonConfig;
 import io.restassured.config.RestAssuredConfig;
-import io.restassured.config.XmlConfig;
+import io.restassured.internal.common.spi.path.DocumentType;
+import io.restassured.internal.common.spi.path.PathInput;
 import io.restassured.internal.http.CharsetExtractor;
-import io.restassured.internal.path.json.ConfigurableJsonSlurper;
-import io.restassured.internal.path.xml.XmlSlurperParser;
+import io.restassured.internal.path.CorePathSettings;
+import io.restassured.internal.path.PathProviders;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class ContentParser {
 
     /**
-     * Parse the response body into the object model that GPath expressions in body assertions are evaluated against.
+     * Parse the response body into the document that the path engine evaluates the paths of body assertions on.
      *
-     * @return A JSON object model (maps and lists), a parsed XML/HTML document, or the response body as an
-     * {@link java.io.InputStream} for content types that are not parsed.
+     * @return The document of the path engine (for GPath, maps and lists for JSON and a parsed document for XML and HTML),
+     * or the response body as an {@link java.io.InputStream} for content types that are not parsed.
      */
     public Object parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
         Parser parser = rpr.getParser(response.contentType());
         if (parser == null) {
             return response.asInputStream();
         }
+        DocumentType type;
+        PathInput input;
+        switch (parser) {
+            case JSON:
+                type = DocumentType.JSON;
+                input = jsonInput(response, config, parseAsString);
+                break;
+            case XML:
+            case HTML:
+                type = parser == Parser.XML ? DocumentType.XML : DocumentType.HTML;
+                // We force default charset to be backward compatible with "InputStream charset".
+                // Only REST Assured's own responses are parsed as string (eagerly), see ResponseSpecificationImpl.
+                input = parseAsString ? PathInput.ofText(((RestAssuredResponseOptionsImpl<?>) response).asString(true)) : PathInput.ofStream(response.asInputStream(), null);
+                break;
+            case TEXT:
+            default:
+                return response.asInputStream();
+        }
         try {
-            switch (parser) {
-                case JSON:
-                    return parseJson(response, config, parseAsString);
-                case XML:
-                    return parseXml(response, config.getXmlConfig(), false, parseAsString);
-                case HTML:
-                    return parseXml(response, config.getXmlConfig(), true, parseAsString);
-                case TEXT:
-                default:
-                    return response.asInputStream();
-            }
-        } catch (IOException | SAXException | ParserConfigurationException e) {
+            return PathProviders.forType(type, config).parse(input, type, CorePathSettings.forBodyAssertions(config));
+        } catch (Exception e) {
             // Rethrow checked exceptions (such as SAXParseException) as is, without wrapping them
             return SafeExceptionRethrower.safeRethrow(e);
         }
     }
 
-    private static Object parseJson(Response response, RestAssuredConfig config, boolean parseAsString) throws IOException {
-        JsonConfig jsonConfig = config.getJsonConfig();
-        ConfigurableJsonSlurper slurper = new ConfigurableJsonSlurper(jsonConfig.numberReturnType(), jsonConfig.numberLengthLimit());
+    private static PathInput jsonInput(Response response, RestAssuredConfig config, boolean parseAsString) {
         if (parseAsString) {
-            return slurper.parseText(response.asString());
+            return PathInput.ofText(response.asString());
         }
         String charset = CharsetExtractor.getCharsetFromContentType(response.getContentType());
         if (charset == null || charset.isEmpty()) {
             charset = config.getDecoderConfig().defaultCharsetForContentType(response.getContentType());
         }
-        return slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream()), charset));
-    }
-
-    private static Object parseXml(Response response, XmlConfig xmlConfig, boolean html, boolean parseAsString)
-            throws IOException, SAXException, ParserConfigurationException {
-        // We force default charset to be backward compatible with "InputStream charset".
-        // Only REST Assured's own responses are parsed as string (eagerly), see ResponseSpecificationImpl.
-        Object document = parseAsString ? ((RestAssuredResponseOptionsImpl<?>) response).asString(true) : response.asInputStream();
-        return XmlSlurperParser.parse(document, html, xmlConfig.isValidating(), xmlConfig.isNamespaceAware(), xmlConfig.isAllowDocTypeDeclaration(),
-                xmlConfig.properties(), xmlConfig.features(), xmlConfig.isNamespaceAware() ? xmlConfig.declaredNamespaces() : null);
+        return PathInput.ofStream(response.asInputStream(), charset);
     }
 }
