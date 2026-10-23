@@ -1699,6 +1699,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             applyRedirectConfig(restAssuredConfig.getRedirectConfig());
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig());
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig());
+            http.getEncoders().setObjectMapperConfig(restAssuredConfig.getObjectMapperConfig());
             applySessionConfig(restAssuredConfig.getSessionConfig());
         }
     }

@@ -16,6 +16,10 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperDeserializationContext;
+import io.restassured.mapper.ObjectMapperSerializationContext;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -64,10 +68,26 @@ class JsonBodyCharacterizationTest {
 
     @Test
     void fails_for_numbers_that_json_has_no_notation_for() {
-        assertThatThrownBy(() -> jsonOf(Double.NaN)).isInstanceOf(RuntimeException.class)
+        assertThatThrownBy(() -> jsonOf(Double.NaN)).isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Number NaN can't be serialized as JSON: NaN are not allowed in JSON.");
-        assertThatThrownBy(() -> jsonOf(Float.POSITIVE_INFINITY)).isInstanceOf(RuntimeException.class)
+        assertThatThrownBy(() -> jsonOf(Float.POSITIVE_INFINITY)).isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Number Infinity can't be serialized as JSON: infinite are not allowed in JSON.");
+    }
+
+    @Test
+    void writes_elements_of_primitive_arrays_without_checking_them() throws IOException {
+        assertThat(json(Arrays.asList(new double[]{Double.NaN}, new float[]{Float.POSITIVE_INFINITY, 2f}, new boolean[]{true}, new long[]{1L},
+                new short[]{2}, new int[0])))
+                .isEqualTo("[[NaN],[Infinity,2.0],[true],[1],[2],[]]");
+    }
+
+    @Test
+    void writes_enum_names_and_empty_strings_and_keys_without_escaping_them() throws IOException {
+        Map<Object, Object> map = new LinkedHashMap<>();
+        map.put("", new StringBuilder());
+        map.put(new StringBuilder("kå"), Unescaped.Å);
+
+        assertThat(json(map)).isEqualTo("{\"\":\"\",\"k\\u00e5\":\"Å\"}");
     }
 
     @Test
@@ -125,26 +145,45 @@ class JsonBodyCharacterizationTest {
     }
 
     @Test
-    void writes_a_nested_bean_with_its_properties() throws IOException {
+    void writes_a_nested_bean_with_the_object_mapper() throws IOException {
         assertThat(jsonOf(new Bean())).isEqualTo("[{\"age\":3,\"color\":\"RED\",\"name\":\"n\",\"nested\":null}]");
     }
 
     @Test
-    void writes_a_record_with_its_components() throws IOException {
+    void writes_a_record_with_the_object_mapper() throws IOException {
         assertThat(jsonOf(new Point("x", 1))).isEqualTo("[{\"a\":\"x\",\"b\":1}]");
     }
 
     @Test
-    void writes_uris_optionals_and_java_time_values_with_their_bean_properties() throws IOException {
-        assertThat(jsonOf(URI.create("http://x/y"))).isEqualTo("[{\"absolute\":true,\"authority\":\"x\",\"fragment\":null,\"host\":\"x\",\"opaque\":false," +
-                "\"path\":\"/y\",\"port\":-1,\"query\":null,\"rawAuthority\":\"x\",\"rawFragment\":null,\"rawPath\":\"/y\",\"rawQuery\":null," +
-                "\"rawSchemeSpecificPart\":\"//x/y\",\"rawUserInfo\":null,\"scheme\":\"http\",\"schemeSpecificPart\":\"//x/y\",\"userInfo\":null}]");
-        assertThat(json(Arrays.asList(Optional.of("x"), Optional.empty()))).isEqualTo("[{\"empty\":false,\"present\":true},{\"empty\":true,\"present\":false}]");
-        assertThat(jsonOf(java.time.Instant.EPOCH)).isEqualTo("[{\"epochSecond\":0,\"nano\":0}]");
+    void writes_uris_optionals_and_java_time_values_with_the_object_mapper() throws IOException {
+        assertThat(jsonOf(URI.create("http://x/y"))).isEqualTo("[\"http://x/y\"]");
+        assertThat(json(Arrays.asList(Optional.of("x"), Optional.empty()))).isEqualTo("[\"x\",null]");
+        assertThat(jsonOf(java.time.Instant.EPOCH)).isEqualTo("[\"1970-01-01T00:00:00Z\"]");
+    }
+
+    @Test
+    void writes_other_values_with_the_object_mapper_of_the_config() throws IOException {
+        registry.setObjectMapperConfig(new ObjectMapperConfig().defaultObjectMapper(new ObjectMapper() {
+            @Override
+            public Object deserialize(ObjectMapperDeserializationContext context) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Object serialize(ObjectMapperSerializationContext context) {
+                return "{\"mapped\":\"" + context.getObjectToSerialize().getClass().getSimpleName() + "\"}";
+            }
+        }));
+
+        assertThat(json(Arrays.asList("s", new Bean()))).isEqualTo("[\"s\",{\"mapped\":\"Bean\"}]");
     }
 
     public enum Color {
         RED
+    }
+
+    public enum Unescaped {
+        Å
     }
 
     public static class Bean {
