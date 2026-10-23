@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
 * Fix ConnectionConfig.dontCloseIdleConnectionsAfterEachResponse(), which always threw an IllegalArgumentException. It now returns a config that doesn't close idle connections after each response (issue #2016)
+* Fix ProxySpecification.withScheme(..) dropping the user name and password set with auth(..) or withAuth(..), so the proxy login was no longer sent (issue #2018)
 
 Changelog 6.3.0 (2026-10-23)
 ----------------------------
