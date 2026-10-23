@@ -34,6 +34,16 @@
 
 
     <build>
+        <!-- The version file in META-INF/rest-assured, which REST Assured reads to check that its artifacts have the same version -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/rest-assured-version</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
