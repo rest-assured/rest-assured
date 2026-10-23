@@ -18,26 +18,26 @@ package io.restassured.internal.mapping;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import io.restassured.internal.path.json.mapping.JsonPathGsonObjectDeserializer;
+import io.restassured.common.mapper.factory.GsonObjectMapperFactory;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
-import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
+
+import java.lang.reflect.Type;
 
 public class GsonMapper implements ObjectMapper {
 
     private final GsonObjectMapperFactory factory;
 
-    private final JsonPathObjectDeserializer deserializer;
-
     public GsonMapper(GsonObjectMapperFactory factory) {
+        AssertParameter.notNull(factory, "GsonObjectMapperFactory");
         this.factory = factory;
-        deserializer = new JsonPathGsonObjectDeserializer(factory);
     }
 
     public Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+        Type type = context.getType();
+        return factory.create(type, context.getCharset()).fromJson(context.getDataToDeserialize().asString(), type);
     }
 
     public Object serialize(ObjectMapperSerializationContext context) {

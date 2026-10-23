@@ -16,32 +16,42 @@
 
 package io.restassured.internal.mapping;
 
-import io.restassured.internal.path.xml.mapping.XmlPathJaxbObjectDeserializer;
+import io.restassured.common.mapper.factory.JAXBObjectMapperFactory;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
-import io.restassured.path.xml.mapping.XmlPathObjectDeserializer;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.transform.stream.StreamSource;
+import java.io.StringReader;
 import java.io.StringWriter;
 
 public class JaxbMapper implements ObjectMapper {
 
     private final JAXBObjectMapperFactory factory;
 
-    private final XmlPathObjectDeserializer deserializer;
-
     public JaxbMapper(JAXBObjectMapperFactory factory) {
         this.factory = factory;
-        deserializer = new XmlPathJaxbObjectDeserializer(factory);
     }
 
     public Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+        Class<?> cls = MapperSupport.classToUnmarshal(context.getType());
+        StringReader reader = new StringReader(context.getDataToDeserialize().asString());
+        JAXBContext jaxbContext = factory.create(cls, context.getCharset());
+        try {
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            if (cls.isAnnotationPresent(XmlRootElement.class)) {
+                return unmarshaller.unmarshal(reader);
+            }
+            return unmarshaller.unmarshal(new StreamSource(reader), cls).getValue();
+        } catch (JAXBException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
     }
 
     public Object serialize(ObjectMapperSerializationContext context) {

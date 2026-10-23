@@ -18,16 +18,16 @@ package io.restassured.internal.mapping;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
-import io.restassured.internal.path.json.mapping.JsonPathJackson2ObjectDeserializer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.restassured.common.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
-import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Support for Jackson 2.0 (https://github.com/FasterXML/jackson-core)
@@ -36,14 +36,11 @@ public class Jackson2Mapper implements ObjectMapper {
 
     private final Jackson2ObjectMapperFactory factory;
 
-    private final JsonPathObjectDeserializer deserializer;
-
     public Jackson2Mapper(Jackson2ObjectMapperFactory factory) {
         this.factory = factory;
-        deserializer = new JsonPathJackson2ObjectDeserializer(factory);
     }
 
-    private com.fasterxml.jackson.databind.ObjectMapper createJackson2ObjectMapper(Class<?> cls, String charset) {
+    private com.fasterxml.jackson.databind.ObjectMapper createJackson2ObjectMapper(Type cls, String charset) {
         return factory.create(cls, charset);
     }
 
@@ -63,7 +60,14 @@ public class Jackson2Mapper implements ObjectMapper {
     }
 
     public Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+        String object = context.getDataToDeserialize().asString();
+        Type type = context.getType();
+        com.fasterxml.jackson.databind.ObjectMapper mapper = createJackson2ObjectMapper(type, context.getCharset());
+        try {
+            return mapper.readValue(object, mapper.constructType(type));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private JsonEncoding getEncoding(String charset) {

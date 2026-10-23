@@ -16,28 +16,35 @@
 
 package io.restassured.internal.mapping;
 
-import io.restassured.internal.path.json.mapping.JsonPathJohnzonObjectDeserializer;
+import io.restassured.common.mapper.factory.JohnzonObjectMapperFactory;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory;
-import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import org.apache.johnzon.mapper.Mapper;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Type;
 
 public class JohnzonMapper implements ObjectMapper {
     private final JohnzonObjectMapperFactory factory;
 
-    private final JsonPathObjectDeserializer deserializer;
-
     public JohnzonMapper(JohnzonObjectMapperFactory factory) {
+        AssertParameter.notNull(factory, "JohnzonObjectMapperFactory");
         this.factory = factory;
-        deserializer = new JsonPathJohnzonObjectDeserializer(factory);
     }
 
     public Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+        Type type = context.getType();
+        try (Mapper mapper = factory.create(type, context.getCharset());
+             Reader reader = MapperSupport.platformCharsetReader(context)) {
+            return mapper.readObject(reader, type);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public Object serialize(ObjectMapperSerializationContext context) {

@@ -16,6 +16,13 @@
 
 package io.restassured.internal.mapping;
 
+import io.restassured.mapper.ObjectMapperDeserializationContext;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+
 final class MapperSupport {
 
     private MapperSupport() {
@@ -28,5 +35,23 @@ final class MapperSupport {
      */
     static Class<?> typeOf(Object object) {
         return object == null ? Object.class : object.getClass();
+    }
+
+    /**
+     * A reader of the body stream with the platform default charset, as Groovy's {@code withReader(InputStream, ..)} that
+     * the Johnzon and JSON-B mappers used to read the body with.
+     */
+    static Reader platformCharsetReader(ObjectMapperDeserializationContext context) {
+        return new InputStreamReader(context.getDataToDeserialize().asInputStream(), Charset.defaultCharset());
+    }
+
+    /**
+     * The class that a JAXB mapper deserializes to. JAXB unmarshals to classes only, not to generic types.
+     */
+    static Class<?> classToUnmarshal(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        }
+        throw new IllegalArgumentException("JAXB can only deserialize to a class, not to " + type + ".");
     }
 }

@@ -16,26 +16,32 @@
 
 package io.restassured.internal.mapping;
 
-import io.restassured.internal.path.json.mapping.JsonPathJsonbObjectDeserializer;
+import io.restassured.common.mapper.factory.JsonbObjectMapperFactory;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory;
-import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import jakarta.json.bind.Jsonb;
+
+import java.io.Reader;
+import java.lang.reflect.Type;
 
 public class JsonbMapper implements ObjectMapper {
     private final JsonbObjectMapperFactory factory;
 
-    private final JsonPathObjectDeserializer deserializer;
-
     public JsonbMapper(JsonbObjectMapperFactory factory) {
+        AssertParameter.notNull(factory, "JsonbObjectMapperFactory");
         this.factory = factory;
-        deserializer = new JsonPathJsonbObjectDeserializer(factory);
     }
 
     public Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+        Type type = context.getType();
+        try (Jsonb mapper = factory.create(type, context.getCharset());
+             Reader reader = MapperSupport.platformCharsetReader(context)) {
+            return mapper.fromJson(reader, type);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Object serialize(ObjectMapperSerializationContext context) {
