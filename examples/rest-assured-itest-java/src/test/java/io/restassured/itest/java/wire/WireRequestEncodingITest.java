@@ -867,11 +867,10 @@ public class WireRequestEncodingITest extends WireTest {
     }
 
     @Test public void
-    header_added_twice_with_names_differing_in_case_sends_only_the_last() {
+    header_added_twice_with_names_differing_in_case_is_sent_as_repeated_headers_with_the_first_name() {
         given().header("X-Multi", "1").header("x-multi", "2").get(server.url("/h"));
 
-        // Today's behavior: the second one replaces the first instead of being added
-        assertThat(server.onlyRequest().headers()).filteredOn(h -> h.getKey().equalsIgnoreCase("x-multi")).containsExactly(entry("x-multi", "2"));
+        assertThat(server.onlyRequest().headers()).filteredOn(h -> h.getKey().equalsIgnoreCase("x-multi")).containsExactly(entry("X-Multi", "1"), entry("X-Multi", "2"));
     }
 
     @Test public void

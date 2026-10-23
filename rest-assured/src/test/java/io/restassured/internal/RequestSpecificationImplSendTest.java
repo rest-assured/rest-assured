@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
+import static io.restassured.config.HeaderConfig.headerConfig;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,10 +103,24 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
-    void cookies_are_sent_after_lower_case_cookie_headers_in_one_cookie_header() {
-        given().header("cookie", "x=1").header("cookie", "y=2").cookie("a", "1").get("/x");
+    void cookies_are_sent_after_cookie_headers_whose_names_differ_in_case_in_one_cookie_header() {
+        given().header("cookie", "x=1").header("COOKIE", "y=2").cookie("a", "1").get("/x");
 
         assertThat(last().cookies()).isEqualTo("x=1; y=2; a=1");
+    }
+
+    @Test
+    void headers_whose_names_differ_only_in_case_are_merged() {
+        given().header("X-Multi", "1").header("x-multi", "2").get("/x");
+
+        assertThat(last().header("X-Multi")).isEqualTo("1,2");
+    }
+
+    @Test
+    void headers_whose_names_differ_only_in_case_are_overwritten_when_configured_to_overwrite() {
+        given().config(config().headerConfig(headerConfig().overwriteHeadersWithName("X-One"))).header("X-One", "1").header("x-one", "2").get("/x");
+
+        assertThat(last().header("X-One")).isEqualTo("2");
     }
 
     @Test

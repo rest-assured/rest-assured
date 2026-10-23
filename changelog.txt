@@ -4,6 +4,7 @@ Changelog next version
 * Fix ProxySpecification.withScheme(..) dropping the user name and password set with auth(..) or withAuth(..), so the proxy login was no longer sent (issue #2018)
 * Non-backward compatible change: a cookie without value, such as given().cookie("a"), cookie("a", null) or a null value in cookies(Map), is now sent as a= instead of a=null. Such a cookie also has no value (getValue() returns null) in a filter and is logged as a, where cookie("a") had the value "null" before (issue #2021)
 * Non-backward compatible change: a Cookie header set with header("Cookie", ..) is no longer dropped when the request also has cookies (for example from cookie(..), cookies(..) or the session id). Both are sent in one Cookie header, the header's value first, such as Cookie: h=1; a=1 (issue #2022)
+* Non-backward compatible change: headers whose names differ only in case, such as header("X-Multi", "1").header("x-multi", "2"), are now both sent, under the name used first, like headers with the same name. Before, only the last one was sent. A header that the HeaderConfig overwrites, such as Content-Type and Accept, is still sent once with the last value (issue #2023)
 
 Changelog 6.3.0 (2026-10-23)
 ----------------------------
