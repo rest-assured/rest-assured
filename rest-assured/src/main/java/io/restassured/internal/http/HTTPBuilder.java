@@ -24,7 +24,6 @@ import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -160,7 +159,7 @@ public abstract class HTTPBuilder {
      * <p>The request body (specified by a <code>body</code> named parameter)
      * will be converted to a url-encoded form string unless a different
      * <code>requestContentType</code> named parameter is passed to this method.
-     * (See {@link EncoderRegistry#encodeForm(Map)}.) </p>
+     * (See {@link EncoderRegistry}.) </p>
      *
      * @param args            see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
      * @param responseHandler code to handle a successful HTTP response
@@ -197,7 +196,7 @@ public abstract class HTTPBuilder {
      * <p>The request body (specified by a <code>body</code> named parameter)
      * will be converted to a url-encoded form string unless a different
      * <code>requestContentType</code> named parameter is passed to this method.
-     * (See {@link EncoderRegistry#encodeForm(Map)}.) </p>
+     * (See {@link EncoderRegistry}.) </p>
      *
      * @param args            see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
      * @param responseHandler code to handle the HTTP response
@@ -862,14 +861,14 @@ public abstract class HTTPBuilder {
         public void setBody(Object requestContentType, Object body) {
             HttpEntityEnclosingRequest entityRequest = entityEnclosingRequest();
             RequestBodyEncoder encoder = encoders.getAt(requestContentType);
-            HttpEntity entity;
+            RequestBody encoded;
             try {
-                entity = encoder.encode(requestContentType, body);
+                encoded = encoder.encode(requestContentType, body);
             } catch (IOException e) {
-                entity = SafeExceptionRethrower.safeRethrow(e);
+                encoded = SafeExceptionRethrower.safeRethrow(e);
             }
 
-            entityRequest.setEntity(entity);
+            entityRequest.setEntity(RequestBodyToHttpClient4Entity.toHttpEntity(encoded));
         }
 
         /**
@@ -879,14 +878,14 @@ public abstract class HTTPBuilder {
          */
         public void setBodyWithoutContentType(Object body) {
             HttpEntityEnclosingRequest entityRequest = entityEnclosingRequest();
-            HttpEntity entity;
+            RequestBody encoded;
             try {
-                entity = encoders.encodeWithoutContentType(body);
+                encoded = encoders.encodeWithoutContentType(body);
             } catch (IOException e) {
-                entity = SafeExceptionRethrower.safeRethrow(e);
+                encoded = SafeExceptionRethrower.safeRethrow(e);
             }
 
-            entityRequest.setEntity(entity);
+            entityRequest.setEntity(RequestBodyToHttpClient4Entity.toHttpEntity(encoded));
         }
 
         private HttpEntityEnclosingRequest entityEnclosingRequest() {

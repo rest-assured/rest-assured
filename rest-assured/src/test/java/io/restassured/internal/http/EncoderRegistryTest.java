@@ -17,7 +17,6 @@
 package io.restassured.internal.http;
 
 import groovy.json.JsonBuilder;
-import org.apache.http.HttpEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 /**
- * Characterizes how {@link EncoderRegistry} turns every kind of request body into an {@link HttpEntity} for every
+ * Characterizes how {@link EncoderRegistry} turns every kind of request body into a {@link RequestBody} for every
  * kind of request content-type.
  */
 class EncoderRegistryTest {
@@ -59,7 +58,7 @@ class EncoderRegistryTest {
 
     private final EncoderRegistry registry = new EncoderRegistry();
 
-    private static HttpEntity encode(EncoderRegistry registry, Object contentType, Object body) throws IOException {
+    private static RequestBody encode(EncoderRegistry registry, Object contentType, Object body) throws IOException {
         return registry.getAt(contentType).encode(contentType, body);
     }
 
@@ -119,20 +118,20 @@ class EncoderRegistryTest {
 
     @Test
     void uses_text_encoder_for_unregistered_text_content_types_and_binary_encoder_for_other_unregistered_content_types() {
-        assertThat(encodeAndRender("text/csv", "x")).isEqualTo("StringEntity | text/csv | 1 | x");
+        assertThat(encodeAndRender("text/csv", "x")).isEqualTo("BYTES | text/csv | 1 | x");
         assertThat(encodeAndRender("application/unknown", "x")).startsWith("EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode x as a byte stream.");
     }
 
     @Test
     void url_encoded_string_body_is_sent_as_is() {
         assertThat(encodeAndRender("application/x-www-form-urlencoded", "a=1&b=%C3%A5"))
-                .isEqualTo("StringEntity | application/x-www-form-urlencoded | 12 | a=1&b=%C3%A5");
+                .isEqualTo("BYTES | application/x-www-form-urlencoded | 12 | a=1&b=%C3%A5");
     }
 
     @Test
     void url_encoded_gstring_body_is_coerced_to_string() {
         assertThat(encodeAndRender("application/x-www-form-urlencoded", gString()))
-                .isEqualTo("StringEntity | application/x-www-form-urlencoded | 9 | hello \\xe5\\xe4\\xf6");
+                .isEqualTo("BYTES | application/x-www-form-urlencoded | 9 | hello \\xe5\\xe4\\xf6");
     }
 
     @Test
@@ -148,7 +147,7 @@ class EncoderRegistryTest {
     void writable_body_is_sent_as_its_string_representation() {
         JsonBuilder writable = new JsonBuilder(Collections.singletonMap("a", Arrays.asList(1, 2)));
 
-        assertThat(encodeAndRender("text/plain", writable)).isEqualTo("StringEntity | text/plain | 11 | {\"a\":[1,2]}");
+        assertThat(encodeAndRender("text/plain", writable)).isEqualTo("BYTES | text/plain | 11 | {\"a\":[1,2]}");
         assertThat(encodeAndRender("text/plain", gString())).isEqualTo(encodeAndRender("text/plain", TEXT));
     }
 
@@ -167,7 +166,7 @@ class EncoderRegistryTest {
             }
         };
 
-        assertThat(encodeAndRender("text/plain", writable)).isEqualTo("StringEntity | text/plain | 9 | to string");
+        assertThat(encodeAndRender("text/plain", writable)).isEqualTo("BYTES | text/plain | 9 | to string");
     }
 
     @Test
@@ -178,9 +177,9 @@ class EncoderRegistryTest {
         map.put("date", new Date(0));
 
         assertThat(encodeAndRender("application/json", map))
-                .isEqualTo("StringEntity | application/json | 65 | " + escape(new JsonBuilder(map).toString().getBytes(StandardCharsets.UTF_8)))
+                .isEqualTo("BYTES | application/json | 65 | " + escape(new JsonBuilder(map).toString().getBytes(StandardCharsets.UTF_8)))
                 .endsWith("\"date\":\"1970-01-01T00:00:00+0000\"}");
-        assertThat(encodeAndRender("application/json", Arrays.asList(1, "two", null))).isEqualTo("StringEntity | application/json | 14 | [1,\"two\",null]");
+        assertThat(encodeAndRender("application/json", Arrays.asList(1, "two", null))).isEqualTo("BYTES | application/json | 14 | [1,\"two\",null]");
     }
 
     @Test
@@ -196,17 +195,31 @@ class EncoderRegistryTest {
 
     private String encodeAndRender(String contentType, Object body) {
         try {
-            HttpEntity entity = encode(registry, contentType, body);
-            String content = escape(readFully(entity.getContent()));
+            RequestBody requestBody = encode(registry, contentType, body);
+            String content = renderContent(requestBody);
             String sanitizedContent = sanitize(content, tmpDir);
             // The length of content that contains an identity hash code varies between runs
-            String length = content.equals(sanitizedContent) ? String.valueOf(entity.getContentLength()) : "<varies>";
-            return entity.getClass().getSimpleName() +
-                    " | " + (entity.getContentType() == null ? null : entity.getContentType().getValue()) +
+            String length = content.equals(sanitizedContent) ? String.valueOf(requestBody.getContentLength()) : "<varies>";
+            return requestBody.getType() +
+                    " | " + requestBody.getContentType() +
                     " | " + length +
                     " | " + sanitizedContent;
         } catch (Throwable t) {
             return render(t, tmpDir);
+        }
+    }
+
+    private static String renderContent(RequestBody body) throws IOException {
+        switch (body.getType()) {
+            case BYTES:
+                return escape(body.getBytes());
+            case STREAM:
+                return escape(readFully(body.getStream()));
+            case FILE:
+                // The file is read when the request is sent
+                return "file " + body.getFile().getName();
+            default:
+                throw new IllegalStateException("Unexpected body type " + body.getType());
         }
     }
 

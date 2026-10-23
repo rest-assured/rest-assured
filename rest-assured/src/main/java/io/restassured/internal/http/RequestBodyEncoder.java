@@ -16,8 +16,6 @@
 
 package io.restassured.internal.http;
 
-import org.apache.http.HttpEntity;
-
 import java.io.IOException;
 
 /**
@@ -29,7 +27,7 @@ public interface RequestBodyEncoder {
     /**
      * @param contentType the request content-type
      * @param body        the request body
-     * @return an {@link HttpEntity} encapsulating the request body
+     * @return the encoded request body
      */
-    HttpEntity encode(Object contentType, Object body) throws IOException;
+    RequestBody encode(Object contentType, Object body) throws IOException;
 }
