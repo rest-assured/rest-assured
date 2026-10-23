@@ -55,7 +55,7 @@
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- The revision of the internal path engine SPI in rest-assured-common, written to the version files in META-INF/rest-assured -->
-        <rest-assured.path-spi.revision>1</rest-assured.path-spi.revision>
+        <rest-assured.path-spi.revision>2</rest-assured.path-spi.revision>
         <groovy.version>5.0.8</groovy.version>
         <groovy.range>[5.0,6.0)</groovy.range>
         <gmavenplus.version>4.2.1</gmavenplus.version>

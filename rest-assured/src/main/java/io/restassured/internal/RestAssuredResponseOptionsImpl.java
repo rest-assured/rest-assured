@@ -415,7 +415,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
             throw provider.parseFailure(type, e);
         }
         //noinspection unchecked
-        return (T) PathProviders.valueOf(provider.evaluate(document, type, path));
+        return (T) PathProviders.valueOf(provider, provider.evaluate(document, type, path));
     }
 
     public String asString() {
