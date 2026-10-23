@@ -1137,6 +1137,8 @@ public interface RequestSpecification extends RequestSender {
     /**
      * Specify a string to send to the server using multi-part form data.
      * It will use the mime-type <tt>text/plain</tt>. If this is not what you want please use an overloaded method.
+     * The string is encoded in the charset of the multipart request (see
+     * {@link io.restassured.config.MultiPartConfig#defaultCharset(String)}), or as UTF-8 if it has none.
      *
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param contentBody The string to send
@@ -1146,6 +1148,8 @@ public interface RequestSpecification extends RequestSender {
 
     /**
      * Specify a string to send to the server using multi-part form data with a specific mime-type.
+     * The string is encoded in the charset of the mime-type, if it has one, otherwise in the charset of the multipart
+     * request (see {@link io.restassured.config.MultiPartConfig#defaultCharset(String)}), or as UTF-8 if it has none.
      *
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param contentBody The string to send

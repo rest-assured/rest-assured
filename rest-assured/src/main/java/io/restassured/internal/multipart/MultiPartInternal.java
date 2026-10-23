@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,11 +50,21 @@ public class MultiPartInternal {
     private Map<String, String> headers = new LinkedHashMap<>();
 
     /**
+     * @return The {@link PartBody} for the content, see {@link #getContentBody(String)}. A String content without
+     * charset is encoded as UTF-8.
+     */
+    public PartBody getContentBody() {
+        return getContentBody(null);
+    }
+
+    /**
+     * @param defaultCharset The charset to encode a String content in when neither the charset nor the mime-type has
+     *                       one, such as the charset of the multipart request, or {@code null} for UTF-8
      * @return The {@link PartBody} for the content. A {@code byte[]} content is sent from a new stream each time, so
      * the content can be sent again (e.g. when a specification is reused). A {@link NoParameterValue} content is
      * replaced by an empty String.
      */
-    public PartBody getContentBody() {
+    public PartBody getContentBody(String defaultCharset) {
         if (content instanceof NoParameterValue) {
             content = "";
         }
@@ -65,9 +76,9 @@ public class MultiPartInternal {
         } else if (content instanceof byte[]) {
             return returnInputStreamBody(new ByteArrayInputStream((byte[]) content));
         } else if (content instanceof String) {
-            return returnStringBody((String) content);
+            return returnStringBody((String) content, defaultCharset);
         } else if (content != null) {
-            return returnStringBody(GroovyStyleToString.toString(content));
+            return returnStringBody(GroovyStyleToString.toString(content), defaultCharset);
         } else {
             throw new IllegalArgumentException("Illegal content: " + content);
         }
@@ -127,8 +138,9 @@ public class MultiPartInternal {
         this.headers = headers;
     }
 
-    private PartBody returnStringBody(String content) {
-        return PartBody.text(content, contentTypeWithCharset(defaultIfEmpty(mimeType, TEXT_PLAIN)));
+    private PartBody returnStringBody(String content, String defaultCharset) {
+        Charset charset = defaultCharset == null ? StandardCharsets.UTF_8 : Charset.forName(defaultCharset.trim());
+        return PartBody.text(content, contentTypeWithCharset(defaultIfEmpty(mimeType, TEXT_PLAIN)), charset);
     }
 
     private MediaType contentTypeWithCharset(String baseMimeType) {

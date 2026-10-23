@@ -29,7 +29,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a{"greeting":"hello ???"}\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a{"greeting":"hello \xc3\xa5\xc3\xa4\xc3\xb6"}\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
@@ -38,7 +38,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=multipart/mixed charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=multipart/mixed, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/mixed; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: multipart/mixed\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/mixed; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: multipart/mixed\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=multipart/mixed charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=multipart/mixed, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -47,7 +47,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=application/json charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=application/json, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: application/json\x0d\x0a\x0d\x0a{"greeting":"hello ???"}\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: application/json\x0d\x0a\x0d\x0a{"greeting":"hello \xc3\xa5\xc3\xa4\xc3\xb6"}\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=application/json charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=application/json, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
@@ -56,7 +56,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=greeting.json hasFileName=true mimeType=application/json charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=application/json, charset=<none>, fileName=greeting.json, content={"greeting":"hello åäö"}, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: application/json\x0d\x0a\x0d\x0a{"greeting":"hello ???"}\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: application/json\x0d\x0a\x0d\x0a{"greeting":"hello \xc3\xa5\xc3\xa4\xc3\xb6"}\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=greeting.json hasFileName=true mimeType=application/json charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=application/json, charset=<none>, fileName=greeting.json, content={"greeting":"hello åäö"}, headers=[:]
@@ -119,7 +119,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -137,7 +137,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="novalue"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="novalue"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -148,7 +148,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="p"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a1\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="f"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a2\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="f"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a3\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="p"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a1\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="f"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a2\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="f"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a3\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -163,7 +163,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=file fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=file fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -217,7 +217,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=file fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a{"greeting":"hello ???"}\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a{"greeting":"hello \xc3\xa5\xc3\xa4\xc3\xb6"}\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=file fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
@@ -226,7 +226,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=file fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a{"greeting":"hello ???"}\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a{"greeting":"hello \xc3\xa5\xc3\xa4\xc3\xb6"}\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=file fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=file, content={"greeting":"hello åäö"}, headers=[:]
@@ -253,7 +253,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=file fileName=null hasFileName=false mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=<none>, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=file fileName=null hasFileName=false mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=<none>, content=hello åäö, headers=[:]
@@ -262,7 +262,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=file fileName=null hasFileName=false mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=<none>, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="file"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=file fileName=null hasFileName=false mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=file, mimeType=text/plain, charset=<none>, fileName=<none>, content=hello åäö, headers=[:]
@@ -271,7 +271,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=custom fileName=null hasFileName=false mimeType=text/plain charset= headers={X-Custom=c} content=String hello åäö
     toString: controlName=custom, mimeType=text/plain, charset=<none>, fileName=<none>, content=hello åäö, headers=[X-Custom:c]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aX-Custom: c\x0d\x0aContent-Disposition: form-data; name="custom"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aX-Custom: c\x0d\x0aContent-Disposition: form-data; name="custom"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=custom fileName=null hasFileName=false mimeType=text/plain charset= headers={X-Custom=c} content=String hello åäö
     toString: controlName=custom, mimeType=text/plain, charset=<none>, fileName=<none>, content=hello åäö, headers=[X-Custom:c]
@@ -289,7 +289,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/mixed; boundary=BOUNDARY; charset=UTF-16 | --\xfe\xff\x00B\x00O\x00U\x00N\x00D\x00A\x00R\x00Y\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--\xfe\xff\x00B\x00O\x00U\x00N\x00D\x00A\x00R\x00Y--\x0d\x0a
+sent: multipart/mixed; boundary=BOUNDARY; charset=UTF-16 | --\xfe\xff\x00B\x00O\x00U\x00N\x00D\x00A\x00R\x00Y\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0a\xfe\xff\x00h\x00e\x00l\x00l\x00o\x00 \x00\xe5\x00\xe4\x00\xf6\x0d\x0a--\xfe\xff\x00B\x00O\x00U\x00N\x00D\x00A\x00R\x00Y--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -298,7 +298,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: multipart/form-data; boundary=custom | --custom\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--custom--\x0d\x0a
+sent: multipart/form-data; boundary=custom | --custom\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--custom--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -307,7 +307,7 @@ afterwards:
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-sent: application/vnd.x+multipart+form-data; boundary="BOUNDARY" | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: application/vnd.x+multipart+form-data; boundary="BOUNDARY" | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
@@ -327,7 +327,7 @@ filter sees:
     toString: controlName=one, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
   MultiPartSpecificationImpl controlName=two fileName=file.bin hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
     toString: controlName=two, mimeType=application/octet-stream, charset=<none>, fileName=file.bin, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
-sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="one"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello ???\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="two"; filename="file.bin"\x0d\x0aContent-Type: application/octet-stream\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="one"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY\x0d\x0aContent-Disposition: form-data; name="two"; filename="file.bin"\x0d\x0aContent-Type: application/octet-stream\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
 afterwards:
   MultiPartSpecificationImpl controlName=one fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=one, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]

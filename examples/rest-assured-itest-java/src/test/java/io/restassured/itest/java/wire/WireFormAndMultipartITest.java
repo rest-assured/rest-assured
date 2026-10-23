@@ -238,11 +238,10 @@ public class WireFormAndMultipartITest extends WireTest {
     }
 
     @Test public void
-    non_ascii_string_part_without_charset_is_sent_as_question_marks() {
+    non_ascii_string_part_without_charset_is_sent_as_utf_8() {
         givenBoundary().multiPart("text", "åäö").post(server.url("/multipart"));
 
-        // Today's behavior: a String part without a charset is encoded as US-ASCII
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(textPart("text", "???")));
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(textPart("text", utf8("åäö"))));
     }
 
     @Test public void
@@ -525,11 +524,12 @@ public class WireFormAndMultipartITest extends WireTest {
     }
 
     @Test public void
-    configured_default_charset_does_not_change_the_encoding_of_string_parts() {
-        givenBoundary(multiPartConfig().defaultCharset(UTF_8)).multiPart("text", "åäö").post(server.url("/multipart"));
+    configured_default_charset_is_used_to_encode_string_parts() {
+        givenBoundary(multiPartConfig().defaultCharset(ISO_8859_1)).multiPart("text", "åäö").post(server.url("/multipart"));
 
-        // Today's behavior: still US-ASCII, see non_ascii_string_part_without_charset_is_sent_as_question_marks
-        assertThat(server.onlyRequest().bodyAsString()).contains(CRLF + CRLF + "???" + CRLF);
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.header("Content-Type")).isEqualTo("multipart/form-data; boundary=wire-boundary; charset=ISO-8859-1");
+        assertThat(request.bodyAsString()).isEqualTo(multipart(textPart("text", "åäö")));
     }
 
     // Multipart: the modes, which write the part headers differently
