@@ -20,24 +20,32 @@ import io.restassured.RestAssured;
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.specification.SpecificationQuerier.query;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 
 /**
- * Sending works on copies of the request and response specification, so neither changes (#945).
+ * Sending and validating work on copies of the request and response specification, so neither changes (#945).
  */
 class CopyOnSendTest {
     private final List<String> sent = new ArrayList<>();
@@ -112,6 +120,39 @@ class CopyOnSendTest {
         given().queryParam("q", "3").formParam("f", "3").param("p", "3");
 
         assertParametersOf(RestAssured.requestSpecification);
+    }
+
+    @Test
+    void one_response_specification_can_validate_responses_from_many_threads() throws Exception {
+        ResponseSpecification specification = new ResponseSpecBuilder().expectBody("n", lessThan(1000)).build();
+        List<String> failures = new CopyOnWriteArrayList<>();
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        try {
+            List<Future<?>> futures = new ArrayList<>();
+            for (int i = 0; i < 4000; i++) {
+                int n = i % 2000;
+                futures.add(executor.submit(() -> {
+                    Response response = new ResponseBuilder().setStatusCode(200).setContentType("application/json")
+                            .setBody("{\"n\":" + n + ",\"padding\":\"" + "x".repeat(n) + "\"}").build();
+                    boolean passed;
+                    try {
+                        specification.validate(response);
+                        passed = true;
+                    } catch (AssertionError e) {
+                        passed = false;
+                    }
+                    if (passed != n < 1000) {
+                        failures.add(n + (passed ? " passed" : " failed"));
+                    }
+                }));
+            }
+            for (Future<?> future : futures) {
+                future.get(60, TimeUnit.SECONDS);
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+        assertThat(failures).isEmpty();
     }
 
     private static void assertParametersOf(RequestSpecification specification) {

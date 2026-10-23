@@ -18,6 +18,8 @@ package io.restassured.itest.java;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.LogConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
@@ -25,6 +27,9 @@ import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,8 +46,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * Sending works on copies of the request and response specification, so one specification can be sent many times and
- * from many threads (#945).
+ * Sending and validating work on copies of the request and response specification, so one specification can be sent,
+ * or validate responses, many times and from many threads (#945).
  */
 public class CopyOnSendITest extends WithJetty {
     private static final int THREADS = 8;
@@ -86,7 +91,48 @@ public class CopyOnSendITest extends WithJetty {
         assertEachResponseIsItsOwn(i -> given(request, response).get("/{firstName}/{lastName}", "first" + i, "last" + i));
     }
 
+    @Test
+    void one_built_response_specification_can_validate_responses_from_many_threads() throws Exception {
+        // Each thread logs to its own stream, so it can check that a failed validation logs its own request and response
+        ThreadLocal<ByteArrayOutputStream> log = ThreadLocal.withInitial(ByteArrayOutputStream::new);
+        PrintStream stream = new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) {
+                log.get().write(b);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) {
+                log.get().write(b, off, len);
+            }
+        }, true);
+        RestAssuredConfig config = RestAssuredConfig.config().logConfig(LogConfig.logConfig().defaultStream(stream).enableLoggingOfRequestAndResponseIfValidationFails());
+        ResponseSpecification specification = new ResponseSpecBuilder().expectBody("firstName", equalTo("first0")).build();
+
+        assertEachRequest(i -> {
+            log.get().reset();
+            try {
+                given().config(config).get("/{firstName}/{lastName}", "first" + i, "last" + i).then().spec(specification);
+                return i == 0 ? null : "validation passed";
+            } catch (AssertionError e) {
+                String logged = log.get().toString();
+                if (i == 0) {
+                    return "validation failed: " + e.getMessage();
+                }
+                return logged.contains("/first" + i + "/last" + i) && logged.contains("\"first" + i + "\"") ? null : "logged another request or response";
+            }
+        });
+    }
+
     private static void assertEachResponseIsItsOwn(IntFunction<Response> send) throws Exception {
+        assertEachRequest(i -> {
+            String fullName = send.apply(i).path("fullName");
+            return ("first" + i + " last" + i).equals(fullName) ? null : "got " + fullName;
+        });
+    }
+
+    // Sends the requests from many threads. The function returns null, or what went wrong.
+    private static void assertEachRequest(IntFunction<String> sendAndCheck) throws Exception {
         List<String> failures = new CopyOnWriteArrayList<>();
         ExecutorService executor = Executors.newFixedThreadPool(THREADS);
         try {
@@ -95,9 +141,9 @@ public class CopyOnSendITest extends WithJetty {
                 int request = i;
                 futures.add(executor.submit(() -> {
                     try {
-                        String fullName = send.apply(request).path("fullName");
-                        if (!("first" + request + " last" + request).equals(fullName)) {
-                            failures.add(request + ": got " + fullName);
+                        String failure = sendAndCheck.apply(request);
+                        if (failure != null) {
+                            failures.add(request + ": " + failure);
                         }
                     } catch (Throwable e) {
                         failures.add(request + ": " + e);

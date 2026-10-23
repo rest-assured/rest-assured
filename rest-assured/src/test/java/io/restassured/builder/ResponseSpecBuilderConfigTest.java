@@ -118,6 +118,16 @@ class ResponseSpecBuilderConfigTest {
     }
 
     @Test
+    void then_spec_doesnt_leave_the_config_of_the_response_in_the_specification() {
+        ResponseSpecification specification = new ResponseSpecBuilder().expectBody("a", equalTo("b")).build();
+
+        assertThatThrownBy(() -> given().filter(sent()).config(config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY))).get("/").then().spec(specification))
+                .hasMessage(JAYWAY_IS_MISSING);
+
+        given(new RequestSpecBuilder().addFilter(sent()).build(), specification).get("/");
+    }
+
+    @Test
     void expect_uses_the_config_of_the_static_request_specification() {
         RestAssured.requestSpecification = new RequestSpecBuilder().setConfig(config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY))).build();
 
