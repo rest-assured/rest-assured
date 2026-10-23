@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
 
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.newConfig;
@@ -113,6 +114,7 @@ public class PutTest {
 	public void
 	can_supply_multipart_file_as_parameter_for_put() throws IOException {
 		File file = new File("rest-assured.txt");
+		Files.writeString(file.toPath(), "rest-assured");
 		RestAssuredWebTestClient.given()
 				.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
 				.multiPart(file)
