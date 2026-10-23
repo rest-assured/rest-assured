@@ -56,6 +56,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- The revision of the internal path engine SPI in rest-assured-common, written to the version files in META-INF/rest-assured -->
         <rest-assured.path-spi.revision>2</rest-assured.path-spi.revision>
+        <!-- The revision of the HTTP client SPI in rest-assured-common (HttpClientSpi.REVISION), written to the version files of
+             rest-assured and the HTTP client modules in META-INF/rest-assured -->
+        <rest-assured.http-spi.revision>1</rest-assured.http-spi.revision>
         <groovy.version>5.0.8</groovy.version>
         <groovy.range>[5.0,6.0)</groovy.range>
         <!-- The Jayway JsonPath version json-path-jayway is built with. It supports 2.8.0 and later, which it checks when it loads -->

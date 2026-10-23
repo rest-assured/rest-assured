@@ -61,18 +61,24 @@
                             !io.restassured.path.jayway.*,
                             !io.restassured.internal.path.jayway.*,
                             !io.restassured.internal.common.*,
+                            !io.restassured.http.jdk.*,
+                            !io.restassured.http.apache5.*,
                             io.restassured.*
                         </Export-Package>
                         <!-- The path engines (json-path-gpath, xml-path-gpath and json-path-jayway) are optional. Their
                              path providers are loaded by class name, which bnd can't see, so their packages are listed.
                              Core doesn't depend on json-path-jayway, so bnd can't derive its version range: it's this
-                             version up to the next major, like the GPath ones. TagSoup is only needed for HTML. -->
+                             version up to the next minor, since REST Assured's modules must have the same minor version. TagSoup is only needed for HTML. The HTTP
+                             client modules (http-client-jdk and http-client-apache5) are optional too, and found by class
+                             name in the same way. -->
                         <Import-Package>
                             io.restassured.path.json.*;resolution:=optional,
                             io.restassured.path.xml.*;resolution:=optional,
                             io.restassured.internal.path.json;resolution:=optional,
                             io.restassured.internal.path.xml;resolution:=optional,
-                            io.restassured.internal.path.jayway;resolution:=optional;version="${range;[==,+);${version_cleanup;${project.version}}}",
+                            io.restassured.internal.path.jayway;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
+                            io.restassured.http.jdk;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
+                            io.restassured.http.apache5;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
                             org.ccil.cowan.tagsoup;resolution:=optional,
                             *
                         </Import-Package>
@@ -82,8 +88,16 @@
                             io.restassured.path.xml.*,
                             io.restassured.internal.path.json,
                             io.restassured.internal.path.xml,
-                            io.restassured.internal.path.jayway
+                            io.restassured.internal.path.jayway,
+                            io.restassured.http.jdk,
+                            io.restassured.http.apache5
                         </DynamicImport-Package>
+                        <!-- HTTP clients of other libraries are found with ServiceLoader, which SPI Fly makes work in OSGi.
+                             Both are optional, so that REST Assured resolves without SPI Fly. -->
+                        <Require-Capability>
+                            osgi.extender;filter:="(osgi.extender=osgi.serviceloader.processor)";resolution:=optional,
+                            osgi.serviceloader;filter:="(osgi.serviceloader=io.restassured.common.spi.http.HttpClientProvider)";cardinality:=multiple;resolution:=optional
+                        </Require-Capability>
                     </instructions>
                 </configuration>
             </plugin>

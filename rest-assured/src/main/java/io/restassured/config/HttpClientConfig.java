@@ -16,6 +16,8 @@
 
 package io.restassured.config;
 
+import io.restassured.common.spi.http.ClientCustomizer;
+import io.restassured.common.spi.http.HttpClientProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.config.CookieSpecs;
@@ -33,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static java.util.Arrays.asList;
@@ -79,6 +82,8 @@ import static java.util.Arrays.asList;
     private final HttpMultipartMode httpMultipartMode;
     private final HttpClientFactory httpClientFactory;
     private final boolean isUserConfigured;
+    private final Object client;
+    private final List<ClientCustomizer> customizers;
     private final Object httpClientLock = new Object();
     private volatile HttpClient httpClient;
 
@@ -99,10 +104,13 @@ import static java.util.Arrays.asList;
         this.shouldReuseHttpClientInstance = SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT;
         this.httpClient = null;
         this.isUserConfigured = false;
+        this.client = null;
+        this.customizers = List.of();
     }
 
     private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode,
-                             boolean shouldReuseHttpClientInstance, HttpClient abstractHttpClient, boolean isUserConfigured) {
+                             boolean shouldReuseHttpClientInstance, HttpClient abstractHttpClient, boolean isUserConfigured,
+                             Object client, List<ClientCustomizer> customizers) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
         notNull(httpClientFactory, "Http Client factory");
@@ -112,6 +120,8 @@ import static java.util.Arrays.asList;
         this.httpMultipartMode = httpMultipartMode;
         this.httpClient = abstractHttpClient;
         this.isUserConfigured = isUserConfigured;
+        this.client = client;
+        this.customizers = List.copyOf(customizers);
     }
 
     /**
@@ -123,7 +133,7 @@ import static java.util.Arrays.asList;
      */
     @Deprecated
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT, true);
+        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT, true, null, List.of());
     }
 
     /**
@@ -161,7 +171,7 @@ import static java.util.Arrays.asList;
      * @see #httpClientFactory(HttpClientConfig.HttpClientFactory)
      */
     public HttpClientConfig reuseHttpClientInstance() {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClient, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClient, true, client, customizers);
     }
 
     /**
@@ -171,7 +181,7 @@ import static java.util.Arrays.asList;
      * @see #reuseHttpClientInstance()
      */
     public HttpClientConfig dontReuseHttpClientInstance() {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT, true, client, customizers);
     }
 
     /**
@@ -207,7 +217,7 @@ import static java.util.Arrays.asList;
         notNull(parameterName, "Parameter name");
         final Map<String, Object> newParams = new HashMap<String, Object>(httpClientParams);
         newParams.put(parameterName, parameterValue);
-        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true, client, customizers);
     }
 
     /**
@@ -221,7 +231,7 @@ import static java.util.Arrays.asList;
      */
     @Deprecated
     public HttpClientConfig withParams(Map<String, ?> httpClientParams) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true, client, customizers);
     }
 
     /**
@@ -252,7 +262,7 @@ import static java.util.Arrays.asList;
         notNull(httpClientParams, "httpClientParams");
         final Map<String, Object> newParams = new HashMap<String, Object>(this.httpClientParams);
         newParams.putAll(httpClientParams);
-        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true, client, customizers);
     }
 
     /**
@@ -266,7 +276,7 @@ import static java.util.Arrays.asList;
      */
     @Deprecated
     public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true, client, customizers);
     }
 
     /**
@@ -301,7 +311,94 @@ import static java.util.Arrays.asList;
      */
     @Deprecated
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true, client, customizers);
+    }
+
+    /**
+     * Choose the HTTP client that sends the requests, from one of REST Assured's client modules, which must be on the
+     * classpath. Without a choice, REST Assured uses the client named by the system property
+     * <code>restassured.http.client</code>, else <code>io.rest-assured:http-client-apache5</code> if it's on the classpath,
+     * else the default client.
+     *
+     * @param client The client
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig client(HttpClientType client) {
+        notNull(client, "client");
+        return withClient(client);
+    }
+
+    /**
+     * Choose the HTTP client that sends the requests by its name, such as <code>jdk</code>, <code>apache5</code> or the
+     * name of a client from another library that provides an {@link HttpClientProvider}. The client must be on the classpath.
+     *
+     * @param name The name of the client
+     * @return An updated HttpClientConfig
+     * @see #client(HttpClientType)
+     */
+    public HttpClientConfig client(String name) {
+        notNull(name, "name");
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("The name of the HTTP client can't be blank");
+        }
+        return withClient(name.trim());
+    }
+
+    /**
+     * Choose the HTTP client that sends the requests by the class of its {@link HttpClientProvider}, which REST Assured
+     * creates with its no-argument constructor.
+     *
+     * @param providerClass The class of the provider
+     * @return An updated HttpClientConfig
+     * @see #client(HttpClientType)
+     */
+    public HttpClientConfig client(Class<? extends HttpClientProvider> providerClass) {
+        notNull(providerClass, "providerClass");
+        return withClient(providerClass);
+    }
+
+    /**
+     * The chosen HTTP client as it was given to <code>client(..)</code>, which is one of:
+     * <ul>
+     * <li>an {@link HttpClientType}, from {@link #client(HttpClientType)}</li>
+     * <li>a <code>String</code>, the trimmed name from {@link #client(String)}</li>
+     * <li>a <code>Class&lt;? extends HttpClientProvider&gt;</code>, from {@link #client(Class)}</li>
+     * </ul>
+     *
+     * @return The chosen HTTP client, or <code>null</code> if none was chosen
+     */
+    public Object client() {
+        return client;
+    }
+
+    /**
+     * Customize the HTTP client that REST Assured creates, through the builder of the client's library, for example
+     * <code>customizeClient(java.net.http.HttpClient.Builder.class, builder -&gt; builder.executor(executor))</code>
+     * for the JDK client. The customizers run in the order they're added. A request fails if the builder type isn't
+     * the one of the client REST Assured uses.
+     *
+     * @param builderType The type of the builder, which the client's module documents
+     * @param customizer  What to do with the builder
+     * @param <B>         The type of the builder
+     * @return An updated HttpClientConfig
+     */
+    public <B> HttpClientConfig customizeClient(Class<B> builderType, Consumer<? super B> customizer) {
+        notNull(builderType, "builderType");
+        notNull(customizer, "customizer");
+        List<ClientCustomizer> newCustomizers = new ArrayList<>(customizers);
+        newCustomizers.add(new ClientCustomizer(builderType, customizer));
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true, client, newCustomizers);
+    }
+
+    /**
+     * @return The customizers added with {@link #customizeClient(Class, Consumer)}, in order
+     */
+    public List<ClientCustomizer> customizers() {
+        return customizers;
+    }
+
+    private HttpClientConfig withClient(Object client) {
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true, client, customizers);
     }
 
     /**

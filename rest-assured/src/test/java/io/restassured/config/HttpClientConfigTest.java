@@ -16,6 +16,8 @@
 
 package io.restassured.config;
 
+import io.restassured.common.spi.http.ClientCustomizer;
+import io.restassured.common.spi.http.HttpClientProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -34,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -258,5 +261,64 @@ public class HttpClientConfigTest {
             assertThat(new HttpClientConfig().multipartMode(multipartMode).multipartMode()).isEqualTo(multipartMode);
         }
         assertThat(MultipartMode.values()).hasSameSizeAs(HttpMultipartMode.values());
+    }
+
+    @Test
+    public void noClientIsChosenByDefault() {
+        assertThat(new HttpClientConfig().client()).isNull();
+        assertThat(new HttpClientConfig().customizers()).isEmpty();
+    }
+
+    @Test
+    public void clientIsWhatWasGiven() {
+        assertThat(new HttpClientConfig().client(HttpClientType.APACHE5).client()).isEqualTo(HttpClientType.APACHE5);
+        assertThat(new HttpClientConfig().client(" okhttp ").client()).isEqualTo("okhttp");
+        assertThat(new HttpClientConfig().client(HttpClientType.JDK).client(CustomProvider.class).client()).isEqualTo(CustomProvider.class);
+    }
+
+    @Test
+    public void blankClientNameIsRejected() {
+        assertThatThrownBy(() -> new HttpClientConfig().client(" ")).isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The name of the HTTP client can't be blank");
+    }
+
+    @Test
+    public void customizersAreKeptInOrder() {
+        Consumer<StringBuilder> first = builder -> builder.append("1");
+        Consumer<Object> second = builder -> { };
+
+        HttpClientConfig config = new HttpClientConfig().customizeClient(StringBuilder.class, first).customizeClient(StringBuilder.class, second);
+
+        assertThat(config.customizers()).containsExactly(new ClientCustomizer(StringBuilder.class, first),
+                new ClientCustomizer(StringBuilder.class, second));
+        assertThatThrownBy(() -> config.customizers().clear()).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    public void clientAndCustomizersAreKeptByTheOtherSettings() {
+        HttpClientConfig config = new HttpClientConfig().client(HttpClientType.JDK).customizeClient(StringBuilder.class, builder -> { })
+                .setParam("a", "b").readTimeout(Duration.ofSeconds(1)).reuseHttpClientInstance().dontReuseHttpClientInstance()
+                .withParams(Collections.emptyMap()).addParams(Collections.emptyMap()).multipartMode(MultipartMode.BROWSER_COMPATIBLE)
+                .httpClientFactory(DefaultHttpClient::new);
+
+        assertThat(config.client()).isEqualTo(HttpClientType.JDK);
+        assertThat(config.customizers()).hasSize(1);
+    }
+
+    @Test
+    public void choosingAClientKeepsTheReusedHttpClientInstance() {
+        HttpClientConfig config = new HttpClientConfig().reuseHttpClientInstance();
+        HttpClient httpClient = config.httpClientInstance();
+
+        assertThat(config.client("jdk").customizeClient(StringBuilder.class, builder -> { }).httpClientInstance()).isSameAs(httpClient);
+    }
+
+    @Test
+    public void providerNamesOfHttpClientTypes() {
+        assertThat(HttpClientType.JDK.providerName()).isEqualTo("jdk");
+        assertThat(HttpClientType.APACHE5.providerName()).isEqualTo("apache5");
+    }
+
+    public abstract static class CustomProvider implements HttpClientProvider {
     }
 }

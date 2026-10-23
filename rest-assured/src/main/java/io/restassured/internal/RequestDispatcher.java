@@ -26,6 +26,7 @@ import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.http.ContentDecoding;
 import io.restassured.internal.http.EncoderRegistry;
 import io.restassured.internal.http.ResponseParseException;
+import io.restassured.internal.http.client.TransportExceptions;
 import io.restassured.internal.util.SafeExceptionRethrower;
 
 import java.io.IOException;
@@ -217,11 +218,13 @@ final class RequestDispatcher {
                     assertionClosure.call(response, EMPTY);
                 } else {
                     InputStream content = contentDecoding.decode(body, contentEncoding);
-                    bodyIsReadLater = !hasBodyAssertions;
                     assertionClosure.call(response, content);
+                    bodyIsReadLater = !hasBodyAssertions;
                 }
             } catch (Exception ex) {
-                throw new ResponseParseException(response.statusCode(), response.reasonPhrase(), ex);
+                // A timeout while the body is read throws REST Assured's timeout exception, as one before the response does
+                Throwable cause = ex instanceof IOException ? TransportExceptions.translate((IOException) ex) : ex;
+                throw new ResponseParseException(response.statusCode(), response.reasonPhrase(), cause);
             }
         } finally {
             if (hasBodyAssertions) {

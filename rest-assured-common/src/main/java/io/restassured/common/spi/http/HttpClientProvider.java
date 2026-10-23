@@ -19,6 +19,13 @@ package io.restassured.common.spi.http;
 /**
  * Creates the clients of one HTTP client library. REST Assured finds its own providers by class name and those of
  * other libraries with {@link java.util.ServiceLoader}. A provider is stateless and has a public no-argument constructor.
+ * <p>
+ * The jar of another library's provider lists it in {@code META-INF/services/io.restassured.common.spi.http.HttpClientProvider}
+ * and has {@code META-INF/rest-assured/http-client/<provider class name>.properties} with the properties {@code artifact}
+ * (as {@code groupId:artifactId}), {@code version} and {@code http-spi-revision}, the {@link HttpClientSpi#REVISION}
+ * it was built for. Outside OSGi, REST Assured reads that file before it loads the provider, and refuses a provider
+ * without it or built for another revision. Users choose such a client by its {@link #name()}.
+ * </p>
  */
 public interface HttpClientProvider {
 
