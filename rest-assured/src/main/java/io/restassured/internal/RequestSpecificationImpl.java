@@ -22,7 +22,6 @@ import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.CsrfConfig;
-import io.restassured.config.DecoderConfig;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.LogConfig;
@@ -51,7 +50,6 @@ import io.restassured.internal.filter.SendRequestFilter;
 import io.restassured.internal.http.AllMethodsRedirectStrategy;
 import io.restassured.internal.http.BoundaryExtractor;
 import io.restassured.internal.http.CharsetExtractor;
-import io.restassured.internal.http.ContentEncoding;
 import io.restassured.internal.http.ContentTypeExtractor;
 import io.restassured.internal.http.CrossHostSensitiveHeaderStripper;
 import io.restassured.internal.http.HTTPBuilder;
@@ -1734,10 +1732,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     public void applyRestAssuredConfig(HTTPBuilder http) {
-        // Decoder config should always be applied regardless if restAssuredConfig is null or not because
-        // by default we should support GZIP and DEFLATE decoding.
-        DecoderConfig decoderConfig = restAssuredConfig == null ? null : restAssuredConfig.getDecoderConfig();
-        applyContentDecoders(http, (decoderConfig != null ? decoderConfig : new DecoderConfig()).contentDecoders());
         if (restAssuredConfig != null) {
             applyRedirectConfig(restAssuredConfig.getRedirectConfig());
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig());
@@ -1780,11 +1774,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             // A reused client gets back the strategy it had, for example one installed by an HttpClientFactory
             client.setRedirectStrategy(((AllMethodsRedirectStrategy) redirectStrategy).getReplacedStrategy());
         }
-    }
-
-    private void applyContentDecoders(HTTPBuilder httpBuilder, List<DecoderConfig.ContentDecoder> contentDecoders) {
-        Object[] httpBuilderContentEncoders = contentDecoders.stream().map(contentDecoder -> ContentEncoding.Type.valueOf(contentDecoder.toString())).toArray();
-        httpBuilder.setContentEncoding(httpBuilderContentEncoders);
     }
 
     public void applySessionConfig(SessionConfig sessionConfig) {
