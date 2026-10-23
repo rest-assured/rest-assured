@@ -297,11 +297,10 @@ public class WireFormAndMultipartITest extends WireTest {
     }
 
     @Test public void
-    byte_array_part_without_file_name_is_serialized_as_a_json_string() {
+    byte_array_part_without_file_name_is_sent_with_the_default_file_name() {
         givenBoundary().multiPart("data", "abc".getBytes(UTF_8)).post(server.url("/multipart"));
 
-        // Today's behavior: multiPart(String, Object) serializes a byte[] (with Jackson here) instead of sending its bytes
-        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(textPart("data", "\"YWJj\"")));
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo(multipart(part("abc", formData("data", "file"), "Content-Type: application/octet-stream")));
     }
 
     @Test public void

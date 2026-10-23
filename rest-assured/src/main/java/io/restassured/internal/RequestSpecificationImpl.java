@@ -1383,6 +1383,8 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             return multiPart(controlName, (File) object, mimeType);
         } else if (object instanceof String) {
             return multiPart(controlName, (String) object, mimeType);
+        } else if (object instanceof byte[]) {
+            return multiPart(controlName, (byte[]) object);
         }
         return multiPart(controlName, object, mimeType);
     }
@@ -1398,6 +1400,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     public RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
         String possiblySerializedObject = serializeIfNeeded(object, mimeType);
         multiParts.add(newMultiPart(controlName, possiblySerializedObject, mimeType, filename));
+        return this;
+    }
+
+    @Override
+    public RequestSpecification multiPart(String name, byte[] bytes) {
+        multiParts.add(newMultiPart(name, bytes, null, restAssuredConfig().getMultiPartConfig().defaultFileName()));
         return this;
     }
 
