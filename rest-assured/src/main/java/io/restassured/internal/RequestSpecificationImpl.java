@@ -25,6 +25,7 @@ import io.restassured.config.CsrfConfig;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.LogConfig;
+import io.restassured.config.MultipartMode;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -64,7 +65,7 @@ import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartInternal;
 import io.restassured.internal.multipart.MultiPartSpecificationImpl;
-import io.restassured.internal.multipart.RestAssuredMultiPartEntity;
+import io.restassured.internal.multipart.MultipartWriter;
 import io.restassured.internal.proxy.RestAssuredProxySelector;
 import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner;
 import io.restassured.internal.support.ParameterUpdater;
@@ -91,10 +92,6 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.FormBodyPartBuilder;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.params.HttpParams;
@@ -1917,30 +1914,14 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             contentType(contentTypeAsString + "; boundary=\"" + boundaryToUse + "\"");
         }
 
-        final HttpMultipartMode multipartMode = httpClientConfig().httpMultipartMode();
+        final MultipartMode multipartMode = httpClientConfig().multipartMode();
 
         RequestBodyEncoder multiPartEncoder = (contentType, content) -> {
-            RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetToUse, multipartMode, boundaryToUse);
-
+            MultipartWriter writer = new MultipartWriter(subType, charsetToUse, multipartMode, boundaryToUse);
             for (MultiPartInternal multiPart : multiParts) {
-                ContentBody body = (ContentBody) multiPart.getContentBody();
-                String controlName = multiPart.getControlName();
-                Map<?, ?> headers = multiPart.getHeaders();
-                FormBodyPartBuilder builder = FormBodyPartBuilder.create(controlName, body);
-                if (headers != null) {
-                    // Groovy callers may use GString names and values, which Groovy converted to String
-                    for (Entry<?, ?> header : headers.entrySet()) {
-                        builder.addField(castToString(header.getKey()), castToString(header.getValue()));
-                    }
-                }
-                FormBodyPart part = builder.build();
-                // note: as of org.apache.httpcomponents:httpmime:4.5.13 FormBodyPartBuilder adds `Content-Transfer-Encoding` header to
-                // each part, causing issues for sides that follow https://datatracker.ietf.org/doc/html/rfc7578#section-4.7
-                part.getHeader().removeFields("Content-Transfer-Encoding");
-                entity.addPart(part);
+                writer.addPart(multiPart.getControlName(), multiPart.getContentBody(), multiPart.getHeaders());
             }
-
-            return RequestBody.writer(entity::writeTo, entity.getContentLength(), entity.isRepeatable(), entity.getContentType().getValue());
+            return RequestBody.writer(writer::writeTo, writer.getContentLength(), writer.isRepeatable(), writer.getContentType());
         };
         http.getEncoders().putAt(ct, multiPartEncoder);
     }

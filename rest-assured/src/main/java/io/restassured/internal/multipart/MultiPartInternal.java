@@ -18,12 +18,6 @@ package io.restassured.internal.multipart;
 import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.util.GroovyStyleHashCode;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -55,17 +49,17 @@ public class MultiPartInternal {
     private Map<String, String> headers = new LinkedHashMap<>();
 
     /**
-     * @return The {@link ContentBody} for the content. A {@code byte[]} content is sent from a new stream each time, so
+     * @return The {@link PartBody} for the content. A {@code byte[]} content is sent from a new stream each time, so
      * the content can be sent again (e.g. when a specification is reused). A {@link NoParameterValue} content is
      * replaced by an empty String.
      */
-    public Object getContentBody() {
+    public PartBody getContentBody() {
         if (content instanceof NoParameterValue) {
             content = "";
         }
 
         if (content instanceof File) {
-            return new FileBody((File) content, contentTypeWithCharset(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
+            return PartBody.file((File) content, contentTypeWithCharset(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
         } else if (content instanceof InputStream) {
             return returnInputStreamBody((InputStream) content);
         } else if (content instanceof byte[]) {
@@ -133,18 +127,18 @@ public class MultiPartInternal {
         this.headers = headers;
     }
 
-    private StringBody returnStringBody(String content) {
-        return new StringBody(content, contentTypeWithCharset(defaultIfEmpty(mimeType, TEXT_PLAIN)));
+    private PartBody returnStringBody(String content) {
+        return PartBody.text(content, contentTypeWithCharset(defaultIfEmpty(mimeType, TEXT_PLAIN)));
     }
 
-    private ContentType contentTypeWithCharset(String baseMimeType) {
-        ContentType baseContentType = ContentType.parse(baseMimeType);
-        // withParameters (unlike withCharset) keeps any other parameters of the mime-type, e.g. "application/xml; version=2"
-        return isEmpty(charset) ? baseContentType : baseContentType.withParameters(new BasicNameValuePair("charset", Charset.forName(charset).name()));
+    private MediaType contentTypeWithCharset(String baseMimeType) {
+        MediaType baseContentType = MediaType.parse(baseMimeType);
+        // Adding a parameter keeps any other parameters of the mime-type, e.g. "application/xml; version=2"
+        return isEmpty(charset) ? baseContentType : baseContentType.withParameter("charset", Charset.forName(charset).name());
     }
 
-    private InputStreamBody returnInputStreamBody(InputStream inputStream) {
-        return new InputStreamBody(inputStream, ContentType.parse(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
+    private PartBody returnInputStreamBody(InputStream inputStream) {
+        return PartBody.stream(inputStream, MediaType.parse(defaultIfEmpty(mimeType, OCTET_STREAM)), fileName);
     }
 
     public boolean canEqual(Object other) {
