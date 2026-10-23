@@ -61,6 +61,24 @@ afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=greeting.json hasFileName=true mimeType=application/json charset=null headers={} content=String {"greeting":"hello åäö"}
     toString: controlName=ctrl, mimeType=application/json, charset=<none>, fileName=greeting.json, content={"greeting":"hello åäö"}, headers=[:]
 
+== multiPart(String, byte[])
+filter sees:
+  MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"; filename="file"\x0d\x0aContent-Type: application/octet-stream\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
+afterwards:
+  MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
+
+== multiPart(String, Object) with a byte[]
+filter sees:
+  MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
+sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="ctrl"; filename="file"\x0d\x0aContent-Type: application/octet-stream\x0d\x0a\x0d\x0ahello \xc3\xa5\xc3\xa4\xc3\xb6\x0d\x0a--BOUNDARY--\x0d\x0a
+afterwards:
+  MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6
+    toString: controlName=ctrl, mimeType=application/octet-stream, charset=<none>, fileName=file, content=[104, 101, 108, 108, 111, 32, -61, -91, -61, -92, -61, -74], headers=[:]
+
 == multiPart(String, String, byte[])
 filter sees:
   MultiPartSpecificationImpl controlName=ctrl fileName=file.bin hasFileName=true mimeType=application/octet-stream charset=null headers={} content=byte[] hello \xc3\xa5\xc3\xa4\xc3\xb6

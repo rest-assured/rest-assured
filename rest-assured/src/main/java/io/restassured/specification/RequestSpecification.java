@@ -1079,6 +1079,18 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType);
 
     /**
+     * Specify a byte-array to upload to the server using multi-part form data with a specific control name.
+     * It will use the mime-type <tt>application/octet-stream</tt> and the default file name of the
+     * {@link io.restassured.config.MultiPartConfig} (<tt>file</tt> unless configured otherwise).
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param bytes       The bytes you want to send
+     * @return The request specification
+     */
+    RequestSpecification multiPart(String controlName, byte[] bytes);
+
+    /**
      * Specify a byte-array to upload to the server using multi-part form data.
      * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
      *

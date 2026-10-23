@@ -106,6 +106,8 @@ class MultiPartRequestCharacterizationTest {
         cases.put("multiPart(String, Object) with a String, multipart/mixed", spec -> spec.contentType("multipart/mixed").multiPart("ctrl", (Object) TEXT));
         cases.put("multiPart(String, Object, String)", spec -> spec.multiPart("ctrl", new RequestBodyEncodingTest.Greeting(TEXT), "application/json"));
         cases.put("multiPart(String, String, Object, String)", spec -> spec.multiPart("ctrl", "greeting.json", new RequestBodyEncodingTest.Greeting(TEXT), "application/json"));
+        cases.put("multiPart(String, byte[])", spec -> spec.multiPart("ctrl", BYTES));
+        cases.put("multiPart(String, Object) with a byte[]", spec -> spec.multiPart("ctrl", (Object) BYTES));
         cases.put("multiPart(String, String, byte[])", spec -> spec.multiPart("ctrl", "file.bin", BYTES));
         cases.put("multiPart(String, String, byte[], String)", spec -> spec.multiPart("ctrl", "file.pdf", BYTES, "application/pdf"));
         cases.put("multiPart(String, String, InputStream)", spec -> spec.multiPart("ctrl", "file.bin", stream()));
