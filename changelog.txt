@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 6.3.0 (2026-10-23)
+----------------------------
 * Fix form authentication sending the request for the CSRF token page, the request that follows a 302 of the login page and the login request with the static RestAssured settings only, so a proxy, an SSL setting such as relaxedHTTPSValidation() or a keystore, or a config(..) set on the request (or in a request specification) wasn't used for them. They are now sent with the config and the proxy of the request, like the request for the login page already was (issue #1965) (#2010) (thanks to Obrams for PR)
 * Fix form authentication sending the cookies set by the login page response to whatever host the 302 of a non-GET login page request pointed to. Like a browser, it only sends them when the redirect goes to the same host. The Location header is now also resolved against the URL of the login page, so a relative Location is followed on the host of the login page (issue #1965) (#2010) (thanks to Obrams for PR)
 * Added SSLConfig.sslContext(SSLContext) and hostnameVerifier(HostnameVerifier), with getSSLContext() and getHostnameVerifier(), the same on CertificateAuthSettings, and the matching properties on CertAuthScheme. They take the JDK's javax.net.ssl types and replace sslSocketFactory(..), x509HostnameVerifier(..) and their getters, which take Apache HttpClient 4 types and are now deprecated, since HttpClient 4 types leave the API in REST Assured 7.0.0. Host names are still verified strictly by default when you set an SSLContext
