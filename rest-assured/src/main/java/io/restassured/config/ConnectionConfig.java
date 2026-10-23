@@ -24,10 +24,9 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
- * Lets you configure connection settings for REST Assured. For example if you want to force-close the Apache HTTP Client connection
+ * Lets you configure connection settings for REST Assured. For example if you want to close the idle Apache HTTP Client connections
  * after each response. You may want to do this if you make a lot of fast consecutive requests with small amount of data in the response.
- * How ever if you're downloading large amount of (chunked) data you must not close connections after each response. By default
- * connections are <i>not</i> closed after each response.
+ * By default connections are <i>not</i> closed after each response.
  */
 public class ConnectionConfig implements Config {
 
@@ -57,9 +56,9 @@ public class ConnectionConfig implements Config {
     }
 
     /**
-     * Close open connections after each response. This is required if you plan to make a lot of
-     * consecutive requests with small response bodies. It can also be enabled if you never receive
-     * chunked HTTP responses.
+     * Close idle connections after each response. This is required if you plan to make a lot of
+     * consecutive requests with small response bodies. When the body of a response is read after the request,
+     * for example with <code>asString()</code> or <code>asInputStream()</code>, they're closed once the body has been read.
      */
     public ConnectionConfig closeIdleConnectionsAfterEachResponse() {
         return new ConnectionConfig(new CloseIdleConnectionConfig(0, NANOSECONDS));

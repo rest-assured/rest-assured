@@ -410,7 +410,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         } else if (content instanceof String) {
             return convertStringToByteArray((String) content);
         } else {
-            byte[] bytes = convertStreamToByteArray((InputStream) content);
+            byte[] bytes = readContentStream();
             content = bytes;
             return bytes;
         }
@@ -642,7 +642,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         } else if (content instanceof byte[]) {
             return newString((byte[]) content, charset);
         } else {
-            byte[] bytes = convertStreamToByteArray((InputStream) content);
+            byte[] bytes = readContentStream();
             content = bytes;
             return newString(bytes, charset);
         }
@@ -662,6 +662,11 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         } catch (UnsupportedEncodingException e) {
             return safeRethrow(e);
         }
+    }
+
+    // Reads the body through asInputStream(), which closes idle connections once it's read if configured to
+    private byte[] readContentStream() {
+        return convertStreamToByteArray(asInputStream());
     }
 
     private static byte[] convertStreamToByteArray(InputStream is) {
