@@ -404,6 +404,51 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void skips_blank_base_url_of_login_page() {
+        String page = "<html><head><base href=\"  \"/><base href=\"/auth/\"/></head><body><form action=\"login\" method=\"POST\">" +
+                "<input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form></body></html>";
+        server.route("GET /app/secured", securedOr(r -> Reply.html(page)));
+        server.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/app/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /app/secured", "POST /auth/login", "GET /app/secured");
+    }
+
+    @Test
+    void finds_input_without_type_as_user_name_field() {
+        String page = "<html><body><form action=\"/login\" method=\"POST\"><input name=\"user\"/><input type=\"password\" name=\"pass\"/>" +
+                "<input type=\"email\" name=\"mail\"/></form></body></html>";
+        server.route("GET /secured", securedOr(r -> Reply.html(page)));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe");
+    }
+
+    @Test
+    void finds_form_and_input_fields_with_upper_case_tag_and_attribute_names() {
+        String page = "<HTML><BODY><FORM ACTION=\"/login\" METHOD=\"POST\"><INPUT TYPE=\"text\" NAME=\"user\"><INPUT TYPE=\"password\" NAME=\"pass\">" +
+                "<INPUT TYPE=\"hidden\" NAME=\"extra\" VALUE=\"a&amp;b\"></FORM></BODY></HTML>";
+        server.route("GET /secured", securedOr(r -> Reply.html(page)));
+
+        given().auth().form("John", "Doe", new FormAuthConfig().withAdditionalField("extra")).when().get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe&extra=a%26b");
+    }
+
+    @Test
+    void posts_to_action_of_first_form_of_login_page() {
+        String page = "<html><body><form action=\"/login\" method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form>" +
+                "<form action=\"/search\"></form></body></html>";
+        server.route("GET /secured", securedOr(r -> Reply.html(page)));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured");
+    }
+
+    @Test
     void posts_absolute_form_action_on_the_origin_of_the_request() {
         server.route("GET /secured", securedOr(r -> Reply.html(loginPage("http://127.0.0.1:" + server.port() + "/auth/login", ""))));
         server.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));

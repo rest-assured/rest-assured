@@ -152,6 +152,24 @@ class CsrfTokenFinderTest {
         assertThat(CsrfTokenFinder.findInHtml(csrfConfig().csrfPrioritization(FORM), html(page))).isNull();
     }
 
+    @Test
+    void uses_first_meta_tag_and_treats_one_without_content_as_no_token() {
+        String page = "<html><head><meta name=\"_csrf_header\" content=\"first\"/><meta name=\"_csrf_header\" content=\"second\"/></head></html>";
+        String withoutContent = "<html><head><meta name=\"_csrf_header\"/></head><body><p>no form</p></body></html>";
+
+        assertCsrfData(CsrfTokenFinder.findInHtml(csrfConfig().csrfPrioritization(HEADER), html(page)), "X-CSRF-TOKEN", "first", HEADER);
+        assertThat(CsrfTokenFinder.findInHtml(csrfConfig().csrfPrioritization(HEADER), html(withoutContent))).isNull();
+    }
+
+    @Test
+    void finds_input_field_and_meta_tag_with_upper_case_tag_and_attribute_names() {
+        String page = "<HTML><HEAD><META NAME=\"_csrf_header\" CONTENT=\"meta-value\"></HEAD><BODY><FORM>" +
+                "<INPUT TYPE=\"hidden\" NAME=\"_csrf\" VALUE=\"a&amp;b\"></FORM></BODY></HTML>";
+
+        assertCsrfData(CsrfTokenFinder.findInHtml(csrfConfig().csrfPrioritization(FORM), html(page)), "_csrf", "a&b", FORM);
+        assertCsrfData(CsrfTokenFinder.findInHtml(csrfConfig().csrfPrioritization(HEADER), html(page)), "X-CSRF-TOKEN", "meta-value", HEADER);
+    }
+
     private static Response html(String body) {
         return new ResponseBuilder().setStatusCode(200).setContentType("text/html").setBody(body).build();
     }
