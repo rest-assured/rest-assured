@@ -57,14 +57,14 @@ class PathProvidersTest {
         List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "missing"),
                 new JsonEngine(JsonPathEngine.GPATH, PathProviders.GPATH_JSON, "json-path-gpath"));
 
-        assertThat(PathProviders.forJson(null, engines)).isExactlyInstanceOf(GPathJsonProvider.class);
+        assertThat(PathProviders.forJson(null, engines, null, new PathProviders.OnceLog(message -> { }))).isExactlyInstanceOf(GPathJsonProvider.class);
     }
 
     @Test
     void a_configured_json_engine_that_isnt_on_the_classpath_fails() {
         List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path-gpath"));
 
-        assertThatThrownBy(() -> PathProviders.forJson(JsonPathEngine.GPATH, engines))
+        assertThatThrownBy(() -> PathProviders.forJson(JsonPathEngine.GPATH, engines, null, new PathProviders.OnceLog(message -> { })))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessage("JsonConfig.pathEngine is GPATH but io.rest-assured:json-path-gpath isn't on the classpath.");
     }
@@ -73,7 +73,7 @@ class PathProvidersTest {
     void no_json_engine_on_the_classpath_fails() {
         List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path-gpath"));
 
-        assertThatThrownBy(() -> PathProviders.forJson(null, engines))
+        assertThatThrownBy(() -> PathProviders.forJson(null, engines, null, new PathProviders.OnceLog(message -> { })))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessage(MissingPathEngine.message(null, DocumentType.JSON));
     }

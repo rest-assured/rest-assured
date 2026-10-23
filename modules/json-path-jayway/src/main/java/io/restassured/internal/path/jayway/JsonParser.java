@@ -209,16 +209,18 @@ public final class JsonParser {
             case 't':
                 return '\t';
             case 'u':
-                if (position + 4 <= json.length()) {
-                    try {
-                        char unicode = (char) Integer.parseInt(json.substring(position, position + 4), 16);
-                        position += 4;
-                        return unicode;
-                    } catch (NumberFormatException e) {
-                        // Reported below
+                int unicode = 0;
+                for (int i = 0; i < 4; i++) {
+                    // Not Integer.parseInt(..), which takes a sign, such as +041
+                    int digit = position < json.length() ? Character.digit(json.charAt(position), 16) : -1;
+                    if (digit < 0) {
+                        position -= i;
+                        throw error("Expected four hexadecimal digits");
                     }
+                    unicode = unicode * 16 + digit;
+                    position++;
                 }
-                throw error("Expected four hexadecimal digits");
+                return (char) unicode;
             default:
                 position--;
                 throw error("Expected an escaped character");
@@ -256,7 +258,12 @@ public final class JsonParser {
             throw new InvalidJsonException("JSON number length (" + text.length() + " chars) exceeds the maximum allowed length of "
                     + numberLengthLimit + " chars. Raise or disable it via JsonConfig.numberLengthLimit(int).");
         }
-        return decimal ? decimal(new BigDecimal(text)) : integer(new BigInteger(text));
+        try {
+            return decimal ? decimal(new BigDecimal(text)) : integer(new BigInteger(text));
+        } catch (NumberFormatException e) {
+            // Such as an exponent that doesn't fit in an int: 1e9999999999
+            throw new InvalidJsonException("The JSON number " + text + " on " + location(start) + " is out of range.");
+        }
     }
 
     private Object decimal(BigDecimal value) {
@@ -314,15 +321,19 @@ public final class JsonParser {
     }
 
     private InvalidJsonException error(String expected) {
+        String found = position < json.length() ? "'" + json.charAt(position) + "'" : "the end of the document";
+        return new InvalidJsonException(expected + " on " + location(position) + ", but found " + found + ".");
+    }
+
+    private String location(int index) {
         int line = 1;
         int lineStart = 0;
-        for (int i = 0; i < position && i < json.length(); i++) {
+        for (int i = 0; i < index && i < json.length(); i++) {
             if (json.charAt(i) == '\n') {
                 line++;
                 lineStart = i + 1;
             }
         }
-        String found = position < json.length() ? "'" + json.charAt(position) + "'" : "the end of the document";
-        return new InvalidJsonException(expected + " on line " + line + ", column " + (position - lineStart + 1) + ", but found " + found + ".");
+        return "line " + line + ", column " + (index - lineStart + 1);
     }
 }

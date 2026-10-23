@@ -727,7 +727,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
      * @return The config to validate with: each config type that the specification's own config has configured, and
      * otherwise the one of the request's config or {@code RestAssured.config}.
      */
-    private RestAssuredConfig validationConfig() {
+    RestAssuredConfig validationConfig() {
         return SpecificationMerger.mergeConfig(config == null ? new RestAssuredConfig() : config, specificationConfig);
     }
 

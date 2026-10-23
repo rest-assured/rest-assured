@@ -20,15 +20,26 @@ import io.restassured.RestAssured;
 import io.restassured.config.JsonPathEngine;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
+import io.restassured.filter.OrderedFilter;
+import io.restassured.internal.RestAssuredResponseImpl;
+import io.restassured.internal.log.LogRepository;
 import io.restassured.response.Response;
+import io.restassured.specification.FilterableRequestSpecification;
+import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
+import static io.restassured.config.LogConfig.logConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.XmlConfig.xmlConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -109,16 +120,82 @@ class ResponseSpecBuilderConfigTest {
         given().filter(respond()).config(config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.GPATH))).expect().spec(spec).when().get("/");
     }
 
+    @Test
+    void expect_spec_logs_the_request_and_response_when_the_log_config_of_the_specification_says_so() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        given().filter(sent()).expect().spec(logIfValidationFails(out, 200)).when().get("/");
+        assertThat(out.toString()).isEmpty();
+
+        assertThatThrownBy(() -> given().filter(sent()).expect().spec(logIfValidationFails(out, 201)).when().get("/"))
+                .isInstanceOf(AssertionError.class);
+        assertThat(out.toString()).contains("Request method:\tGET").contains("HTTP/1.1 200").contains("\"a\": \"b\"");
+    }
+
+    @Test
+    void given_request_and_response_specification_logs_the_response_when_the_log_config_of_the_response_specification_says_so() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        assertThatThrownBy(() -> given(new RequestSpecBuilder().addFilter(sent()).build(), logIfValidationFails(out, 201)).get("/"))
+                .isInstanceOf(AssertionError.class);
+        // Only the response, as with RestAssured.config: the request is logged to the request specification's log repository
+        assertThat(out.toString()).contains("HTTP/1.1 200").contains("\"a\": \"b\"");
+    }
+
+    @Test
+    void then_spec_logs_the_response_when_the_log_config_of_the_specification_says_so() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        given().filter(sent()).get("/").then().spec(logIfValidationFails(out, 200));
+        assertThat(out.toString()).isEmpty();
+
+        // The request is sent before then(), so only the response is logged
+        assertThatThrownBy(() -> given().filter(sent()).get("/").then().spec(logIfValidationFails(out, 201))).isInstanceOf(AssertionError.class);
+        assertThat(out.toString()).contains("HTTP/1.1 200").contains("\"a\": \"b\"").doesNotContain("Request method:");
+    }
+
+    @Test
+    void then_spec_logs_a_built_response_when_the_log_config_of_the_specification_says_so() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        assertThatThrownBy(() -> response().then().spec(logIfValidationFails(out, 201))).isInstanceOf(AssertionError.class);
+        assertThat(out.toString()).contains("HTTP/1.1 200");
+    }
+
+    private static ResponseSpecification logIfValidationFails(ByteArrayOutputStream out, int statusCode) {
+        return new ResponseSpecBuilder().setConfig(config().logConfig(logConfig().defaultStream(new PrintStream(out, true))
+                .enableLoggingOfRequestAndResponseIfValidationFails())).expectStatusCode(statusCode).build();
+    }
+
     private static ResponseSpecification expectB(JsonPathEngine engine) {
         return new ResponseSpecBuilder().setConfig(config().jsonConfig(jsonConfig().pathEngine(engine))).expectBody("a", equalTo("b")).build();
     }
 
     private static Response response() {
-        return new ResponseBuilder().setStatusCode(200).setContentType("application/json").setBody("{\"a\":\"b\"}").build();
+        return new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setContentType("application/json").setBody("{\"a\":\"b\"}").build();
     }
 
     // Answers the request without sending it
     private static Filter respond() {
         return (requestSpec, responseSpec, ctx) -> response();
+    }
+
+    // Like respond(), but after the other filters, such as the ones that log, and like a sent response: with the config
+    // of the request and a log repository
+    private static Filter sent() {
+        return new OrderedFilter() {
+            @Override
+            public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                RestAssuredResponseImpl response = (RestAssuredResponseImpl) response();
+                response.setConfig(requestSpec.getConfig());
+                response.setLogRepository(new LogRepository());
+                return response;
+            }
+
+            @Override
+            public int getOrder() {
+                return LOWEST_PRECEDENCE;
+            }
+        };
     }
 }

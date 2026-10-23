@@ -69,6 +69,9 @@ public final class JaywayEvaluator {
             return PathResult.value(jsonPath.read(document, CONFIGURATION));
         } catch (PathNotFoundException e) {
             return notFound(document, path, e);
+        } catch (InvalidPathException e) {
+            // Such as a GPath method that Jayway doesn't have, like unique(): "Function with name: unique does not exist."
+            return PathResult.invalidPath(DESCRIPTION + " can't evaluate " + path + ": " + e.getMessage());
         } catch (JsonPathException e) {
             throw new IllegalArgumentException(DESCRIPTION + " can't evaluate " + path + ": " + e.getMessage(), e);
         }
@@ -92,11 +95,31 @@ public final class JaywayEvaluator {
             if (parent instanceof List) {
                 String parentInDotNotation = dotNotation(parentPath);
                 String property = dotNotation("$" + matcher.group(1));
-                return PathResult.listAddressedAsObject(DESCRIPTION + " can't evaluate " + path + ": " + parentInDotNotation + " is a list, so use "
-                        + parentInDotNotation + "[*]" + (property.startsWith("[") ? property : "." + property) + ".");
+                return PathResult.listAddressedAsObject(DESCRIPTION + " can't evaluate " + path + ": " + parentInDotNotation + " is a list, so "
+                        + withElements(path, parentInDotNotation, property.startsWith("[") ? property : "." + property) + ".");
             }
         }
         return PathResult.missing();
+    }
+
+    /**
+     * @return How to address the elements of the list: the path with {@code [*]} after the list when the path names
+     * the list and the property as {@link #dotNotation(String)} writes them, such as {@code store.book[*].title}, and
+     * otherwise the list with {@code [*]}. Also the latter when a function follows, since Jayway applies a function
+     * after {@code [*]} to each element, so {@code store.book[*].price.sum()} fails.
+     */
+    private static String withElements(String path, String list, String property) {
+        String root = path.startsWith("$.") ? "$." : "";
+        String relative = path.substring(root.length());
+        if (list.equals("$")) {
+            return "use $[*]" + (relative.startsWith("$") ? relative.substring(1) : (property.startsWith("[") ? "" : ".") + relative);
+        }
+        String listAndProperty = list + property;
+        if (relative.startsWith(listAndProperty) && relative.indexOf('(', listAndProperty.length()) < 0
+                && (relative.length() == listAndProperty.length() || ".[".indexOf(relative.charAt(listAndProperty.length())) >= 0)) {
+            return "use " + root + list + "[*]" + relative.substring(list.length());
+        }
+        return "address its elements with " + list + "[*]";
     }
 
     /**
@@ -144,12 +167,13 @@ public final class JaywayEvaluator {
                     depth--;
                 }
             } else if ((c == '\'' || c == '"') && (i == 0 || path.charAt(i - 1) == '.')) {
-                int end = path.indexOf(c, i + 1);
+                int end = closingQuote(path, i);
                 if (end == -1) {
                     result.append(path.substring(i));
                     break;
                 }
-                if (i > 0) {
+                if (i > 0 && !(i > 1 && path.charAt(i - 2) == '.')) {
+                    // The dot before the key, unless it's a deep scan, such as $..'title', which stays $..['title']
                     result.setLength(result.length() - 1);
                 }
                 result.append('[').append(path, i, end + 1).append(']');
@@ -162,6 +186,22 @@ public final class JaywayEvaluator {
             }
         }
         return result.toString();
+    }
+
+    /**
+     * @return The index of the quote that closes the one at {@code start}, skipping escaped quotes, or -1.
+     */
+    private static int closingQuote(String path, int start) {
+        char quote = path.charAt(start);
+        for (int i = start + 1; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c == '\\') {
+                i++;
+            } else if (c == quote) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**

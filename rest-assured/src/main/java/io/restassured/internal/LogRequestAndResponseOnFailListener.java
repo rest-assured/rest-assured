@@ -45,7 +45,7 @@ public class LogRequestAndResponseOnFailListener implements ResponseValidationFa
         ResponseSpecificationImpl respSpecImpl = (ResponseSpecificationImpl) responseSpecification;
         LogRepository logRepository = respSpecImpl.getLogRepository();
         if (logRepository != null) {
-            PrintStream stream = respSpecImpl.getConfig().getLogConfig().defaultStream();
+            PrintStream stream = respSpecImpl.validationConfig().getLogConfig().defaultStream();
             String requestLog = logRepository.getRequestLog();
             String responseLog = logRepository.getResponseLog();
             boolean requestLogHasText = StringUtils.isNotEmpty(requestLog);

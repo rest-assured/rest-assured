@@ -725,6 +725,13 @@ public class ResponseSpecBuilder {
      * configured in it, such as {@code jsonConfig().pathEngine(JsonPathEngine.JAYWAY)}, takes precedence over the one of
      * the request and of {@link RestAssured#config} when the specification is used, for example with
      * {@code then().spec(..)}, {@code expect().spec(..)} or {@code given(requestSpecification, responseSpecification)}.
+     * The merge works per configuration type, so the specification's {@code JsonConfig} replaces the request's whole
+     * {@code JsonConfig}, including a {@code numberReturnType} set globally. Configure everything you need of a type here.
+     * <p>
+     * A {@code LogConfig} with {@code enableLoggingOfRequestAndResponseIfValidationFails()} logs the request and the
+     * response when validation fails with {@code expect().spec(..)}. With {@code then().spec(..)}, which comes after the
+     * request is sent, and with {@code given(requestSpecification, responseSpecification)}, only the response is logged.
+     * </p>
      * For example:
      * <pre>
      * ResponseSpecification spec = new ResponseSpecBuilder().setConfig(config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY)))

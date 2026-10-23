@@ -137,13 +137,48 @@ class JaywayJsonProviderTest {
     }
 
     @Test
-    void a_property_of_a_list_fails_with_how_to_address_its_elements() {
+    void a_property_of_a_list_fails_with_the_path_that_addresses_its_elements() {
         assertThat(evaluate("store.book.title")).isEqualTo(PathResult.listAddressedAsObject(
                 "JSONPath (Jayway) can't evaluate store.book.title: store.book is a list, so use store.book[*].title."));
-        assertThat(evaluate("$.store.book.title.size()").message()).isEqualTo(
-                "JSONPath (Jayway) can't evaluate $.store.book.title.size(): store.book is a list, so use store.book[*].title.");
+        assertThat(evaluate("$.store.book.title").message()).isEqualTo(
+                "JSONPath (Jayway) can't evaluate $.store.book.title: store.book is a list, so use $.store.book[*].title.");
         assertThat(provider.evaluate(parse("[{\"a\":1}]", NumberReturnType.FLOAT_AND_DOUBLE), DocumentType.JSON, "a")).isEqualTo(
                 PathResult.listAddressedAsObject("JSONPath (Jayway) can't evaluate a: $ is a list, so use $[*].a."));
+    }
+
+    @Test
+    void a_property_of_a_deeper_list_fails_with_the_path_that_addresses_its_elements() {
+        Object document = parse("{\"a\":{\"b\":[{\"c\":{\"d\":1}},{\"c\":{\"d\":2}}]}}", NumberReturnType.FLOAT_AND_DOUBLE);
+
+        assertThat(provider.evaluate(document, DocumentType.JSON, "a.b.c.d").message())
+                .isEqualTo("JSONPath (Jayway) can't evaluate a.b.c.d: a.b is a list, so use a.b[*].c.d.");
+        assertThat(provider.evaluate(document, DocumentType.JSON, "a.b[*].c.d").value()).isEqualTo(List.of(1, 2));
+    }
+
+    @Test
+    void a_function_after_a_property_of_a_list_fails_with_how_to_address_its_elements() {
+        // Jayway applies a function after [*] to each element, so store.book[*].price.sum() would fail too
+        assertThat(evaluate("store.book.price.sum()").message()).isEqualTo(
+                "JSONPath (Jayway) can't evaluate store.book.price.sum(): store.book is a list, so address its elements with store.book[*].");
+        assertThat(evaluate("$.store.book.title.size()").message()).isEqualTo(
+                "JSONPath (Jayway) can't evaluate $.store.book.title.size(): store.book is a list, so address its elements with store.book[*].");
+        assertThat(value("$..price.sum()")).isEqualTo(2.0);
+    }
+
+    @Test
+    void a_property_of_a_list_written_another_way_fails_with_how_to_address_its_elements() {
+        assertThat(evaluate("$['store'].book.title").message()).isEqualTo(
+                "JSONPath (Jayway) can't evaluate $['store'].book.title: store.book is a list, so address its elements with store.book[*].");
+    }
+
+    @Test
+    void gpath_methods_that_jayway_doesnt_have_are_invalid() {
+        for (String path : List.of("store.book.unique()", "store.book[*].title.collect()", "store.book.flatten()", "store.str.toUpperCase()")) {
+            PathResult result = evaluate(path);
+
+            assertThat(result.kind()).as(path).isEqualTo(INVALID_PATH);
+            assertThat(result.message()).as(path).startsWith("JSONPath (Jayway) can't evaluate " + path + ": ");
+        }
     }
 
     @Test
@@ -168,6 +203,22 @@ class JaywayJsonProviderTest {
                 "JSONPath (Jayway) can't evaluate store.'my-key': a quoted key after a dot is GPath syntax. Use store['my-key'] instead."));
         assertThat(evaluate("'store'.\"my-key\"")).isEqualTo(PathResult.invalidPath(
                 "JSONPath (Jayway) can't evaluate 'store'.\"my-key\": a quoted key after a dot is GPath syntax. Use ['store'][\"my-key\"] instead."));
+    }
+
+    @Test
+    void a_quoted_key_after_a_deep_scan_keeps_the_deep_scan() {
+        assertThat(evaluate("$..'title'")).isEqualTo(PathResult.invalidPath(
+                "JSONPath (Jayway) can't evaluate $..'title': a quoted key after a dot is GPath syntax. Use $..['title'] instead."));
+        assertThat(value("$..['title']")).isEqualTo(List.of("t0", "t1"));
+    }
+
+    @Test
+    void a_quoted_key_with_an_escaped_quote() {
+        Object document = parse("{\"store\":{\"it's\":1}}", NumberReturnType.FLOAT_AND_DOUBLE);
+
+        assertThat(provider.evaluate(document, DocumentType.JSON, "store.'it\\'s'")).isEqualTo(PathResult.invalidPath(
+                "JSONPath (Jayway) can't evaluate store.'it\\'s': a quoted key after a dot is GPath syntax. Use store['it\\'s'] instead."));
+        assertThat(provider.evaluate(document, DocumentType.JSON, "store['it\\'s']").value()).isEqualTo(1);
     }
 
     @Test

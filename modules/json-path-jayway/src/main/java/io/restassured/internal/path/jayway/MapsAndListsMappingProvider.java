@@ -24,10 +24,13 @@ import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import java.lang.invoke.MethodType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Maps the values that {@link JsonParser} creates to the type asked for with {@code DocumentContext.read(path, type)}:
- * a value that already is of the type, a number to another number type, and anything to a String. Other mappings, such
+ * a value that already is of the type, a number to another number type, an object or array to a JSON String, and a
+ * number or boolean to its String. Other mappings, such
  * as to a bean, need an object mapper.
  */
 class MapsAndListsMappingProvider implements MappingProvider {
@@ -42,7 +45,8 @@ class MapsAndListsMappingProvider implements MappingProvider {
         if (type.isInstance(source)) {
             return type.cast(source);
         } else if (type == String.class) {
-            return type.cast(source.toString());
+            // An object or array as JSON, and a number or boolean as its text
+            return type.cast(source instanceof Map || source instanceof List ? configuration.jsonProvider().toJson(source) : source.toString());
         } else if (source instanceof Number number) {
             Object converted = convert(number, type);
             if (converted != null) {
