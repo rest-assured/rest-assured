@@ -17,6 +17,7 @@
 package io.restassured.internal.http;
 
 import java.lang.reflect.Array;
+import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,9 +26,10 @@ import java.util.function.Function;
 /**
  * Writes a Map or Collection request body as JSON, the way Groovy's {@code JsonBuilder} did before REST Assured 7.0.0:
  * <ul>
- * <li>Strings and other {@link CharSequence}s, {@link Character}s and {@link URL}s are written as strings, with
- * {@code "}, {@code \}, control characters and everything above {@code ~} escaped. {@link UUID}s and enums (by name)
- * are written in quotes as they are.</li>
+ * <li>Strings and other {@link CharSequence}s, {@link Character}s, {@link URL}s and {@link URI}s are written as
+ * strings, with {@code "}, {@code \}, control characters and everything above {@code ~} escaped. {@link UUID}s and
+ * enums (by name) are written in quotes as they are.</li>
+ * <li>An {@link Optional} is written as its value, or {@code null} when it's empty.</li>
  * <li>Numbers are written with their {@code toString()}. A {@link Double} or {@link Float} that is NaN or infinite
  * fails.</li>
  * <li>A {@link Date} or {@link Calendar} is written as {@code yyyy-MM-dd'T'HH:mm:ssZ} in GMT.</li>
@@ -74,8 +76,10 @@ class JsonBodyWriter {
             writeIterator(((Iterable<?>) value).iterator(), json);
         } else if (value instanceof Iterator) {
             writeIterator((Iterator<?>) value, json);
-        } else if (value instanceof Character || value instanceof URL) {
+        } else if (value instanceof Character || value instanceof URL || value instanceof URI) {
             writeString(value.toString(), json);
+        } else if (value instanceof Optional) {
+            writeValue(((Optional<?>) value).orElse(null), json);
         } else if (value instanceof UUID) {
             writeQuoted(value.toString(), json);
         } else if (value instanceof Enumeration) {
