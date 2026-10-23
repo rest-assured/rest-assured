@@ -85,6 +85,8 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     private String bodyRootPath;
     private ResponseParserRegistrar rpr;
     private RestAssuredConfig config;
+    // Set with ResponseSpecBuilder.setConfig(..). Unlike config, which the request overwrites, it's laid over config when validating.
+    private RestAssuredConfig specificationConfig;
     private Response response;
     private SimpleEntry<Matcher<Long>, TimeUnit> expectedResponseTime;
     private LogDetail responseLogDetail;
@@ -531,7 +533,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
                 validations.addAll(validateContentType(response));
                 validations.addAll(validateResponseTime(response));
                 if (hasBodyAssertionsDefined()) {
-                    RestAssuredConfig cfg = config == null ? new RestAssuredConfig() : config;
+                    RestAssuredConfig cfg = validationConfig();
                     if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
                         contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert(), bodyMatchers.firstPath());
                     }
@@ -563,7 +565,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         }
 
         private void fireFailureListeners(Response response) {
-            for (ResponseValidationFailureListener listener : config.getFailureConfig().getFailureListeners()) {
+            for (ResponseValidationFailureListener listener : validationConfig().getFailureConfig().getFailureListeners()) {
                 listener.onFailure(requestSpecification, responseSpecification, response);
             }
         }
@@ -711,6 +713,22 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
 
     public void setConfig(RestAssuredConfig config) {
         this.config = config;
+    }
+
+    public RestAssuredConfig getSpecificationConfig() {
+        return specificationConfig;
+    }
+
+    public void setSpecificationConfig(RestAssuredConfig specificationConfig) {
+        this.specificationConfig = specificationConfig;
+    }
+
+    /**
+     * @return The config to validate with: each config type that the specification's own config has configured, and
+     * otherwise the one of the request's config or {@code RestAssured.config}.
+     */
+    private RestAssuredConfig validationConfig() {
+        return SpecificationMerger.mergeConfig(config == null ? new RestAssuredConfig() : config, specificationConfig);
     }
 
     public LogRepository getLogRepository() {
