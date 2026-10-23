@@ -23,6 +23,7 @@ import io.restassured.http.ContentType;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -41,6 +42,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,7 +82,7 @@ public abstract class HTTPBuilder {
     protected Object defaultContentType = ContentType.ANY;
     protected Object defaultRequestContentType = null;
     protected final Map<Object, HttpResponseHandler> defaultResponseHandlers = new StringHashMap<>(buildDefaultResponseHandlers());
-    protected ContentEncodingRegistry contentEncodingHandler;
+    protected final ContentDecoding contentDecoding;
 
     protected final Map<Object, Object> defaultRequestHeaders = new StringHashMap<>();
 
@@ -92,8 +95,7 @@ public abstract class HTTPBuilder {
                        AbstractHttpClient client) {
         this.client = client;
         this.auth = new AuthConfig(this, oAuthConfig);
-        this.contentEncodingHandler = new ContentEncodingRegistry(decoderConfig);
-        this.setContentEncoding(ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE);
+        this.contentDecoding = new ContentDecoding(decoderConfig);
         this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
         this.urlEncodingEnabled = urlEncodingEnabled;
         encoders = new EncoderRegistry();
@@ -316,7 +318,7 @@ public abstract class HTTPBuilder {
         }
 
         log.debug("Parsing response as: " + responseContentType);
-        Object parsedData = httpResponse.getEntity().getContent();
+        Object parsedData = contentDecoding.decode(httpResponse.getEntity().getContent(), contentEncodingOf(httpResponse));
         if (parsedData == null) log.debug("Parser returned null!");
         else log.debug("Parsed data to instance of: " + parsedData.getClass());
         return parsedData;
@@ -464,15 +466,30 @@ public abstract class HTTPBuilder {
     }
 
     /**
-     * Set acceptable request and response content-encodings.
+     * Sets the request's <code>Accept-Encoding</code> header to the content decoders, merged with the
+     * <code>Accept-Encoding</code> the request already has (see {@link ContentDecoding#acceptEncoding(List)}).
      *
-     * @param encodings each Object should be either a
-     *                  {@link ContentEncoding.Type} value, or a <code>content-encoding</code>
-     *                  string that is known by the {@link ContentEncodingRegistry}
-     * @see ContentEncodingRegistry
+     * @param request the request to send
      */
-    public void setContentEncoding(Object... encodings) {
-        this.contentEncodingHandler.setInterceptors(client, encodings);
+    protected void setAcceptEncoding(HttpRequestBase request) {
+        List<String> acceptEncodings = new ArrayList<>();
+        for (Header header : request.getHeaders(ContentDecoding.ACCEPT_ENCODING)) {
+            acceptEncodings.add(header.getValue());
+        }
+        String acceptEncoding = contentDecoding.acceptEncoding(acceptEncodings);
+        if (acceptEncoding != null) {
+            // Replaces the first Accept-Encoding header in place, or adds one
+            request.setHeader(ContentDecoding.ACCEPT_ENCODING, acceptEncoding);
+        }
+    }
+
+    /**
+     * @param response the response
+     * @return the value of the response's first <code>Content-Encoding</code> header, or <code>null</code>
+     */
+    protected static String contentEncodingOf(HttpResponse response) {
+        Header header = response.getFirstHeader(ContentDecoding.CONTENT_ENCODING);
+        return header == null ? null : header.getValue();
     }
 
     /**
@@ -534,16 +551,6 @@ public abstract class HTTPBuilder {
      */
     public AbstractHttpClient getClient() {
         return this.client;
-    }
-
-    /**
-     * Set a custom registry used to handle different
-     * <code>content-encoding</code> types in responses.
-     *
-     * @param cer
-     */
-    public void setContentEncodingRegistry(ContentEncodingRegistry cer) {
-        this.contentEncodingHandler = cer;
     }
 
     /**

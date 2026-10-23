@@ -122,6 +122,7 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
                 }
             }
         }
+        setAcceptEncoding(reqMethod);
         final HttpResponseDecorator resp = new HttpResponseDecorator(
                 this.client.execute(reqMethod, delegate.getContext()),
                 delegate.getContext(), null);
@@ -131,7 +132,8 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
 
             HttpEntity entity = resp.getEntity();
             try {
-                if (entity == null || entity.getContentLength() == 0) {
+                // The decoded length of an encoded body isn't known, so it's parsed even when the encoded body is empty
+                if (entity == null || entity.getContentLength() == 0 && !contentDecoding.decodes(contentEncodingOf(resp))) {
                     return responseHandler.handle(resp, EMPTY);
                 } else {
                     return responseHandler.handle(resp, this.parseResponse(resp, acceptContentType));
