@@ -45,6 +45,11 @@
             </resource>
         </resources>
         <plugins>
+            <!-- Checks that this module doesn't bring Groovy (see the root pom) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

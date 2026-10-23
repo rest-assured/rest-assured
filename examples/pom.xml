@@ -37,6 +37,7 @@
         <module>kotlin-example</module>
         <module>scala3-example</module>
         <module>jackson3-example</module>
+        <module>rest-assured-no-groovy</module>
     </modules>
 
     <profiles>

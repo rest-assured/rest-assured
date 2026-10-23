@@ -61,13 +61,24 @@
                             !io.restassured.internal.common.*,
                             io.restassured.*
                         </Export-Package>
-                        <!-- The path providers are loaded by class name, which bnd can't see. TagSoup is only needed for HTML. -->
+                        <!-- The path engines (json-path-gpath and xml-path-gpath) are optional. Their path providers are
+                             loaded by class name, which bnd can't see, so their packages are listed. TagSoup is only
+                             needed for HTML. -->
                         <Import-Package>
-                            io.restassured.internal.path.json,
-                            io.restassured.internal.path.xml,
+                            io.restassured.path.json.*;resolution:=optional,
+                            io.restassured.path.xml.*;resolution:=optional,
+                            io.restassured.internal.path.json;resolution:=optional,
+                            io.restassured.internal.path.xml;resolution:=optional,
                             org.ccil.cowan.tagsoup;resolution:=optional,
                             *
                         </Import-Package>
+                        <!-- Finds a path engine that is installed after rest-assured was resolved -->
+                        <DynamicImport-Package>
+                            io.restassured.path.json.*,
+                            io.restassured.path.xml.*,
+                            io.restassured.internal.path.json,
+                            io.restassured.internal.path.xml
+                        </DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

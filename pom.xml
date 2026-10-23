@@ -230,6 +230,34 @@
                         </ignoredClassPatterns>
                     </configuration>
                 </plugin>
+                <!-- Modules that list this plugin check that they don't bring Groovy to their users. Test scope Groovy,
+                     which the path engines bring to tests, is allowed. -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.5.0</version>
+                    <executions>
+                        <execution>
+                            <id>ban-groovy</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <bannedDependencies>
+                                        <excludes>
+                                            <exclude>org.apache.groovy:*:*:*:compile</exclude>
+                                            <exclude>org.apache.groovy:*:*:*:runtime</exclude>
+                                            <exclude>org.codehaus.groovy:*:*:*:compile</exclude>
+                                            <exclude>org.codehaus.groovy:*:*:*:runtime</exclude>
+                                        </excludes>
+                                        <message>Groovy must not be a compile or runtime dependency: REST Assured doesn't need it without a GPath path engine.</message>
+                                    </bannedDependencies>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -311,6 +339,7 @@
                         <excludeArtifact>scala3-example</excludeArtifact>
                         <excludeArtifact>jackson3-example</excludeArtifact>
                         <excludeArtifact>spring7-mvc-webapp</excludeArtifact>
+                        <excludeArtifact>rest-assured-no-groovy</excludeArtifact>
                     </excludeArtifacts>
                 </configuration>
             </plugin>

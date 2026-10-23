@@ -38,6 +38,8 @@ Changelog next version
   or with Gradle: testImplementation("io.rest-assured:json-path-gpath:${restAssuredVersion}"). Without it, a path in body(..), path(..) or extract().path(..) fails with a message that names the dependency to add
 * Non-backward compatible change: calling jsonPath(), xmlPath() or htmlPath() without json-path-gpath or xml-path-gpath fails with a message naming the dependency. Code that calls them doesn't compile without it, and reflection over Response's methods (such as Mockito mocks of Response) needs it on the test classpath
 * Non-backward compatible change: ObjectMapperConfig's factory getters and JsonConfig.numberReturnType() now return the rest-assured-common types (io.restassured.common.mapper.factory, io.restassured.common.config.NumberReturnType), and JsonConfig no longer takes JsonPathConfig.NumberReturnType. Use the common types, or run the OpenRewrite recipe. The factories you set still work, since the old factory types extend the common ones
+* The rest-assured OSGi bundle now imports the json-path-gpath and xml-path-gpath packages and TagSoup as optional, so it resolves without them, Groovy or SPI Fly, and finds a path engine bundle that is installed later (DynamicImport-Package)
+* rest-assured-all still contains json-path-gpath and xml-path-gpath and depends on Groovy, so nothing changes if you use it
 
 Changelog 6.3.0 (2026-10-23)
 ----------------------------
