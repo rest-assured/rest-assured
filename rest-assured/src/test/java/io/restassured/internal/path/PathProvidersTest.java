@@ -16,12 +16,17 @@
 
 package io.restassured.internal.path;
 
+import io.restassured.config.JsonConfig;
+import io.restassured.config.JsonPathEngine;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.common.spi.path.DocumentType;
 import io.restassured.internal.common.spi.path.PathResult;
+import io.restassured.internal.path.PathProviders.JsonEngine;
 import io.restassured.internal.path.json.GPathJsonProvider;
 import io.restassured.internal.path.xml.GPathXmlProvider;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,6 +40,39 @@ class PathProvidersTest {
         assertThat(PathProviders.forType(DocumentType.JSON, config)).isExactlyInstanceOf(GPathJsonProvider.class);
         assertThat(PathProviders.forType(DocumentType.XML, config)).isExactlyInstanceOf(GPathXmlProvider.class);
         assertThat(PathProviders.forType(DocumentType.HTML, config)).isExactlyInstanceOf(GPathXmlProvider.class);
+    }
+
+    @Test
+    void json_engine_can_be_configured() {
+        RestAssuredConfig config = RestAssuredConfig.config().jsonConfig(JsonConfig.jsonConfig().pathEngine(JsonPathEngine.GPATH));
+
+        assertThat(PathProviders.forType(DocumentType.JSON, config)).isExactlyInstanceOf(GPathJsonProvider.class);
+    }
+
+    @Test
+    void the_first_json_engine_on_the_classpath_is_used_when_none_is_configured() {
+        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "missing"),
+                new JsonEngine(JsonPathEngine.GPATH, PathProviders.GPATH_JSON, "json-path"));
+
+        assertThat(PathProviders.forJson(null, engines)).isExactlyInstanceOf(GPathJsonProvider.class);
+    }
+
+    @Test
+    void a_configured_json_engine_that_isnt_on_the_classpath_fails() {
+        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path"));
+
+        assertThatThrownBy(() -> PathProviders.forJson(JsonPathEngine.GPATH, engines))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage("JsonConfig.pathEngine is GPATH but io.rest-assured:json-path isn't on the classpath.");
+    }
+
+    @Test
+    void no_json_engine_on_the_classpath_fails() {
+        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path"));
+
+        assertThatThrownBy(() -> PathProviders.forJson(null, engines))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage("REST Assured found no JSON path engine. Add io.rest-assured:json-path to your test dependencies.");
     }
 
     @Test

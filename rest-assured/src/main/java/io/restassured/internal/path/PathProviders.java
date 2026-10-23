@@ -16,6 +16,7 @@
 
 package io.restassured.internal.path;
 
+import io.restassured.config.JsonPathEngine;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.common.spi.path.DocumentType;
 import io.restassured.internal.common.spi.path.PathProvider;
@@ -35,8 +36,8 @@ public final class PathProviders {
     static final String GPATH_JSON = "io.restassured.internal.path.json.GPathJsonProvider";
     static final String GPATH_XML = "io.restassured.internal.path.xml.GPathXmlProvider";
 
-    // The JSON providers in the order they're picked when none is configured
-    private static final List<String> JSON_PROVIDERS = List.of(GPATH_JSON);
+    // The JSON engines in the order they're picked when none is configured
+    private static final List<JsonEngine> JSON_ENGINES = List.of(new JsonEngine(JsonPathEngine.GPATH, GPATH_JSON, "json-path"));
 
     private static final Map<String, Optional<PathProvider>> LOADED = new ConcurrentHashMap<>();
 
@@ -44,15 +45,25 @@ public final class PathProviders {
     }
 
     /**
-     * @return The provider that parses and evaluates paths on documents of this type with this config.
+     * @return The provider that parses and evaluates paths on documents of this type. For JSON, it's the engine of the
+     * {@link io.restassured.config.JsonConfig}, or else the first engine in a fixed order that is on the classpath.
      */
     public static PathProvider forType(DocumentType type, RestAssuredConfig config) {
         if (type == DocumentType.JSON) {
-            return JSON_PROVIDERS.stream().map(PathProviders::load).flatMap(Optional::stream).findFirst()
-                    .orElseThrow(() -> new IllegalStateException("REST Assured found no JSON path engine. Add io.rest-assured:json-path to your test dependencies."));
+            return forJson(config.getJsonConfig().pathEngine(), JSON_ENGINES);
         }
         return load(GPATH_XML)
                 .orElseThrow(() -> new IllegalStateException("REST Assured found no XML path engine. Add io.rest-assured:xml-path to your test dependencies."));
+    }
+
+    static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines) {
+        if (configured != null) {
+            JsonEngine engine = engines.stream().filter(it -> it.engine() == configured).findFirst().orElseThrow();
+            return load(engine.className()).orElseThrow(() -> new IllegalStateException("JsonConfig.pathEngine is " + configured
+                    + " but io.rest-assured:" + engine.artifactId() + " isn't on the classpath."));
+        }
+        return engines.stream().map(engine -> load(engine.className())).flatMap(Optional::stream).findFirst()
+                .orElseThrow(() -> new IllegalStateException("REST Assured found no JSON path engine. Add io.rest-assured:json-path to your test dependencies."));
     }
 
     /**
@@ -86,5 +97,8 @@ public final class PathProviders {
         } catch (ReflectiveOperationException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
+    }
+
+    record JsonEngine(JsonPathEngine engine, String className, String artifactId) {
     }
 }
