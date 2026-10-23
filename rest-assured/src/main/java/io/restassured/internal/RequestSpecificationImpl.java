@@ -241,6 +241,73 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         explicitlySetValues.clear();
     }
 
+    // A copy that can be changed without changing other. The values that aren't copied are immutable or replaced, never
+    // changed, such as the headers and cookies. The response specification is set by the caller.
+    private RequestSpecificationImpl(RequestSpecificationImpl other) {
+        this.baseUri = other.baseUri;
+        this.path = other.path;
+        this.method = other.method;
+        this.basePath = other.basePath;
+        this.unnamedPathParamsTuples = new ArrayList<>(other.unnamedPathParamsTuples);
+        this.defaultAuthScheme = other.defaultAuthScheme;
+        this.port = other.port;
+        this.requestParameters = copyParameters(other.requestParameters);
+        this.queryParameters = copyParameters(other.queryParameters);
+        this.formParameters = copyParameters(other.formParameters);
+        this.namedPathParameters = copyParameters(other.namedPathParameters);
+        this.httpClientParams = copyParameters(other.httpClientParams);
+        this.authenticationScheme = other.authenticationScheme;
+        this.requestHeaders = other.requestHeaders;
+        this.cookies = other.cookies;
+        this.requestBody = other.requestBody;
+        this.filters = new ArrayList<>(other.filters);
+        this.urlEncodingEnabled = other.urlEncodingEnabled;
+        this.restAssuredConfig = other.restAssuredConfig;
+        this.multiParts = new ArrayList<>(other.multiParts);
+        this.proxySpecification = other.proxySpecification;
+        this.logRepository = other.logRepository == null ? null : new LogRepository(other.logRepository);
+        this.httpClient = other.httpClient;
+        this.allowContentType = other.allowContentType;
+        this.addCsrfFilter = other.addCsrfFilter;
+        this.explicitlySetValues.addAll(other.explicitlySetValues);
+    }
+
+    /**
+     * @return A copy of the parameters, with the values that are lists copied too, since {@link ParameterUpdater} adds to them
+     */
+    static Map<String, Object> copyParameters(Map<String, ?> parameters) {
+        Map<String, Object> copy = new LinkedHashMap<>();
+        parameters.forEach((name, value) -> copy.put(name, value instanceof Collection ? new ArrayList<>((Collection<?>) value) : value));
+        return copy;
+    }
+
+    /**
+     * @return A copy of this specification to send, with a copy of its response specification. Sending changes the
+     * copies only, so this specification and its response specification can be sent again, and from many threads.
+     */
+    private RequestSpecificationImpl copyForSending() {
+        RequestSpecificationImpl request = new RequestSpecificationImpl(this);
+        ResponseSpecificationImpl response = new ResponseSpecificationImpl((ResponseSpecificationImpl) responseSpecification);
+        request.responseSpecification = response;
+        response.setRequestSpecification(request);
+        response.setLogRepository(request.logRepository);
+        // Each config type that the request configures replaces the one of the response specification's config, which is
+        // RestAssured.config unless it's from the request already. The response specification's own config
+        // (ResponseSpecBuilder.setConfig(..)) is laid over this when validating.
+        response.setConfig(SpecificationMerger.mergeConfig(response.getConfig(), request.restAssuredConfig()));
+        return request;
+    }
+
+    /**
+     * @return A copy of this specification that sends with <code>responseSpecification</code>, for
+     * {@link TestSpecificationImpl}
+     */
+    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification) {
+        RequestSpecificationImpl request = new RequestSpecificationImpl(this);
+        request.responseSpecification = (FilterableResponseSpecification) responseSpecification;
+        return request;
+    }
+
     @Override
     public RequestSpecification when() {
         return this;
@@ -466,74 +533,42 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response get(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(GET, path);
-        });
+        return sendWithPathParams(GET, path, pathParamsMap);
     }
 
     @Override
     public Response post(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(POST, path);
-        });
+        return sendWithPathParams(POST, path, pathParamsMap);
     }
 
     @Override
     public Response put(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(PUT, path);
-        });
+        return sendWithPathParams(PUT, path, pathParamsMap);
     }
 
     @Override
     public Response delete(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(DELETE, path);
-        });
+        return sendWithPathParams(DELETE, path, pathParamsMap);
     }
 
     @Override
     public Response head(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(HEAD, path);
-        });
+        return sendWithPathParams(HEAD, path, pathParamsMap);
     }
 
     @Override
     public Response patch(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(PATCH, path);
-        });
+        return sendWithPathParams(PATCH, path, pathParamsMap);
     }
 
     @Override
     public Response options(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(OPTIONS, path);
-        });
+        return sendWithPathParams(OPTIONS, path, pathParamsMap);
     }
 
     @Override
     public Response query(String path, Map<String, ?> pathParamsMap) {
-        return ExceptionUnwrapper.runWithUnwrap(() -> {
-            assertNotBuiltByRequestSpecBuilder();
-            pathParams(pathParamsMap);
-            return applyPathParamsAndSendRequest(QUERY, path);
-        });
+        return sendWithPathParams(QUERY, path, pathParamsMap);
     }
 
     @Override
@@ -2040,8 +2075,22 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         }
     }
 
+    // Sending works on copies, so it doesn't change this specification or its response specification (#945)
     private Response applyPathParamsAndSendRequest(String method, String path, Object... unnamedPathParams) {
         assertNotBuiltByRequestSpecBuilder();
+        return copyForSending().send(method, path, unnamedPathParams);
+    }
+
+    private Response sendWithPathParams(Method method, String path, Map<String, ?> pathParams) {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
+            RequestSpecificationImpl copy = copyForSending();
+            copy.pathParams(pathParams);
+            return copy.send(method.name(), path);
+        });
+    }
+
+    private Response send(String method, String path, Object... unnamedPathParams) {
         notNull(path, "path");
         notNull(trimToNull(method), "Method");
         notNull(unnamedPathParams, "Path params");
@@ -2337,10 +2386,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         } else {
             return encode(value, EncodingTarget.BODY);
         }
-    }
-
-    LogRepository getLogRepository() {
-        return logRepository;
     }
 
     public void setResponseSpecification(ResponseSpecification responseSpecification) {

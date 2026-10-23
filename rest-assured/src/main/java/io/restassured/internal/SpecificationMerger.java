@@ -98,11 +98,12 @@ public class SpecificationMerger {
         if (with.isExplicitlySet(BASE_PATH)) {
             thisOne.setBasePath(with.getBasePath());
         }
-        thisOne.getRequestParameters().putAll(with.getRequestParameters());
-        thisOne.getQueryParameters().putAll(with.getQueryParams());
-        thisOne.getFormParameters().putAll(with.getFormParams());
+        // Copies, so that adding to a parameter of thisOne doesn't add to the one of "with"
+        thisOne.getRequestParameters().putAll(RequestSpecificationImpl.copyParameters(with.getRequestParameters()));
+        thisOne.getQueryParameters().putAll(RequestSpecificationImpl.copyParameters(with.getQueryParams()));
+        thisOne.getFormParameters().putAll(RequestSpecificationImpl.copyParameters(with.getFormParams()));
         // Includes the unnamed path parameters of "with" that have a placeholder
-        thisOne.getNamedPathParameters().putAll(with.getPathParams());
+        thisOne.getNamedPathParameters().putAll(RequestSpecificationImpl.copyParameters(with.getPathParams()));
         thisOne.getMultiParts().addAll(with.getMultiParts());
         if (with.isExplicitlySet(AUTHENTICATION_SCHEME)) {
             thisOne.setAuthenticationScheme(with.getAuthenticationScheme());

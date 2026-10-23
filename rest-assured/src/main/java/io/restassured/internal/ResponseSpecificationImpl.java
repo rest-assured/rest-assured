@@ -114,6 +114,26 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         this.logRepository = logRepository;
     }
 
+    // A copy to send or validate with, so that other doesn't change. The matchers are shared since they don't change once
+    // they're built. The request specification and the log repository are set by the caller, and the parsed response isn't copied.
+    ResponseSpecificationImpl(ResponseSpecificationImpl other) {
+        this.expectedStatusCode = other.expectedStatusCode;
+        this.expectedStatusLine = other.expectedStatusLine;
+        this.bodyMatchers.add(other.bodyMatchers);
+        this.headerAssertions.addAll(other.headerAssertions);
+        this.cookieAssertions.addAll(other.cookieAssertions);
+        this.contentType = other.contentType;
+        this.bodyRootPath = other.bodyRootPath;
+        this.rpr = other.rpr == null ? null : new ResponseParserRegistrar(other.rpr);
+        this.config = other.config;
+        this.specificationConfig = other.specificationConfig;
+        this.response = other.response;
+        this.expectedResponseTime = other.expectedResponseTime;
+        this.responseLogDetail = other.responseLogDetail;
+        this.forceDisableEagerAssert = other.forceDisableEagerAssert;
+        this.onFailMessage = other.onFailMessage;
+    }
+
     public ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
         throwIllegalStateExceptionIfRootPathIsNotDefined("specify arguments");
         return body("", arguments, matcher, additionalKeyMatcherPairs);

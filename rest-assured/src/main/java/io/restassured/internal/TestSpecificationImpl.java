@@ -39,6 +39,8 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * </pre>
  * <p>
  * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
+ * <p>
+ * Each request is sent with copies of the specifications, so sending doesn't change them.
  */
 public class TestSpecificationImpl implements RequestSender {
     private final RequestSpecification requestSpecification;
@@ -50,60 +52,72 @@ public class TestSpecificationImpl implements RequestSender {
 
         this.requestSpecification = requestSpecification;
         this.responseSpecification = responseSpecification;
-        ((ResponseSpecificationImpl) responseSpecification).setRequestSpecification(requestSpecification);
-        ((RequestSpecificationImpl) requestSpecification).setResponseSpecification(responseSpecification);
-        // As with given(), so that a failed validation prints the request that logged to the request's repository too
-        ((ResponseSpecificationImpl) responseSpecification).setLogRepository(((RequestSpecificationImpl) requestSpecification).getLogRepository());
+    }
+
+    /**
+     * Links a new request specification and a new response specification to each other, as {@code given()},
+     * {@code expect()} and {@code when()} create them.
+     */
+    public static TestSpecificationImpl linked(RequestSpecificationImpl requestSpecification, ResponseSpecificationImpl responseSpecification) {
+        requestSpecification.setResponseSpecification(responseSpecification);
+        responseSpecification.setRequestSpecification(requestSpecification);
+        return new TestSpecificationImpl(requestSpecification, responseSpecification);
+    }
+
+    // A copy of the request specification that sends with the response specification. Sending it copies both, as any
+    // send does, and fails if they aren't REST Assured's own implementations.
+    private RequestSpecification sender() {
+        return ((RequestSpecificationImpl) requestSpecification).pairedWith(responseSpecification);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response get(String path, Object... pathParams) {
-        return requestSpecification.get(path, pathParams);
+        return sender().get(path, pathParams);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response post(String path, Object... pathParams) {
-        return requestSpecification.post(path, pathParams);
+        return sender().post(path, pathParams);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response put(String path, Object... pathParams) {
-        return requestSpecification.put(path, pathParams);
+        return sender().put(path, pathParams);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response delete(String path, Object... pathParams) {
-        return requestSpecification.delete(path, pathParams);
+        return sender().delete(path, pathParams);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response head(String path, Object... pathParams) {
-        return requestSpecification.head(path, pathParams);
+        return sender().head(path, pathParams);
     }
 
     /**
      * {@inheritDoc}
      */
     public Response patch(String path, Object... pathParams) {
-        return requestSpecification.patch(path, pathParams);
+        return sender().patch(path, pathParams);
     }
 
     public Response options(String path, Object... pathParams) {
-        return requestSpecification.options(path, pathParams);
+        return sender().options(path, pathParams);
     }
 
     public Response query(String path, Object... pathParams) {
-        return requestSpecification.query(path, pathParams);
+        return sender().query(path, pathParams);
     }
 
     public Response get(URI uri) {
@@ -215,55 +229,55 @@ public class TestSpecificationImpl implements RequestSender {
     }
 
     public Response request(String method, String path, Object... pathParams) {
-        return requestSpecification.request(method, path, pathParams);
+        return sender().request(method, path, pathParams);
     }
 
     public Response request(Method method, URI uri) {
-        return requestSpecification.request(method, uri);
+        return sender().request(method, uri);
     }
 
     public Response request(Method method, URL url) {
-        return requestSpecification.request(method, url);
+        return sender().request(method, url);
     }
 
     public Response request(String method, URI uri) {
-        return requestSpecification.request(method, uri);
+        return sender().request(method, uri);
     }
 
     public Response request(String method, URL url) {
-        return requestSpecification.request(method, url);
+        return sender().request(method, url);
     }
 
     public Response get(String path, Map<String, ?> pathParams) {
-        return requestSpecification.get(path, pathParams);
+        return sender().get(path, pathParams);
     }
 
     public Response post(String path, Map<String, ?> pathParams) {
-        return requestSpecification.post(path, pathParams);
+        return sender().post(path, pathParams);
     }
 
     public Response put(String path, Map<String, ?> pathParams) {
-        return requestSpecification.put(path, pathParams);
+        return sender().put(path, pathParams);
     }
 
     public Response delete(String path, Map<String, ?> pathParams) {
-        return requestSpecification.delete(path, pathParams);
+        return sender().delete(path, pathParams);
     }
 
     public Response head(String path, Map<String, ?> pathParams) {
-        return requestSpecification.head(path, pathParams);
+        return sender().head(path, pathParams);
     }
 
     public Response patch(String path, Map<String, ?> pathParams) {
-        return requestSpecification.patch(path, pathParams);
+        return sender().patch(path, pathParams);
     }
 
     public Response options(String path, Map<String, ?> pathParams) {
-        return requestSpecification.options(path, pathParams);
+        return sender().options(path, pathParams);
     }
 
     public Response query(String path, Map<String, ?> pathParams) {
-        return requestSpecification.query(path, pathParams);
+        return sender().query(path, pathParams);
     }
 
     public RequestSpecification getRequestSpecification() {

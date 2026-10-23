@@ -1598,7 +1598,7 @@ public class RestAssured {
         }
         LogRepository logRepository = new LogRepository();
         RestAssuredConfig restAssuredConfig = config();
-        return new TestSpecificationImpl(
+        return TestSpecificationImpl.linked(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
                         requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy, true, true),
                 new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)

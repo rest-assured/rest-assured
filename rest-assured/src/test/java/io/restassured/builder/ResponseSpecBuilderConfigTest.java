@@ -98,6 +98,35 @@ class ResponseSpecBuilderConfigTest {
     }
 
     @Test
+    void given_request_and_response_specification_uses_the_config_of_the_request_specification() {
+        RestAssuredConfig jayway = config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY));
+
+        assertThatThrownBy(() -> given(new RequestSpecBuilder().addFilter(respond()).setConfig(jayway).build(),
+                new ResponseSpecBuilder().expectBody("a", equalTo("b")).build()).get("/"))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(JAYWAY_IS_MISSING);
+    }
+
+    @Test
+    void given_request_and_response_specification_uses_rest_assured_config_for_config_types_that_the_request_specification_doesnt_configure() {
+        RestAssured.config = config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY));
+
+        assertThatThrownBy(() -> given(new RequestSpecBuilder().addFilter(respond()).setConfig(config().xmlConfig(xmlConfig().namespaceAware(false))).build(),
+                new ResponseSpecBuilder().expectBody("a", equalTo("b")).build()).get("/"))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(JAYWAY_IS_MISSING);
+    }
+
+    @Test
+    void expect_uses_the_config_of_the_static_request_specification() {
+        RestAssured.requestSpecification = new RequestSpecBuilder().setConfig(config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY))).build();
+
+        assertThatThrownBy(() -> given().filter(respond()).expect().body("a", equalTo("b")).when().get("/"))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(JAYWAY_IS_MISSING);
+    }
+
+    @Test
     void the_specification_outranks_rest_assured_config() {
         RestAssured.config = config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY));
 
