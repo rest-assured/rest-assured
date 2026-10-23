@@ -42,4 +42,11 @@ public class BodyMatcherGroup {
     public boolean requiresPathParsing() {
         return bodyAssertions.stream().anyMatch(BodyMatcher::requiresPathParsing);
     }
+
+    /**
+     * @return The path of the first expectation that evaluates a path, or {@code null} if there's none
+     */
+    public String firstPath() {
+        return bodyAssertions.stream().filter(BodyMatcher::requiresPathParsing).findFirst().map(BodyMatcher::getPath).orElse(null);
+    }
 }

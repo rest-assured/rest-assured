@@ -75,6 +75,41 @@
                 <groupId>org.basepom.maven</groupId>
                 <artifactId>duplicate-finder-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/itest/**</exclude>
+                                <exclude>**/MissingPathEngineTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- Tests what users see without a path engine, so without the GPath modules and Groovy -->
+                    <execution>
+                        <id>without-path-engines</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/MissingPathEngineTest.java</include>
+                            </includes>
+                            <classpathDependencyExcludes>
+                                <classpathDependencyExclude>io.rest-assured:json-path-gpath</classpathDependencyExclude>
+                                <classpathDependencyExclude>io.rest-assured:xml-path-gpath</classpathDependencyExclude>
+                                <classpathDependencyExclude>org.apache.groovy:groovy</classpathDependencyExclude>
+                                <classpathDependencyExclude>org.apache.groovy:groovy-json</classpathDependencyExclude>
+                                <classpathDependencyExclude>org.apache.groovy:groovy-xml</classpathDependencyExclude>
+                            </classpathDependencyExcludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

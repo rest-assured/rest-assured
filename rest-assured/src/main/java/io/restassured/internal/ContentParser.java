@@ -34,6 +34,15 @@ public class ContentParser {
      * or the response body as an {@link java.io.InputStream} for content types that are not parsed.
      */
     public Object parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
+        return parse(response, rpr, config, parseAsString, null);
+    }
+
+    /**
+     * @param path The first path that will be evaluated on the document, for the message when no path engine is on the
+     *             classpath, or {@code null} if it isn't known
+     * @see #parse(Response, ResponseParserRegistrar, RestAssuredConfig, boolean)
+     */
+    public Object parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString, String path) {
         Parser parser = rpr.getParser(response.contentType());
         if (parser == null) {
             return response.asInputStream();
@@ -57,7 +66,7 @@ public class ContentParser {
                 return response.asInputStream();
         }
         try {
-            return PathProviders.forType(type, config).parse(input, type, CorePathSettings.forBodyAssertions(config));
+            return PathProviders.forType(type, config, path).parse(input, type, CorePathSettings.forBodyAssertions(config));
         } catch (Exception e) {
             // Rethrow checked exceptions (such as SAXParseException) as is, without wrapping them
             return SafeExceptionRethrower.safeRethrow(e);

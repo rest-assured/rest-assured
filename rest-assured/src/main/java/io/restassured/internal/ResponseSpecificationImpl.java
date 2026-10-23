@@ -533,7 +533,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
                 if (hasBodyAssertionsDefined()) {
                     RestAssuredConfig cfg = config == null ? new RestAssuredConfig() : config;
                     if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
-                        contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert());
+                        contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert(), bodyMatchers.firstPath());
                     }
                     validations.addAll(bodyMatchers.validate(response, contentParser, cfg));
                 }
