@@ -64,4 +64,12 @@ public interface PathProvider {
      * Evaluate a path on a document that {@link #parse(PathInput, DocumentType, PathSettings)} returned.
      */
     PathResult evaluate(Object document, DocumentType type, String path);
+
+    /**
+     * Join the root path of a response specification and the key of a body expectation into the path to evaluate.
+     *
+     * @param rootPath The root path, which is {@code null} or empty when there is none.
+     * @see GPathRootPath#join(String, String)
+     */
+    String joinRootPath(String rootPath, String key);
 }
