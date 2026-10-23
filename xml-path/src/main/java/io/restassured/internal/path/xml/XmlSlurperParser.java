@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.Map;
 
 /**
@@ -37,7 +38,7 @@ public class XmlSlurperParser {
     /**
      * Parse an XML or HTML document.
      *
-     * @param document                The document, either a {@link String} or an {@link InputStream}.
+     * @param document                The document, either a {@link String}, an {@link InputStream} or a {@link Reader}.
      * @param html                    <code>true</code> to parse the document leniently as HTML (using TagSoup), in which case
      *                                <code>validating</code>, <code>namespaceAware</code> and <code>allowDocTypeDeclaration</code> are not used.
      * @param validating              Whether the XML parser should validate the document.
@@ -59,7 +60,14 @@ public class XmlSlurperParser {
             slurper.setFeature(feature.getKey(), feature.getValue());
         }
 
-        final GPathResult result = document instanceof InputStream ? slurper.parse((InputStream) document) : slurper.parseText((String) document);
+        final GPathResult result;
+        if (document instanceof InputStream) {
+            result = slurper.parse((InputStream) document);
+        } else if (document instanceof Reader) {
+            result = slurper.parse((Reader) document);
+        } else {
+            result = slurper.parseText((String) document);
+        }
         if (namespacesToDeclare != null) {
             result.declareNamespace(namespacesToDeclare);
         }
