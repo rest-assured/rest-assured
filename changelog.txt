@@ -23,6 +23,8 @@ Changelog next version
 * Non-backward compatible change: a URI value in such a Map or Collection JSON request body is now written as a string, like a URL, instead of as an object of its bean properties ({"absolute":true,"authority":..})
 * Non-backward compatible change: an Optional value in such a Map or Collection JSON request body is now written as its value, or as null when it's empty, instead of as {"empty":false,"present":true}
 * Fix pretty printing (in logging, prettyPrint() and prettyPeek()) of a JSON string with an escaped backslash followed by u, such as "\\u00e5", which was printed as "\å" or, as with "\\uZZZZ", left the whole body unformatted. It's now printed as it is in the body
+* Fix form authentication on login pages that have several text or password inputs, which sent the user name or password under a field named like "[user, other]". The first text input and the first password input of the page are now used. Likewise, when several inputs have the name of an additional field from FormAuthConfig, the value of the first one is sent instead of a value like "[v1, v2]". A login page without a text or password input now fails with "Failed to parse login page. Check for errors on the login page or specify FormAuthConfig." instead of sending a field named "[]"
+* Form authentication now finds the user name and password inputs of a login page whatever the case of their type, such as type="TEXT" or type="Password", which it didn't before
 
 Changelog 6.3.0 (2026-10-23)
 ----------------------------

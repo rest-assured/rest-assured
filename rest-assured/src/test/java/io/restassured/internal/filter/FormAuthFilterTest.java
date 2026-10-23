@@ -438,6 +438,40 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void uses_first_text_and_password_input_and_first_additional_field_with_the_name() {
+        String page = "<html><body><form action=\"/login\" method=\"POST\"><input type=\"text\" name=\"user\"/><input name=\"other\"/>" +
+                "<input type=\"password\" name=\"pass\"/><input type=\"password\" name=\"pass2\"/>" +
+                "<input type=\"hidden\" name=\"extra\" value=\"v1\"/><input type=\"hidden\" name=\"extra\" value=\"v2\"/></form></body></html>";
+        server.route("GET /secured", securedOr(r -> Reply.html(page)));
+
+        given().auth().form("John", "Doe", new FormAuthConfig().withAdditionalField("extra")).when().get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe&extra=v1");
+    }
+
+    @Test
+    void finds_input_types_ignoring_case() {
+        String page = "<html><body><form action=\"/login\" method=\"POST\"><input type=\"TEXT\" name=\"user\"/><input type=\"Password\" name=\"pass\"/>" +
+                "</form></body></html>";
+        server.route("GET /secured", securedOr(r -> Reply.html(page)));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe");
+    }
+
+    @Test
+    void fails_when_login_page_has_no_password_input() {
+        server.route("GET /secured", securedOr(r -> Reply.html("<html><body><form action=\"/login\"><input name=\"user\"/></form></body></html>")));
+
+        assertThatThrownBy(() -> given().auth().form("John", "Doe").when().get("/secured"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.")
+                .hasRootCauseMessage("The login page has no input of type password.");
+        assertThat(server.requestLines()).containsExactly("GET /secured");
+    }
+
+    @Test
     void posts_to_action_of_first_form_of_login_page() {
         String page = "<html><body><form action=\"/login\" method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form>" +
                 "<form action=\"/search\"></form></body></html>";
