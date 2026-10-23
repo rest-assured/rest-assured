@@ -88,6 +88,16 @@ class ResponseSpecBuilderConfigTest {
     }
 
     @Test
+    void expect_uses_the_config_of_a_request_specification() {
+        RestAssuredConfig jayway = config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY));
+
+        assertThatThrownBy(() -> given().spec(new RequestSpecBuilder().addFilter(respond()).setConfig(jayway).build())
+                .expect().body("a", equalTo("b")).when().get("/"))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(JAYWAY_IS_MISSING);
+    }
+
+    @Test
     void the_specification_outranks_rest_assured_config() {
         RestAssured.config = config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY));
 

@@ -22,6 +22,7 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.JsonPathEngine;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
+import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.Test;
 
@@ -72,8 +73,16 @@ public class PathEngineSelectionITest extends WithJetty {
         given().config(engine(JsonPathEngine.JAYWAY)).expect().body(JSONPATH_WILDCARD, contains(23, 54)).when().get("/lotto");
         given().config(engine(JsonPathEngine.JAYWAY)).when().get("/lotto").then().body(JSONPATH_WILDCARD, contains(23, 54));
         assertThat(given().config(engine(JsonPathEngine.JAYWAY)).get("/lotto").<List<Integer>>path(JSONPATH_WILDCARD)).containsExactly(23, 54);
-        given().spec(new RequestSpecBuilder().setConfig(engine(JsonPathEngine.JAYWAY)).build()).when().get("/lotto")
-                .then().body(JSONPATH_WILDCARD, contains(23, 54));
+    }
+
+    @Test
+    public void jayway_can_be_set_on_a_request_specification() {
+        RequestSpecification jayway = new RequestSpecBuilder().setConfig(engine(JsonPathEngine.JAYWAY)).build();
+
+        given().spec(jayway).expect().body(JSONPATH_WILDCARD, contains(23, 54)).when().get("/lotto");
+        given().spec(jayway).when().get("/lotto").then().body(JSONPATH_WILDCARD, contains(23, 54));
+        given(jayway).expect().body(JSONPATH_WILDCARD, contains(23, 54)).when().get("/lotto");
+        assertThat(given().spec(jayway).get("/lotto").<List<Integer>>path(JSONPATH_WILDCARD)).containsExactly(23, 54);
     }
 
     @Test
