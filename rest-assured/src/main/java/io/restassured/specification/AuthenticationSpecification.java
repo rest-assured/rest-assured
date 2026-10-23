@@ -125,9 +125,16 @@ public interface AuthenticationSpecification {
     /**
      * OAuth2 sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the OAuth header.
      * This assumes you've already generated an accessToken for the site you're targeting.
+     * <p>
+     * With {@link OAuthSignature#HEADER} the access token is sent as a bearer token in the <code>Authorization</code> header,
+     * like {@link #oauth2(String)}. With {@link OAuthSignature#QUERY_STRING} it's added to the request URI as the
+     * <code>access_token</code> query parameter (RFC 6750, section 2.3) and no <code>Authorization</code> header is sent.
+     * The query parameter isn't added to a redirect to another host, unless
+     * {@link io.restassured.config.RedirectConfig#stripSensitiveHeadersOnCrossHostRedirect(boolean)} is turned off.
+     * </p>
      *
      * @param accessToken The access token
-     * @param signature   The signature (note that if using {@link OAuthSignature#QUERY_STRING} then <code>Scribe</code> must be added to the classpath)
+     * @param signature   Where to send the access token
      * @return The request io.restassured.specification
      */
     RequestSpecification oauth2(String accessToken, OAuthSignature signature);
