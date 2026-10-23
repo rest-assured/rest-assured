@@ -20,7 +20,9 @@ import com.github.scribejava.core.builder.api.DefaultApi10a;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth10aService;
 import io.restassured.authentication.OAuthSignature;
+import io.restassured.common.spi.http.TlsSettings;
 import io.restassured.internal.TrustAndKeystoreSpecImpl;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
@@ -158,21 +160,25 @@ public class AuthConfig {
     public void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
                             Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
                             int port, X509HostnameVerifier hostnameVerifier, SSLSocketFactory sslConnectionSocketFactory) {
+        TlsSettings tls = ClientSettingsFactory.certificateTlsSettings(keyStorePath, keyStorePassword, keyStoreType, keyStore,
+                trustStorePath, trustStorePassword, trustStoreType, trustStore, JsseToHttpClient4Ssl.toHostnameVerifier(hostnameVerifier), null);
+        certificate(tls, port, sslConnectionSocketFactory);
+    }
+
+    /**
+     * Use these TLS settings for https connections, like {@link #certificate(Object, String, String, KeyStore, Object, String,
+     * String, KeyStore, int, X509HostnameVerifier, SSLSocketFactory)}.
+     *
+     * @param port             The SSL port, or <code>-1</code> for the port of the request or 443
+     * @param sslSocketFactory An SSLSocketFactory to use instead of the TLS settings, or <code>null</code>
+     */
+    public void certificate(TlsSettings tls, int port, SSLSocketFactory sslSocketFactory) {
         TrustAndKeystoreSpecImpl spec = new TrustAndKeystoreSpecImpl();
         URI uri = ((URIBuilder) builder.getUri()).toURI();
         if (uri == null) throw new IllegalStateException("a default URI must be set");
-        spec.setKeyStoreType(keyStoreType);
-        spec.setKeyStorePassword(keyStorePassword);
-        spec.setKeyStorePath(keyStorePath);
-        spec.setKeyStore(keyStore);
-        spec.setTrustStoreType(trustStoreType);
-        spec.setTrustStorePassword(trustStorePassword);
-        spec.setTrustStorePath(trustStorePath);
-        spec.setTrustStore(trustStore);
+        spec.setTlsSettings(tls);
         spec.setPort(port);
-        spec.setX509HostnameVerifier(hostnameVerifier);
-        spec.setFactory(sslConnectionSocketFactory);
-
+        spec.setFactory(sslSocketFactory);
         if ("https".equalsIgnoreCase(uri.getScheme())) {
             int portSpecifiedInUri = uri.getPort();
             spec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri, false);

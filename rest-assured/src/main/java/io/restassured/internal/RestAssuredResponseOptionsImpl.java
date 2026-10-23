@@ -18,6 +18,8 @@ package io.restassured.internal;
 
 import io.restassured.common.mapper.DataToDeserialize;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.common.spi.http.HttpHeader;
+import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -43,7 +45,6 @@ import io.restassured.internal.path.PathProviders;
 import io.restassured.internal.print.ResponsePrinter;
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper;
 import io.restassured.internal.support.Prettifier;
-import io.restassured.internal.transport.TransportResponse;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperType;
@@ -109,7 +110,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     private boolean hasExpectations;
     private RestAssuredConfig config;
 
-    void parseResponse(TransportResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
+    void parseResponse(HttpResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parse(response, content, hasBodyAssertions, responseParserRegistrar);
         // Closing a body that is read later tells the HTTP client that REST Assured is done with the response (see asInputStream)
         connectionManager = response;
@@ -117,11 +118,11 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     void parseResponse(HttpResponseDecorator httpResponse, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
-        parse(HttpClient4Transport.toTransportResponse(httpResponse, null, null), content, hasBodyAssertions, responseParserRegistrar);
+        parse(HttpClient4Transport.toHttpResponse(httpResponse, null, null), content, hasBodyAssertions, responseParserRegistrar);
         apacheHttpContext = httpResponse.getContext().getDelegate();
     }
 
-    private void parse(TransportResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
+    private void parse(HttpResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(response);
         parseContentType(response);
         parseCookies();
@@ -137,15 +138,15 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         this.defaultContentType = defaultParser == null ? null : defaultParser.getContentType();
     }
 
-    private void parseHeaders(TransportResponse response) {
+    private void parseHeaders(HttpResponse response) {
         List<Header> headerList = new ArrayList<>();
-        for (Map.Entry<String, String> header : response.headers()) {
-            headerList.add(new Header(header.getKey(), header.getValue()));
+        for (HttpHeader header : response.headers()) {
+            headerList.add(new Header(header.name(), header.value()));
         }
         this.responseHeaders = new Headers(headerList);
     }
 
-    private void parseContentType(TransportResponse response) {
+    private void parseContentType(HttpResponse response) {
         String contentTypeHeader = response.firstHeader("Content-Type");
         // No content type was found, set it to empty
         contentType = contentTypeHeader == null ? "" : contentTypeHeader;
@@ -158,7 +159,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         }
     }
 
-    private void parseStatus(TransportResponse response) {
+    private void parseStatus(HttpResponse response) {
         // Like HttpClient 4's status line, which keeps the space before an empty reason phrase
         String reasonPhrase = response.reasonPhrase() == null ? "" : response.reasonPhrase();
         statusLine = response.protocolVersion() + " " + response.statusCode() + " " + reasonPhrase;
@@ -447,8 +448,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public InputStream asInputStream() {
         if (content == null || content instanceof InputStream) {
-            if (connectionManager instanceof TransportResponse) {
-                return new CloseHTTPClientConnectionInputStreamWrapper((TransportResponse) connectionManager, (InputStream) content);
+            if (connectionManager instanceof HttpResponse) {
+                return new CloseHTTPClientConnectionInputStreamWrapper((HttpResponse) connectionManager, (InputStream) content);
             }
             return new CloseHTTPClientConnectionInputStreamWrapper(config.getConnectionConfig(), (ClientConnectionManager) connectionManager, (InputStream) content);
         } else {

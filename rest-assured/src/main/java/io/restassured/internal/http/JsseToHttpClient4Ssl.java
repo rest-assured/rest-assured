@@ -16,6 +16,9 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.common.spi.http.HostnameVerification;
+import io.restassured.common.spi.http.TlsSettings;
+import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
@@ -26,6 +29,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 
 /**
@@ -66,6 +70,42 @@ public class JsseToHttpClient4Ssl {
             return sslSocketFactory;
         }
         return new SSLSocketFactory(sslContext, x509HostnameVerifier == null ? SSLSocketFactory.STRICT_HOSTNAME_VERIFIER : x509HostnameVerifier);
+    }
+
+    /**
+     * @return a socket factory with the context of the settings, which checks host names as the settings say. With
+     * relaxed validation any host name is allowed.
+     */
+    public static SSLSocketFactory toSSLSocketFactory(TlsSettings tls) {
+        SSLContext sslContext;
+        try {
+            sslContext = tls.createSslContext();
+        } catch (IOException | GeneralSecurityException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
+        X509HostnameVerifier verifier;
+        if (tls.relaxedProtocol() != null || tls.hostnames() == HostnameVerification.ALLOW_ALL) {
+            verifier = SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+        } else if (tls.hostnames() == HostnameVerification.STRICT) {
+            verifier = SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
+        } else {
+            verifier = toX509HostnameVerifier(tls.hostnameVerifier());
+        }
+        return new SSLSocketFactory(sslContext, verifier);
+    }
+
+    /**
+     * Sets how the settings check host names from a verifier: HttpClient 4's strict and allow-all verifiers, which
+     * {@code strictHostnames()} and {@code allowAllHostnames()} set, stand for what they do, and any other verifier
+     * is a custom one. Unwrap an adapter with {@link #toHostnameVerifier(X509HostnameVerifier)} first.
+     */
+    public static TlsSettings.Builder hostnames(TlsSettings.Builder tls, HostnameVerifier hostnameVerifier) {
+        if (hostnameVerifier == SSLSocketFactory.STRICT_HOSTNAME_VERIFIER) {
+            return tls.hostnames(HostnameVerification.STRICT);
+        } else if (hostnameVerifier == SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER) {
+            return tls.hostnames(HostnameVerification.ALLOW_ALL);
+        }
+        return tls.hostnameVerifier(hostnameVerifier);
     }
 
     private static class HostnameVerifierAdapter implements X509HostnameVerifier {

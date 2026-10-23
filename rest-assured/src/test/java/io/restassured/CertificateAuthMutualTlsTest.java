@@ -173,6 +173,19 @@ class CertificateAuthMutualTlsTest {
     }
 
     @Test
+    void statically_configured_certificate_with_relaxed_validation_sends_the_client_certificate_of_the_key_store() {
+        RestAssured.config = config().sslConfig(sslConfig().relaxedHTTPSValidation());
+        RestAssured.authentication = RestAssured.certificate(CLIENT_KEYSTORE, PASSWORD);
+
+        given().
+        when().
+                get(url()).
+        then().
+                statusCode(200).
+                body(equalTo("hello"));
+    }
+
+    @Test
     void certificate_with_settings_in_request_spec_builder_sends_the_client_certificate_of_the_key_store() {
         given().
                 spec(new RequestSpecBuilder().setAuth(RestAssured.certificate(CLIENT_KEYSTORE, PASSWORD, certAuthSettings())).build()).

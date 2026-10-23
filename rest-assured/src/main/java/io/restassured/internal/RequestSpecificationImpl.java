@@ -19,6 +19,10 @@ import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.NoAuthScheme;
+import io.restassured.common.spi.http.HttpRequest;
+import io.restassured.common.spi.http.HttpResponse;
+import io.restassured.common.spi.http.RequestBody;
+import io.restassured.common.spi.http.RequestOptions;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.EncoderConfig;
@@ -53,9 +57,9 @@ import io.restassured.internal.http.ContentDecoding;
 import io.restassured.internal.http.ContentTypeExtractor;
 import io.restassured.internal.http.HTTPBuilder;
 import io.restassured.internal.http.HttpClient4Transport;
-import io.restassured.internal.http.RequestBody;
 import io.restassured.internal.http.RequestBodyEncoder;
 import io.restassured.internal.http.URIBuilder;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
@@ -64,8 +68,6 @@ import io.restassured.internal.multipart.MultiPartSpecificationImpl;
 import io.restassured.internal.multipart.MultipartWriter;
 import io.restassured.internal.support.ParameterUpdater;
 import io.restassured.internal.support.PathSupport;
-import io.restassured.internal.transport.TransportRequest;
-import io.restassured.internal.transport.TransportResponse;
 import io.restassured.internal.util.ExceptionUnwrapper;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.mapper.ObjectMapper;
@@ -1619,63 +1621,66 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         HttpClient4Transport transport = new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, authenticationScheme);
         try {
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
-            TransportRequest request;
+            RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), null);
+            HttpRequest request;
             if (mayHaveBody(method)) {
                 if (hasFormParams() && requestBody != null) {
                     throw new IllegalStateException("You can either send form parameters OR body content in " + method + ", not both!");
                 }
                 Object bodyContent = createFormParamBodyContent(assembleBodyContent(method));
                 if (POST.name().equalsIgnoreCase(method)) {
-                    request = newFormRequest(http, method, targetPath, queryParameters, bodyContent, acceptContentType, encoderConfig, contentDecoding);
+                    request = newFormRequest(http, method, targetPath, queryParameters, bodyContent, acceptContentType, encoderConfig, contentDecoding, options);
                 } else if (PATCH.name().equalsIgnoreCase(method)) {
                     request = newFormRequest(http, method, targetPath, mergeMapsAndRetainOrder(requestParameters, queryParameters), bodyContent,
-                            acceptContentType, encoderConfig, contentDecoding);
+                            acceptContentType, encoderConfig, contentDecoding, options);
                 } else {
                     requestBody = bodyContent;
-                    request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding);
+                    request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
                 }
             } else {
-                request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding);
+                request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
             }
 
-            TransportResponse response = transport.send(request);
+            HttpResponse response = transport.send(request);
             restAssuredResponse.setApacheHttpContext(transport.context());
             RequestDispatcher.receive(response, contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
         } finally {
-            transport.restore();
+            transport.close();
         }
         return restAssuredResponse;
     }
 
     // A POST, or a PATCH with form params or multiparts, is sent URL encoded unless the request has a content type
-    private TransportRequest newFormRequest(HTTPBuilder http, String method, String targetPath, Map<String, Object> query, Object bodyContent,
-                                            Object acceptContentType, EncoderConfig encoderConfig, ContentDecoding contentDecoding) throws URISyntaxException {
+    private HttpRequest newFormRequest(HTTPBuilder http, String method, String targetPath, Map<String, Object> query, Object bodyContent,
+                                       Object acceptContentType, EncoderConfig encoderConfig, ContentDecoding contentDecoding,
+                                       RequestOptions options) throws URISyntaxException {
         if (allowContentType) {
             String contentType = requestHeaders.getValue(CONTENT_TYPE);
             return newRequest(http, method, targetPath, query, acceptContentType, contentType == null ? URLENC.toString() : contentType, bodyContent,
-                    encoderConfig, contentDecoding);
+                    encoderConfig, contentDecoding, options);
         }
-        return newRequest(http, method, targetPath, query, http.getContentType(), null, bodyContent, encoderConfig, contentDecoding);
+        return newRequest(http, method, targetPath, query, http.getContentType(), null, bodyContent, encoderConfig, contentDecoding, options);
     }
 
-    private TransportRequest newRequest(HTTPBuilder http, String method, String targetPath, Object acceptContentType, EncoderConfig encoderConfig,
-                                        ContentDecoding contentDecoding) throws URISyntaxException {
+    private HttpRequest newRequest(HTTPBuilder http, String method, String targetPath, Object acceptContentType, EncoderConfig encoderConfig,
+                                   ContentDecoding contentDecoding, RequestOptions options) throws URISyntaxException {
         Map<String, Object> query = mergeMapsAndRetainOrder(requestParameters, queryParameters);
         if (method.equals(GET.name())) {
             query = mergeMapsAndRetainOrder(query, formParameters);
         }
         String requestContentType = allowContentType ? defineRequestContentTypeAsString(method) : null;
-        return newRequest(http, method, targetPath, query, acceptContentType, requestContentType, requestBody, encoderConfig, contentDecoding);
+        return newRequest(http, method, targetPath, query, acceptContentType, requestContentType, requestBody, encoderConfig, contentDecoding, options);
     }
 
-    private TransportRequest newRequest(HTTPBuilder http, String method, String targetPath, Map<String, Object> query, Object acceptContentType,
-                                        String requestContentType, Object body, EncoderConfig encoderConfig, ContentDecoding contentDecoding) throws URISyntaxException {
+    private HttpRequest newRequest(HTTPBuilder http, String method, String targetPath, Map<String, Object> query, Object acceptContentType,
+                                   String requestContentType, Object body, EncoderConfig encoderConfig, ContentDecoding contentDecoding,
+                                   RequestOptions options) throws URISyntaxException {
         URIBuilder uri = new URIBuilder(((URIBuilder) http.getUri()).toURI(), urlEncodingEnabled, encoderConfig);
         uri.setPath(targetPath);
         uri.setQuery(query);
         // The headers of the request specification, the cookies and the headers of the authentication scheme
         return RequestDispatcher.newRequest(method, uri.toURI(), http.getHeaders(), acceptContentType, requestContentType, body, allowContentType,
-                requestHeaders.hasHeaderWithName("Accept"), http.getEncoders(), contentDecoding);
+                requestHeaders.hasHeaderWithName("Accept"), http.getEncoders(), contentDecoding, options);
     }
 
     public void assertCorrectNumberOfPathParams() {

@@ -16,21 +16,22 @@
 
 package io.restassured.internal;
 
+import io.restassured.common.spi.http.HttpHeader;
+import io.restassured.common.spi.http.HttpRequest;
+import io.restassured.common.spi.http.HttpResponse;
+import io.restassured.common.spi.http.RequestBody;
+import io.restassured.common.spi.http.RequestOptions;
 import io.restassured.http.ContentType;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.http.ContentDecoding;
 import io.restassured.internal.http.EncoderRegistry;
-import io.restassured.internal.http.RequestBody;
 import io.restassured.internal.http.ResponseParseException;
-import io.restassured.internal.transport.TransportRequest;
-import io.restassured.internal.transport.TransportResponse;
 import io.restassured.internal.util.SafeExceptionRethrower;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.net.URI;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -72,14 +73,15 @@ final class RequestDispatcher {
      * @param body               the body, or <code>null</code> if the request has none
      * @param allowContentType   <code>false</code> if the request must not have a content type
      * @param acceptHeaderDefined whether the request specification has an Accept header
+     * @param options            how the request is sent
      */
-    static TransportRequest newRequest(String method, URI uri, Map<?, ?> headers, Object acceptContentType, String requestContentType,
-                                       Object body, boolean allowContentType, boolean acceptHeaderDefined, EncoderRegistry encoders,
-                                       ContentDecoding contentDecoding) {
+    static HttpRequest newRequest(String method, URI uri, Map<?, ?> headers, Object acceptContentType, String requestContentType,
+                                  Object body, boolean allowContentType, boolean acceptHeaderDefined, EncoderRegistry encoders,
+                                  ContentDecoding contentDecoding, RequestOptions options) {
         String contentType = requestContentType == null ? Objects.toString(acceptContentType, null) : requestContentType;
         RequestBody requestBody = body == null ? null : encode(encoders, allowContentType, contentType, body);
 
-        List<Map.Entry<String, String>> requestHeaders = new ArrayList<>();
+        List<HttpHeader> requestHeaders = new ArrayList<>();
         if (!acceptHeaderDefined) {
             String accept = acceptContentType instanceof ContentType ? ((ContentType) acceptContentType).getAcceptHeader() : acceptContentType.toString();
             setHeader(requestHeaders, ACCEPT, accept);
@@ -92,12 +94,12 @@ final class RequestDispatcher {
             String name = header.getKey().toString();
             Object value = header.getValue();
             if (value == null || name.equalsIgnoreCase(CONTENT_TYPE) && !allowContentType) {
-                requestHeaders.removeIf(it -> it.getKey().equalsIgnoreCase(name));
+                requestHeaders.removeIf(it -> it.name().equalsIgnoreCase(name));
             } else if (!name.equalsIgnoreCase(CONTENT_TYPE) || !value.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
                 // A multipart content type is left to the body, which adds the boundary
                 if (value instanceof Collection) {
                     for (String element : flattenToString((Collection<?>) value)) {
-                        requestHeaders.add(new AbstractMap.SimpleImmutableEntry<>(name, element));
+                        requestHeaders.add(new HttpHeader(name, element));
                     }
                 } else {
                     setHeader(requestHeaders, name, value.toString());
@@ -108,7 +110,7 @@ final class RequestDispatcher {
         if (acceptEncoding != null) {
             setHeader(requestHeaders, ContentDecoding.ACCEPT_ENCODING, acceptEncoding);
         }
-        return new TransportRequest(method, uri, requestHeaders, requestBody);
+        return new HttpRequest(method, uri, requestHeaders, requestBody, options);
     }
 
     private static RequestBody encode(EncoderRegistry encoders, boolean allowContentType, String contentType, Object body) {
@@ -131,10 +133,10 @@ final class RequestDispatcher {
     }
 
     // Replaces the first header with this name (ignoring case) in place, or adds one, like HttpClient 4's setHeader
-    private static void setHeader(List<Map.Entry<String, String>> headers, String name, String value) {
-        Map.Entry<String, String> header = new AbstractMap.SimpleImmutableEntry<>(name, value);
+    private static void setHeader(List<HttpHeader> headers, String name, String value) {
+        HttpHeader header = new HttpHeader(name, value);
         for (int i = 0; i < headers.size(); i++) {
-            if (headers.get(i).getKey().equalsIgnoreCase(name)) {
+            if (headers.get(i).name().equalsIgnoreCase(name)) {
                 headers.set(i, header);
                 return;
             }
@@ -142,11 +144,11 @@ final class RequestDispatcher {
         headers.add(header);
     }
 
-    private static List<String> headerValues(List<Map.Entry<String, String>> headers, String name) {
+    private static List<String> headerValues(List<HttpHeader> headers, String name) {
         List<String> values = new ArrayList<>();
-        for (Map.Entry<String, String> header : headers) {
-            if (header.getKey().equalsIgnoreCase(name)) {
-                values.add(header.getValue());
+        for (HttpHeader header : headers) {
+            if (header.name().equalsIgnoreCase(name)) {
+                values.add(header.value());
             }
         }
         return values;
@@ -201,7 +203,7 @@ final class RequestDispatcher {
      * Parses the response into the REST Assured response of the assertion closure. With body assertions the body is
      * read right away, otherwise it's read when the REST Assured response is asked for it.
      */
-    static void receive(TransportResponse response, ContentDecoding contentDecoding, boolean hasBodyAssertions,
+    static void receive(HttpResponse response, ContentDecoding contentDecoding, boolean hasBodyAssertions,
                         ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure) throws IOException {
         InputStream body = response.body();
         boolean bodyIsReadLater = false;

@@ -16,6 +16,7 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.common.spi.http.RequestBody;
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.OAuthConfig;
@@ -69,7 +70,7 @@ import java.util.Map;
  * based on the response <code>content-type</code> header. </p>
  *
  * <p>REST Assured itself no longer sends requests through this class: it builds a
- * {@link io.restassured.internal.transport.TransportRequest} and sends it with {@link HttpClient4Transport}, which
+ * {@link io.restassured.common.spi.http.HttpRequest} and sends it with {@link HttpClient4Transport}, which
  * uses the client of this class. Authentication schemes still configure the client, the headers and the URI here.</p>
  *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>

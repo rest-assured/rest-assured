@@ -18,6 +18,7 @@ package io.restassured.authentication;
 
 import io.restassured.internal.http.HTTPBuilder;
 import io.restassured.internal.http.JsseToHttpClient4Ssl;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
@@ -42,9 +43,7 @@ public class CertAuthScheme implements AuthenticationScheme {
 
     @Override
     public void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.getAuth().certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
-                pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
-                port, x509HostnameVerifier, JsseToHttpClient4Ssl.toSSLSocketFactory(sslSocketFactory, sslContext, x509HostnameVerifier));
+        httpBuilder.getAuth().certificate(ClientSettingsFactory.certificateTlsSettings(this), port, sslSocketFactory);
     }
 
     /**

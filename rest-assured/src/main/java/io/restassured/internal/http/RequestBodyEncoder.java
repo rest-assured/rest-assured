@@ -16,6 +16,8 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.common.spi.http.RequestBody;
+
 import java.io.IOException;
 
 /**
