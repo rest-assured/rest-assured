@@ -155,10 +155,18 @@ class JsonBodyCharacterizationTest {
     }
 
     @Test
-    void writes_uris_optionals_and_java_time_values_with_the_object_mapper() throws IOException {
-        assertThat(jsonOf(URI.create("http://x/y"))).isEqualTo("[\"http://x/y\"]");
-        assertThat(json(Arrays.asList(Optional.of("x"), Optional.empty()))).isEqualTo("[\"x\",null]");
+    void writes_java_time_values_with_the_object_mapper() throws IOException {
         assertThat(jsonOf(java.time.Instant.EPOCH)).isEqualTo("[\"1970-01-01T00:00:00Z\"]");
+    }
+
+    @Test
+    void writes_uris_as_strings_and_optionals_as_their_value() throws IOException {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("uri", URI.create("http://x/y?q=%C3%A5å"));
+        map.put("present", Optional.of(Optional.of(List.of(1))));
+        map.put("empty", Optional.empty());
+
+        assertThat(json(map)).isEqualTo("{\"uri\":\"http://x/y?q=%C3%A5\\u00e5\",\"present\":[1],\"empty\":null}");
     }
 
     @Test
