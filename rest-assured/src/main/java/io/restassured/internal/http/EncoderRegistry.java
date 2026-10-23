@@ -17,8 +17,9 @@
 package io.restassured.internal.http;
 
 import io.restassured.config.EncoderConfig;
+import io.restassured.config.ObjectMapperConfig;
 import io.restassured.http.ContentType;
-import io.restassured.internal.path.json.JsonBuilderSerializer;
+import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -53,12 +54,20 @@ public class EncoderRegistry {
 
     private Map<String, RequestBodyEncoder> registeredEncoders = buildDefaultEncoderMap();
     private EncoderConfig encoderConfig = new EncoderConfig();
+    private ObjectMapperConfig objectMapperConfig = new ObjectMapperConfig();
 
     /**
      * Set the encoder config
      */
     public void setEncoderConfig(EncoderConfig encoderConfig) {
         this.encoderConfig = encoderConfig;
+    }
+
+    /**
+     * Set the object mapper config, which writes the values of a Map or Collection JSON body that aren't JDK types
+     */
+    public void setObjectMapperConfig(ObjectMapperConfig objectMapperConfig) {
+        this.objectMapperConfig = objectMapperConfig;
     }
 
     /**
@@ -191,8 +200,8 @@ public class EncoderRegistry {
     }
 
     /**
-     * <p>A Map or Collection is converted to JSON the same way as Groovy's
-     * <code>JsonBuilder</code> does. A String or GString will be interpreted as
+     * <p>A Map or Collection is converted to JSON by {@link JsonBodyWriter}, with
+     * values that aren't JDK types written by the configured object mapper. A String or GString will be interpreted as
      * valid JSON and passed directly as the request body (with charset
      * conversion if necessary). A File, byte[] or InputStream is assumed to
      * contain valid JSON.</p>
@@ -206,7 +215,8 @@ public class EncoderRegistry {
         String contentTypeAsString = contentTypeToString(contentType);
         Object json;
         if (model instanceof Map || model instanceof Collection) {
-            json = JsonBuilderSerializer.toJson(model);
+            json = new JsonBodyWriter(value -> ObjectMapping.serialize(value, ContentType.JSON.toString(), null, null, objectMapperConfig, encoderConfig))
+                    .write(model);
         } else if (model instanceof String || isGString(model) || model instanceof byte[]) {
             json = model; // assume valid JSON already.
         } else if (model instanceof File) {
