@@ -336,7 +336,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void unnamedQueryParametersWorks() {
-        expect().statusCode(200).when().get("https://www.google.se/search?q={query}&hl=en", "query");
+        expect().statusCode(200).body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName={firstName}&lastName=Doe", "John");
     }
 
     @Test
