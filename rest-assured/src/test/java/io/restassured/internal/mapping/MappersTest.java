@@ -23,6 +23,7 @@ import io.restassured.internal.mapping.MappingTestSupport.Greeting;
 import io.restassured.internal.mapping.MappingTestSupport.Unserializable;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.path.json.mapper.factory.*;
+import io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory;
 import io.restassured.path.xml.mapper.factory.DefaultJakartaEEObjectMapperFactory;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
@@ -343,6 +344,18 @@ class MappersTest {
 
         assertThatThrownBy(() -> new JaxbMapper((type, charset) -> jaxbContext).deserialize(deserializationContext("<greeting/>", Greeting.class, null)))
                 .isSameAs(exception);
+    }
+
+    @Test
+    void jaxb_and_jakarta_ee_mappers_fail_for_a_type_that_isnt_a_class() {
+        Type listOfGreetings = new TypeRef<List<Greeting>>() {
+        }.getType();
+        String message = "JAXB can only deserialize to a class, not to java.util.List<" + Greeting.class.getName() + ">.";
+
+        assertThatThrownBy(() -> new JaxbMapper(new DefaultJAXBObjectMapperFactory()).deserialize(deserializationContext("<greeting/>", listOfGreetings, null)))
+                .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage(message);
+        assertThatThrownBy(() -> new JakartaEEMapper(new DefaultJakartaEEObjectMapperFactory()).deserialize(deserializationContext("<greeting/>", listOfGreetings, null)))
+                .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage(message);
     }
 
     public static class NoRootElement {

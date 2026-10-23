@@ -16,18 +16,17 @@
 
 package io.restassured.internal.mapping;
 
-import io.restassured.internal.path.json.mapping.JsonPathJackson3ObjectDeserializer;
+import io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory;
-import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 
 /**
  * Support for Jackson 3.0
@@ -36,14 +35,11 @@ public class Jackson3Mapper implements ObjectMapper {
 
     private final Jackson3ObjectMapperFactory factory;
 
-    private final JsonPathObjectDeserializer deserializer;
-
     public Jackson3Mapper(Jackson3ObjectMapperFactory factory) {
         this.factory = factory;
-        deserializer = new JsonPathJackson3ObjectDeserializer(factory);
     }
 
-    private tools.jackson.databind.ObjectMapper createJackson3JsonMapper(Class<?> cls, String charset) {
+    private tools.jackson.databind.ObjectMapper createJackson3JsonMapper(Type cls, String charset) {
         return factory.create(cls, charset);
     }
 
@@ -62,7 +58,10 @@ public class Jackson3Mapper implements ObjectMapper {
     }
 
     public Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+        String object = context.getDataToDeserialize().asString();
+        Type type = context.getType();
+        tools.jackson.databind.ObjectMapper mapper = createJackson3JsonMapper(type, context.getCharset());
+        return mapper.readValue(object, mapper.constructType(type));
     }
 
     private static JsonEncoding getEncoding(String charset) {
