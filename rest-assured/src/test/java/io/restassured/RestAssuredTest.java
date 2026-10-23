@@ -66,4 +66,16 @@ public class RestAssuredTest {
       RestAssured.reset();
     }
   }
+
+  @Test
+  public void key_store_with_only_a_password_uses_the_keystore_in_the_user_home_directory() {
+    try {
+      RestAssured.keyStore("pw");
+
+      assertThat(RestAssured.config().getSSLConfig().getPathToKeyStore()).isEqualTo(System.getProperty("user.home") + File.separatorChar + ".keystore");
+      assertThat(RestAssured.config().getSSLConfig().getKeyStorePassword()).isEqualTo("pw");
+    } finally {
+      RestAssured.reset();
+    }
+  }
 }

@@ -1862,10 +1862,11 @@ public class RestAssured {
      * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keyStore(password));
      * </pre>
      *
-     * @param password - Use null for no password
+     * @param password The password of the keystore
      */
     public static void keyStore(String password) {
-        applyKeyStore(null, password);
+        RestAssuredConfig restAssuredConfig = configWithoutSessionId();
+        config = restAssuredConfig.sslConfig(restAssuredConfig.getSSLConfig().keyStore(password));
     }
 
     /**
