@@ -29,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 
@@ -87,7 +86,7 @@ class MockMvcBodyPathCharacterizationTest {
 
     @Test
     void leading_dollar() {
-        json().body("$", hasKey("store")).body("$.store", nullValue()).body("$schema", equalTo("s"));
+        json().body("$", hasKey("store")).body("$.store", hasKey("book")).body("$schema", equalTo("s"));
     }
 
     @Test

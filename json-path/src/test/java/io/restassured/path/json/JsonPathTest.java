@@ -1209,4 +1209,29 @@ public class JsonPathTest {
         assertThat(jsonPath.getString("some-list[0][1].x"), equalTo("b"));
         assertThat(jsonPath.getList("some-list[0..-1][0].x"), contains("a", "b"));
     }
+
+    @Test void
+    a_leading_dollar_dot_starts_at_the_root() {
+        JsonPath jsonPath = JsonPath.from(JSON);
+
+        assertThat(jsonPath.getString("$.store.book[0].author"), equalTo("Nigel Rees"));
+        assertThat(jsonPath.getList("$.store.book.title"), hasSize(4));
+        assertThat(jsonPath.getList("$.store.book.findAll { it.price < 10 }.title"), contains("Sayings of the Century", "Moby Dick"));
+        assertThat(jsonPath.getString("$.store.bicycle.color"), equalTo(jsonPath.getString("store.bicycle.color")));
+    }
+
+    @Test void
+    a_leading_dollar_bracket_starts_at_the_root() {
+        assertThat(JsonPath.from(JSON2).getString("$[1].alias"), equalTo("name two"));
+        assertThat(JsonPath.from(JSON2).getString("$[-1].alias"), equalTo("name three"));
+        assertThat(JsonPath.from(JSON).getString("$['store']['bicycle']['color']"), equalTo("red"));
+    }
+
+    @Test void
+    a_key_that_starts_with_a_dollar_is_still_a_key() {
+        JsonPath jsonPath = JsonPath.from("{ \"$schema\": \"s\", \"$\": { \"a\": 1 } }");
+
+        assertThat(jsonPath.getString("$schema"), equalTo("s"));
+        assertThat(jsonPath.getMap("$"), hasKey("$schema"));
+    }
 }
