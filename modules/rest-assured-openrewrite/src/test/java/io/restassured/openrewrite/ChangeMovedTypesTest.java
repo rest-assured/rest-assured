@@ -122,22 +122,6 @@ class ChangeMovedTypesTest implements RewriteTest {
     }
 
     @Test
-    void leaves_jackson_1_factories_alone() {
-        rewriteRun(
-                java(
-                        """
-                        import io.restassured.path.json.mapper.factory.DefaultJackson1ObjectMapperFactory;
-                        import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
-
-                        class A {
-                            Jackson1ObjectMapperFactory factory = new DefaultJackson1ObjectMapperFactory();
-                        }
-                        """
-                )
-        );
-    }
-
-    @Test
     void changes_number_return_type() {
         rewriteRun(
                 java(

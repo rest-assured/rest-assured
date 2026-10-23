@@ -37,7 +37,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class TypeObjectMappingITest extends WithJetty {
 
     static java.util.stream.Stream<ObjectMapperType> getParameters() {
-        return java.util.stream.Stream.of(GSON, JACKSON_1, JACKSON_2);
+        return java.util.stream.Stream.of(GSON, JACKSON_2);
     }
 
     @ParameterizedTest(name = "{0}")

@@ -71,10 +71,6 @@ class MappersTest {
             requestedTypes.add(type);
             return new DefaultGsonObjectMapperFactory().create(type, charset);
         }));
-        mappers.put("jackson1", new Jackson1Mapper((type, charset) -> {
-            requestedTypes.add(type);
-            return new DefaultJackson1ObjectMapperFactory().create(type, charset);
-        }));
         mappers.put("jackson2", new Jackson2Mapper((type, charset) -> {
             requestedTypes.add(type);
             return new DefaultJackson2ObjectMapperFactory().create(type, charset);
@@ -140,7 +136,6 @@ class MappersTest {
         Greeting greeting = new Greeting("Jöhn", "Dœ");
         String expected = "{\"firstName\":\"Jöhn\",\"lastName\":\"Dœ\"}";
 
-        assertThat(new Jackson1Mapper(new DefaultJackson1ObjectMapperFactory()).serialize(context(greeting, charset))).isEqualTo(expected);
         assertThat(new Jackson2Mapper(new DefaultJackson2ObjectMapperFactory()).serialize(context(greeting, charset))).isEqualTo(expected);
         assertThat(new Jackson3Mapper(new DefaultJackson3ObjectMapperFactory()).serialize(context(greeting, charset))).isEqualTo(expected);
     }
@@ -148,10 +143,6 @@ class MappersTest {
     @Test
     void jackson_mappers_pass_the_charset_to_the_factory() {
         List<String> charsets = new ArrayList<>();
-        new Jackson1Mapper((type, charset) -> {
-            charsets.add(charset);
-            return new DefaultJackson1ObjectMapperFactory().create(type, charset);
-        }).serialize(context(new Greeting(), "UTF-16BE"));
         new Jackson2Mapper((type, charset) -> {
             charsets.add(charset);
             return new DefaultJackson2ObjectMapperFactory().create(type, charset);
@@ -161,13 +152,11 @@ class MappersTest {
             return new DefaultJackson3ObjectMapperFactory().create(type, charset);
         }).serialize(context(new Greeting(), "UTF-16BE"));
 
-        assertThat(charsets).containsExactly("UTF-16BE", "UTF-16BE", "UTF-16BE");
+        assertThat(charsets).containsExactly("UTF-16BE", "UTF-16BE");
     }
 
     @Test
     void jackson_mappers_throw_mapping_exceptions_unwrapped() {
-        assertThatThrownBy(() -> new Jackson1Mapper(new DefaultJackson1ObjectMapperFactory()).serialize(context(new Unserializable(), null)))
-                .isInstanceOf(org.codehaus.jackson.map.JsonMappingException.class);
         assertThatThrownBy(() -> new Jackson2Mapper(new DefaultJackson2ObjectMapperFactory()).serialize(context(new Unserializable(), null)))
                 .isInstanceOf(com.fasterxml.jackson.databind.JsonMappingException.class);
         assertThatThrownBy(() -> new Jackson3Mapper(new DefaultJackson3ObjectMapperFactory()).serialize(context(new SelfReferencing(), null)))
@@ -296,7 +285,6 @@ class MappersTest {
 
         assertThat(failures).containsExactly(
                 entry("gson", com.google.gson.JsonSyntaxException.class),
-                entry("jackson1", java.io.UncheckedIOException.class),
                 entry("jackson2", RuntimeException.class),
                 entry("jackson2 cause", com.fasterxml.jackson.core.io.JsonEOFException.class),
                 entry("jackson3", tools.jackson.core.exc.UnexpectedEndOfInputException.class),

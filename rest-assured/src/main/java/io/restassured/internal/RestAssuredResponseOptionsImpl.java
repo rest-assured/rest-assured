@@ -359,7 +359,6 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public JsonPath jsonPath() {
         return jsonPath(jsonPathConfig().charset(findCharset()).
-                jackson1ObjectMapperFactory(config.getObjectMapperConfig().jackson1ObjectMapperFactory()).
                 jackson2ObjectMapperFactory(config.getObjectMapperConfig().jackson2ObjectMapperFactory()).
                 jackson3ObjectMapperFactory(config.getObjectMapperConfig().jackson3ObjectMapperFactory()).
                 gsonObjectMapperFactory(config.getObjectMapperConfig().gsonObjectMapperFactory()).

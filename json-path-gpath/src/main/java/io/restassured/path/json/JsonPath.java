@@ -29,7 +29,6 @@ import io.restassured.path.json.config.JsonParserType;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
-import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
 import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory;
 
@@ -724,18 +723,6 @@ public class JsonPath {
     }
 
     /**
-     * Configure JsonPath to use a specific Jackson object mapper factory
-     *
-     * @param factory The Jackson object mapper factory instance
-     * @return a new JsonPath instance
-     * @deprecated Jackson 1 support is removed in REST Assured 7.0.0. Use Jackson 2 or 3 instead.
-     */
-    @Deprecated
-    public JsonPath using(Jackson1ObjectMapperFactory factory) {
-        return new JsonPath(this, getJsonPathConfig().jackson1ObjectMapperFactory(factory));
-    }
-
-    /**
      * Configure JsonPath to use a specific Jackson 2 object mapper factory
      *
      * @param factory The Jackson 2 object mapper factory instance
@@ -1119,8 +1106,6 @@ public class JsonPath {
         JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
         if (cfg.hasCustomJackson30ObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_3);
-        } else if (cfg.hasCustomJackson10ObjectMapperFactory()) {
-            cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
         } else if (cfg.hasCustomGsonObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.GSON);
         } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {

@@ -197,8 +197,6 @@ class ObjectMappingTest {
     void checked_exceptions_from_a_mapper_propagate_unwrapped() {
         assertThatThrownBy(() -> ObjectMapping.serialize(new Unserializable(), "application/json", null, ObjectMapperType.JACKSON_2, new ObjectMapperConfig(), new EncoderConfig()))
                 .isInstanceOf(com.fasterxml.jackson.databind.exc.InvalidDefinitionException.class);
-        assertThatThrownBy(() -> ObjectMapping.serialize(new Unserializable(), "application/json", null, ObjectMapperType.JACKSON_1, new ObjectMapperConfig(), new EncoderConfig()))
-                .isInstanceOf(org.codehaus.jackson.map.JsonMappingException.class);
         assertThatThrownBy(() -> ObjectMapping.serialize(new Unserializable(), "application/xml", null, ObjectMapperType.JAKARTA_EE, new ObjectMapperConfig(), new EncoderConfig()))
                 .isInstanceOf(jakarta.xml.bind.JAXBException.class);
 
@@ -457,7 +455,6 @@ class ObjectMappingTest {
             }
         });
 
-        assertThat(ObjectMapping.parseWithJackson1(ctx, new DefaultJackson1ObjectMapperFactory())).isInstanceOf(Greeting.class);
         assertThat(ObjectMapping.parseWithJackson2(ctx, new DefaultJackson2ObjectMapperFactory())).isInstanceOf(Greeting.class);
         assertThat(ObjectMapping.parseWithJackson3(ctx, new DefaultJackson3ObjectMapperFactory())).isInstanceOf(Greeting.class);
         assertThat(ObjectMapping.parseWithJohnzon(ctx, new DefaultJohnzonObjectMapperFactory())).isInstanceOf(Greeting.class);
@@ -508,10 +505,6 @@ class ObjectMappingTest {
      */
     private ObjectMapperConfig recording(ObjectMapperConfig base) {
         ObjectMapperConfig config = spy(base);
-        doReturn((Jackson1ObjectMapperFactory) (type, charset) -> {
-            record("JACKSON_1", type, charset);
-            return new DefaultJackson1ObjectMapperFactory().create(type, charset);
-        }).when(config).jackson1ObjectMapperFactory();
         doReturn((Jackson2ObjectMapperFactory) (type, charset) -> {
             record("JACKSON_2", type, charset);
             return new DefaultJackson2ObjectMapperFactory().create(type, charset);
