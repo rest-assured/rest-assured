@@ -38,11 +38,25 @@ public final class MissingPathEngine {
         return message(path, type, version());
     }
 
+    /**
+     * @param method The method that needs a path engine, such as {@code jsonPath()}
+     */
+    public static String forMethod(String method, DocumentType type) {
+        return forMethod(method, type, version());
+    }
+
     static String message(String path, DocumentType type, String version) {
+        return text("evaluate " + (path == null ? "a path" : "the path \"" + path + "\""), type, version);
+    }
+
+    static String forMethod(String method, DocumentType type, String version) {
+        return text("run " + method, type, version);
+    }
+
+    private static String text(String action, DocumentType type, String version) {
         boolean json = type == DocumentType.JSON;
         String artifactId = json ? "json-path-gpath" : "xml-path-gpath";
-        String what = (path == null ? "a path" : "the path \"" + path + "\"");
-        return "REST Assured can't evaluate " + what + " because no " + (json ? "JSON" : type) + " path engine is on the classpath." + NL
+        return "REST Assured can't " + action + " because no " + (json ? "JSON" : type) + " path engine is on the classpath." + NL
                 + NL
                 + "Since REST Assured 7.0.0 the path engine is a separate dependency. Add GPath, the path syntax REST Assured has always used, "
                 + "to your test dependencies. If you're upgrading from 6.x, your existing paths keep working unchanged:" + NL
