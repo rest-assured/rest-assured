@@ -130,6 +130,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static io.restassured.http.ContentType.ANY;
@@ -1567,8 +1568,16 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         setRequestHeadersToHttpBuilder(http);
 
         if (cookies.exist()) {
-            String cookieHeaderValue = cookies.asList().stream().map(it -> it.getName() + "=" + (it.hasValue() ? it.getValue() : "")).collect(Collectors.joining("; "));
-            headersOf(http).put("Cookie", cookieHeaderValue);
+            Map<Object, Object> httpHeaders = headersOf(http);
+            Stream<String> cookiePairs = cookies.asList().stream().map(it -> it.getName() + "=" + (it.hasValue() ? it.getValue() : ""));
+            Object cookieHeaderName = findHeaderName(httpHeaders, "Cookie");
+            if (cookieHeaderName != null) {
+                // A Cookie header set with header(..) goes first, in the same Cookie header
+                Object headerValue = httpHeaders.remove(cookieHeaderName);
+                Stream<?> headerValues = headerValue instanceof Collection ? ((Collection<?>) headerValue).stream() : Stream.of(headerValue);
+                cookiePairs = Stream.concat(headerValues.map(String::valueOf), cookiePairs);
+            }
+            httpHeaders.put("Cookie", cookiePairs.collect(Collectors.joining("; ")));
         }
 
         // Allow returning a the response
@@ -1846,6 +1855,11 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 httpHeaders.put(headerName, headerValue);
             }
         }
+    }
+
+    // Header names are case-insensitive, so the key of the header in the map may be spelled differently
+    private static Object findHeaderName(Map<Object, Object> httpHeaders, String headerName) {
+        return httpHeaders.keySet().stream().filter(it -> headerName.equalsIgnoreCase(String.valueOf(it))).findFirst().orElse(null);
     }
 
     @SuppressWarnings("unchecked")

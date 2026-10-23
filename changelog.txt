@@ -3,6 +3,7 @@ Changelog next version
 * Fix ConnectionConfig.dontCloseIdleConnectionsAfterEachResponse(), which always threw an IllegalArgumentException. It now returns a config that doesn't close idle connections after each response (issue #2016)
 * Fix ProxySpecification.withScheme(..) dropping the user name and password set with auth(..) or withAuth(..), so the proxy login was no longer sent (issue #2018)
 * Non-backward compatible change: a cookie without value, such as given().cookie("a"), cookie("a", null) or a null value in cookies(Map), is now sent as a= instead of a=null. Such a cookie also has no value (getValue() returns null) in a filter and is logged as a, where cookie("a") had the value "null" before (issue #2021)
+* Non-backward compatible change: a Cookie header set with header("Cookie", ..) is no longer dropped when the request also has cookies (for example from cookie(..), cookies(..) or the session id). Both are sent in one Cookie header, the header's value first, such as Cookie: h=1; a=1 (issue #2022)
 
 Changelog 6.3.0 (2026-10-23)
 ----------------------------
