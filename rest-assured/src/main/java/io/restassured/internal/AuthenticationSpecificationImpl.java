@@ -19,6 +19,7 @@ import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.BasicAuthScheme;
 import io.restassured.authentication.CertificateAuthSettings;
+import io.restassured.authentication.DigestAuthScheme;
 import io.restassured.authentication.ExplicitNoAuthScheme;
 import io.restassured.authentication.FormAuthConfig;
 import io.restassured.authentication.FormAuthScheme;
@@ -85,17 +86,13 @@ public class AuthenticationSpecificationImpl implements AuthenticationSpecificat
     }
 
     /**
-     * Use http digest authentication.
-     *
-     * @param userName The user name.
-     * @param password The password.
-     * @return The request builder
+     * {@inheritDoc}
      */
     public RequestSpecification digest(String userName, String password) {
         notNull(userName, "userName");
         notNull(password, "password");
 
-        BasicAuthScheme scheme = new BasicAuthScheme();
+        DigestAuthScheme scheme = new DigestAuthScheme();
         scheme.setUserName(userName);
         scheme.setPassword(password);
         return use(scheme);

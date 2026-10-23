@@ -19,7 +19,8 @@ package io.restassured.authentication;
 import io.restassured.internal.http.HTTPBuilder;
 
 /**
- * Used for basic and digest authentication
+ * Used for basic authentication. It answers both a Basic and a Digest challenge from the server. Use
+ * {@link DigestAuthScheme} to only answer a Digest challenge.
  */
 public class BasicAuthScheme implements AuthenticationScheme {
 

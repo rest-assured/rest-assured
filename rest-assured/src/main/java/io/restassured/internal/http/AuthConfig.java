@@ -29,6 +29,7 @@ import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -88,6 +89,23 @@ public class AuthConfig {
     public void basic(String host, int port, String user, String pass) {
         builder.getClient().getCredentialsProvider().setCredentials(
                 new AuthScope(host, port),
+                new UsernamePasswordCredentials(user, pass)
+        );
+    }
+
+    /**
+     * Set authentication credentials to be used for the current {@link HTTPBuilder#getUri() default host} that only
+     * answer a Digest challenge, so that the password is never sent in clear text to a server that asks for Basic
+     * authentication.
+     *
+     * @param user
+     * @param pass
+     */
+    public void digest(String user, String pass) {
+        URI uri = ((URIBuilder) builder.getUri()).toURI();
+        if (uri == null) throw new IllegalStateException("a default URI must be set");
+        builder.getClient().getCredentialsProvider().setCredentials(
+                new AuthScope(uri.getHost(), uri.getPort(), AuthScope.ANY_REALM, AuthSchemes.DIGEST),
                 new UsernamePasswordCredentials(user, pass)
         );
     }

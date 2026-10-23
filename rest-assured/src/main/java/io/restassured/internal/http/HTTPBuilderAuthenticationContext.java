@@ -47,6 +47,11 @@ public class HTTPBuilderAuthenticationContext implements AuthenticationContext {
     }
 
     @Override
+    public void digest(String userName, String password) {
+        httpBuilder.getAuth().digest(userName, password);
+    }
+
+    @Override
     public void ntlm(String userName, String password, String workstation, String domain) {
         httpBuilder.getAuth().ntlm(userName, password, workstation, domain);
     }

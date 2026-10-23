@@ -49,6 +49,17 @@ class AuthenticationContextTest {
     }
 
     @Test
+    void digest_scheme_answers_challenges_with_digest_authentication() {
+        DigestAuthScheme scheme = new DigestAuthScheme();
+        scheme.setUserName("user");
+        scheme.setPassword("pass");
+
+        scheme.authenticate(context);
+
+        assertThat(context.calls).containsExactly("digest[user, pass]");
+    }
+
+    @Test
     void ntlm_scheme_answers_challenges_with_ntlm_authentication() {
         NTLMAuthScheme scheme = new NTLMAuthScheme();
         scheme.setUserName("user");
@@ -165,6 +176,11 @@ class AuthenticationContextTest {
         @Override
         public void basic(String userName, String password) {
             record("basic", userName, password);
+        }
+
+        @Override
+        public void digest(String userName, String password) {
+            record("digest", userName, password);
         }
 
         @Override
