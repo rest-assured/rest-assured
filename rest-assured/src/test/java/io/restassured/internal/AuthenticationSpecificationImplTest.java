@@ -22,15 +22,13 @@ import io.restassured.internal.filter.FormAuthFilter;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.authentication.CertificateAuthSettings.certAuthSettings;
-import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -77,21 +75,21 @@ class AuthenticationSpecificationImplTest {
         assertThat(scheme.getTrustStoreType()).isEqualTo(KeyStore.getDefaultType());
         assertThat(scheme.getKeystoreType()).isEqualTo(KeyStore.getDefaultType());
         assertThat(scheme.getPort()).isEqualTo(-1);
-        assertThat(scheme.getX509HostnameVerifier()).isSameAs(STRICT_HOSTNAME_VERIFIER);
+        assertThat(scheme.getHostnameVerifier()).isSameAs(certAuthSettings().strictHostnames().getHostnameVerifier());
         assertThat(scheme.getKeyStore()).isNull();
         assertThat(scheme.getTrustStore()).isNull();
-        assertThat(scheme.getSslSocketFactory()).isNull();
+        assertThat(scheme.getSslContext()).isNull();
     }
 
     @Test
     void certificate_with_settings_creates_a_cert_auth_scheme_that_uses_the_file_as_key_store_and_trust_store_with_these_settings() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         KeyStore trustStore = KeyStore.getInstance("JKS");
-        SSLSocketFactory sslSocketFactory = SSLSocketFactory.getSocketFactory();
+        SSLContext sslContext = SSLContext.getDefault();
 
         CertAuthScheme scheme = schemeOf(given().auth().certificate("keystore.p12", "secret", certAuthSettings().
                 keyStoreType("PKCS12").trustStoreType("JKS").port(8443).keyStore(keyStore).trustStore(trustStore).
-                allowAllHostnames().sslSocketFactory(sslSocketFactory)), CertAuthScheme.class);
+                allowAllHostnames().sslContext(sslContext)), CertAuthScheme.class);
 
         assertThat(scheme.getPathToKeyStore()).isEqualTo("keystore.p12");
         assertThat(scheme.getKeyStorePassword()).isEqualTo("secret");
@@ -102,8 +100,8 @@ class AuthenticationSpecificationImplTest {
         assertThat(scheme.getPort()).isEqualTo(8443);
         assertThat(scheme.getKeyStore()).isSameAs(keyStore);
         assertThat(scheme.getTrustStore()).isSameAs(trustStore);
-        assertThat(scheme.getX509HostnameVerifier()).isSameAs(ALLOW_ALL_HOSTNAME_VERIFIER);
-        assertThat(scheme.getSslSocketFactory()).isSameAs(sslSocketFactory);
+        assertThat(scheme.getHostnameVerifier()).isSameAs(certAuthSettings().allowAllHostnames().getHostnameVerifier());
+        assertThat(scheme.getSslContext()).isSameAs(sslContext);
     }
 
     @Test

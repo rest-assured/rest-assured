@@ -19,7 +19,6 @@ package io.restassured.itest.java;
 import io.restassured.common.config.NumberReturnType;
 import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +71,7 @@ public class BigDecimalITest extends WithJetty {
         when().
                 get("/anonymous_list_with_numbers").
         then().
-                statusCode(HttpStatus.SC_OK).
+                statusCode(200).
                 body("$", hasItems(100, 50, BigDecimal.valueOf(31.0)));
     }
 }

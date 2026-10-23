@@ -36,7 +36,6 @@ import static io.restassured.config.RedirectConfig.redirectConfig;
 import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.filter.log.LogDetail.ALL;
 import static java.util.Arrays.asList;
-import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -376,7 +375,7 @@ public class SpecificationBuilderITest extends WithJetty {
              setConfig(newConfig().logConfig(logConfig().defaultStream(captor))).
              addPathParam("firstName", "John").
              addPathParam("lastName", "Doe").build();
-        final ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(SC_OK).log(ALL).build();
+        final ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).log(ALL).build();
 
         given(requestSpec, responseSpec).
                                          get("/{firstName}/{lastName}");
@@ -397,7 +396,7 @@ public class SpecificationBuilderITest extends WithJetty {
     public void supportsSettingLoggingWhenUsingOnlyResponseSpecBuilder() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        final ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(SC_OK).log(ALL).build();
+        final ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).log(ALL).build();
 
         given().
                 config(newConfig().logConfig(logConfig().defaultStream(captor))).

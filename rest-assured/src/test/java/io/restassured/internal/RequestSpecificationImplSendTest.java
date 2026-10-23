@@ -473,8 +473,8 @@ class RequestSpecificationImplSendTest {
     @Test
     void http_client_params_from_the_config_are_used_but_the_redirect_config_has_precedence() {
         server.route("GET /r", r -> Reply.redirect("/x"));
-        HttpClientConfig httpClientConfig = httpClientConfig().setParam(org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS, false)
-                .setParam(org.apache.http.params.CoreProtocolPNames.USER_AGENT, "ua");
+        HttpClientConfig httpClientConfig = httpClientConfig().setParam("http.protocol.handle-redirects", false)
+                .setParam("http.useragent", "ua");
 
         assertThat(given().config(config().httpClient(httpClientConfig)).get("/r").statusCode()).isEqualTo(200);
         assertThat(last().header("User-Agent")).isEqualTo("ua");

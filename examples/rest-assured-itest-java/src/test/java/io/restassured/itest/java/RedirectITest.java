@@ -25,8 +25,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
-import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
-import static org.apache.http.client.params.CookiePolicy.BROWSER_COMPATIBILITY;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -120,9 +118,9 @@ public class RedirectITest extends WithJetty {
     }
 
     @Test
-    public void cookiesAreIncludedInRedirectsWhenCookiePolicyIsBrowserCompatibility() {
+    public void cookiesAreIncludedInRedirectsWhenResponseCookiesAreKept() {
         given().
-                config(RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam(COOKIE_POLICY, BROWSER_COMPATIBILITY))).
+                config(RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().keepResponseCookies(true))).
                 param("url", "/reflect").
         expect().
                 statusCode(200).

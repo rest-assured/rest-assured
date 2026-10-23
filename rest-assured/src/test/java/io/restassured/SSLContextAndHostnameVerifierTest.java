@@ -198,8 +198,8 @@ class SSLContextAndHostnameVerifierTest {
 
     @Test
     void ssl_config_defaults_to_strict_host_name_verification_and_no_ssl_context() {
-        assertThat(sslConfig().getHostnameVerifier()).isSameAs(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
-        assertThat(sslConfig().allowAllHostnames().getHostnameVerifier()).isSameAs(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        assertThat(sslConfig().getHostnameVerifier()).isSameAs(sslConfig().strictHostnames().getHostnameVerifier());
+        assertThat(sslConfig().allowAllHostnames().getHostnameVerifier()).isNotSameAs(sslConfig().getHostnameVerifier());
         assertThat(sslConfig().getSSLContext()).isNull();
         assertThat(sslConfig().getSSLSocketFactory()).isNull();
     }
@@ -222,7 +222,7 @@ class SSLContextAndHostnameVerifierTest {
 
         assertThat(settings.getSSLContext()).isSameAs(sslContext);
         assertThat(settings.getHostnameVerifier()).isSameAs(REJECT_ALL);
-        assertThat(certAuthSettings().getHostnameVerifier()).isSameAs(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+        assertThat(certAuthSettings().getHostnameVerifier()).isSameAs(certAuthSettings().strictHostnames().getHostnameVerifier());
     }
 
     @Test
