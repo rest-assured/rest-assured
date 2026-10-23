@@ -36,16 +36,52 @@ class MissingPathEngineTest {
     private static final String NL = System.lineSeparator();
 
     @Test
-    void the_gpath_modules_and_groovy_arent_on_the_classpath() {
-        for (String className : List.of(PathProviders.GPATH_JSON, PathProviders.GPATH_XML, "groovy.lang.GroovyObject")) {
+    void no_path_engine_module_and_no_groovy_is_on_the_classpath() {
+        for (String className : List.of(PathProviders.GPATH_JSON, PathProviders.GPATH_XML, PathProviders.JAYWAY_JSON, "groovy.lang.GroovyObject")) {
             assertThatThrownBy(() -> Class.forName(className)).as(className).isInstanceOf(ClassNotFoundException.class);
         }
     }
 
     @Test
-    void json_message_names_the_path_and_how_to_add_gpath() {
+    void json_message_names_the_path_and_how_to_add_either_engine() {
         assertThat(MissingPathEngine.message("lotto.winners.winnerId", DocumentType.JSON, "7.0.1")).isEqualTo(String.join(NL,
                 "REST Assured can't evaluate the path \"lotto.winners.winnerId\" because no JSON path engine is on the classpath.",
+                "",
+                "Since REST Assured 7.0.0 the path engine is a separate dependency. Add one of these to your test dependencies.",
+                "",
+                "GPath, the path syntax REST Assured has always used. Pick this if you're upgrading from 6.x, and your existing paths keep working unchanged:",
+                "  Maven:",
+                "    <dependency>",
+                "        <groupId>io.rest-assured</groupId>",
+                "        <artifactId>json-path-gpath</artifactId>",
+                "        <version>7.0.1</version>",
+                "        <scope>test</scope>",
+                "    </dependency>",
+                "  Gradle:",
+                "    testImplementation(\"io.rest-assured:json-path-gpath:7.0.1\")",
+                "",
+                "JSONPath (Jayway), for example \"$.lotto.winners[*].winnerId\":",
+                "  Maven:",
+                "    <dependency>",
+                "        <groupId>io.rest-assured</groupId>",
+                "        <artifactId>json-path-jayway</artifactId>",
+                "        <version>7.0.1</version>",
+                "        <scope>test</scope>",
+                "    </dependency>",
+                "  Gradle:",
+                "    testImplementation(\"io.rest-assured:json-path-jayway:7.0.1\")",
+                "",
+                "Or let OpenRewrite update your build and code (Gradle: see the link):",
+                "  mvn org.openrewrite.maven:rewrite-maven-plugin:run -Drewrite.recipeArtifactCoordinates=io.rest-assured:rest-assured-openrewrite:7.0.1 "
+                        + "-Drewrite.activeRecipes=io.restassured.UpgradeToRestAssured7",
+                "",
+                "More: https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes70#path-engines"));
+    }
+
+    @Test
+    void json_path_method_message_names_only_gpath() {
+        assertThat(MissingPathEngine.forMethod("jsonPath()", DocumentType.JSON, "7.0.1", false)).isEqualTo(String.join(NL,
+                "REST Assured can't run jsonPath() because no JSON path engine is on the classpath.",
                 "",
                 "Since REST Assured 7.0.0 the path engine is a separate dependency. Add GPath, the path syntax REST Assured has always used, "
                         + "to your test dependencies. If you're upgrading from 6.x, your existing paths keep working unchanged:",
@@ -67,6 +103,16 @@ class MissingPathEngineTest {
     }
 
     @Test
+    void json_path_method_message_points_to_jayway_path_when_the_jayway_module_is_on_the_classpath() {
+        String message = MissingPathEngine.forMethod("jsonPath()", DocumentType.JSON, "7.0.1", true);
+
+        assertThat(message).contains(NL + "    testImplementation(\"io.rest-assured:json-path-gpath:7.0.1\")" + NL + NL
+                + "With io.rest-assured:json-path-jayway, use JaywayPath.from(response.asString()) instead of jsonPath()." + NL + NL
+                + "Or let OpenRewrite");
+        assertThat(MissingPathEngine.forMethod("xmlPath()", DocumentType.XML, "7.0.1", true)).doesNotContain("Jayway");
+    }
+
+    @Test
     void xml_and_html_messages_name_xml_path_gpath() {
         assertThat(MissingPathEngine.message("shopping.category", DocumentType.XML, "7.0.1"))
                 .startsWith("REST Assured can't evaluate the path \"shopping.category\" because no XML path engine is on the classpath.")
@@ -85,10 +131,10 @@ class MissingPathEngineTest {
 
     @Test
     void message_for_a_method_names_the_method_and_otherwise_is_the_same() {
-        String forMethod = MissingPathEngine.forMethod("jsonPath()", DocumentType.JSON, "7.0.1");
-        String forPath = MissingPathEngine.message("a", DocumentType.JSON, "7.0.1");
+        String forMethod = MissingPathEngine.forMethod("xmlPath()", DocumentType.XML, "7.0.1", false);
+        String forPath = MissingPathEngine.message("a", DocumentType.XML, "7.0.1");
 
-        assertThat(forMethod).startsWith("REST Assured can't run jsonPath() because no JSON path engine is on the classpath." + NL);
+        assertThat(forMethod).startsWith("REST Assured can't run xmlPath() because no XML path engine is on the classpath." + NL);
         assertThat(forMethod.substring(forMethod.indexOf(NL))).isEqualTo(forPath.substring(forPath.indexOf(NL)));
     }
 

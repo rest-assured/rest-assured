@@ -112,7 +112,7 @@ public class BodyMatcher {
                     errorMessage = format("Cannot assert that path \"%s\" matches %s because the response body %s.", path, matcher, isEmpty ? "is empty" : "equal to \"" + contentParser + "\"");
                     success = false;
                 } else {
-                    result = PathProviders.valueOf(provider.evaluate(contentParser, assertion.documentType(), path));
+                    result = PathProviders.valueOf(provider, provider.evaluate(contentParser, assertion.documentType(), path));
                 }
             }
 

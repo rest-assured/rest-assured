@@ -102,7 +102,9 @@ public class JsonConfig implements Config {
     /**
      * Specifies the engine that evaluates JSON paths, in {@code body(..)} expectations, {@code path(..)} and
      * {@code extract().path(..)}. It doesn't change {@code jsonPath()}, which always uses GPath. When no engine is
-     * specified (the default), REST Assured uses GPath.
+     * specified (the default), REST Assured uses GPath ({@code io.rest-assured:json-path-gpath}) if it's on the classpath,
+     * and otherwise Jayway JsonPath ({@code io.rest-assured:json-path-jayway}). When both are on the classpath, it logs
+     * once that it uses GPath.
      *
      * @param pathEngine The engine, or {@code null} to let REST Assured pick it.
      * @return A new instance of JsonConfig with the given configuration

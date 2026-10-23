@@ -22,7 +22,7 @@ package io.restassured.internal.common.spi.path;
  *
  * @param kind    What the path found.
  * @param value   The value, for {@link Kind#VALUE}.
- * @param message Why the path can't be evaluated, for {@link Kind#LIST_ADDRESSED_AS_OBJECT}.
+ * @param message Why the path can't be evaluated, for {@link Kind#LIST_ADDRESSED_AS_OBJECT} and {@link Kind#INVALID_PATH}.
  */
 public record PathResult(Kind kind, Object value, String message) {
 
@@ -38,7 +38,12 @@ public record PathResult(Kind kind, Object value, String message) {
         /**
          * The path addresses a property of a list as if the list were an object. REST Assured fails with the message.
          */
-        LIST_ADDRESSED_AS_OBJECT
+        LIST_ADDRESSED_AS_OBJECT,
+        /**
+         * The path isn't valid in the syntax of the engine, for example because it's written in another engine's syntax.
+         * REST Assured fails with the message.
+         */
+        INVALID_PATH
     }
 
     private static final PathResult MISSING_RESULT = new PathResult(Kind.MISSING, null, null);
@@ -53,5 +58,9 @@ public record PathResult(Kind kind, Object value, String message) {
 
     public static PathResult listAddressedAsObject(String message) {
         return new PathResult(Kind.LIST_ADDRESSED_AS_OBJECT, null, message);
+    }
+
+    public static PathResult invalidPath(String message) {
+        return new PathResult(Kind.INVALID_PATH, null, message);
     }
 }
