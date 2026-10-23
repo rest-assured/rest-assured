@@ -29,12 +29,17 @@ import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.assertion.CookieMatcher;
+import io.restassured.internal.common.spi.path.DocumentType;
+import io.restassured.internal.common.spi.path.PathInput;
+import io.restassured.internal.common.spi.path.PathProvider;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.http.HttpClient4Transport;
 import io.restassured.internal.http.HttpResponseDecorator;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperDeserializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
+import io.restassured.internal.path.CorePathSettings;
+import io.restassured.internal.path.PathProviders;
 import io.restassured.internal.print.ResponsePrinter;
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper;
 import io.restassured.internal.support.Prettifier;
@@ -390,14 +395,25 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         }
         String contentType = findContentType(() -> new IllegalStateException("Cannot invoke the path method because no content-type was present in the response and no default parser has been set.\n\n" +
                 "You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n"));
+        DocumentType type;
         if (containsIgnoreCase(contentType, "xml")) {
-            return xmlPath().get(path);
+            type = DocumentType.XML;
         } else if (containsIgnoreCase(contentType, "json")) {
-            return jsonPath().get(path);
+            type = DocumentType.JSON;
         } else if (containsIgnoreCase(contentType, "html")) {
-            return htmlPath().get(path);
+            type = DocumentType.HTML;
+        } else {
+            throw new IllegalStateException("Cannot determine which path implementation to use because the content-type " + contentType + " doesn't map to a path implementation.");
         }
-        throw new IllegalStateException("Cannot determine which path implementation to use because the content-type " + contentType + " doesn't map to a path implementation.");
+        PathProvider provider = PathProviders.forType(type, config);
+        Object document;
+        try {
+            document = provider.parse(PathInput.ofText(asString()), type, CorePathSettings.forPathMethod(config));
+        } catch (Exception e) {
+            throw provider.parseFailure(type, e);
+        }
+        //noinspection unchecked
+        return (T) PathProviders.valueOf(provider.evaluate(document, type, path));
     }
 
     public String asString() {

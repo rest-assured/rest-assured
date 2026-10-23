@@ -17,15 +17,14 @@
 package io.restassured.assertion;
 
 import io.restassured.internal.ResponseParserRegistrar;
-import io.restassured.internal.path.json.JSONAssertion;
-import io.restassured.internal.path.xml.XMLAssertion;
+import io.restassured.internal.common.spi.path.DocumentType;
+import io.restassured.internal.path.PathAssertion;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,38 +41,40 @@ public class StreamVerifierTest {
         return response;
     }
 
-    private static Object keyOf(Object assertion) throws Exception {
-        Field field = assertion.getClass().getDeclaredField("key");
-        field.setAccessible(true);
-        return field.get(assertion);
-    }
-
     @ParameterizedTest
     @ValueSource(strings = {"application/json", "application/json; charset=UTF-8", "application/vnd.api+json"})
-    public void creates_json_assertion_for_json_content_types(String contentType) throws Exception {
-        Object assertion = StreamVerifier.newAssertion(response(contentType), "a.b", new ResponseParserRegistrar());
+    public void creates_json_assertion_for_json_content_types(String contentType) {
+        PathAssertion assertion = StreamVerifier.newAssertion(response(contentType), "a.b", new ResponseParserRegistrar());
 
-        assertThat(assertion).isExactlyInstanceOf(JSONAssertion.class);
-        assertThat(keyOf(assertion)).isEqualTo("a.b");
+        assertThat(assertion.documentType()).isEqualTo(DocumentType.JSON);
+        assertThat(assertion.key()).isEqualTo("a.b");
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"application/xml", "text/xml; charset=UTF-8", "application/atom+xml", "text/html", "application/xhtml+xml"})
-    public void creates_xml_assertion_for_xml_and_html_content_types(String contentType) throws Exception {
-        Object assertion = StreamVerifier.newAssertion(response(contentType), "a.b", new ResponseParserRegistrar());
+    @ValueSource(strings = {"application/xml", "text/xml; charset=UTF-8", "application/atom+xml", "application/xhtml+xml"})
+    public void creates_xml_assertion_for_xml_content_types(String contentType) {
+        PathAssertion assertion = StreamVerifier.newAssertion(response(contentType), "a.b", new ResponseParserRegistrar());
 
-        assertThat(assertion).isExactlyInstanceOf(XMLAssertion.class);
-        assertThat(keyOf(assertion)).isEqualTo("a.b");
+        assertThat(assertion.documentType()).isEqualTo(DocumentType.XML);
+        assertThat(assertion.key()).isEqualTo("a.b");
     }
 
     @Test
-    public void uses_parser_registered_for_content_type() throws Exception {
+    public void creates_html_assertion_for_html_content_type() {
+        PathAssertion assertion = StreamVerifier.newAssertion(response("text/html"), "a.b", new ResponseParserRegistrar());
+
+        assertThat(assertion.documentType()).isEqualTo(DocumentType.HTML);
+        assertThat(assertion.key()).isEqualTo("a.b");
+    }
+
+    @Test
+    public void uses_parser_registered_for_content_type() {
         ResponseParserRegistrar rpr = new ResponseParserRegistrar();
         rpr.registerParser("application/custom", Parser.JSON);
         rpr.registerParser("application/other", Parser.HTML);
 
-        assertThat(StreamVerifier.newAssertion(response("application/custom; charset=UTF-8"), "k", rpr)).isExactlyInstanceOf(JSONAssertion.class);
-        assertThat(StreamVerifier.newAssertion(response("application/other"), "k", rpr)).isExactlyInstanceOf(XMLAssertion.class);
+        assertThat(StreamVerifier.newAssertion(response("application/custom; charset=UTF-8"), "k", rpr)).extracting(PathAssertion::documentType).isEqualTo(DocumentType.JSON);
+        assertThat(StreamVerifier.newAssertion(response("application/other"), "k", rpr)).extracting(PathAssertion::documentType).isEqualTo(DocumentType.HTML);
     }
 
     @Test
@@ -81,7 +82,7 @@ public class StreamVerifierTest {
         ResponseParserRegistrar rpr = new ResponseParserRegistrar();
         rpr.registerParser("application/json", Parser.XML);
 
-        assertThat(StreamVerifier.newAssertion(response("application/json"), "k", rpr)).isExactlyInstanceOf(XMLAssertion.class);
+        assertThat(StreamVerifier.newAssertion(response("application/json"), "k", rpr)).extracting(PathAssertion::documentType).isEqualTo(DocumentType.XML);
     }
 
     @Test
@@ -89,9 +90,9 @@ public class StreamVerifierTest {
         ResponseParserRegistrar rpr = new ResponseParserRegistrar();
         rpr.registerDefaultParser(Parser.XML);
 
-        assertThat(StreamVerifier.newAssertion(response("application/json"), "k", rpr)).isExactlyInstanceOf(XMLAssertion.class);
-        assertThat(StreamVerifier.newAssertion(response("application/unknown"), "k", rpr)).isExactlyInstanceOf(XMLAssertion.class);
-        assertThat(StreamVerifier.newAssertion(response(null), "k", rpr)).isExactlyInstanceOf(XMLAssertion.class);
+        assertThat(StreamVerifier.newAssertion(response("application/json"), "k", rpr)).extracting(PathAssertion::documentType).isEqualTo(DocumentType.XML);
+        assertThat(StreamVerifier.newAssertion(response("application/unknown"), "k", rpr)).extracting(PathAssertion::documentType).isEqualTo(DocumentType.XML);
+        assertThat(StreamVerifier.newAssertion(response(null), "k", rpr)).extracting(PathAssertion::documentType).isEqualTo(DocumentType.XML);
     }
 
     @Test
@@ -103,10 +104,10 @@ public class StreamVerifierTest {
     }
 
     @Test
-    public void converts_non_string_key_to_string_the_groovy_way() throws Exception {
-        assertThat(keyOf(StreamVerifier.newAssertion(response("application/json"), 5, new ResponseParserRegistrar()))).isEqualTo("5");
-        assertThat(keyOf(StreamVerifier.newAssertion(response("application/xml"), Arrays.asList("a", 1), new ResponseParserRegistrar()))).isEqualTo("[a, 1]");
-        assertThat(keyOf(StreamVerifier.newAssertion(response("application/json"), null, new ResponseParserRegistrar()))).isNull();
+    public void converts_non_string_key_to_string_the_groovy_way() {
+        assertThat(StreamVerifier.newAssertion(response("application/json"), 5, new ResponseParserRegistrar()).key()).isEqualTo("5");
+        assertThat(StreamVerifier.newAssertion(response("application/xml"), Arrays.asList("a", 1), new ResponseParserRegistrar()).key()).isEqualTo("[a, 1]");
+        assertThat(StreamVerifier.newAssertion(response("application/json"), null, new ResponseParserRegistrar()).key()).isNull();
     }
 
     @Test
@@ -114,7 +115,7 @@ public class StreamVerifierTest {
         ResponseParserRegistrar rpr = new ResponseParserRegistrar();
         rpr.registerParser("application/custom", Parser.XML);
 
-        assertThat(StreamVerifier.createAssertionForCustomParser(rpr, "application/custom", "k")).isExactlyInstanceOf(XMLAssertion.class);
+        assertThat(StreamVerifier.createAssertionForCustomParser(rpr, "application/custom", "k")).extracting(PathAssertion::documentType).isEqualTo(DocumentType.XML);
         assertThat(StreamVerifier.createAssertionForCustomParser(rpr, "application/unregistered", "k")).isNull();
     }
 

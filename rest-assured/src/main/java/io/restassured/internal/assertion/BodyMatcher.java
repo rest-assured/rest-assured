@@ -4,7 +4,9 @@ import io.restassured.assertion.StreamVerifier;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.internal.ResponseParserRegistrar;
-import io.restassured.internal.common.assertion.Assertion;
+import io.restassured.internal.common.spi.path.PathProvider;
+import io.restassured.internal.path.PathAssertion;
+import io.restassured.internal.path.PathProviders;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Description;
@@ -90,7 +92,8 @@ public class BodyMatcher {
             }
 
         } else {
-            Assertion assertion = (Assertion) StreamVerifier.newAssertion(response, key, rpr);
+            PathAssertion assertion = StreamVerifier.newAssertion(response, key, rpr);
+            PathProvider provider = null;
             Object result = null;
             if (contentParser != null) {
                 if (contentParser instanceof String) {
@@ -99,7 +102,8 @@ public class BodyMatcher {
                     errorMessage = format("Cannot assert that path \"%s\" matches %s because the response body %s.", key, matcher, isEmpty ? "is empty" : "equal to \"" + contentParser + "\"");
                     success = false;
                 } else {
-                    result = assertion.getResult(contentParser, config);
+                    provider = PathProviders.forType(assertion.documentType(), config);
+                    result = PathProviders.valueOf(provider.evaluate(contentParser, assertion.documentType(), assertion.key()));
                 }
             }
 
@@ -109,9 +113,9 @@ public class BodyMatcher {
                     if (result instanceof Object[]) {
                         result = Arrays.stream((Object[]) result).map(Objects::toString).collect(Collectors.joining(","));
                     }
-                    errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), removeQuotesIfString(new StringDescription().appendValue(result).toString()));
+                    errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", provider.description(assertion.documentType()), key, removeQuotesIfString(matcher.toString()), removeQuotesIfString(new StringDescription().appendValue(result).toString()));
                 } else {
-                    errorMessage = String.format("%s %s doesn't match.\n%s", assertion.description(), key, getDescription(matcher, result));
+                    errorMessage = String.format("%s %s doesn't match.\n%s", provider.description(assertion.documentType()), key, getDescription(matcher, result));
                 }
 
             }

@@ -315,4 +315,25 @@ class BodyPathCharacterizationTest {
         // path(..) is always namespace aware, so the prefix isn't
         assertThat((String) response.path("root.child")).isEqualTo("x");
     }
+
+    @Test
+    void xml_properties_are_set_before_features_in_body_and_in_path() {
+        RestAssuredConfig config = RestAssuredConfig.config().xmlConfig(XmlConfig.xmlConfig()
+                .feature("urn:unknown-feature", true).property("urn:unknown-property", "x"));
+        Response response = given().config(config).filter(respondWith("application/xml", XML)).get("http://localhost:8080/");
+
+        assertThatThrownBy(() -> response.then().body("shop.category.@name", equalTo("c")))
+                .isExactlyInstanceOf(org.xml.sax.SAXNotRecognizedException.class).hasMessageContaining("urn:unknown-property");
+        assertThatThrownBy(() -> response.path("shop.category.@name"))
+                .isExactlyInstanceOf(io.restassured.path.xml.exception.XmlPathException.class).hasMessage("Failed to parse the XML document")
+                .cause().isExactlyInstanceOf(org.xml.sax.SAXNotRecognizedException.class).hasMessageContaining("urn:unknown-property");
+    }
+
+    @Test
+    void path_fails_with_the_exception_of_json_path_and_xml_path_when_the_body_cant_be_parsed() {
+        assertThatThrownBy(() -> response("application/json", "{").path("a"))
+                .isExactlyInstanceOf(io.restassured.path.json.exception.JsonPathException.class).hasMessage("Failed to parse the JSON document");
+        assertThatThrownBy(() -> response("application/xml", "<a>").path("a"))
+                .isExactlyInstanceOf(io.restassured.path.xml.exception.XmlPathException.class).hasMessage("Failed to parse the XML document");
+    }
 }
