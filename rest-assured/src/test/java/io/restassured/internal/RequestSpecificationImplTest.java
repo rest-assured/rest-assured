@@ -25,6 +25,7 @@ import io.restassured.builder.ResponseBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SSLConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
@@ -1042,11 +1043,21 @@ class RequestSpecificationImplTest {
         FilterableRequestSpecification keyStore = (FilterableRequestSpecification) given().keyStore("ks.jks", "pw");
         assertThat(keyStore.getConfig().getSSLConfig().getPathToKeyStore()).isEqualTo("ks.jks");
         assertThat(keyStore.getConfig().getSSLConfig().getKeyStorePassword()).isEqualTo("pw");
-        assertThat(keyStore.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        assertThat(keyStore.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
 
         File file = new File("ts.jks");
         FilterableRequestSpecification trustStore = (FilterableRequestSpecification) given().trustStore(file, "pw");
         assertThat(trustStore.getConfig().getSSLConfig().getPathToTrustStore()).isEqualTo(file);
+        assertThat(trustStore.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+    }
+
+    @Test
+    void key_store_and_trust_store_paths_keep_the_host_name_verification_of_the_ssl_config() {
+        RestAssuredConfig allowAllHostnames = RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames());
+
+        FilterableRequestSpecification spec = (FilterableRequestSpecification) given().config(allowAllHostnames).keyStore("ks.jks", "pw").trustStore("ts.jks", "pw");
+
+        assertThat(spec.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
     }
 
     @Test

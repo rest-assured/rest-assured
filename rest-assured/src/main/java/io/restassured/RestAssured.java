@@ -1696,6 +1696,13 @@ public class RestAssured {
      * <pre>
      * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password));
      * </pre>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password).allowAllHostnames());
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
      * @param password  The store pass
@@ -1761,6 +1768,13 @@ public class RestAssured {
      * <pre>
      * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
      * </pre>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password).allowAllHostnames());
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
      * @param password  The store pass
@@ -1791,6 +1805,13 @@ public class RestAssured {
      * <pre>
      * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password));
      * </pre>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password).allowAllHostnames());
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to JKS file on the file-system
      * @param password  The password for the keystore
@@ -1809,6 +1830,13 @@ public class RestAssured {
      * <pre>
      * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
      * </pre>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password).allowAllHostnames());
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to JKS file on the file-system
      * @param password  The password for the keystore
@@ -1913,7 +1941,7 @@ public class RestAssured {
         } else {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().keyStore((String) pathToJks, password);
         }
-        config = restAssuredConfig.sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
+        config = restAssuredConfig.sslConfig(updatedSSLConfig);
     }
 
     private static void applyTrustStore(Object pathToJks, String password) {
@@ -1924,7 +1952,7 @@ public class RestAssured {
         } else {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().trustStore((String) pathToJks, password);
         }
-        config = restAssuredConfig.sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
+        config = restAssuredConfig.sslConfig(updatedSSLConfig);
     }
 
     /**

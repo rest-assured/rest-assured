@@ -170,9 +170,10 @@ public class WireSslITest extends WireTest {
     }
 
     @Test public void
-    a_trust_store_path_in_the_request_specification_also_allows_all_hostnames() {
-        // Today's behavior: given().trustStore(path, password) calls allowAllHostnames() too, for backward compatibility
-        given().trustStore(MISMATCHED_NAME_TRUST_STORE, PASSWORD).when().get(mismatchedNameUrl()).then().statusCode(200);
+    a_trust_store_path_in_the_request_specification_verifies_host_names() {
+        assertThatThrownBy(() -> given().trustStore(MISMATCHED_NAME_TRUST_STORE, PASSWORD).get(mismatchedNameUrl()))
+                .isInstanceOf(SSLException.class);
+        assertThat(mismatchedNameServer.requests()).isEmpty();
     }
 
     @Test public void
