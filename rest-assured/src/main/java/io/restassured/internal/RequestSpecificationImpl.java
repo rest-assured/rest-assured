@@ -819,30 +819,28 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification keyStore(String pathToJks, String password) {
         SSLConfig sslConfig = restAssuredConfig().getSSLConfig();
-        // Allow all host names in order to be backward compatible
-        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password).allowAllHostnames());
+        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password));
         return this;
     }
 
     @Override
     public RequestSpecification keyStore(File pathToJks, String password) {
         SSLConfig sslConfig = restAssuredConfig().getSSLConfig();
-        // Allow all host names in order to be backward compatible
-        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password).allowAllHostnames());
+        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password));
         return this;
     }
 
     @Override
     public RequestSpecification trustStore(String path, String password) {
         SSLConfig sslConfig = restAssuredConfig().getSSLConfig();
-        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password).allowAllHostnames());
+        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password));
         return this;
     }
 
     @Override
     public RequestSpecification trustStore(File path, String password) {
         SSLConfig sslConfig = restAssuredConfig().getSSLConfig();
-        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password).allowAllHostnames());
+        restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password));
         return this;
     }
 

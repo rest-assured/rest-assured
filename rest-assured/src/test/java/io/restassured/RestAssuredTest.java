@@ -17,8 +17,11 @@
 package io.restassured;
 
 import io.restassured.authentication.FormAuthConfig;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -49,5 +52,18 @@ public class RestAssuredTest {
     Throwable thrown = catchThrowable(() -> RestAssured.form(userName, password, config));
     // Assert
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void key_store_and_trust_store_paths_set_statically_keep_strict_host_name_verification() {
+    try {
+      RestAssured.keyStore("ks.jks", "pw");
+      RestAssured.trustStore(new File("ts.jks"), "pw");
+
+      assertThat(RestAssured.config().getSSLConfig().getPathToTrustStore()).isEqualTo(new File("ts.jks"));
+      assertThat(RestAssured.config().getSSLConfig().getX509HostnameVerifier()).isSameAs(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+    } finally {
+      RestAssured.reset();
+    }
   }
 }

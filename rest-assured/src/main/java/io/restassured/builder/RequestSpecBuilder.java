@@ -504,6 +504,13 @@ public class RequestSpecBuilder {
      * new RequestSpecBuilder().setKeyStore("/client_keystore.p12", "test1234"). ..
      * </pre>
      * The key store doesn't affect which server certificates are trusted, see {@link #setTrustStore(String, String)}.
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * new RequestSpecBuilder().setConfig(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password).allowAllHostnames())). ..
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to the JKS
      * @param password  The store pass
@@ -563,6 +570,13 @@ public class RequestSpecBuilder {
      * given().trustStore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * new RequestSpecBuilder().setConfig(RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password).allowAllHostnames())). ..
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to the JKS
      * @param password  The store pass
@@ -620,6 +634,13 @@ public class RequestSpecBuilder {
      * or
      * <pre>
      * given().trustStore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * new RequestSpecBuilder().setConfig(RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password).allowAllHostnames())). ..
      * </pre>
      * </p>
      *

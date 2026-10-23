@@ -67,6 +67,8 @@ public class SSLITest {
 
         @Test
         public void givenTrustStoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() {
+            // The certificate of the server is issued for org.restassured, not localhost
+            RestAssured.config = RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames());
             RestAssured.trustStore("jetty_localhost_client.jks", "test1234");
             try {
                 RestAssured.expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
@@ -120,7 +122,7 @@ public class SSLITest {
 
         @Test
         public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() {
-            RestAssured.given().trustStore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
+            RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).trustStore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
         }
 
         @Test
@@ -230,7 +232,7 @@ public class SSLITest {
             RestAssured.baseURI = "https://localhost:8443/hello";
 
             try {
-                RestAssured.given().trustStore("/jetty_localhost_client.jks", "test1234").when().get().then().spec(helloWorldSpec());
+                RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).trustStore("/jetty_localhost_client.jks", "test1234").when().get().then().spec(helloWorldSpec());
             } finally {
                 RestAssured.reset();
             }
@@ -314,14 +316,14 @@ public class SSLITest {
         @Test
         public void
         supports_setting_truststore_in_request_specification() {
-            final RequestSpecification spec = new RequestSpecBuilder().setTrustStore("/jetty_localhost_client.jks", "test1234").build();
+            final RequestSpecification spec = new RequestSpecBuilder().setConfig(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).setTrustStore("/jetty_localhost_client.jks", "test1234").build();
             RestAssured.given().spec(spec).expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
         }
 
         @Test
         public void
         supports_overriding_truststore_in_request_specification() {
-            final RequestSpecification spec = new RequestSpecBuilder().setTrustStore("/jetty_localhost_client.jks", "wrong pw").build();
+            final RequestSpecification spec = new RequestSpecBuilder().setConfig(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).setTrustStore("/jetty_localhost_client.jks", "wrong pw").build();
             RestAssured.given().spec(spec).trustStore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
         }
     }

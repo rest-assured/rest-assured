@@ -696,6 +696,13 @@ public interface RequestSpecification extends RequestSender {
      * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(path, password));
      * </pre>
      * </p>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(path, password).allowAllHostnames())). ..
+     * </pre>
+     * </p>
      *
      * @param path     The path to the trust store. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system.
      * @param password The store pass
@@ -719,6 +726,13 @@ public interface RequestSpecification extends RequestSender {
      * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password));
      * </pre>
      * </p>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password).allowAllHostnames())). ..
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to the key store. REST Assured will first look in the classpath and if not found it will look for the key store in the local file-system.
      * @param password  The store pass
@@ -735,6 +749,13 @@ public interface RequestSpecification extends RequestSender {
      * <pre>
      * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password));
      * </pre>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password).allowAllHostnames())). ..
+     * </pre>
+     * </p>
      *
      * @param pathToJks The path to JKS file on the file-system
      * @param password  The password for the keystore
@@ -751,6 +772,13 @@ public interface RequestSpecification extends RequestSender {
      * <pre>
      * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
      * </pre>
+     * <p>
+     * Host names are verified as configured in the SSL config, strictly by default, so a server certificate whose host
+     * name doesn't match the host of the request fails the request. To allow all host names, use for example
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(path, password).allowAllHostnames())). ..
+     * </pre>
+     * </p>
      *
      * @param path     The path to trust storefile on the file-system
      * @param password The password for the keystore
