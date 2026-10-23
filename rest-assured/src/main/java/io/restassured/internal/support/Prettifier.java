@@ -18,8 +18,6 @@ package io.restassured.internal.support;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.RestAssuredResponseOptionsImpl;
 import io.restassured.internal.common.util.GroovyStyleToString;
-import io.restassured.internal.path.json.JsonPrettifier;
-import io.restassured.internal.path.xml.XmlPrettifier;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
 import io.restassured.response.ResponseBody;
@@ -86,16 +84,19 @@ public class Prettifier {
         try {
             switch (parser) {
                 case JSON:
-                    return JsonPrettifier.prettifyJson(body);
+                    return JsonReformatter.prettify(body);
                 case XML:
-                    return XmlPrettifier.prettifyXml(body);
+                    return XmlPrettyPrinter.prettifyXml(body);
                 case HTML:
-                    return XmlPrettifier.prettifyHtml(body);
+                    return XmlPrettyPrinter.prettifyHtml(body);
                 default:
                     return body;
             }
         } catch (Exception e) {
             // Parsing failed, probably because the content was not of expected type.
+            return body;
+        } catch (LinkageError e) {
+            // TagSoup, which parses HTML, is optional in OSGi
             return body;
         }
     }

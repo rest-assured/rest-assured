@@ -58,8 +58,11 @@ class PrettifierCharacterizationTest {
     }
 
     @Test
-    void json_escaped_backslash_followed_by_u_is_unescaped_after_the_backslash() {
-        assertThat(json("{\"a\":\"\\\\u00e5\"}")).isEqualTo("{\n    \"a\": \"\\\u00e5\"\n}");
+    void json_escaped_backslash_followed_by_u_stays_escaped() {
+        assertThat(json("{\"a\":\"\\\\u00e5\"}")).isEqualTo("{\n    \"a\": \"\\\\u00e5\"\n}");
+        assertThat(json("{\"a\":\"\\\\uZZZZ\"}")).isEqualTo("{\n    \"a\": \"\\\\uZZZZ\"\n}");
+        assertThat(json("{\"a\":\"\\\\\"}")).isEqualTo("{\n    \"a\": \"\\\\\"\n}");
+        assertThat(json("[\"\"]")).isEqualTo("[\n    \"\"\n]");
     }
 
     @Test
@@ -67,12 +70,23 @@ class PrettifierCharacterizationTest {
         assertThat(json("{\"a\":")).isEqualTo("{\n    \"a\": ");
         assertThat(json("{\"a\" 1}")).isEqualTo("{\n    \"a\"1\n}");
         assertThat(json("[1,,2]")).isEqualTo("[\n    1,\n    ,\n    2\n]");
+        assertThat(json("]")).isEqualTo("\n]");
+    }
+
+    @Test
+    void json_formatting_stops_at_a_string_without_end_or_with_an_invalid_escape() {
+        assertThat(json("{\"a\":\"unterminated")).isEqualTo("{\n    \"a\": ");
+        assertThat(json("{\"a\":\"bad \\x escape\",\"b\":1}")).isEqualTo("{\n    \"a\": ");
+        assertThat(json("{\"a\":\"\\u00\"}")).isEqualTo("{\n    \"a\": ");
     }
 
     @Test
     void json_that_cannot_be_lexed_is_returned_as_it_is() {
         assertThat(json("{\"a\":1} trailing")).isEqualTo("{\"a\":1} trailing");
         assertThat(json("not json")).isEqualTo("not json");
+        assertThat(json("{\"a\":tru")).isEqualTo("{\"a\":tru");
+        assertThat(json("[1.5e+3, -0, 1.]")).isEqualTo("[1.5e+3, -0, 1.]");
+        assertThat(json("[1]],[2]")).isEqualTo("[1]],[2]");
     }
 
     @Test
