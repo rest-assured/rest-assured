@@ -1838,9 +1838,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     public void setRequestHeadersToHttpBuilder(HTTPBuilder http) {
         Map<Object, Object> httpHeaders = headersOf(http);
         for (Header header : requestHeaders) {
-            String headerName = header.getName();
             String headerValue = header.getValue();
-            if (httpHeaders.containsKey(headerName)) {
+            // Headers whose names differ only in case are the same header and are sent under the name used first
+            Object headerName = findHeaderName(httpHeaders, header.getName());
+            if (headerName != null) {
                 // Like Groovy's [current, headerValue].flatten()
                 List<Object> values = new ArrayList<>();
                 Object currentValue = httpHeaders.get(headerName);
@@ -1852,7 +1853,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 values.add(headerValue);
                 httpHeaders.put(headerName, values);
             } else {
-                httpHeaders.put(headerName, headerValue);
+                httpHeaders.put(header.getName(), headerValue);
             }
         }
     }
