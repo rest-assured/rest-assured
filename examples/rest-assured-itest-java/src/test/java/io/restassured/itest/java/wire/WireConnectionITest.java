@@ -247,25 +247,37 @@ public class WireConnectionITest extends WireTest {
     }
 
     @Test public void
-    with_a_reused_http_client_instance_a_response_that_is_never_read_makes_the_next_request_fail() {
+    with_a_reused_http_client_instance_the_request_after_a_response_that_is_never_read_is_sent_on_the_same_connection() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
-        given().config(config).get(server.url("/unread"));
+        Response unread = given().config(config).get(server.url("/unread"));
 
-        // Today's behavior: the unread response keeps the only connection of HttpClient 4's BasicClientConnectionManager
-        assertThatThrownBy(() -> given().config(config).get(server.url("/port")))
-                .isExactlyInstanceOf(IllegalStateException.class);
-        assertThat(server.requests()).hasSize(1);
+        String next = remotePortOfReadResponse(config, server.url("/port"));
+
+        assertThat(next).isEqualTo(unread.header(REMOTE_PORT_HEADER));
+        assertThat(server.requests()).hasSize(2);
     }
 
     @Test public void
-    with_a_reused_http_client_instance_a_response_whose_status_is_checked_but_body_never_read_makes_the_next_request_fail() {
+    with_a_reused_http_client_instance_the_request_after_a_response_whose_status_is_checked_but_body_never_read_is_sent_on_the_same_connection() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
-        given().config(config).get(server.url("/port")).then().statusCode(200);
+        String first = given().config(config).get(server.url("/port")).then().statusCode(200).extract().header(REMOTE_PORT_HEADER);
 
-        // Today's behavior: only body expectations read the body, so the connection stays allocated
-        assertThatThrownBy(() -> given().config(config).get(server.url("/port")))
-                .isExactlyInstanceOf(IllegalStateException.class);
-        assertThat(server.requests()).hasSize(1);
+        String next = remotePortOfReadResponse(config, server.url("/port"));
+
+        assertThat(next).isEqualTo(first);
+        assertThat(server.requests()).hasSize(2);
+    }
+
+    @Test public void
+    with_a_reused_http_client_instance_the_request_after_an_empty_response_is_sent_on_the_same_connection() {
+        server.respond("/empty", Responder.text(200, "").withRemotePort());
+        RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
+        String first = given().config(config).get(server.url("/empty")).header(REMOTE_PORT_HEADER);
+
+        String next = remotePortOfReadResponse(config, server.url("/port"));
+
+        assertThat(next).isEqualTo(first);
+        assertThat(server.requests()).hasSize(2);
     }
 
     private Future<?> closeInBackground(InputStream body) {

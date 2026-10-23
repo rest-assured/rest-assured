@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.conn.BasicClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
@@ -48,6 +49,10 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String MULTIPART = "multipart";
     private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH = MULTIPART + "/";
+    // A body that is read later keeps the single connection of HttpClient 4's BasicClientConnectionManager until it's read,
+    // so the next request with the same (reused) client consumes it if it's still unread, since that request fails
+    // otherwise. Other connection managers have more connections, which other threads may still be reading from.
+    private static final Map<AbstractHttpClient, HttpEntity> UNREAD_BODIES = Collections.synchronizedMap(new WeakHashMap<>());
 
     private Headers requestHeaders;
     private RestAssuredConfig config;
@@ -123,6 +128,8 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
             }
         }
         setAcceptEncoding(reqMethod);
+        HttpEntity unreadBody = UNREAD_BODIES.remove(client);
+        if (unreadBody != null) EntityUtils.consumeQuietly(unreadBody);
         final HttpResponseDecorator resp = new HttpResponseDecorator(
                 this.client.execute(reqMethod, delegate.getContext()),
                 delegate.getContext(), null);
@@ -137,6 +144,8 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
             try {
                 // The decoded length of an encoded body isn't known, so it's parsed even when the encoded body is empty
                 if (entity == null || entity.getContentLength() == 0 && !contentDecoding.decodes(contentEncodingOf(resp))) {
+                    // Consuming the empty body releases its connection
+                    EntityUtils.consumeQuietly(entity);
                     return responseHandler.handle(resp, EMPTY);
                 } else {
                     Object content = this.parseResponse(resp, acceptContentType);
@@ -151,6 +160,8 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
             if (hasBodyAssertions) {
                 HttpEntity entity = resp.getEntity();
                 if (entity != null) EntityUtils.consumeQuietly(entity);
+            } else if (bodyIsReadLater && client.getConnectionManager() instanceof BasicClientConnectionManager) {
+                UNREAD_BODIES.put(client, resp.getEntity());
             }
             // Close idle connections to the server. HttpClient 4 would also close the connection that a body read later is
             // still to be read from, so then the response closes them once it has read the body instead.
