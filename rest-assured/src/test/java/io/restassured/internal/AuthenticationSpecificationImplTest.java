@@ -49,8 +49,8 @@ class AuthenticationSpecificationImplTest {
     }
 
     @Test
-    void digest_creates_a_basic_auth_scheme() {
-        BasicAuthScheme scheme = schemeOf(given().auth().digest("user", "pass"), BasicAuthScheme.class);
+    void digest_creates_a_digest_auth_scheme() {
+        DigestAuthScheme scheme = schemeOf(given().auth().digest("user", "pass"), DigestAuthScheme.class);
 
         assertThat(scheme.getUserName()).isEqualTo("user");
         assertThat(scheme.getPassword()).isEqualTo("pass");

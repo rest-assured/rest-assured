@@ -1431,14 +1431,20 @@ public class RestAssured {
     }
 
     /**
-     * Use http digest authentication. Note that you need to encode the password yourself.
+     * Use http digest authentication. The credentials are only sent in answer to a Digest challenge from the server
+     * (<code>WWW-Authenticate: Digest ..</code>). A server that only asks for Basic authentication doesn't get them, so
+     * the password is never sent in clear text, and the request returns the server's 401 response. Use
+     * {@link #basic(String, String)} to answer both Basic and Digest challenges.
      *
      * @param userName The user name.
      * @param password The password.
      * @return The authentication scheme
      */
     public static AuthenticationScheme digest(String userName, String password) {
-        return basic(userName, password);
+        final DigestAuthScheme scheme = new DigestAuthScheme();
+        scheme.setUserName(userName);
+        scheme.setPassword(password);
+        return scheme;
     }
 
     /**

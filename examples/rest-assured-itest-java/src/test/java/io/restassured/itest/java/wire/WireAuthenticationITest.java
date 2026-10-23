@@ -140,7 +140,7 @@ public class WireAuthenticationITest extends WireTest {
     }
 
     @Test public void
-    digest_against_a_basic_server_sends_basic_credentials() {
+    digest_against_a_basic_server_sends_no_credentials_and_returns_the_401() {
         server.respond("/basic", basicServer(USER, PASSWORD));
 
         given().
@@ -148,14 +148,11 @@ public class WireAuthenticationITest extends WireTest {
         when().
                 get(server.url("/basic")).
         then().
-                statusCode(200).
-                body(equalTo("authenticated"));
+                statusCode(401).
+                body(equalTo("unauthorized")).
+                header("WWW-Authenticate", BASIC_CHALLENGE);
 
-        // Today's behavior: digest(..) is the same as basic(..), so it answers a Basic challenge with the password in clear text
-        List<RecordedRequest> requests = server.requests();
-        assertThat(requests).hasSize(2);
-        assertThat(requests.get(0).hasHeader("Authorization")).isFalse();
-        assertThat(requests.get(1).headers("Authorization")).containsExactly(BASIC_USER_PASS);
+        assertThat(server.onlyRequest().hasHeader("Authorization")).isFalse();
     }
 
     @Test public void

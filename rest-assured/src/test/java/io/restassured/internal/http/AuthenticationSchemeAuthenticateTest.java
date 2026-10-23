@@ -68,6 +68,21 @@ class AuthenticationSchemeAuthenticateTest {
     }
 
     @Test
+    void digest_auth_scheme_sets_credentials_for_digest_challenges_from_the_host_and_port_of_the_uri() {
+        DigestAuthScheme scheme = new DigestAuthScheme();
+        scheme.setUserName("user");
+        scheme.setPassword("pass");
+
+        authenticate(scheme, http);
+
+        Credentials credentials = client.getCredentialsProvider().getCredentials(new AuthScope("localhost", 8080, "realm", "Digest"));
+        assertThat(credentials.getUserPrincipal().getName()).isEqualTo("user");
+        assertThat(credentials.getPassword()).isEqualTo("pass");
+        assertThat(client.getCredentialsProvider().getCredentials(new AuthScope("localhost", 8080, "realm", "Basic"))).isNull();
+        assertThat(client.getCredentialsProvider().getCredentials(new AuthScope("otherhost", 8080, "realm", "Digest"))).isNull();
+    }
+
+    @Test
     void ntlm_auth_scheme_sets_nt_credentials_for_the_host_and_port_of_the_uri() {
         NTLMAuthScheme scheme = new NTLMAuthScheme();
         scheme.setUserName("user");

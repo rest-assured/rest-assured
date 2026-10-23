@@ -47,6 +47,16 @@ public interface AuthenticationContext {
     void basic(String userName, String password);
 
     /**
+     * Answer a challenge from the server with Digest authentication only. A server that only asks for Basic
+     * authentication doesn't get the credentials, so the password is never sent in clear text. The credentials are only
+     * sent to the host and port of the request.
+     *
+     * @param userName The user name
+     * @param password The password
+     */
+    void digest(String userName, String password);
+
+    /**
      * Answer a challenge from the server with NTLM authentication. The credentials are only sent to the host and port of
      * the request.
      *
