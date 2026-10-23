@@ -134,6 +134,14 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         this.onFailMessage = other.onFailMessage;
     }
 
+    // A copy to validate with, keeping the request specification and the log repository, so that this specification doesn't change
+    ResponseSpecificationImpl copyToValidate() {
+        ResponseSpecificationImpl copy = new ResponseSpecificationImpl(this);
+        copy.requestSpecification = requestSpecification;
+        copy.logRepository = logRepository;
+        return copy;
+    }
+
     public ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
         throwIllegalStateExceptionIfRootPathIsNotDefined("specify arguments");
         return body("", arguments, matcher, additionalKeyMatcherPairs);
@@ -554,10 +562,15 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
                 validations.addAll(validateResponseTime(response));
                 if (hasBodyAssertionsDefined()) {
                     RestAssuredConfig cfg = validationConfig();
-                    if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
-                        contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert(), bodyMatchers.firstPath());
+                    // Only an eager assertion keeps the parsed body, so that validating doesn't change the specification
+                    Object parsed = contentParser;
+                    if (requiresPathParsing() && (!isEagerAssert() || parsed == null)) {
+                        parsed = new ContentParser().parse(response, rpr, cfg, isEagerAssert(), bodyMatchers.firstPath());
+                        if (isEagerAssert()) {
+                            contentParser = parsed;
+                        }
                     }
-                    validations.addAll(bodyMatchers.validate(response, contentParser, cfg));
+                    validations.addAll(bodyMatchers.validate(response, parsed, cfg));
                 }
             } catch (Throwable e) {
                 fireFailureListeners(response);
