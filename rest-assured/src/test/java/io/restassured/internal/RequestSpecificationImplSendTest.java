@@ -95,10 +95,17 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
-    void cookies_overwrite_a_cookie_header() {
+    void cookies_are_sent_after_a_cookie_header_in_the_same_cookie_header() {
         given().header("Cookie", "x=1").cookie("a", "1").get("/x");
 
-        assertThat(last().cookies()).isEqualTo("a=1");
+        assertThat(last().cookies()).isEqualTo("x=1; a=1");
+    }
+
+    @Test
+    void cookies_are_sent_after_lower_case_cookie_headers_in_one_cookie_header() {
+        given().header("cookie", "x=1").header("cookie", "y=2").cookie("a", "1").get("/x");
+
+        assertThat(last().cookies()).isEqualTo("x=1; y=2; a=1");
     }
 
     @Test

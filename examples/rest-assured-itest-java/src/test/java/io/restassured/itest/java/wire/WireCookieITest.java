@@ -129,11 +129,10 @@ public class WireCookieITest extends WireTest {
     }
 
     @Test public void
-    a_cookie_header_is_replaced_by_the_cookies() {
+    a_cookie_header_and_the_cookies_are_sent_in_one_cookie_header_with_the_header_first() {
         given().header("Cookie", "h=1").cookie("a", "1").get(server.url("/p")).then().statusCode(200);
 
-        // Today's behavior: the Cookie header set with header(..) is dropped
-        assertThat(server.onlyRequest().headers("Cookie")).containsExactly("a=1");
+        assertThat(server.onlyRequest().headers("Cookie")).containsExactly("h=1; a=1");
     }
 
     @Test public void
