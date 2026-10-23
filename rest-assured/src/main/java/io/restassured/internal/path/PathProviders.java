@@ -50,21 +50,32 @@ public final class PathProviders {
      * {@link io.restassured.config.JsonConfig}, or else the first engine in a fixed order that is on the classpath.
      */
     public static PathProvider forType(DocumentType type, RestAssuredConfig config) {
+        return forType(type, config, null);
+    }
+
+    /**
+     * @param path The path to evaluate, for the message when no engine is on the classpath, or {@code null} if it isn't known
+     * @see #forType(DocumentType, RestAssuredConfig)
+     */
+    public static PathProvider forType(DocumentType type, RestAssuredConfig config, String path) {
         if (type == DocumentType.JSON) {
-            return forJson(config.getJsonConfig().pathEngine(), JSON_ENGINES);
+            return forJson(config.getJsonConfig().pathEngine(), JSON_ENGINES, path);
         }
-        return load(GPATH_XML, "xml-path-gpath")
-                .orElseThrow(() -> new IllegalStateException("REST Assured found no XML path engine. Add io.rest-assured:xml-path-gpath to your test dependencies."));
+        return load(GPATH_XML, "xml-path-gpath").orElseThrow(() -> new IllegalStateException(MissingPathEngine.message(path, type)));
     }
 
     static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines) {
+        return forJson(configured, engines, null);
+    }
+
+    static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines, String path) {
         if (configured != null) {
             JsonEngine engine = engines.stream().filter(it -> it.engine() == configured).findFirst().orElseThrow();
             return load(engine.className(), engine.artifactId()).orElseThrow(() -> new IllegalStateException("JsonConfig.pathEngine is " + configured
                     + " but io.rest-assured:" + engine.artifactId() + " isn't on the classpath."));
         }
         return engines.stream().map(engine -> load(engine.className(), engine.artifactId())).flatMap(Optional::stream).findFirst()
-                .orElseThrow(() -> new IllegalStateException("REST Assured found no JSON path engine. Add io.rest-assured:json-path-gpath to your test dependencies."));
+                .orElseThrow(() -> new IllegalStateException(MissingPathEngine.message(path, DocumentType.JSON)));
     }
 
     /**

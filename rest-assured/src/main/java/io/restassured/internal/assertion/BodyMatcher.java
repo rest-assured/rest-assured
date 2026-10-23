@@ -4,6 +4,7 @@ import io.restassured.assertion.StreamVerifier;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.internal.ResponseParserRegistrar;
+import io.restassured.internal.common.spi.path.GPathRootPath;
 import io.restassured.internal.common.spi.path.PathProvider;
 import io.restassured.internal.path.PathArguments;
 import io.restassured.internal.path.PathAssertion;
@@ -101,7 +102,7 @@ public class BodyMatcher {
 
         } else {
             PathAssertion assertion = StreamVerifier.newAssertion(response, key, rpr);
-            PathProvider provider = PathProviders.forType(assertion.documentType(), config);
+            PathProvider provider = PathProviders.forType(assertion.documentType(), config, getPath());
             String path = PathArguments.applyInOrder(provider.joinRootPath(rootPath, assertion.key()), arguments);
             Object result = null;
             if (contentParser != null) {
@@ -180,6 +181,14 @@ public class BodyMatcher {
 
     public Object getKey() {
         return key;
+    }
+
+    /**
+     * @return The path of the expectation, joined from the root path and the key as GPath joins them, with the arguments
+     * applied, for messages that are needed before a path engine is found
+     */
+    public String getPath() {
+        return PathArguments.applyInOrder(GPathRootPath.join(rootPath, String.valueOf(key)), arguments);
     }
 
     public void setKey(Object key) {

@@ -405,7 +405,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         } else {
             throw new IllegalStateException("Cannot determine which path implementation to use because the content-type " + contentType + " doesn't map to a path implementation.");
         }
-        PathProvider provider = PathProviders.forType(type, config);
+        PathProvider provider = PathProviders.forType(type, config, path);
         Object document;
         try {
             document = provider.parse(PathInput.ofText(asString()), type, CorePathSettings.forPathMethod(config));

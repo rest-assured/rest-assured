@@ -54,6 +54,14 @@ public final class VersionFiles {
     }
 
     /**
+     * @return The version of REST Assured from the version file of rest-assured, or {@code null} if it wasn't filtered
+     */
+    public static String restAssuredVersion() {
+        Properties versionFile = read(VersionFiles.class.getClassLoader(), "rest-assured");
+        return versionFile == null ? null : versionFile.getProperty(VERSION);
+    }
+
+    /**
      * @return Whether both versions have the same major and minor version, such as 7.0.0 and 7.0.1-SNAPSHOT.
      */
     static boolean sameMinorVersion(String version, String otherVersion) {

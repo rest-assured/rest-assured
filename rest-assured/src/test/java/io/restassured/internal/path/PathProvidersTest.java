@@ -72,7 +72,7 @@ class PathProvidersTest {
 
         assertThatThrownBy(() -> PathProviders.forJson(null, engines))
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage("REST Assured found no JSON path engine. Add io.rest-assured:json-path-gpath to your test dependencies.");
+                .hasMessage(MissingPathEngine.message(null, DocumentType.JSON));
     }
 
     @Test
