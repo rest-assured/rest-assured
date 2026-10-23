@@ -16,6 +16,7 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.EncoderConfig;
@@ -24,7 +25,6 @@ import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.listener.ResponseValidationFailureListener;
-import io.restassured.path.json.config.JsonPathConfig;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -65,7 +65,7 @@ public class ConfigITest extends WithJetty {
     @Test
     public void supportsConfiguringJsonConfigProperties() throws Exception {
         given().
-                config(RestAssuredConfig.newConfig().jsonConfig(JsonConfig.jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL))).
+                config(RestAssuredConfig.newConfig().jsonConfig(JsonConfig.jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL))).
         expect().
                 rootPath("store.book").
                 body("price.min()", is(new BigDecimal("8.95"))).
@@ -76,7 +76,7 @@ public class ConfigITest extends WithJetty {
 
     @Test
     public void supportsConfiguringJsonConfigStatically() throws Exception {
-        RestAssured.config = RestAssuredConfig.newConfig().jsonConfig(JsonConfig.jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+        RestAssured.config = RestAssuredConfig.newConfig().jsonConfig(JsonConfig.jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL));
 
         try {
         expect().

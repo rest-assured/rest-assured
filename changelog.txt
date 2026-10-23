@@ -26,6 +26,18 @@ Changelog next version
 * Fix form authentication on login pages that have several text or password inputs, which sent the user name or password under a field named like "[user, other]". The first text input and the first password input of the page are now used. Likewise, when several inputs have the name of an additional field from FormAuthConfig, the value of the first one is sent instead of a value like "[v1, v2]". A login page without a text or password input now fails with "Failed to parse login page. Check for errors on the login page or specify FormAuthConfig." instead of sending a field named "[]"
 * Form authentication now finds the user name and password inputs of a login page whatever the case of their type, such as type="TEXT" or type="Password", which it didn't before
 * Non-backward compatible change: Jackson 1 (org.codehaus.jackson) support is removed. ObjectMapperType.JACKSON_1, JsonParserType.JACKSON_1, Jackson1ObjectMapperFactory, DefaultJackson1ObjectMapperFactory, ObjectMapperConfig.jackson1ObjectMapperFactory(..), JsonPathConfig.jackson1ObjectMapperFactory(..), JsonPathConfig.hasCustomJackson10ObjectMapperFactory(), JsonPath.using(Jackson1ObjectMapperFactory) and ObjectMapperResolver.isJackson1InClassPath() are gone, and Jackson 1 on the classpath is no longer used for object mapping. Use Jackson 2 or 3 instead
+* Non-backward compatible change: REST Assured no longer includes a path engine or Groovy. Add io.rest-assured:json-path-gpath (and xml-path-gpath for XML and HTML) to keep using paths and jsonPath() as before. With Maven:
+
+    <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>json-path-gpath</artifactId>
+        <version>${rest-assured.version}</version>
+        <scope>test</scope>
+    </dependency>
+
+  or with Gradle: testImplementation("io.rest-assured:json-path-gpath:${restAssuredVersion}"). Without it, a path in body(..), path(..) or extract().path(..) fails with a message that names the dependency to add
+* Calling jsonPath(), xmlPath() or htmlPath() without json-path-gpath or xml-path-gpath fails with a message naming the dependency. Code that calls them doesn't compile without it, and reflection over Response's methods (such as Mockito mocks of Response) needs it on the test classpath
+* Non-backward compatible change: ObjectMapperConfig's factory getters and JsonConfig.numberReturnType() now return the rest-assured-common types (io.restassured.common.mapper.factory, io.restassured.common.config.NumberReturnType), and JsonConfig no longer takes JsonPathConfig.NumberReturnType. Use the common types, or run the OpenRewrite recipe. The factories you set still work, since the old factory types extend the common ones
 
 Changelog 6.3.0 (2026-10-23)
 ----------------------------

@@ -17,6 +17,7 @@
 package io.restassured.internal.mapping;
 
 import io.restassured.common.mapper.DataToDeserialize;
+import io.restassured.common.mapper.factory.*;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.http.ContentType;
@@ -25,9 +26,6 @@ import io.restassured.internal.util.GroovyStringConversion;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.path.json.mapper.factory.*;
-import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
-import io.restassured.path.xml.mapper.factory.JakartaEEObjectMapperFactory;
 import io.restassured.response.ResponseBodyData;
 import org.apache.commons.lang3.Validate;
 

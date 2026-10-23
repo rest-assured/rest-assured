@@ -5,7 +5,7 @@
 package io.restassured.internal.mapping;
 
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory;
+import io.restassured.common.mapper.factory.JsonbObjectMapperFactory;
 import jakarta.json.bind.JsonbBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

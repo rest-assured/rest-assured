@@ -25,7 +25,7 @@ import io.restassured.http.ContentType;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
-import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

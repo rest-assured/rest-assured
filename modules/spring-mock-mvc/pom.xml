@@ -48,6 +48,18 @@
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
+            <artifactId>json-path-gpath</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>xml-path-gpath</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
             <artifactId>spring-commons</artifactId>
             <version>7.0.0-SNAPSHOT</version>
         </dependency>

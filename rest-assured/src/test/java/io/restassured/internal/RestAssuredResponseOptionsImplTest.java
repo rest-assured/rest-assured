@@ -40,7 +40,7 @@ import io.restassured.mapper.ObjectMapperSerializationContext;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.config.JsonPathConfig;
-import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.path.xml.XmlPath.CompatibilityMode;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.Response;

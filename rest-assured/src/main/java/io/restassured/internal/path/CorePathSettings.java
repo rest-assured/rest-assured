@@ -16,7 +16,6 @@
 
 package io.restassured.internal.path;
 
-import io.restassured.common.config.NumberReturnType;
 import io.restassured.config.JsonConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
@@ -37,7 +36,7 @@ public final class CorePathSettings {
     public static PathSettings forBodyAssertions(RestAssuredConfig config) {
         JsonConfig jsonConfig = config.getJsonConfig();
         XmlConfig xmlConfig = config.getXmlConfig();
-        return new PathSettings(numberReturnType(jsonConfig), jsonConfig.numberLengthLimit(), xmlConfig.isValidating(),
+        return new PathSettings(jsonConfig.numberReturnType(), jsonConfig.numberLengthLimit(), xmlConfig.isValidating(),
                 xmlConfig.isNamespaceAware(), xmlConfig.isAllowDocTypeDeclaration(), xmlConfig.features(), xmlConfig.properties(),
                 xmlConfig.declaredNamespaces());
     }
@@ -48,11 +47,7 @@ public final class CorePathSettings {
      */
     public static PathSettings forPathMethod(RestAssuredConfig config) {
         XmlConfig xmlConfig = config.getXmlConfig();
-        return new PathSettings(numberReturnType(config.getJsonConfig()), JsonConfig.DEFAULT_NUMBER_LENGTH_LIMIT, false, true, false,
+        return new PathSettings(config.getJsonConfig().numberReturnType(), JsonConfig.DEFAULT_NUMBER_LENGTH_LIMIT, false, true, false,
                 xmlConfig.features(), xmlConfig.properties(), xmlConfig.declaredNamespaces());
-    }
-
-    private static NumberReturnType numberReturnType(JsonConfig jsonConfig) {
-        return NumberReturnType.valueOf(jsonConfig.numberReturnType().name());
     }
 }

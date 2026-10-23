@@ -61,7 +61,24 @@ public final class PathProviders {
         if (type == DocumentType.JSON) {
             return forJson(config.getJsonConfig().pathEngine(), JSON_ENGINES, path);
         }
-        return load(GPATH_XML, "xml-path-gpath").orElseThrow(() -> new IllegalStateException(MissingPathEngine.message(path, type)));
+        return gpath(type, path);
+    }
+
+    /**
+     * Checks that GPath (json-path-gpath for JSON, xml-path-gpath for XML and HTML) is on the classpath, with the
+     * version of REST Assured, before {@code jsonPath()}, {@code xmlPath()} or {@code htmlPath()} uses it.
+     *
+     * @param method The method that needs GPath, for the message when it isn't on the classpath
+     * @throws IllegalStateException If GPath isn't on the classpath
+     */
+    public static void requireGPath(DocumentType type, String method) {
+        gpath(type, method);
+    }
+
+    private static PathProvider gpath(DocumentType type, String path) {
+        String className = type == DocumentType.JSON ? GPATH_JSON : GPATH_XML;
+        String artifactId = type == DocumentType.JSON ? "json-path-gpath" : "xml-path-gpath";
+        return load(className, artifactId).orElseThrow(() -> new IllegalStateException(MissingPathEngine.message(path, type)));
     }
 
     static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines) {
