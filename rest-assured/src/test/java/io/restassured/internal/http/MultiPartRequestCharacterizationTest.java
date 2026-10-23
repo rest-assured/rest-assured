@@ -20,6 +20,7 @@ import com.sun.net.httpserver.HttpServer;
 import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.config.MultipartMode;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
@@ -28,7 +29,6 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
-import org.apache.http.entity.mime.HttpMultipartMode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -138,9 +138,9 @@ class MultiPartRequestCharacterizationTest {
         cases.put("multipart with boundary", spec -> spec.contentType("multipart/form-data; boundary=custom").multiPart("ctrl", TEXT));
         cases.put("vendor multipart content-type", spec -> spec.contentType("application/vnd.x+multipart+form-data").multiPart("ctrl", TEXT));
         cases.put("non-multipart content-type", spec -> spec.contentType("application/json").multiPart("ctrl", TEXT));
-        cases.put("strict mode, two parts", spec -> spec.config(RestAssured.config().httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(HttpMultipartMode.STRICT)))
+        cases.put("strict mode, two parts", spec -> spec.config(RestAssured.config().httpClient(HttpClientConfig.httpClientConfig().multipartMode(MultipartMode.STRICT)))
                 .multiPart("one", TEXT).multiPart("two", "file.bin", BYTES));
-        cases.put("browser compatible mode", spec -> spec.config(RestAssured.config().httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE)))
+        cases.put("browser compatible mode", spec -> spec.config(RestAssured.config().httpClient(HttpClientConfig.httpClientConfig().multipartMode(MultipartMode.BROWSER_COMPATIBLE)))
                 .multiPart("one", TEXT, "text/plain; charset=UTF-8"));
         return cases;
     }

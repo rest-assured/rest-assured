@@ -32,8 +32,6 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
-import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
-import static org.apache.http.client.params.CookiePolicy.BROWSER_COMPATIBILITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
@@ -273,8 +271,9 @@ public class WireCookieITest extends WireTest {
     }
 
     @Test public void
-    the_browser_compatibility_cookie_policy_keeps_response_cookies_when_reusing_the_http_client() {
-        RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance().setParam(COOKIE_POLICY, BROWSER_COMPATIBILITY));
+    the_cookie_policy_parameter_keeps_response_cookies_when_reusing_the_http_client() {
+        // The string key stays until 8.0 (D19): any policy but ignoreCookies keeps response cookies
+        RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance().setParam("http.protocol.cookie-policy", "compatibility"));
         server.respond("/set", setCookies("a=1"));
 
         given().config(config).get(server.url("/set")).asString();
@@ -574,10 +573,10 @@ public class WireCookieITest extends WireTest {
     }
 
     @Test public void
-    the_browser_compatibility_cookie_policy_sends_the_cookie_of_the_redirect_response_on_the_follow_up() {
+    keep_response_cookies_sends_the_cookie_of_the_redirect_response_on_the_follow_up() {
         server.respond("/from", Responder.redirect(302, "/to").withHeader("Set-Cookie", "fromRedirect=1"));
 
-        given().config(config().httpClient(httpClientConfig().setParam(COOKIE_POLICY, BROWSER_COMPATIBILITY))).get(server.url("/from")).then().statusCode(200);
+        given().config(config().httpClient(httpClientConfig().keepResponseCookies(true))).get(server.url("/from")).then().statusCode(200);
 
         List<RecordedRequest> requests = server.requests();
         assertThat(requests.get(0).hasHeader("Cookie")).isFalse();

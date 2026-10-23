@@ -17,7 +17,7 @@
 package io.restassured;
 
 import io.restassured.authentication.FormAuthConfig;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import io.restassured.config.SSLConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +61,7 @@ public class RestAssuredTest {
       RestAssured.trustStore(new File("ts.jks"), "pw");
 
       assertThat(RestAssured.config().getSSLConfig().getPathToTrustStore()).isEqualTo(new File("ts.jks"));
-      assertThat(RestAssured.config().getSSLConfig().getX509HostnameVerifier()).isSameAs(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+      assertThat(RestAssured.config().getSSLConfig().getHostnameVerifier()).isSameAs(SSLConfig.sslConfig().strictHostnames().getHostnameVerifier());
     } finally {
       RestAssured.reset();
     }

@@ -24,10 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.MAX_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.REJECT_RELATIVE_REDIRECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RedirectSpecificationImplTest {
@@ -44,10 +40,10 @@ class RedirectSpecificationImplTest {
         assertThat(redirects.rejectRelative(true)).isSameAs(spec);
 
         assertThat(params).containsExactly(
-                Map.entry(MAX_REDIRECTS, 3),
-                Map.entry(HANDLE_REDIRECTS, false),
-                Map.entry(ALLOW_CIRCULAR_REDIRECTS, true),
-                Map.entry(REJECT_RELATIVE_REDIRECT, true));
+                Map.entry("http.protocol.max-redirects", 3),
+                Map.entry("http.protocol.handle-redirects", false),
+                Map.entry("http.protocol.allow-circular-redirects", true),
+                Map.entry("http.protocol.reject-relative-redirect", true));
     }
 
     @Test
@@ -58,7 +54,7 @@ class RedirectSpecificationImplTest {
         redirects.max(3);
         redirects.max(5);
 
-        assertThat(params).containsExactly(Map.entry(MAX_REDIRECTS, 5));
+        assertThat(params).containsExactly(Map.entry("http.protocol.max-redirects", 5));
     }
 
     @Test
@@ -71,6 +67,6 @@ class RedirectSpecificationImplTest {
         Field field = RequestSpecificationImpl.class.getDeclaredField("httpClientParams");
         field.setAccessible(true);
         @SuppressWarnings("unchecked") Map<String, Object> params = (Map<String, Object>) field.get(spec);
-        assertThat(params).containsEntry(MAX_REDIRECTS, 2).containsEntry(HANDLE_REDIRECTS, true);
+        assertThat(params).containsEntry("http.protocol.max-redirects", 2).containsEntry("http.protocol.handle-redirects", true);
     }
 }

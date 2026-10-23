@@ -1038,17 +1038,17 @@ class RequestSpecificationImplTest {
     void ssl_shortcuts_change_the_ssl_config() {
         FilterableRequestSpecification spec = (FilterableRequestSpecification) given().relaxedHTTPSValidation("TLS");
         assertThat(spec.getConfig().getSSLConfig().getSSLSocketFactory()).isNotNull();
-        assertThat(spec.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+        assertThat(spec.getConfig().getSSLConfig().getHostnameVerifier()).isSameAs(SSLConfig.sslConfig().strictHostnames().getHostnameVerifier());
 
         FilterableRequestSpecification keyStore = (FilterableRequestSpecification) given().keyStore("ks.jks", "pw");
         assertThat(keyStore.getConfig().getSSLConfig().getPathToKeyStore()).isEqualTo("ks.jks");
         assertThat(keyStore.getConfig().getSSLConfig().getKeyStorePassword()).isEqualTo("pw");
-        assertThat(keyStore.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+        assertThat(keyStore.getConfig().getSSLConfig().getHostnameVerifier()).isSameAs(SSLConfig.sslConfig().strictHostnames().getHostnameVerifier());
 
         File file = new File("ts.jks");
         FilterableRequestSpecification trustStore = (FilterableRequestSpecification) given().trustStore(file, "pw");
         assertThat(trustStore.getConfig().getSSLConfig().getPathToTrustStore()).isEqualTo(file);
-        assertThat(trustStore.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+        assertThat(trustStore.getConfig().getSSLConfig().getHostnameVerifier()).isSameAs(SSLConfig.sslConfig().strictHostnames().getHostnameVerifier());
     }
 
     @Test
@@ -1057,7 +1057,7 @@ class RequestSpecificationImplTest {
 
         FilterableRequestSpecification spec = (FilterableRequestSpecification) given().config(allowAllHostnames).keyStore("ks.jks", "pw").trustStore("ts.jks", "pw");
 
-        assertThat(spec.getConfig().getSSLConfig().getX509HostnameVerifier()).isEqualTo(org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        assertThat(spec.getConfig().getSSLConfig().getHostnameVerifier()).isSameAs(SSLConfig.sslConfig().allowAllHostnames().getHostnameVerifier());
     }
 
     @Test

@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.apache.http.client.params.ClientPNames.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -49,7 +48,7 @@ public class HttpClientConfigITest extends WithJetty {
         final List<Header> httpClientHeaders = new ArrayList<Header>();
         httpClientHeaders.add(new BasicHeader("header1", "value1"));
         httpClientHeaders.add(new BasicHeader("header2", "value2"));
-        RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam(DEFAULT_HEADERS, httpClientHeaders));
+        RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam("http.default-headers", httpClientHeaders));
         try {
             given().
                     param("url", "/hello").
@@ -66,7 +65,7 @@ public class HttpClientConfigITest extends WithJetty {
 
     @Test
     public void doesntThrowClientProtocolExceptionIfMaxNumberOfRedirectAreExceededInHttpClientConfigBecauseRedirectConfigHasPrecedence() throws Exception {
-        RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam(HANDLE_REDIRECTS, true).and().setParam(MAX_REDIRECTS, 0));
+        RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam("http.protocol.handle-redirects", true).and().setParam("http.protocol.max-redirects", 0));
         try {
             given().
                     param("url", "/hello").
@@ -106,7 +105,7 @@ public class HttpClientConfigITest extends WithJetty {
     public void httpClientIsConfigurableFromAStaticHttpClientConfigWithOtherConfigurations() {
         // Given
         final MutableObject<HttpClient> client = new MutableObject<>();
-        RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam(HANDLE_REDIRECTS, true).and().setParam(MAX_REDIRECTS, 0).and().httpClientFactory(SystemDefaultHttpClient::new));
+        RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam("http.protocol.handle-redirects", true).and().setParam("http.protocol.max-redirects", 0).and().httpClientFactory(SystemDefaultHttpClient::new));
 
         // When
         try {

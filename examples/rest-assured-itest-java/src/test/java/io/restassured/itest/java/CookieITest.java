@@ -22,16 +22,18 @@ import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
-import org.apache.http.client.utils.DateUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.matcher.RestAssuredMatchers.detailedCookie;
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import org.assertj.core.api.Assertions;
@@ -279,7 +281,7 @@ public class CookieITest extends WithJetty {
 
         assertThat(cookies.asList(), hasSize(1));
         Cookie cookie = cookies.get("name");
-        assertThat(cookie.getExpiryDate(), equalTo(DateUtils.parseDate("Sat, 02 May 2009 23:38:25 GMT")));
+        assertThat(cookie.getExpiryDate(), equalTo(Date.from(ZonedDateTime.parse("Sat, 02 May 2009 23:38:25 GMT", RFC_1123_DATE_TIME).toInstant())));
     }
 
     @Test
@@ -292,7 +294,7 @@ public class CookieITest extends WithJetty {
 
         assertThat(cookies.asList(), hasSize(1));
         Cookie cookie = cookies.get("name");
-        assertThat(cookie.getExpiryDate(), equalTo(DateUtils.parseDate("Sat, 02 May 2009 23:38:25 GMT")));
+        assertThat(cookie.getExpiryDate(), equalTo(Date.from(ZonedDateTime.parse("Sat, 02 May 2009 23:38:25 GMT", RFC_1123_DATE_TIME).toInstant())));
     }
 
     @Test

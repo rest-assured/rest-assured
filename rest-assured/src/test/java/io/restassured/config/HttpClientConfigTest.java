@@ -17,14 +17,8 @@
 package io.restassured.config;
 
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -55,21 +49,21 @@ public class HttpClientConfigTest {
         final HttpClientConfig httpClientConfig = new HttpClientConfig();
 
         Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
-        assertThat(params).containsEntry(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+        assertThat(params).containsEntry("http.protocol.cookie-policy", "ignoreCookies");
     }
 
     @Test
     public void setParamsRespectsOtherConfigurationSettings() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig()
-                .setParam(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS)
+                .setParam("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS)
                 .reuseHttpClientInstance()
-                .setParam(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+                .setParam("http.protocol.cookie-policy", "compatibility");
 
         Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
         assertThat(params)
                 .contains(
-                        entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS),
-                        entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                        entry("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS),
+                        entry("http.protocol.cookie-policy", "compatibility")
                 );
         assertThat(httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()).isTrue();
     }
@@ -77,12 +71,12 @@ public class HttpClientConfigTest {
     @Test
     public void setParamsCorrectlyUpdatesPreviousSetting() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig()
-                .setParam(ClientPNames.MAX_REDIRECTS, "50")
-                .setParam(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS);
+                .setParam("http.protocol.max-redirects", "50")
+                .setParam("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS);
 
         Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
         assertThat(params)
-                .contains(entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS));
+                .contains(entry("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS));
     }
 
     @Test
@@ -90,8 +84,8 @@ public class HttpClientConfigTest {
         final Map<String, String> redirectParam = new HashMap<String, String>();
         final Map<String, String> cookieParam = new HashMap<String, String>();
 
-        redirectParam.put(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS);
-        cookieParam.put(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+        redirectParam.put("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS);
+        cookieParam.put("http.protocol.cookie-policy", "compatibility");
 
         final HttpClientConfig httpClientConfig = new HttpClientConfig()
                 .addParams(redirectParam)
@@ -101,8 +95,8 @@ public class HttpClientConfigTest {
         Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
         assertThat(params)
                 .contains(
-                        entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS),
-                        entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
+                        entry("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS),
+                        entry("http.protocol.cookie-policy", "compatibility")
                 );
         assertThat(httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()).isTrue();
     }
@@ -112,8 +106,8 @@ public class HttpClientConfigTest {
         final Map<String, String> redirectParam = new HashMap<String, String>();
         final Map<String, String> cookieParam = new HashMap<String, String>();
 
-        redirectParam.put(ClientPNames.MAX_REDIRECTS, "50");
-        cookieParam.put(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS);
+        redirectParam.put("http.protocol.max-redirects", "50");
+        cookieParam.put("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS);
 
         final HttpClientConfig httpClientConfig = new HttpClientConfig()
                 .addParams(redirectParam)
@@ -122,7 +116,7 @@ public class HttpClientConfigTest {
 
         Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
         assertThat(params)
-                .contains(entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS));
+                .contains(entry("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS));
 
     }
 
@@ -178,7 +172,7 @@ public class HttpClientConfigTest {
         assertThat(httpClientConfig.httpClientInstance()).isSameAs(httpClient);
         assertThat(httpClientConfig.httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE).httpClientInstance()).isSameAs(httpClient);
         assertThat(httpClientConfig.reuseHttpClientInstance().httpClientInstance()).isSameAs(httpClient);
-        assertThat(httpClientConfig.setParam(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS).httpClientInstance()).isNotSameAs(httpClient);
+        assertThat(httpClientConfig.setParam("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS).httpClientInstance()).isNotSameAs(httpClient);
     }
 
     @Test
@@ -206,24 +200,24 @@ public class HttpClientConfigTest {
                 .multipartMode(MultipartMode.RFC6532);
 
         assertThat((Map<String, Object>) httpClientConfig.params()).contains(
-                entry(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000),
-                entry(CoreConnectionPNames.SO_TIMEOUT, 2000),
-                entry(ClientPNames.CONN_MANAGER_TIMEOUT, 3000L),
-                entry(ClientPNames.COOKIE_POLICY, CookieSpecs.DEFAULT),
-                entry(CookieSpecPNames.DATE_PATTERNS, Collections.singletonList("yyyy-MM-dd")),
-                entry(CoreProtocolPNames.USE_EXPECT_CONTINUE, true));
+                entry("http.connection.timeout", 1000),
+                entry("http.socket.timeout", 2000),
+                entry("http.conn-manager.timeout", 3000L),
+                entry("http.protocol.cookie-policy", "default"),
+                entry("http.protocol.cookie-datepatterns", Collections.singletonList("yyyy-MM-dd")),
+                entry("http.protocol.expect-continue", true));
         assertThat(httpClientConfig.httpMultipartMode()).isEqualTo(HttpMultipartMode.RFC6532);
     }
 
     @Test
     public void newGettersReadTheParametersSetWithTheOldMethods() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig()
-                .setParam(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000)
-                .setParam(CoreConnectionPNames.SO_TIMEOUT, "2000")
-                .setParam(ClientPNames.CONN_MANAGER_TIMEOUT, 3000L)
-                .setParam(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
-                .setParam(CookieSpecPNames.DATE_PATTERNS, Collections.singletonList("yyyy-MM-dd"))
-                .setParam(CoreProtocolPNames.USE_EXPECT_CONTINUE, true)
+                .setParam("http.connection.timeout", 1000)
+                .setParam("http.socket.timeout", "2000")
+                .setParam("http.conn-manager.timeout", 3000L)
+                .setParam("http.protocol.cookie-policy", "compatibility")
+                .setParam("http.protocol.cookie-datepatterns", Collections.singletonList("yyyy-MM-dd"))
+                .setParam("http.protocol.expect-continue", true)
                 .httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
         assertThat(httpClientConfig.connectTimeout()).isEqualTo(Duration.ofSeconds(1));
@@ -239,7 +233,7 @@ public class HttpClientConfigTest {
     public void keepResponseCookiesFalseIgnoresCookies() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig().keepResponseCookies(true).keepResponseCookies(false);
 
-        assertThat((Map<String, Object>) httpClientConfig.params()).contains(entry(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES));
+        assertThat((Map<String, Object>) httpClientConfig.params()).contains(entry("http.protocol.cookie-policy", "ignoreCookies"));
         assertThat(httpClientConfig.keepsResponseCookies()).isFalse();
     }
 
