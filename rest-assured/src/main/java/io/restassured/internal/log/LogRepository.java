@@ -24,6 +24,17 @@ public class LogRepository {
     private ByteArrayOutputStream requestLog;
     private ByteArrayOutputStream responseLog;
 
+    public LogRepository() {
+    }
+
+    /**
+     * A repository with the logs of <code>other</code>, so that logs registered in it don't reach <code>other</code>.
+     */
+    public LogRepository(LogRepository other) {
+        this.requestLog = other.requestLog;
+        this.responseLog = other.responseLog;
+    }
+
     public void registerRequestLog(ByteArrayOutputStream baos) {
         this.requestLog = baos;
     }

@@ -20,11 +20,15 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.FailureConfig;
+import io.restassured.filter.Filter;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
+import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSender;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import io.restassured.specification.SpecificationQuerier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Pins how {@link TestSpecificationImpl} (returned by {@code RestAssured.given(RequestSpecification, ResponseSpecification)})
- * wires the specifications together and delegates to the request specification.
+ * sends with the specifications, without changing them, and delegates to the request specification.
  */
 class TestSpecificationImplTest {
 
@@ -53,16 +57,47 @@ class TestSpecificationImplTest {
     }
 
     @Test
-    void wires_the_request_and_response_specifications_together() {
-        RequestSpecification request = new RequestSpecBuilder().build();
-        ResponseSpecification response = new ResponseSpecBuilder().build();
+    void keeps_the_specifications_and_sending_doesnt_change_them() {
+        Filter respond = respond();
+        RequestSpecification request = new RequestSpecBuilder().addFilter(respond).build();
+        ResponseSpecification response = new ResponseSpecBuilder().expectStatusCode(200).build();
 
         TestSpecificationImpl testSpecification = new TestSpecificationImpl(request, response);
+        testSpecification.get("/x/{id}?a=1", 1);
 
         assertThat(testSpecification.getRequestSpecification()).isSameAs(request);
         assertThat(testSpecification.getResponseSpecification()).isSameAs(response);
-        assertThat(response.request()).isSameAs(request);
-        assertThat(request.response()).isSameAs(response);
+        QueryableRequestSpecification queryable = SpecificationQuerier.query(request);
+        assertThat(queryable.getDefinedFilters()).containsExactly(respond);
+        assertThat(queryable.getMethod()).isNull();
+        assertThat(queryable.getQueryParams()).isEmpty();
+        // As for any built specification, they aren't linked to each other
+        assertThatThrownBy(request::response).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> request.get("/x")).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(response::when).isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void a_sender_sends_the_same_request_each_time() {
+        RequestSender sender = sender();
+
+        sender.get("/x?a=1");
+        sender.get("/x?a=1");
+
+        assertThat(sent).containsExactly("GET http://localhost:8080/x?a=1", "GET http://localhost:8080/x?a=1");
+    }
+
+    @Test
+    void failure_listeners_get_the_request_as_sent() {
+        List<String> failed = new ArrayList<>();
+        RestAssured.config = RestAssured.config().failureConfig(FailureConfig.failureConfig().failureListeners((req, res, response) ->
+                failed.add(SpecificationQuerier.query(req).getMethod() + " " + SpecificationQuerier.query(req).getURI())));
+        RequestSpecification request = new RequestSpecBuilder().addFilter(respond()).build();
+        ResponseSpecification response = new ResponseSpecBuilder().expectStatusCode(201).build();
+
+        assertThatThrownBy(() -> RestAssured.given(request, response).post("/x/{id}", 1)).isInstanceOf(AssertionError.class);
+
+        assertThat(failed).containsExactly("POST http://localhost:8080/x/1");
     }
 
     @Test
@@ -174,6 +209,10 @@ class TestSpecificationImplTest {
         assertThatThrownBy(() -> sender().request("GET", (URI) null)).isInstanceOf(IllegalArgumentException.class).hasMessage("String cannot be null");
         assertThatThrownBy(() -> sender().request(Method.GET, (URL) null)).isInstanceOf(IllegalArgumentException.class).hasMessage("URL cannot be null");
         assertThatThrownBy(() -> sender().request("GET", (URL) null)).isInstanceOf(IllegalArgumentException.class).hasMessage("URL cannot be null");
+    }
+
+    private static Filter respond() {
+        return (req, res, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("").build();
     }
 
     private void assertSent(Function<RequestSender, Response> request, String expected) {

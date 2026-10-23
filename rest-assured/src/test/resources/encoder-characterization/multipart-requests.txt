@@ -141,8 +141,6 @@ sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposi
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-  MultiPartSpecificationImpl controlName=novalue fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String 
-    toString: controlName=novalue, mimeType=text/plain, charset=<none>, fileName=file, content=, headers=[:]
 
 == form params and params
 filter sees:
@@ -152,12 +150,6 @@ sent: multipart/form-data; boundary=BOUNDARY | --BOUNDARY\x0d\x0aContent-Disposi
 afterwards:
   MultiPartSpecificationImpl controlName=ctrl fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String hello åäö
     toString: controlName=ctrl, mimeType=text/plain, charset=<none>, fileName=file, content=hello åäö, headers=[:]
-  MultiPartSpecificationImpl controlName=p fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String 1
-    toString: controlName=p, mimeType=text/plain, charset=<none>, fileName=file, content=1, headers=[:]
-  MultiPartSpecificationImpl controlName=f fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String 2
-    toString: controlName=f, mimeType=text/plain, charset=<none>, fileName=file, content=2, headers=[:]
-  MultiPartSpecificationImpl controlName=f fileName=file hasFileName=true mimeType=text/plain charset=null headers={} content=String 3
-    toString: controlName=f, mimeType=text/plain, charset=<none>, fileName=file, content=3, headers=[:]
 
 == spec String content
 filter sees:

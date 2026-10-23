@@ -666,8 +666,11 @@ class ResponseSpecificationImplValidationTest {
         RequestSpecification request = given().config(config).filter(respondWith(jsonResponse()));
         assertThatThrownBy(() -> request.expect().statusCode(201).when().get(URL)).isInstanceOf(AssertionError.class);
         assertThat(calls).hasSize(3);
-        assertThat(calls.get(0)).isSameAs(request);
-        assertThat(calls.get(1)).isSameAs(request.response());
+        // The request was sent with copies of the specifications, which the listeners get, as sent
+        assertThat(calls.get(0)).isNotSameAs(request);
+        assertThat(((FilterableRequestSpecification) calls.get(0)).getMethod()).isEqualTo("GET");
+        assertThat(((FilterableRequestSpecification) calls.get(0)).response()).isSameAs(calls.get(1));
+        assertThat(calls.get(1)).isNotSameAs(request.response()).isInstanceOf(ResponseSpecificationImpl.class);
         assertThat(calls.get(2)).isInstanceOf(Response.class);
     }
 
