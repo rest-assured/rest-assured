@@ -4,7 +4,7 @@ Date: 2026-10-17
 
 ## Status
 
-Accepted, for 6.3.0 and 7.0.0. Amends ADR 0001.
+Accepted, for 6.3.0 and 7.0.0. Amends ADR 0001. Amended 2026-10-23: `json-path-jayway` keeps json-smart.
 
 ## Context
 
@@ -37,7 +37,9 @@ evaluates with a provider over those maps and lists, an explicitly built configu
 - The parser is a small strict JSON parser in the module, not json-smart. The phase 0 spike showed that json-smart turns
   any decimal of 18 characters or fewer into a `Double`, so `BIG_DECIMAL` loses the scale (`1.50` becomes `1.5`), and it
   converts a number before REST Assured can check its length. A 101-line parser matched today's output in all four
-  `NumberReturnType` modes. The module excludes json-smart, and a provider over plain maps and lists works without it.
+  `NumberReturnType` modes. The module doesn't parse bodies with json-smart, but keeps it as Jayway's transitive
+  dependency (amended 2026-10-23): Jayway's filter compiler (`ValueNode.createJsonNode`) parses literals in filters,
+  such as `[?(@.category in ['fiction'])]`, with json-smart, so those filters fail without it.
 - Jayway throws `PathNotFoundException` for every case, so the module tells them apart by message, which is identical on
   2.8.0, 2.9.0 and 2.10.0, and by checking the parent's type. A missing property, a missing parent and a property of a
   `null` all give `null`, as in GPath, so `body("missing", nullValue())` keeps working. A list addressed as an object
