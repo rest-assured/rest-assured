@@ -64,11 +64,10 @@ public class WireCookieITest extends WireTest {
     }
 
     @Test public void
-    a_cookie_without_value_is_sent_with_the_value_null() {
+    a_cookie_without_value_is_sent_with_an_equals_sign() {
         given().cookie("a").get(server.url("/p")).then().statusCode(200);
 
-        // Today's behavior: the missing value is sent as the text "null"
-        assertThat(server.onlyRequest().headers("Cookie")).containsExactly("a=null");
+        assertThat(server.onlyRequest().headers("Cookie")).containsExactly("a=");
     }
 
     @Test public void
@@ -86,7 +85,7 @@ public class WireCookieITest extends WireTest {
     }
 
     @Test public void
-    cookies_from_a_map_are_sent_in_map_order_with_a_null_value_sent_as_null() {
+    cookies_from_a_map_are_sent_in_map_order_with_a_null_value_sent_as_an_empty_value() {
         Map<String, Object> cookies = new LinkedHashMap<>();
         cookies.put("z", "1");
         cookies.put("y", 2);
@@ -94,8 +93,7 @@ public class WireCookieITest extends WireTest {
 
         given().cookies(cookies).get(server.url("/p")).then().statusCode(200);
 
-        // Today's behavior: the null value is sent as the text "null"
-        assertThat(server.onlyRequest().headers("Cookie")).containsExactly("z=1; y=2; x=null");
+        assertThat(server.onlyRequest().headers("Cookie")).containsExactly("z=1; y=2; x=");
     }
 
     @Test public void

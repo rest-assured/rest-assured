@@ -88,7 +88,7 @@ class RequestSpecificationImplSendTest {
         assertThat(request.rawPath()).isEqualTo("/x/v%201");
         assertThat(request.query()).isEqualTo("p=1&q=a%20b&z=1&f=%C3%A4");
         assertThat(request.header("x")).isEqualTo("1,2");
-        assertThat(request.cookies()).isEqualTo("a=1; b=null");
+        assertThat(request.cookies()).isEqualTo("a=1; b=");
         assertThat(request.header("Accept")).isEqualTo("*/*");
         assertThat(request.header("Content-Type")).isEqualTo("application/x-www-form-urlencoded; charset=ISO-8859-1");
         assertThat(request.body()).isEmpty();
