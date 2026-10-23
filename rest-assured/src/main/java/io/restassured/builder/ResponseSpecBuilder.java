@@ -720,6 +720,25 @@ public class ResponseSpecBuilder {
         return responseParserRegistrar;
     }
 
+    /**
+     * Set the configuration that this response specification validates with. Each configuration type that you have
+     * configured in it, such as {@code jsonConfig().pathEngine(JsonPathEngine.JAYWAY)}, takes precedence over the one of
+     * the request and of {@link RestAssured#config} when the specification is used, for example with
+     * {@code then().spec(..)}, {@code expect().spec(..)} or {@code given(requestSpecification, responseSpecification)}.
+     * For example:
+     * <pre>
+     * ResponseSpecification spec = new ResponseSpecBuilder().setConfig(config().jsonConfig(jsonConfig().pathEngine(JsonPathEngine.JAYWAY)))
+     *         .expectBody("$.store.book[*].author", hasItem("Herman Melville")).build();
+     * </pre>
+     *
+     * @param config The configuration, or {@code null} for none.
+     * @return The builder
+     */
+    public ResponseSpecBuilder setConfig(RestAssuredConfig config) {
+        ((ResponseSpecificationImpl) spec).setSpecificationConfig(config);
+        return this;
+    }
+
     private RestAssuredConfig restAssuredConfig() {
         return RestAssured.config();
     }

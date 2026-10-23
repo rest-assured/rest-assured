@@ -60,6 +60,7 @@ public class SpecificationMerger {
      *     <li>Cookies</li>
      *     <li>Headers</li>
      *     <li>Response parser settings</li>
+     *     <li>The config set with {@link io.restassured.builder.ResponseSpecBuilder#setConfig(RestAssuredConfig)}, per config type</li>
      * </ul>
      */
     public static void merge(ResponseSpecificationImpl thisOne, ResponseSpecificationImpl with) {
@@ -77,6 +78,7 @@ public class SpecificationMerger {
         thisOne.setExpectedStatusLine(with.getStatusLine());
         thisOne.setExpectedResponseTime(with.getExpectedResponseTime());
         thisOne.getHeaderAssertions().addAll(with.getHeaderAssertions());
+        thisOne.setSpecificationConfig(mergeConfig(thisOne.getSpecificationConfig(), with.getSpecificationConfig()));
     }
 
     /**
@@ -139,12 +141,27 @@ public class SpecificationMerger {
 
     private static void mergeConfig(RequestSpecificationImpl thisOne, RequestSpecificationImpl other) {
         RestAssuredConfig thisConfig = thisOne.restAssuredConfig();
-        RestAssuredConfig otherConfig = other.restAssuredConfig();
+        RestAssuredConfig merged = mergeConfig(thisConfig, other.restAssuredConfig());
+        if (merged != thisConfig) {
+            thisOne.setRestAssuredConfig(merged);
+        }
+    }
+
+    /**
+     * @return The config of each type that the other config has configured, and else the one of this config. When
+     * either config isn't configured at all, the other one as it is.
+     */
+    static RestAssuredConfig mergeConfig(RestAssuredConfig thisConfig, RestAssuredConfig otherConfig) {
+        if (otherConfig == null) {
+            return thisConfig;
+        } else if (thisConfig == null) {
+            return otherConfig;
+        }
         boolean thisIsUserConfigured = thisConfig.isUserConfigured();
         boolean otherIsUserConfigured = otherConfig.isUserConfigured();
         if (thisIsUserConfigured && otherIsUserConfigured) {
             // Use the config of the other specification for each config type that it has configured
-            RestAssuredConfig newConfig = new RestAssuredConfig(
+            return new RestAssuredConfig(
                     pick(thisConfig.getRedirectConfig(), otherConfig.getRedirectConfig()),
                     pick(thisConfig.getHttpClientConfig(), otherConfig.getHttpClientConfig()),
                     pick(thisConfig.getLogConfig(), otherConfig.getLogConfig()),
@@ -163,10 +180,10 @@ public class SpecificationMerger {
                     pick(thisConfig.getOAuthConfig(), otherConfig.getOAuthConfig()),
                     pick(thisConfig.getFailureConfig(), otherConfig.getFailureConfig()),
                     pick(thisConfig.getCsrfConfig(), otherConfig.getCsrfConfig()));
-            thisOne.setRestAssuredConfig(newConfig);
         } else if (!thisIsUserConfigured && otherIsUserConfigured) {
-            thisOne.setRestAssuredConfig(otherConfig);
+            return otherConfig;
         }
+        return thisConfig;
     }
 
     private static <T extends Config> T pick(T thisConfig, T otherConfig) {
