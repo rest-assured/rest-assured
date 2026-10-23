@@ -22,6 +22,7 @@ import java.util.Locale;
  * Mapping of HTTP response codes to a constant 'success' or 'failure' value.
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
+// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
 public enum Status {
 	/** Any status code >= 100 and < 400 */
 	SUCCESS ( 100, 399 ),

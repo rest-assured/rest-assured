@@ -33,6 +33,7 @@ import java.util.Locale;
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  * @since 0.5.0
  */
+// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
 public class HttpResponseDecorator implements HttpResponse {
 	
 	HeadersDecorator headers = null;

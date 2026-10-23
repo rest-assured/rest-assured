@@ -30,6 +30,7 @@ public class HttpResponseException extends org.apache.http.client.HttpResponseEx
 
 	HttpResponseDecorator response;
 	
+	// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
 	public HttpResponseException( HttpResponseDecorator resp ) {
 		super( resp.getStatusLine().getStatusCode(), 
 				resp.getStatusLine().getReasonPhrase() );

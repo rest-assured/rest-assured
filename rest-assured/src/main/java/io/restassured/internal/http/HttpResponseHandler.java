@@ -21,6 +21,7 @@ import java.io.IOException;
 /**
  * Handles the response to a request sent by {@link HTTPBuilder}, see {@link HTTPBuilder.RequestConfigDelegate#getResponse()}.
  */
+// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
 @FunctionalInterface
 public interface HttpResponseHandler {
 

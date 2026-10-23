@@ -68,9 +68,13 @@ import java.util.Map;
  * header is <code>&#42;/*</code>, and the response parser is determined
  * based on the response <code>content-type</code> header. </p>
  *
+ * <p>REST Assured itself no longer sends requests through this class: it builds a
+ * {@link io.restassured.internal.transport.TransportRequest} and sends it with {@link HttpClient4Transport}, which
+ * uses the client of this class. Authentication schemes still configure the client, the headers and the URI here.</p>
+ *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
-public abstract class HTTPBuilder {
+public class HTTPBuilder {
 
     protected AbstractHttpClient client;
     protected URIBuilder defaultURI = null;
@@ -169,6 +173,7 @@ public abstract class HTTPBuilder {
      * @throws URISyntaxException      if a uri argument is given which does not
      *                                 represent a valid URI
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     public Object post(Map<String, ?> args, HttpResponseHandler responseHandler)
             throws URISyntaxException, ClientProtocolException, IOException {
         RequestConfigDelegate delegate = new RequestConfigDelegate(new HttpPost(),
@@ -206,6 +211,7 @@ public abstract class HTTPBuilder {
      * @throws URISyntaxException      if a uri argument is given which does not
      *                                 represent a valid URI
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     public Object patch(Map<String, ?> args, HttpResponseHandler responseHandler)
             throws URISyntaxException, ClientProtocolException, IOException {
         RequestConfigDelegate delegate = new RequestConfigDelegate(new HttpPatch(),
@@ -241,6 +247,7 @@ public abstract class HTTPBuilder {
      *                    {@link RequestConfigDelegate#getResponse() response handlers}.
      * @return whatever value was returned by the executed response handler.
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     public Object request(String method, Object contentType, boolean hasBody, RequestConfigurer configurer)
             throws IOException, URISyntaxException {
         return this.doRequest(this.defaultURI.toURI(), method, contentType, hasBody, configurer);
@@ -251,6 +258,7 @@ public abstract class HTTPBuilder {
      * with the configurer, then pass the delegate to {@link #doRequest(RequestConfigDelegate)},
      * which actually executes the request.
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected Object doRequest(URI uri, String method, Object contentType, boolean hasBody, RequestConfigurer configurer)
             throws IOException, URISyntaxException {
         HttpRequestBase reqMethod = HttpRequestFactory.createHttpRequest(uri, method, hasBody);
@@ -263,14 +271,14 @@ public abstract class HTTPBuilder {
     }
 
     /**
-     * A copy of HTTP builders doRequest method with two exceptions.
-     * <ol>
-     * <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
-     * <li>If headers contain a list of elements the headers are added and not overridden</li>
-     * </ol>
+     * Executes the request configured by the delegate. REST Assured sends requests with {@link HttpClient4Transport}
+     * instead, so this throws unless a subclass overrides it.
      */
-    protected abstract Object doRequest(final RequestConfigDelegate delegate)
-            throws ClientProtocolException, IOException;
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
+    protected Object doRequest(final RequestConfigDelegate delegate)
+            throws ClientProtocolException, IOException {
+        throw new UnsupportedOperationException("REST Assured sends requests with " + HttpClient4Transport.class.getSimpleName());
+    }
 
 
     /**
@@ -293,6 +301,7 @@ public abstract class HTTPBuilder {
     // (even though it was of this type and it used to work in Groovy 3).
     // Thus we cast the Object resp into a HttpResponse on the first line of
     // the method :(.
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected Object parseResponse(Object resp, Object contentType)
             throws IOException {
         HttpResponse httpResponse = (HttpResponse) resp;
@@ -332,6 +341,7 @@ public abstract class HTTPBuilder {
      * @see #defaultSuccessHandler(HttpResponseDecorator, Object)
      * @see #defaultFailureHandler(HttpResponseDecorator)
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected Map<Object, HttpResponseHandler> buildDefaultResponseHandlers() {
         Map<Object, HttpResponseHandler> map = new StringHashMap<>();
         map.put(Status.SUCCESS, this::defaultSuccessHandler);
@@ -355,6 +365,7 @@ public abstract class HTTPBuilder {
      * @throws ResponseParseException if there is an error buffering a streaming
      *                                response.
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected Object defaultSuccessHandler(HttpResponseDecorator resp, Object parsedData)
             throws ResponseParseException {
         try {
@@ -385,6 +396,7 @@ public abstract class HTTPBuilder {
      * @param resp
      * @throws HttpResponseException
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected void defaultFailureHandler(HttpResponseDecorator resp) throws HttpResponseException {
         throw new HttpResponseException(resp);
     }
@@ -470,6 +482,7 @@ public abstract class HTTPBuilder {
      *
      * @param request the request to send
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected void setAcceptEncoding(HttpRequestBase request) {
         List<String> acceptEncodings = new ArrayList<>();
         for (Header header : request.getHeaders(ContentDecoding.ACCEPT_ENCODING)) {
@@ -486,6 +499,7 @@ public abstract class HTTPBuilder {
      * @param response the response
      * @return the value of the response's first <code>Content-Encoding</code> header, or <code>null</code>
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     protected static String contentEncodingOf(HttpResponse response) {
         Header header = response.getFirstHeader(ContentDecoding.CONTENT_ENCODING);
         return header == null ? null : header.getValue();
@@ -589,6 +603,7 @@ public abstract class HTTPBuilder {
      * directly on the HTTPBuilder instance unchanged for subsequent requests.
      * </p>
      */
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     public class RequestConfigDelegate {
         private HttpRequestBase request;
         private Object contentType;
