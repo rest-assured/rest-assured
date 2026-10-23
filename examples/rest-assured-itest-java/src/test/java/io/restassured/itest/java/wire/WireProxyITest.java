@@ -394,16 +394,16 @@ public class WireProxyITest extends WireTest {
 
     @Test public void
     https_proxy_system_properties_are_used_for_https_targets_through_connect() {
-        // WireServer can't open a tunnel and fails the CONNECT with a 500, which HttpClient 4 returns as the response
+        // WireServer refuses the tunnel with a 405, which HttpClient 4 returns as the response
         withProxyProperties(Map.of("https.proxyHost", "localhost", "https.proxyPort", String.valueOf(server.port())), () ->
                 given().
                 when().
                         get("https://target.invalid/path").
                 then().
-                        statusCode(500));
+                        statusCode(405));
 
         RecordedRequest request = server.onlyRequest();
-        assertThat(request.method()).isEqualTo("CONNECT");
+        assertThat(request.requestLine()).isEqualTo("CONNECT target.invalid:443 HTTP/1.1");
         assertThat(request.headers("Host")).containsExactly("target.invalid:443");
     }
 

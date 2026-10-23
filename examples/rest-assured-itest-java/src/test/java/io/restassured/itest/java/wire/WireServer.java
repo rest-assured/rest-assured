@@ -40,10 +40,13 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static org.eclipse.jetty.http.HttpMethod.CONNECT;
+
 /**
  * A Jetty server that records every request it receives, so that tests can check what REST Assured sends on the wire,
  * whichever HTTP client sends it. Each path answers with the {@link Responder} registered for it, or with
- * {@code 200 ok} as {@code text/plain}.
+ * {@code 200 ok} as {@code text/plain}. A {@code CONNECT} is recorded and refused with a 405, since the server doesn't
+ * open tunnels.
  * <p>
  * The server listens on all interfaces, so {@code localhost} and {@code 127.0.0.1} reach the same server as two
  * different hosts.
@@ -180,9 +183,12 @@ public final class WireServer implements AutoCloseable {
         server.stop();
     }
 
-    // The request target as sent: the absolute URI when sent to a proxy, otherwise the still encoded path and query.
-    // HttpURI.toString() would add the authority from the Host header to the latter.
-    private static String requestTarget(HttpURI uri) {
+    // The request target as sent: host:port for a CONNECT, the absolute URI when sent to a proxy, otherwise the still
+    // encoded path and query. HttpURI.toString() would add the authority from the Host header to the latter.
+    private static String requestTarget(String method, HttpURI uri) {
+        if (CONNECT.is(method)) {
+            return uri.getHost() + ":" + uri.getPort();
+        }
         return uri.getScheme() == null ? uri.getPathQuery() : uri.toString();
     }
 
@@ -195,12 +201,15 @@ public final class WireServer implements AutoCloseable {
                 headers.add(new SimpleImmutableEntry<>(field.getName(), field.getValue()));
             }
             byte[] body = request.getInputStream().readAllBytes();
-            RecordedRequest recorded = new RecordedRequest(request.getMethod(), requestTarget(baseRequest.getHttpURI()), request.getProtocol(),
-                    request.getServerName(), request.getLocalPort(), headers, body);
+            RecordedRequest recorded = new RecordedRequest(request.getMethod(), requestTarget(request.getMethod(), baseRequest.getHttpURI()),
+                    request.getProtocol(), request.getServerName(), request.getLocalPort(), headers, body);
             requests.add(recorded);
 
-            Responder responder = responders.getOrDefault(request.getRequestURI(), Responder.ok());
-            responder.respond(recorded, response);
+            if (CONNECT.is(request.getMethod())) {
+                Responder.text(405, "WireServer doesn't open tunnels").respond(recorded, response);
+            } else {
+                responders.getOrDefault(request.getRequestURI(), Responder.ok()).respond(recorded, response);
+            }
         }
     }
 }
