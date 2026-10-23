@@ -30,8 +30,9 @@ import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.internal.csrf.CsrfData;
 import io.restassured.internal.csrf.CsrfTokenFinder;
+import io.restassured.internal.support.HtmlDocument;
+import io.restassured.internal.support.HtmlDocument.Element;
 import io.restassured.internal.util.SafeExceptionRethrower;
-import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
@@ -58,17 +59,10 @@ import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
-import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FormAuthFilter implements AuthFilter {
-
-    private static final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }";
-    private static final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }";
-    private static final String COUNT_INPUT_TAGS_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.size()";
-    private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action";
-    private static final String FIND_BASE_HREFS = "html.depthFirst().grep { it.name() == 'base' }.collect { it.@href }";
 
     private Object userName;
     private Object password;
@@ -126,36 +120,32 @@ public class FormAuthFilter implements AuthFilter {
                 }
             }
 
-            XmlPath html = new XmlPath(HTML, loginPageResponse.asString());
+            HtmlDocument html = HtmlDocument.parse(loginPageResponse.asString());
 
             if (formAuthConfig.hasFormAction()) {
                 formAction = formAuthConfig.getFormAction();
             } else {
-                String htmlFormAction = throwIfException(() -> html.getString(FIND_FORM_ACTION));
+                String htmlFormAction = throwIfException(() -> html.elements("form").findFirst()
+                        .orElseThrow(() -> new IllegalStateException("The login page has no form.")).attribute("action"));
                 formActionUri = resolveFormAction(loginPageUri, findBaseHref(html), htmlFormAction);
                 if (formActionUri == null) {
                     formAction = htmlFormAction;
                 }
             }
             userNameInputField = formAuthConfig.hasUserInputTagName() ? formAuthConfig.getUserInputTagName() : throwIfException(() ->
-                    html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "text")));
+                    nameOfFirstInputOfType(html, "text"));
             passwordInputField = formAuthConfig.hasPasswordInputTagName() ? formAuthConfig.getPasswordInputTagName() : throwIfException(() ->
-                    html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "password")));
+                    nameOfFirstInputOfType(html, "password"));
 
             if (csrfConfig.isCsrfEnabled()) {
-                csrfData = CsrfTokenFinder.findInHtml(csrfConfig, loginPageResponse);
+                csrfData = CsrfTokenFinder.findInHtml(csrfConfig, html);
             }
 
             if (formAuthConfig.hasAdditionalInputFieldNames()) {
                 for (String name : formAuthConfig.getAdditionalInputFieldNames()) {
-                    int numberOfInputFields = throwIfException(() -> html.getInt(format(COUNT_INPUT_TAGS_WITH_NAME, name)));
-                    if (numberOfInputFields == 0) {
-                        throw new IllegalArgumentException(format("Couldn't find the additional input field \"%s\" on the login page. " +
-                                "Check the additional fields specified in FormAuthConfig.", name));
-                    }
-                    String value = throwIfException(() ->
-                            html.getString(format(FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME, name)));
-                    additionalInputFields.add(new SimpleEntry<>(name, value));
+                    Element input = html.inputsNamed(name).findFirst().orElseThrow(() -> new IllegalArgumentException(format(
+                            "Couldn't find the additional input field \"%s\" on the login page. Check the additional fields specified in FormAuthConfig.", name)));
+                    additionalInputFields.add(new SimpleEntry<>(name, input.attribute("value")));
                 }
             }
 
@@ -328,12 +318,16 @@ public class FormAuthFilter implements AuthFilter {
         return toURI(requestUri);
     }
 
-    private static String findBaseHref(XmlPath html) {
-        try {
-            return html.getList(FIND_BASE_HREFS, String.class).stream().filter(StringUtils::isNotBlank).findFirst().orElse(null);
-        } catch (Exception e) {
-            return null;
-        }
+    private static String findBaseHref(HtmlDocument html) {
+        return html.elements("base").map(base -> base.attribute("href")).filter(StringUtils::isNotBlank).findFirst().orElse(null);
+    }
+
+    /**
+     * @return The name of the first input of the type on the login page, in document order
+     */
+    private static String nameOfFirstInputOfType(HtmlDocument html, String type) {
+        return html.inputsOfType(type).findFirst()
+                .orElseThrow(() -> new IllegalStateException("The login page has no input of type " + type + ".")).attribute("name");
     }
 
     /**

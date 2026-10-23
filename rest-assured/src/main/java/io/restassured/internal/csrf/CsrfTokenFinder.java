@@ -1,54 +1,44 @@
 package io.restassured.internal.csrf;
 
 import io.restassured.config.CsrfConfig;
-import io.restassured.path.xml.XmlPath;
+import io.restassured.internal.support.HtmlDocument;
 import io.restassured.response.Response;
-
-import java.util.function.Supplier;
 
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.HEADER;
-import static java.lang.String.format;
 
 public class CsrfTokenFinder {
-    private static final String FIND_INPUT_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }.get(0)";
-    private static final String FIND_META_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'meta' && it.@name == '%s' }.collect { it.@content }.get(0)";
 
     public static CsrfData findInHtml(CsrfConfig csrfConfig, Response pageThatContainsCsrfToken) {
-        XmlPath htmlPath = pageThatContainsCsrfToken.htmlPath();
+        return findInHtml(csrfConfig, HtmlDocument.parse(pageThatContainsCsrfToken.asString()));
+    }
 
+    public static CsrfData findInHtml(CsrfConfig csrfConfig, HtmlDocument html) {
         if (csrfConfig.isCsrfPrioritization(HEADER)) {
-            CsrfData csrfData = findCsrfHeaderToken(csrfConfig, htmlPath);
-            return csrfData != null ? csrfData : findCsrfFormToken(csrfConfig, htmlPath);
+            CsrfData csrfData = findCsrfHeaderToken(csrfConfig, html);
+            return csrfData != null ? csrfData : findCsrfFormToken(csrfConfig, html);
         } else {
-            CsrfData csrfData = findCsrfFormToken(csrfConfig, htmlPath);
-            return csrfData != null ? csrfData : findCsrfHeaderToken(csrfConfig, htmlPath);
+            CsrfData csrfData = findCsrfFormToken(csrfConfig, html);
+            return csrfData != null ? csrfData : findCsrfHeaderToken(csrfConfig, html);
         }
     }
 
-    private static CsrfData findCsrfFormToken(CsrfConfig csrfConfig, XmlPath htmlPath) {
+    private static CsrfData findCsrfFormToken(CsrfConfig csrfConfig, HtmlDocument html) {
         String csrfFieldName = csrfConfig.getCsrfInputFieldName();
-        String csrfToken = nullIfException(() -> htmlPath.getString(format(FIND_INPUT_FIELD_WITH_NAME, csrfFieldName)));
+        String csrfToken = html.inputsNamed(csrfFieldName).findFirst().map(input -> input.attribute("value")).orElse(null);
         if (csrfToken == null) {
             return null;
         }
         return new CsrfData(csrfFieldName, csrfToken, FORM);
     }
 
-    private static CsrfData findCsrfHeaderToken(CsrfConfig csrfConfig, XmlPath htmlPath) {
+    private static CsrfData findCsrfHeaderToken(CsrfConfig csrfConfig, HtmlDocument html) {
         String metaTagName = csrfConfig.getCsrfMetaTagName();
-        String csrfToken = nullIfException(() -> htmlPath.getString(format(FIND_META_FIELD_WITH_NAME, metaTagName)));
+        String csrfToken = html.elements("meta").filter(meta -> metaTagName.equals(meta.attribute("name"))).findFirst()
+                .map(meta -> meta.attribute("content")).orElse(null);
         if (csrfToken == null) {
             return null;
         }
         return new CsrfData(csrfConfig.getCsrfHeaderName(), csrfToken, HEADER);
-    }
-
-    private static String nullIfException(Supplier<String> supplier) {
-        try {
-            return supplier.get();
-        } catch (Exception ignored) {
-            return null;
-        }
     }
 }
