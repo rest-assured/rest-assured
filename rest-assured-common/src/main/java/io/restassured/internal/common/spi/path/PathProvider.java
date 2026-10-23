@@ -19,7 +19,7 @@ package io.restassured.internal.common.spi.path;
 import java.util.Set;
 
 /**
- * A path engine module, such as GPath in json-path and xml-path. REST Assured finds the providers of its own modules by
+ * A path engine module, such as GPath in json-path-gpath and xml-path-gpath. REST Assured finds the providers of its own modules by
  * class name. A provider is stateless and thread-safe.
  * <p>
  * This SPI is internal to REST Assured and may change in any release.
@@ -27,7 +27,7 @@ import java.util.Set;
 public interface PathProvider {
 
     /**
-     * @return The artifact id of the module, such as {@code json-path}. It names the module's version file and is used in messages.
+     * @return The artifact id of the module, such as {@code json-path-gpath}. It names the module's version file and is used in messages.
      */
     String artifactId();
 

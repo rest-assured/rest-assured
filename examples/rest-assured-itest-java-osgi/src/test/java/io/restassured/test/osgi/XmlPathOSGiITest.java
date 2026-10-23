@@ -34,7 +34,7 @@ import static org.ops4j.pax.exam.Constants.EXAM_FAIL_ON_UNRESOLVED_KEY;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
- * This test aims to prove that xml-path is available as a valid OSGi bundle.
+ * This test aims to prove that xml-path-gpath is available as a valid OSGi bundle.
  */
 @RunWith(PaxExam.class)
 public class XmlPathOSGiITest {

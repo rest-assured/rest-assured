@@ -33,7 +33,7 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 
 @RunWith(PaxExam.class)
 /**
- * This test aims to prove that json-path is available as a valid OSGi bundle.
+ * This test aims to prove that json-path-gpath is available as a valid OSGi bundle.
  */
 public class JsonPathOSGiITest {
 

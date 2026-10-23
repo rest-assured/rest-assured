@@ -22,7 +22,7 @@ package io.restassured.config;
 public enum JsonPathEngine {
     /**
      * GPath, the Groovy path syntax that REST Assured has always used, such as {@code store.book.findAll { it.price < 10 }.title},
-     * from {@code io.rest-assured:json-path}.
+     * from {@code io.rest-assured:json-path-gpath}.
      */
     GPATH
 }

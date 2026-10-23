@@ -35,7 +35,7 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
  * Evaluates paths in body assertions and with {@code path(..)} in OSGi, where core finds the path engines in the
- * json-path and xml-path bundles by class name. The probe uses no Hamcrest classes itself, since it would see the
+ * json-path-gpath and xml-path-gpath bundles by class name. The probe uses no Hamcrest classes itself, since it would see the
  * Hamcrest 1.3 bundle that JUnit needs, which isn't the one REST Assured uses.
  */
 @RunWith(PaxExam.class)
