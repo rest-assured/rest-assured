@@ -122,7 +122,7 @@ class JsonParserTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"{a:1}", "{'a':1}", "[1,]", "{\"a\":1,}", "[01]", "[1.]", "[.5]", "[+1]", "[-]", "[1e]", "tru", "nul",
-            "\"a", "[1", "{\"a\"", "{\"a\":", "\"\t\"", "\"\\x\"", "\"\\u12\"", "{} x", "[1] [2]", "NaN", "// c\n1"})
+            "\"a", "[1", "{\"a\"", "{\"a\":", "\"\t\"", "\"\\x\"", "\"\\u12\"", "\"\\u+041\"", "\"\\u-041\"", "1e9999999999", "[1E-9999999999]", "{} x", "[1] [2]", "NaN", "// c\n1"})
     void invalid_json_fails(String json) {
         assertThatThrownBy(() -> parse(json)).isExactlyInstanceOf(InvalidJsonException.class);
     }
@@ -133,5 +133,7 @@ class JsonParserTest {
                 .hasMessage("Expected a value on line 2, column 8, but found 'x'.");
         assertThatThrownBy(() -> parse("[1"))
                 .hasMessage("Expected ']' on line 1, column 3, but found the end of the document.");
+        assertThatThrownBy(() -> parse("[\n 1e9999999999]"))
+                .hasMessage("The JSON number 1e9999999999 on line 2, column 2 is out of range.");
     }
 }

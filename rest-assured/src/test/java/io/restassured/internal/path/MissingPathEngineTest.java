@@ -148,7 +148,7 @@ class MissingPathEngineTest {
     void finding_no_json_engine_fails_with_the_message() {
         List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, PathProviders.GPATH_JSON, "json-path-gpath"));
 
-        assertThatThrownBy(() -> PathProviders.forJson(null, engines, "a.b"))
+        assertThatThrownBy(() -> PathProviders.forJson(null, engines, "a.b", new PathProviders.OnceLog(message -> { })))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessage(MissingPathEngine.message("a.b", DocumentType.JSON));
     }

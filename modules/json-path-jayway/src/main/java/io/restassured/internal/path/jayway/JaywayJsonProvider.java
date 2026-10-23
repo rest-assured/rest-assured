@@ -23,7 +23,6 @@ import io.restassured.internal.common.spi.path.PathProvider;
 import io.restassured.internal.common.spi.path.PathResult;
 import io.restassured.internal.common.spi.path.PathSettings;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Set;
@@ -68,7 +67,8 @@ public class JaywayJsonProvider implements PathProvider {
         if (input.isText()) {
             return JsonParser.parse(input.text(), numberReturnType, settings.numberLengthLimit());
         }
-        return JsonParser.parse(new BufferedReader(new InputStreamReader(input.stream(), Charset.forName(input.charset()))), numberReturnType, settings.numberLengthLimit());
+        // JsonParser reads with its own buffer
+        return JsonParser.parse(new InputStreamReader(input.stream(), Charset.forName(input.charset())), numberReturnType, settings.numberLengthLimit());
     }
 
     @Override

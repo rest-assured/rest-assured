@@ -271,14 +271,22 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         // The following is a work-around to enable logging of request and response if validation fails
         if (responseSpecification instanceof ResponseSpecificationImpl) {
             ResponseSpecificationImpl impl = (ResponseSpecificationImpl) responseSpecification;
-            LogConfig globalLogConfig = responseSpec.getConfig().getLogConfig();
             impl.setConfig(config);
-            if (globalLogConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            // Includes the config set with ResponseSpecBuilder.setConfig(..)
+            LogConfig logConfig = impl.validationConfig().getLogConfig();
+            if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+                if (!responseSpec.getConfig().getLogConfig().isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+                    // Only the specification asks for it, so the request was sent without being logged. Log the response.
+                    if (responseSpec.getLogRepository() == null) {
+                        // Such as a response from ResponseBuilder
+                        responseSpec.setLogRepository(new LogRepository());
+                    }
+                    ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
+                }
                 impl.setLogRepository(responseSpec.getLogRepository());
             }
             if (impl.getLogDetail() != null) {
-                logResponse(impl.getLogDetail(), globalLogConfig.isPrettyPrintingEnabled(),
-                        globalLogConfig.defaultStream());
+                logResponse(impl.getLogDetail(), logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream());
             }
 
         }

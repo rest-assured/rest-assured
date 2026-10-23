@@ -42,6 +42,14 @@ class JaywayPathTest {
     }
 
     @Test
+    void reads_objects_and_arrays_as_json_when_asked_for_a_string() {
+        DocumentContext document = JaywayPath.from(JSON);
+
+        assertThat(document.read("store.book[0]", String.class)).isEqualTo("{\"title\":\"t0\",\"price\":0.5}");
+        assertThat(document.read("store.book[*].title", String.class)).isEqualTo("[\"t0\",\"t1\"]");
+    }
+
+    @Test
     void writes_json() {
         assertThat(JaywayPath.from(JSON).set("$.store.book[0].title", "a\"b").jsonString())
                 .isEqualTo("{\"store\":{\"book\":[{\"title\":\"a\\\"b\",\"price\":0.5},{\"title\":\"t1\",\"price\":1.5}]}}");

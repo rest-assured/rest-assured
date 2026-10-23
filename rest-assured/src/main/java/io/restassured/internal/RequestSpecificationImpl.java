@@ -2083,7 +2083,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             csrfFilter.setCsrfConfig(restAssuredConfig().getCsrfConfig());
             filters.add(csrfFilter);
         }
-        LogConfig logConfig = restAssuredConfig().getLogConfig();
+        // The log config of a response specification from ResponseSpecBuilder.setConfig(..) counts too, since logging if
+        // validation fails starts with the request
+        RestAssuredConfig specificationConfig = responseSpecification instanceof ResponseSpecificationImpl impl ? impl.getSpecificationConfig() : null;
+        LogConfig logConfig = SpecificationMerger.mergeConfig(restAssuredConfig(), specificationConfig).getLogConfig();
         if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             if (filters.stream().noneMatch(it -> isInstanceOf(it, RequestLoggingFilter.class))) {
                 log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());

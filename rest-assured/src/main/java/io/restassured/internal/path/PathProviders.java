@@ -47,6 +47,7 @@ public final class PathProviders {
             new JsonEngine(JsonPathEngine.JAYWAY, JAYWAY_JSON, "json-path-jayway"));
 
     private static final Map<String, Optional<PathProvider>> LOADED = new ConcurrentHashMap<>();
+    private static final Map<String, Boolean> PRESENT = new ConcurrentHashMap<>();
     private static final OnceLog INFO = new OnceLog(message -> System.getLogger("io.restassured").log(System.Logger.Level.INFO, message));
 
     private PathProviders() {
@@ -86,14 +87,6 @@ public final class PathProviders {
 
     private static Optional<PathProvider> gpath(DocumentType type) {
         return type == DocumentType.JSON ? load(GPATH_JSON, "json-path-gpath") : load(GPATH_XML, "xml-path-gpath");
-    }
-
-    static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines) {
-        return forJson(configured, engines, null, INFO);
-    }
-
-    static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines, String path) {
-        return forJson(configured, engines, path, INFO);
     }
 
     static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines, String path, OnceLog info) {
@@ -154,12 +147,15 @@ public final class PathProviders {
      * @return Whether the module of the class is on the classpath. The class isn't initialized, and the module's version isn't checked.
      */
     static boolean isPresent(String className) {
-        try {
-            Class.forName(className, false, PathProviders.class.getClassLoader());
-            return true;
-        } catch (ClassNotFoundException | LinkageError e) {
-            return false;
-        }
+        // Cached, since it's asked for each JSON path while only one engine is present
+        return PRESENT.computeIfAbsent(className, name -> {
+            try {
+                Class.forName(name, false, PathProviders.class.getClassLoader());
+                return true;
+            } catch (ClassNotFoundException | LinkageError e) {
+                return false;
+            }
+        });
     }
 
     static Optional<PathProvider> load(String className, String artifactId) {
