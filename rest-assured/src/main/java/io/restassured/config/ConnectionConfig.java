@@ -93,7 +93,7 @@ public class ConnectionConfig implements Config {
      * @return A new ConnectionConfig instance with the updated configuration
      */
     public ConnectionConfig dontCloseIdleConnectionsAfterEachResponse() {
-        return new ConnectionConfig(null);
+        return new ConnectionConfig(null, true);
     }
 
     /**
