@@ -31,6 +31,28 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <build>
+        <resources>
+            <!-- Filtered, so that UpgradeToRestAssured7 upgrades REST Assured to the version of this module -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- OpenRewrite passes the options of a recipe in YAML to the constructor parameters of the same name -->
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencyManagement>
         <dependencies>
             <!-- The parent pom manages jackson-databind and junit-jupiter, so align the rest of Jackson and JUnit with
@@ -48,6 +70,19 @@
                 <version>${junit.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- rewrite-groovy and rewrite-kotlin, which parse Gradle build scripts, need the Groovy and Kotlin versions
+                 that they're built with, not the ones that the parent pom manages. Update them together with
+                 rewrite-recipe-bom. -->
+            <dependency>
+                <groupId>org.apache.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>4.0.33</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>2.3.20</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite.recipe</groupId>
@@ -79,6 +114,15 @@
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-java-25</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <!-- UpgradeToRestAssured7 changes Maven and Gradle builds -->
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-gradle</artifactId>
         </dependency>
 
         <!-- Test -->

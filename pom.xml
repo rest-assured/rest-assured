@@ -211,6 +211,8 @@
                             <ignoredResourcePattern>.*draftv[34]/schema$</ignoredResourcePattern>
                             <!-- Scala lang -->
                             <ignoredResourcePattern>rootdoc\.txt</ignoredResourcePattern>
+                            <!-- kotlin-compiler-embeddable, which OpenRewrite parses Gradle Kotlin scripts with, has those of kotlin-stdlib -->
+                            <ignoredResourcePattern>.*\.kotlin_builtins$</ignoredResourcePattern>
                         </ignoredResourcePatterns>
                         <ignoredClassPatterns>
                             <!-- Jigsaw project (Java 9) and later module-info classes. -->

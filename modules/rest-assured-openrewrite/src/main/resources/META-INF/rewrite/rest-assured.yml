@@ -15,6 +15,47 @@
 #
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.UpgradeToRestAssured7
+displayName: Upgrade to REST Assured 7
+description: >-
+  Upgrade to REST Assured ${project.version}. It migrates code from the APIs deprecated in REST Assured 6.3.0, changes
+  json-path and xml-path to their new names, json-path-gpath and xml-path-gpath, upgrades the io.rest-assured
+  dependencies of Maven and Gradle builds, and adds json-path-gpath (and xml-path-gpath) where the code uses paths,
+  since REST Assured 7 no longer includes a path engine.
+recipeList:
+  - io.restassured.MigrateRestAssured6Deprecations
+  - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+      oldGroupId: io.rest-assured
+      oldArtifactId: json-path
+      newGroupId: io.rest-assured
+      newArtifactId: json-path-gpath
+  - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+      oldGroupId: io.rest-assured
+      oldArtifactId: xml-path
+      newGroupId: io.rest-assured
+      newArtifactId: xml-path-gpath
+  - org.openrewrite.gradle.ChangeDependency:
+      oldGroupId: io.rest-assured
+      oldArtifactId: json-path
+      newGroupId: io.rest-assured
+      newArtifactId: json-path-gpath
+  - org.openrewrite.gradle.ChangeDependency:
+      oldGroupId: io.rest-assured
+      oldArtifactId: xml-path
+      newGroupId: io.rest-assured
+      newArtifactId: xml-path-gpath
+  - org.openrewrite.maven.UpgradeDependencyVersion:
+      groupId: io.rest-assured
+      artifactId: "*"
+      newVersion: ${project.version}
+  - org.openrewrite.gradle.UpgradeDependencyVersion:
+      groupId: io.rest-assured
+      artifactId: "*"
+      newVersion: ${project.version}
+  - io.restassured.openrewrite.AddGPathWhereUsed:
+      version: ${project.version}
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.restassured.MigrateRestAssured6Deprecations
 displayName: Migrate from APIs deprecated in REST Assured 6.3.0
 description: >-

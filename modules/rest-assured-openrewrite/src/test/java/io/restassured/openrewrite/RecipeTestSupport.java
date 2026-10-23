@@ -20,6 +20,7 @@ import org.openrewrite.RecipeRun;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.tree.J;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.TypeValidation;
 
@@ -34,7 +35,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,7 +48,7 @@ final class RecipeTestSupport {
 
     /**
      * Parses the sources with the test classpath, which has REST Assured and HttpClient 4, so that they're type
-     * attributed, and checks that the sources the recipe changed compile against the current REST Assured.
+     * attributed, and checks that the Java sources the recipe changed compile against the current REST Assured.
      */
     static void defaults(RecipeSpec spec) {
         spec.parser(JavaParser.fromJavaVersion().classpath(CLASSPATH))
@@ -67,7 +67,7 @@ final class RecipeTestSupport {
     private static void assertChangedSourcesCompile(RecipeRun run) throws IOException {
         List<JavaFileObject> sources = run.getChangeset().getAllResults().stream()
                 .map(Result::getAfter)
-                .filter(Objects::nonNull)
+                .filter(source -> source instanceof J.CompilationUnit)
                 .map(RecipeTestSupport::toJavaFileObject)
                 .collect(Collectors.toList());
         if (sources.isEmpty()) {
