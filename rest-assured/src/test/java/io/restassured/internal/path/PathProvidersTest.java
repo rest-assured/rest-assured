@@ -77,12 +77,12 @@ class PathProvidersTest {
 
     @Test
     void loads_each_provider_once() {
-        assertThat(PathProviders.load(PathProviders.GPATH_JSON)).containsSame(PathProviders.load(PathProviders.GPATH_JSON).orElseThrow());
+        assertThat(PathProviders.load(PathProviders.GPATH_JSON, "json-path")).containsSame(PathProviders.load(PathProviders.GPATH_JSON, "json-path").orElseThrow());
     }
 
     @Test
     void a_provider_that_isnt_on_the_classpath_is_absent() {
-        assertThat(PathProviders.load("io.restassured.path.missing.Provider")).isEmpty();
+        assertThat(PathProviders.load("io.restassured.path.missing.Provider", "missing")).isEmpty();
     }
 
     @Test

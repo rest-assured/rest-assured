@@ -16,17 +16,20 @@
 
 package io.restassured.internal.support;
 
-import java.io.InputStream;
-import java.util.Properties;
-
 /**
- * Checks that rest-assured-common is recent enough for this version of REST Assured, so that an older common on the
- * classpath gives a message instead of a {@link NoClassDefFoundError}. It uses only JDK types, so that it can run
- * before anything that needs common is loaded.
+ * Checks that rest-assured-common has the same version as REST Assured, so that a different common on the classpath
+ * gives a message instead of a {@link NoClassDefFoundError}. It uses only JDK types, so that it can run before anything
+ * that needs common is loaded.
+ * <p>
+ * The versions come from the version files in {@code META-INF/rest-assured}, or else from Maven's {@code pom.properties}.
+ * A different major or minor version fails, and a different patch version logs a warning. When a version can't be
+ * read, it checks that common has the newest type REST Assured needs.
  */
 public class CommonVersionCheck {
     // The newest type in rest-assured-common that REST Assured needs
     static final String REQUIRED_TYPE = "io.restassured.common.config.NumberReturnType";
+    // A type that every version of rest-assured-common has, whose class loader can read common's version file, also in OSGi
+    static final String COMMON_TYPE = "io.restassured.common.mapper.TypeRef";
 
     private CommonVersionCheck() {
     }
@@ -36,10 +39,22 @@ public class CommonVersionCheck {
     }
 
     static void verify(ClassLoader classLoader) {
+        verify(classLoader, commonClassLoader(classLoader));
+    }
+
+    static void verify(ClassLoader classLoader, ClassLoader commonClassLoader) {
+        String restAssuredVersion = VersionFiles.version(classLoader, "rest-assured");
+        String commonVersion = VersionFiles.version(commonClassLoader, "rest-assured-common");
+        if (restAssuredVersion != null && commonVersion != null && !restAssuredVersion.equals(commonVersion)) {
+            if (!VersionFiles.sameMinorVersion(commonVersion, restAssuredVersion)) {
+                throw new IllegalStateException(message(commonVersion, restAssuredVersion));
+            }
+            VersionFiles.warnOnce(message(commonVersion, restAssuredVersion));
+        }
         try {
             Class.forName(REQUIRED_TYPE, false, classLoader);
         } catch (ClassNotFoundException | LinkageError e) {
-            throw new IllegalStateException(message(version(classLoader, "rest-assured-common"), version(classLoader, "rest-assured")), e);
+            throw new IllegalStateException(message(commonVersion, restAssuredVersion), e);
         }
     }
 
@@ -51,16 +66,11 @@ public class CommonVersionCheck {
                 + " Otherwise import io.rest-assured:rest-assured-bom.";
     }
 
-    private static String version(ClassLoader classLoader, String artifactId) {
-        try (InputStream in = classLoader == null ? null : classLoader.getResourceAsStream("META-INF/maven/io.rest-assured/" + artifactId + "/pom.properties")) {
-            if (in == null) {
-                return null;
-            }
-            Properties properties = new Properties();
-            properties.load(in);
-            return properties.getProperty("version");
-        } catch (Exception e) {
-            return null;
+    private static ClassLoader commonClassLoader(ClassLoader classLoader) {
+        try {
+            return Class.forName(COMMON_TYPE, false, classLoader).getClassLoader();
+        } catch (ClassNotFoundException | LinkageError e) {
+            return classLoader;
         }
     }
 }
