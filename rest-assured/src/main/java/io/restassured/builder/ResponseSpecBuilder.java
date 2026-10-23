@@ -729,8 +729,9 @@ public class ResponseSpecBuilder {
      * {@code JsonConfig}, including a {@code numberReturnType} set globally. Configure everything you need of a type here.
      * <p>
      * A {@code LogConfig} with {@code enableLoggingOfRequestAndResponseIfValidationFails()} logs the request and the
-     * response when validation fails with {@code expect().spec(..)}. With {@code then().spec(..)}, which comes after the
-     * request is sent, and with {@code given(requestSpecification, responseSpecification)}, only the response is logged.
+     * response when validation fails, with {@code expect().spec(..)} or
+     * {@code given(requestSpecification, responseSpecification)}. With {@code then().spec(..)}, which comes after the
+     * request is sent, only the response is logged.
      * </p>
      * For example:
      * <pre>

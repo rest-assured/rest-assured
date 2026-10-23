@@ -143,13 +143,25 @@ class ResponseSpecBuilderConfigTest {
     }
 
     @Test
-    void given_request_and_response_specification_logs_the_response_when_the_log_config_of_the_response_specification_says_so() {
+    void given_request_and_response_specification_logs_when_the_log_config_of_the_response_specification_says_so() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         assertThatThrownBy(() -> given(new RequestSpecBuilder().addFilter(sent()).build(), logIfValidationFails(out, 201)).get("/"))
                 .isInstanceOf(AssertionError.class);
-        // Only the response, as with RestAssured.config: the request is logged to the request specification's log repository
-        assertThat(out.toString()).contains("HTTP/1.1 200").contains("\"a\": \"b\"");
+        assertThat(out.toString()).contains("Request method:\tGET").contains("HTTP/1.1 200").contains("\"a\": \"b\"");
+    }
+
+    @Test
+    void given_request_and_response_specification_logs_the_request_and_response_when_rest_assured_config_says_so() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        RestAssured.config = config().logConfig(logConfig().defaultStream(new PrintStream(out, true)).enableLoggingOfRequestAndResponseIfValidationFails());
+
+        given(new RequestSpecBuilder().addFilter(sent()).build(), new ResponseSpecBuilder().expectStatusCode(200).build()).get("/");
+        assertThat(out.toString()).isEmpty();
+
+        assertThatThrownBy(() -> given(new RequestSpecBuilder().addFilter(sent()).build(), new ResponseSpecBuilder().expectStatusCode(201).build()).get("/"))
+                .isInstanceOf(AssertionError.class);
+        assertThat(out.toString()).contains("Request method:\tGET").contains("HTTP/1.1 200");
     }
 
     @Test
