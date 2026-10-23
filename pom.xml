@@ -58,6 +58,8 @@
         <rest-assured.path-spi.revision>2</rest-assured.path-spi.revision>
         <groovy.version>5.0.8</groovy.version>
         <groovy.range>[5.0,6.0)</groovy.range>
+        <!-- The Jayway JsonPath version json-path-jayway is built with. It supports 2.8.0 and later, which it checks when it loads -->
+        <jayway.version>2.10.0</jayway.version>
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>6.0.0</junit.version>
@@ -463,6 +465,11 @@
                 <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${jayway.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
