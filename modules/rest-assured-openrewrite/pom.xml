@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>6.2.1-SNAPSHOT</version>
+        <version>6.3.0</version>
     </parent>
     <artifactId>rest-assured-openrewrite</artifactId>
-    <version>6.2.1-SNAPSHOT</version>
+    <version>6.3.0</version>
     <name>rest-assured-openrewrite</name>
     <description>OpenRewrite recipes that migrate code that uses REST Assured</description>
     <url>https://rest-assured.io/</url>
