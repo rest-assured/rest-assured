@@ -169,13 +169,6 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
-    public void mapResponseToObjectUsingJackson1WithJacksonObjectMapperDefined() {
-        final ScalatraObject object = get("/hello").as(ScalatraObject.class, ObjectMapperType.JACKSON_1);
-
-        assertThat(object.getHello(), equalTo("Hello Scalatra"));
-    }
-
-    @Test
     public void mapResponseToObjectUsingJackson2WithJacksonObjectMapperDefined() {
         final ScalatraObject object = get("/hello").as(ScalatraObject.class, ObjectMapperType.JACKSON_2);
 
@@ -221,7 +214,7 @@ public class ObjectMappingITest extends WithJetty {
         final Greeting object = new Greeting();
         object.setFirstName("John");
         object.setLastName("Doe");
-        final Greeting actual = given().body(object, ObjectMapperType.JACKSON_1).when().post("/reflect").as(Greeting.class, ObjectMapperType.JACKSON_1);
+        final Greeting actual = given().body(object, ObjectMapperType.JACKSON_2).when().post("/reflect").as(Greeting.class, ObjectMapperType.JACKSON_2);
         assertThat(object, equalTo(actual));
     }
 

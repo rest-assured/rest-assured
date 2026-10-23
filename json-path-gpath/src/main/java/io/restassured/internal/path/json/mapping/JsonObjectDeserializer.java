@@ -54,8 +54,6 @@ public class JsonObjectDeserializer {
             return (T) deserializeWithJackson2(deserializationCtx, jsonPathConfig.jackson2ObjectMapperFactory());
         } else if (ObjectMapperResolver.isJackson3InClassPath()) {
             return (T) deserializeWithJackson3(deserializationCtx, jsonPathConfig.jackson3ObjectMapperFactory());
-        } else if (ObjectMapperResolver.isJackson1InClassPath()) {
-            return (T) deserializeWithJackson1(deserializationCtx, jsonPathConfig.jackson1ObjectMapperFactory());
         } else if (ObjectMapperResolver.isGsonInClassPath()) {
             return (T) deserializeWithGson(deserializationCtx, jsonPathConfig.gsonObjectMapperFactory());
         } else if (ObjectMapperResolver.isJohnzonInClassPath()) {
@@ -72,8 +70,6 @@ public class JsonObjectDeserializer {
             return (T) deserializeWithJackson3(ctx, config.jackson3ObjectMapperFactory());
         } else if (mapperType == JsonParserType.JACKSON_2 && ObjectMapperResolver.isJackson2InClassPath()) {
             return (T) deserializeWithJackson2(ctx, config.jackson2ObjectMapperFactory());
-        } else if (mapperType == JsonParserType.JACKSON_1 && ObjectMapperResolver.isJackson1InClassPath()) {
-            return (T) deserializeWithJackson1(ctx, config.jackson1ObjectMapperFactory());
         } else if (mapperType == JsonParserType.GSON && ObjectMapperResolver.isGsonInClassPath()) {
             return (T) deserializeWithGson(ctx, config.gsonObjectMapperFactory());
         } else if (mapperType == JsonParserType.JOHNZON && ObjectMapperResolver.isJohnzonInClassPath()) {
@@ -88,10 +84,6 @@ public class JsonObjectDeserializer {
 
     private static Object deserializeWithGson(ObjectDeserializationContext ctx, GsonObjectMapperFactory factory) {
         return new JsonPathGsonObjectDeserializer(factory).deserialize(ctx);
-    }
-
-    static Object deserializeWithJackson1(ObjectDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
-        return new JsonPathJackson1ObjectDeserializer(factory).deserialize(ctx);
     }
 
     static Object deserializeWithJackson2(ObjectDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {

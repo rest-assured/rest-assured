@@ -58,8 +58,6 @@ public class ObjectMapping {
                 return (T) parseWithJackson3(deserializationCtx, objectMapperConfig.jackson3ObjectMapperFactory());
             } else if (isJackson2InClassPath()) {
                 return (T) parseWithJackson2(deserializationCtx, objectMapperConfig.jackson2ObjectMapperFactory());
-            } else if (isJackson1InClassPath()) {
-                return (T) parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory());
             } else if (isGsonInClassPath()) {
                 return (T) parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory());
             } else if (isJohnzonInClassPath()) {
@@ -81,8 +79,6 @@ public class ObjectMapping {
                     return (T) parseWithJackson3(deserializationCtx, objectMapperConfig.jackson3ObjectMapperFactory());
                 } else if (isJackson2InClassPath()) {
                     return (T) parseWithJackson2(deserializationCtx, objectMapperConfig.jackson2ObjectMapperFactory());
-                } else if (isJackson1InClassPath()) {
-                    return (T) parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory());
                 } else if (isGsonInClassPath()) {
                     return (T) parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory());
                 } else if (isJohnzonInClassPath()) {
@@ -106,8 +102,6 @@ public class ObjectMapping {
             return parseWithJackson3(ctx, config.jackson3ObjectMapperFactory());
         } else if (mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
             return parseWithJackson2(ctx, config.jackson2ObjectMapperFactory());
-        } else if (mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
-            return parseWithJackson1(ctx, config.jackson1ObjectMapperFactory());
         } else if (mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
             return parseWithGson(ctx, config.gsonObjectMapperFactory());
         } else if (mapperType == ObjectMapperType.JAKARTA_EE && isJakartaEEInClassPath()) {
@@ -147,8 +141,6 @@ public class ObjectMapping {
                 return serializeWithJackson3(serializationCtx, config.jackson3ObjectMapperFactory());
             } else if (isJackson2InClassPath()) {
                 return serializeWithJackson2(serializationCtx, config.jackson2ObjectMapperFactory());
-            } else if (isJackson1InClassPath()) {
-                return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory());
             } else if (isGsonInClassPath()) {
                 return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory());
             } else if (isJakartaEEInClassPath()) {
@@ -169,8 +161,6 @@ public class ObjectMapping {
                     return serializeWithJackson3(serializationCtx, config.jackson3ObjectMapperFactory());
                 } else if (isJackson2InClassPath()) {
                     return serializeWithJackson2(serializationCtx, config.jackson2ObjectMapperFactory());
-                } else if (isJackson1InClassPath()) {
-                    return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory());
                 } else if (isGsonInClassPath()) {
                     return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory());
                 } else if (isJohnzonInClassPath()) {
@@ -202,8 +192,6 @@ public class ObjectMapping {
             return serializeWithJackson3(ctx, config.jackson3ObjectMapperFactory());
         } else if (mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
             return serializeWithJackson2(ctx, config.jackson2ObjectMapperFactory());
-        } else if (mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
-            return serializeWithJackson1(ctx, config.jackson1ObjectMapperFactory());
         } else if (mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
             return serializeWithGson(ctx, config.gsonObjectMapperFactory());
         } else if (mapperType == ObjectMapperType.JAKARTA_EE && isJakartaEEInClassPath()) {
@@ -222,10 +210,6 @@ public class ObjectMapping {
 
     private static String serializeWithGson(ObjectMapperSerializationContext ctx, GsonObjectMapperFactory factory) {
         return (String) new GsonMapper(factory).serialize(ctx);
-    }
-
-    private static String serializeWithJackson1(ObjectMapperSerializationContext ctx, Jackson1ObjectMapperFactory factory) {
-        return new Jackson1Mapper(factory).serialize(ctx);
     }
 
     private static String serializeWithJackson2(ObjectMapperSerializationContext ctx, Jackson2ObjectMapperFactory factory) {
@@ -262,10 +246,6 @@ public class ObjectMapping {
 
     private static Object parseWithGson(ObjectMapperDeserializationContext ctx, GsonObjectMapperFactory factory) {
         return new GsonMapper(factory).deserialize(ctx);
-    }
-
-    public static Object parseWithJackson1(ObjectMapperDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
-        return new Jackson1Mapper(factory).deserialize(ctx);
     }
 
     public static Object parseWithJackson2(ObjectMapperDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {

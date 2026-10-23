@@ -36,8 +36,7 @@ name: io.restassured.ChangeObjectMapperFactoryPackage
 displayName: Use the object mapper factories in rest-assured-common
 description: >-
   Replace the object mapper factories in `io.restassured.path.json.mapper.factory` and
-  `io.restassured.path.xml.mapper.factory` with the ones in `io.restassured.common.mapper.factory`. The Jackson 1
-  factories are left as they are, since they have no replacement.
+  `io.restassured.path.xml.mapper.factory` with the ones in `io.restassured.common.mapper.factory`.
 recipeList:
   - org.openrewrite.java.ChangeType:
       oldFullyQualifiedTypeName: io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
