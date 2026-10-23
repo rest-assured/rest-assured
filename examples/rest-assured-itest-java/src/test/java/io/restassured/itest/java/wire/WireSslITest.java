@@ -296,11 +296,9 @@ public class WireSslITest extends WireTest {
 
         assertThat(overHttps.localPort()).isEqualTo(server.httpsPort());
         assertThat(overHttp.localPort()).isEqualTo(server.port());
-        assertThat(overHttp.target()).isEqualTo("/p/a%20b?q=a%20b");
         for (RecordedRequest request : List.of(overHttp, overHttps)) {
             assertThat(request.method()).isEqualTo("POST");
-            // Jetty adds the scheme and authority to the recorded target of a TLS request, so only compare path and query
-            assertThat(request.pathAndQuery()).isEqualTo("/p/a%20b?q=a%20b");
+            assertThat(request.target()).isEqualTo("/p/a%20b?q=a%20b");
             assertThat(request.protocol()).isEqualTo("HTTP/1.1");
             assertThat(request.header("Accept")).isEqualTo("*/*");
             assertThat(request.header("x-Mixed-Case")).isEqualTo("1");

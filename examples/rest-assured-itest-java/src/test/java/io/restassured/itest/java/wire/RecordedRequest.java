@@ -42,18 +42,6 @@ public record RecordedRequest(String method, String target, String protocol, Str
     }
 
     /**
-     * @return the path and query of the target, also when the target is in absolute form (as sent to a proxy)
-     */
-    public String pathAndQuery() {
-        int schemeEnd = target.indexOf("://");
-        if (schemeEnd < 0) {
-            return target;
-        }
-        int pathStart = target.indexOf('/', schemeEnd + 3);
-        return pathStart < 0 ? "/" : target.substring(pathStart);
-    }
-
-    /**
      * @return the value of the first header with this name, ignoring case, or {@code null}
      */
     public String header(String name) {

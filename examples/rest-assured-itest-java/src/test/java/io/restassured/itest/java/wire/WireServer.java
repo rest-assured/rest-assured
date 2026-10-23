@@ -184,12 +184,13 @@ public final class WireServer implements AutoCloseable {
     }
 
     // The request target as sent: host:port for a CONNECT, the absolute URI when sent to a proxy, otherwise the still
-    // encoded path and query. HttpURI.toString() would add the authority from the Host header to the latter.
-    private static String requestTarget(String method, HttpURI uri) {
-        if (CONNECT.is(method)) {
+    // encoded path and query. HttpURI.toString() would add the authority from the Host header to the latter, and over
+    // TLS Jetty sets the scheme on every URI, so only a plain HTTP request with a scheme was sent in absolute form.
+    private static String requestTarget(HttpServletRequest request, HttpURI uri) {
+        if (CONNECT.is(request.getMethod())) {
             return uri.getHost() + ":" + uri.getPort();
         }
-        return uri.getScheme() == null ? uri.getPathQuery() : uri.toString();
+        return request.isSecure() || uri.getScheme() == null ? uri.getPathQuery() : uri.toString();
     }
 
     private class RecordingHandler extends AbstractHandler {
@@ -201,7 +202,7 @@ public final class WireServer implements AutoCloseable {
                 headers.add(new SimpleImmutableEntry<>(field.getName(), field.getValue()));
             }
             byte[] body = request.getInputStream().readAllBytes();
-            RecordedRequest recorded = new RecordedRequest(request.getMethod(), requestTarget(request.getMethod(), baseRequest.getHttpURI()),
+            RecordedRequest recorded = new RecordedRequest(request.getMethod(), requestTarget(request, baseRequest.getHttpURI()),
                     request.getProtocol(), request.getServerName(), request.getLocalPort(), headers, body);
             requests.add(recorded);
 
