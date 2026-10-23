@@ -175,10 +175,13 @@ public class WireConnectionITest extends WireTest {
     }
 
     @Test public void
-    dont_close_idle_connections_after_each_response_throws_illegal_argument_exception() {
-        // Today's behavior: it passes null to the constructor that rejects null
-        assertThatThrownBy(() -> connectionConfig().dontCloseIdleConnectionsAfterEachResponse())
-                .isExactlyInstanceOf(IllegalArgumentException.class);
+    dont_close_idle_connections_after_each_response_sends_the_next_request_on_the_same_connection() {
+        RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance()).connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponse().dontCloseIdleConnectionsAfterEachResponse());
+
+        String first = remotePortOfReadResponse(config, server.url("/port"));
+        String second = remotePortOfReadResponse(config, server.url("/port"));
+
+        assertThat(second).isEqualTo(first);
     }
 
     // Streaming responses
