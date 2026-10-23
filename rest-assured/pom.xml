@@ -58,17 +58,21 @@
                             !io.restassured.common.*,
                             !io.restassured.internal.path.xml.*,
                             !io.restassured.internal.path.json.*,
+                            !io.restassured.path.jayway.*,
+                            !io.restassured.internal.path.jayway.*,
                             !io.restassured.internal.common.*,
                             io.restassured.*
                         </Export-Package>
-                        <!-- The path engines (json-path-gpath and xml-path-gpath) are optional. Their path providers are
-                             loaded by class name, which bnd can't see, so their packages are listed. TagSoup is only
-                             needed for HTML. -->
+                        <!-- The path engines (json-path-gpath, xml-path-gpath and json-path-jayway) are optional. Their
+                             path providers are loaded by class name, which bnd can't see, so their packages are listed.
+                             Core doesn't depend on json-path-jayway, so bnd can't derive its version range: it's this
+                             version up to the next major, like the GPath ones. TagSoup is only needed for HTML. -->
                         <Import-Package>
                             io.restassured.path.json.*;resolution:=optional,
                             io.restassured.path.xml.*;resolution:=optional,
                             io.restassured.internal.path.json;resolution:=optional,
                             io.restassured.internal.path.xml;resolution:=optional,
+                            io.restassured.internal.path.jayway;resolution:=optional;version="${range;[==,+);${version_cleanup;${project.version}}}",
                             org.ccil.cowan.tagsoup;resolution:=optional,
                             *
                         </Import-Package>
@@ -77,7 +81,8 @@
                             io.restassured.path.json.*,
                             io.restassured.path.xml.*,
                             io.restassured.internal.path.json,
-                            io.restassured.internal.path.xml
+                            io.restassured.internal.path.xml,
+                            io.restassured.internal.path.jayway
                         </DynamicImport-Package>
                     </instructions>
                 </configuration>

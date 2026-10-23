@@ -55,6 +55,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <!-- With Jayway JsonPath, json-smart, accessors-smart, ASM and slf4j-api, which JaywayOSGiITest installs -->
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-path-jayway</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
