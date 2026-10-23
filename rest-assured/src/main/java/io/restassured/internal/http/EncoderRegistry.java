@@ -21,21 +21,15 @@ import io.restassured.http.ContentType;
 import io.restassured.internal.path.json.JsonBuilderSerializer;
 import io.restassured.internal.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static io.restassured.internal.support.FileReader.readToString;
 import static io.restassured.internal.util.GroovyTypes.isClosure;
 import static io.restassured.internal.util.GroovyTypes.isGString;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 
 /**
@@ -43,10 +37,10 @@ import static io.restassured.internal.util.GroovyTypes.isGString;
  * PUT or POST operation) based on content-type.   When a
  * {@link HTTPBuilder.RequestConfigDelegate#setBody(Object) body} is set from the builder, it is
  * processed based on the {@link HTTPBuilder.RequestConfigDelegate#getRequestContentType()
- * request content-type}.  For instance, the {@link #encodeForm(Map)} method
- * will be invoked if the request content-type is form-urlencoded, which will
- * cause the following:<code>body=[a:1, b:'two']</code> to be encoded as
- * the equivalent <code>a=1&b=two</code> in the request body.</p>
+ * request content-type}.  For instance, the {@link #encodeJSON(Object, Object)}
+ * method will be invoked if the request content-type is JSON, which will
+ * cause a Map body to be encoded as a JSON object in the request body.
+ * Every encoder produces a {@link RequestBody}.</p>
  * <p/>
  * <p>A Groovy closure is not accepted as a request body.</p>
  * <p/>
@@ -77,45 +71,32 @@ public class EncoderRegistry {
      * </ul>
      *
      * @param data
-     * @return an {@link HttpEntity} encapsulating this request data
-     * @throws UnsupportedEncodingException
+     * @return the request body
      */
-    public InputStreamEntity encodeStream(Object contentType, Object data) throws UnsupportedEncodingException {
+    public RequestBody encodeStream(Object contentType, Object data) {
         rejectClosure(data);
-        InputStreamEntity entity = null;
+        String contentTypeAsString = contentTypeToString(contentType);
 
         if (data instanceof ByteArrayInputStream) {
             // special case for ByteArrayIS so that we can set the content length.
             ByteArrayInputStream in = ((ByteArrayInputStream) data);
-            entity = new InputStreamEntity(in, in.available());
+            return RequestBody.stream(in, in.available(), contentTypeAsString);
         } else if (data instanceof InputStream) {
-            entity = new InputStreamEntity((InputStream) data, -1);
+            return RequestBody.stream((InputStream) data, RequestBody.UNKNOWN_LENGTH, contentTypeAsString);
         } else if (data instanceof File) {
-            FileInputStream fileInputStream;
-            File file = (File) data;
-            try {
-                fileInputStream = new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("File " + file.getPath() + " not found", e);
-            }
-            // Set file size, since we already know it at this time. Ref: Issue #988
-            entity = new InputStreamEntity(fileInputStream, file.length());
+            // Sent with the file size, since we already know it at this time. Ref: Issue #988
+            return RequestBody.file((File) data, contentTypeAsString);
         } else if (data instanceof byte[]) {
             byte[] out = ((byte[]) data);
-            entity = new InputStreamEntity(new ByteArrayInputStream(
-                    out), out.length);
+            return RequestBody.stream(new ByteArrayInputStream(out), out.length, contentTypeAsString);
         } else if (data instanceof ByteArrayOutputStream) {
             ByteArrayOutputStream out = ((ByteArrayOutputStream) data);
-            entity = new InputStreamEntity(new ByteArrayInputStream(
-                    out.toByteArray()), out.size());
+            return RequestBody.stream(new ByteArrayInputStream(out.toByteArray()), out.size(), contentTypeAsString);
         }
 
-        if (entity == null) throw new IllegalArgumentException(
+        throw new IllegalArgumentException(
                 "Don't know how to encode " + data + " as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\n" +
-                        "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"" + ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeToString(contentType)) + "\", ContentType.TEXT))). ..\"");
-
-        entity.setContentType(contentTypeToString(contentType));
-        return entity;
+                        "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"" + ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString) + "\", ContentType.TEXT))). ..\"");
     }
 
     /**
@@ -129,10 +110,10 @@ public class EncoderRegistry {
      * </ul>
      *
      * @param data
-     * @return an {@link HttpEntity} encapsulating this request data
+     * @return the request body
      * @throws IOException
      */
-    public HttpEntity encodeText(Object contentType, Object data) throws IOException {
+    public RequestBody encodeText(Object contentType, Object data) throws IOException {
         rejectClosure(data);
         String contentTypeAsString = contentTypeToString(contentType);
         if (data instanceof Reader) {
@@ -141,52 +122,24 @@ public class EncoderRegistry {
             data = toString((File) data, contentTypeAsString);
         }
         // if data is a String, we are already covered.
-        return createEntity(contentTypeAsString, data);
+        return createBody(contentTypeAsString, data);
     }
 
     /**
      * Encodes a request body that is sent without a content-type (see
      * {@link io.restassured.specification.RequestSpecification#noContentType()}). Binary content (an InputStream,
      * byte[], ByteArrayOutputStream or File) is sent as is, anything else as text in the
-     * {@link EncoderConfig#defaultContentCharset() default content charset}. The entity has no content-type.
+     * {@link EncoderConfig#defaultContentCharset() default content charset}. The body has no content-type.
      *
      * @param data the request body
-     * @return an {@link HttpEntity} encapsulating this request data
+     * @return the request body
      * @throws IOException
      */
-    public HttpEntity encodeWithoutContentType(Object data) throws IOException {
+    public RequestBody encodeWithoutContentType(Object data) throws IOException {
         if (data instanceof InputStream || data instanceof byte[] || data instanceof ByteArrayOutputStream || data instanceof File) {
             return encodeStream(null, data);
         }
         return encodeText(null, data);
-    }
-
-    /**
-     * Set the request body as a url-encoded list of parameters.  This is
-     * typically used to simulate a HTTP form POST.
-     * For multi-valued parameters, enclose the values in a list, e.g.
-     * <pre>[ key1 : ['val1', 'val2'], key2 : 'etc.' ]</pre>
-     *
-     * @param params
-     * @return an {@link HttpEntity} encapsulating this request data
-     * @throws UnsupportedEncodingException
-     */
-    public UrlEncodedFormEntity encodeForm(Map<?, ?> params)
-            throws UnsupportedEncodingException {
-        List<NameValuePair> paramList = new ArrayList<NameValuePair>();
-
-        for (Object key : params.keySet()) {
-            Object val = params.get(key);
-            if (val instanceof List)
-                for (Object subVal : (List) val)
-                    paramList.add(new BasicNameValuePair(key.toString(),
-                            (subVal == null) ? "" : subVal.toString()));
-
-            else paramList.add(new BasicNameValuePair(key.toString(),
-                    (val == null) ? "" : val.toString()));
-        }
-
-        return new UrlEncodedFormEntity(paramList, encoderConfig.defaultContentCharset());
     }
 
     /**
@@ -196,18 +149,17 @@ public class EncoderRegistry {
      * @param formData a url-encoded form POST string.  See
      *                 <a href='http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1'>
      *                 The W3C spec</a> for more info.
-     * @return an {@link HttpEntity} encapsulating this request data
-     * @throws UnsupportedEncodingException
+     * @return the request body
      */
-    public HttpEntity encodeForm(Object contentType, String formData) throws UnsupportedEncodingException {
-        return this.createEntity(contentTypeToString(contentType), formData);
+    public RequestBody encodeForm(Object contentType, String formData) {
+        return this.createBody(contentTypeToString(contentType), formData);
     }
 
     /**
      * The default encoder for a url-encoded form content-type. The body must be an already-encoded String, a GString
      * is converted to a String.
      */
-    private HttpEntity encodeFormBody(Object contentType, Object body) throws UnsupportedEncodingException {
+    private RequestBody encodeFormBody(Object contentType, Object body) {
         rejectClosure(body);
         final String formData;
         if (body == null || body instanceof String) {
@@ -227,16 +179,15 @@ public class EncoderRegistry {
      * InputStream, or an object whose <code>toString</code> produces valid markup.
      *
      * @param xml data that defines the XML structure
-     * @return an {@link HttpEntity} encapsulating this request data
-     * @throws UnsupportedEncodingException
+     * @return the request body
      */
-    public HttpEntity encodeXML(Object contentType, Object xml) throws UnsupportedEncodingException {
+    public RequestBody encodeXML(Object contentType, Object xml) {
         rejectClosure(xml);
         String contentTypeAsString = contentTypeToString(contentType);
         if (xml instanceof File) {
             xml = toString((File) xml, contentTypeAsString);
         }
-        return createEntity(contentTypeAsString, xml);
+        return createBody(contentTypeAsString, xml);
     }
 
     /**
@@ -247,10 +198,10 @@ public class EncoderRegistry {
      * contain valid JSON.</p>
      *
      * @param model data to be converted to JSON, as specified above.
-     * @return an {@link HttpEntity} encapsulating this request data
-     * @throws UnsupportedEncodingException
+     * @return the request body
+     * @throws IOException
      */
-    public HttpEntity encodeJSON(Object contentType, Object model) throws IOException {
+    public RequestBody encodeJSON(Object contentType, Object model) throws IOException {
         rejectClosure(model);
         String contentTypeAsString = contentTypeToString(contentType);
         Object json;
@@ -266,44 +217,28 @@ public class EncoderRegistry {
             throw new UnsupportedOperationException("Internal error: Can't encode " + model + " to JSON.");
         }
 
-        return createEntity(contentTypeAsString, json);
+        return createBody(contentTypeAsString, json);
     }
 
-    private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
+    private RequestBody createBody(String ct, Object object) {
         if (object instanceof byte[]) {
-            return createEntity(ct, (byte[]) object);
+            return RequestBody.bytes((byte[]) object, ct);
         } else if (object instanceof InputStream) {
-            return createEntity(ct, (InputStream) object);
+            return RequestBody.stream((InputStream) object, RequestBody.UNKNOWN_LENGTH, ct);
         } else {
-            return createEntity(ct, object.toString());
+            return createBody(ct, object.toString());
         }
     }
 
-    protected HttpEntity createEntity(String ct, byte[] byteArray) {
-        final ByteArrayEntity byteArrayEntity = new ByteArrayEntity(byteArray);
-        byteArrayEntity.setContentType(ct);
-        return byteArrayEntity;
-    }
-
-    protected HttpEntity createEntity(String ct, InputStream inputStream) {
-        final InputStreamEntity inputStreamEntity = new InputStreamEntity(inputStream);
-        inputStreamEntity.setContentType(ct);
-        return inputStreamEntity;
-    }
-
     /**
-     * Helper method used by encoder methods to create an {@link HttpEntity}
-     * instance that encapsulates the request data.  This may be used by any
-     * non-streaming encoder that needs to send textual data.
+     * Creates the body of textual request data, encoded in the charset of the content-type, else the configured
+     * default charset for the content-type, else the {@link EncoderConfig#defaultContentCharset() default content charset}.
      *
      * @param ct   content-type of the data
      * @param data textual request data to be encoded
-     * @return an instance to be used for the
-     * {@link HttpEntityEnclosingRequest#setEntity(HttpEntity) request content}
-     * @throws UnsupportedEncodingException
+     * @return the request body
      */
-    protected HttpEntity createEntity(String ct, String data)
-            throws UnsupportedEncodingException {
+    private RequestBody createBody(String ct, String data) {
         String charset = CharsetExtractor.getCharsetFromContentType(ct);
         if (charset == null) {
             if (encoderConfig.hasDefaultCharsetForContentType(ct)) {
@@ -312,9 +247,9 @@ public class EncoderRegistry {
                 charset = encoderConfig.defaultContentCharset();
             }
         }
-        StringEntity entity = new StringEntity(data, charset);
-        entity.setContentType(ct);
-        return entity;
+        // Like HttpClient 4's StringEntity did: no charset means ISO-8859-1
+        Charset charsetToUse = StringUtils.isBlank(charset) ? ISO_8859_1 : Charset.forName(charset);
+        return RequestBody.bytes(data.getBytes(charsetToUse), ct);
     }
 
     /**

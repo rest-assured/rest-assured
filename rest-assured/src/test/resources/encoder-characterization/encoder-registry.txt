@@ -1,19 +1,19 @@
 == application/json
-String -> StringEntity | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-GString -> StringEntity | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+GString -> BYTES | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 StringBuilder -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode hello åäö to JSON.
-byte[] -> ByteArrayEntity | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> ByteArrayEntity | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> ByteArrayEntity | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+byte[] -> BYTES | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> BYTES | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> BYTES | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 ByteArrayOutputStream -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode hello åäö to JSON.
-File -> StringEntity | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+File -> BYTES | application/json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
 StringReader -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode java.io.StringReader@<hash> to JSON.
 BufferedReader -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode java.io.BufferedReader@<hash> to JSON.
-Map -> StringEntity | application/json | 91 | {"a":1,"b":["x",null,"\x5cu00e5"],"c":null,"d":"hello \x5cu00e5\x5cu00e4\x5cu00f6","e":{"nested":true}}
-EmptyMap -> StringEntity | application/json | 2 | {}
-List -> StringEntity | application/json | 24 | [1,"two",null,{"k":"v"}]
-Set -> StringEntity | application/json | 13 | ["one","two"]
+Map -> BYTES | application/json | 91 | {"a":1,"b":["x",null,"\x5cu00e5"],"c":null,"d":"hello \x5cu00e5\x5cu00e4\x5cu00f6","e":{"nested":true}}
+EmptyMap -> BYTES | application/json | 2 | {}
+List -> BYTES | application/json | 24 | [1,"two",null,{"k":"v"}]
+Set -> BYTES | application/json | 13 | ["one","two"]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 JsonBuilder (Writable) -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode {"writable":"hello \u00e5\u00e4\u00f6"} to JSON.
 Pojo -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode Pojo[hello åäö] to JSON.
@@ -21,21 +21,21 @@ Integer -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Ca
 Object[] -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode [Ljava.lang.Object;@<hash> to JSON.
 null -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode null to JSON.
 == application/json; charset=ISO-8859-1
-String -> StringEntity | application/json; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | application/json; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+String -> BYTES | application/json; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | application/json; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
 StringBuilder -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode hello åäö to JSON.
-byte[] -> ByteArrayEntity | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> ByteArrayEntity | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> ByteArrayEntity | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+byte[] -> BYTES | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> BYTES | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> BYTES | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 ByteArrayOutputStream -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode hello åäö to JSON.
-File -> StringEntity | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+File -> BYTES | application/json; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
 StringReader -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode java.io.StringReader@<hash> to JSON.
 BufferedReader -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode java.io.BufferedReader@<hash> to JSON.
-Map -> StringEntity | application/json; charset=ISO-8859-1 | 91 | {"a":1,"b":["x",null,"\x5cu00e5"],"c":null,"d":"hello \x5cu00e5\x5cu00e4\x5cu00f6","e":{"nested":true}}
-EmptyMap -> StringEntity | application/json; charset=ISO-8859-1 | 2 | {}
-List -> StringEntity | application/json; charset=ISO-8859-1 | 24 | [1,"two",null,{"k":"v"}]
-Set -> StringEntity | application/json; charset=ISO-8859-1 | 13 | ["one","two"]
+Map -> BYTES | application/json; charset=ISO-8859-1 | 91 | {"a":1,"b":["x",null,"\x5cu00e5"],"c":null,"d":"hello \x5cu00e5\x5cu00e4\x5cu00f6","e":{"nested":true}}
+EmptyMap -> BYTES | application/json; charset=ISO-8859-1 | 2 | {}
+List -> BYTES | application/json; charset=ISO-8859-1 | 24 | [1,"two",null,{"k":"v"}]
+Set -> BYTES | application/json; charset=ISO-8859-1 | 13 | ["one","two"]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 JsonBuilder (Writable) -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode {"writable":"hello \u00e5\u00e4\u00f6"} to JSON.
 Pojo -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode Pojo[hello åäö] to JSON.
@@ -43,21 +43,21 @@ Integer -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Ca
 Object[] -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode [Ljava.lang.Object;@<hash> to JSON.
 null -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode null to JSON.
 == application/vnd.api+json
-String -> StringEntity | application/vnd.api+json | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | application/vnd.api+json | 9 | hello \xe5\xe4\xf6
+String -> BYTES | application/vnd.api+json | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | application/vnd.api+json | 9 | hello \xe5\xe4\xf6
 StringBuilder -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode hello åäö to JSON.
-byte[] -> ByteArrayEntity | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> ByteArrayEntity | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> ByteArrayEntity | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+byte[] -> BYTES | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> BYTES | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> BYTES | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 ByteArrayOutputStream -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode hello åäö to JSON.
-File -> StringEntity | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+File -> BYTES | application/vnd.api+json | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
 StringReader -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode java.io.StringReader@<hash> to JSON.
 BufferedReader -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode java.io.BufferedReader@<hash> to JSON.
-Map -> StringEntity | application/vnd.api+json | 91 | {"a":1,"b":["x",null,"\x5cu00e5"],"c":null,"d":"hello \x5cu00e5\x5cu00e4\x5cu00f6","e":{"nested":true}}
-EmptyMap -> StringEntity | application/vnd.api+json | 2 | {}
-List -> StringEntity | application/vnd.api+json | 24 | [1,"two",null,{"k":"v"}]
-Set -> StringEntity | application/vnd.api+json | 13 | ["one","two"]
+Map -> BYTES | application/vnd.api+json | 91 | {"a":1,"b":["x",null,"\x5cu00e5"],"c":null,"d":"hello \x5cu00e5\x5cu00e4\x5cu00f6","e":{"nested":true}}
+EmptyMap -> BYTES | application/vnd.api+json | 2 | {}
+List -> BYTES | application/vnd.api+json | 24 | [1,"two",null,{"k":"v"}]
+Set -> BYTES | application/vnd.api+json | 13 | ["one","two"]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 JsonBuilder (Writable) -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode {"writable":"hello \u00e5\u00e4\u00f6"} to JSON.
 Pojo -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode Pojo[hello åäö] to JSON.
@@ -65,140 +65,140 @@ Integer -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Ca
 Object[] -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode [Ljava.lang.Object;@<hash> to JSON.
 null -> EXCEPTION java.lang.UnsupportedOperationException: Internal error: Can't encode null to JSON.
 == application/xml
-String -> StringEntity | application/xml | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | application/xml | 9 | hello \xe5\xe4\xf6
-StringBuilder -> StringEntity | application/xml | 9 | hello \xe5\xe4\xf6
-byte[] -> ByteArrayEntity | application/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | application/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | application/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> StringEntity | application/xml | 9 | hello \xe5\xe4\xf6
-File -> StringEntity | application/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | application/xml | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | application/xml | 9 | hello \xe5\xe4\xf6
+StringBuilder -> BYTES | application/xml | 9 | hello \xe5\xe4\xf6
+byte[] -> BYTES | application/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | application/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | application/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | application/xml | 9 | hello \xe5\xe4\xf6
+File -> BYTES | application/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
-StringReader -> StringEntity | application/xml | <varies> | java.io.StringReader@<hash>
-BufferedReader -> StringEntity | application/xml | <varies> | java.io.BufferedReader@<hash>
-Map -> StringEntity | application/xml | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
-EmptyMap -> StringEntity | application/xml | 2 | {}
-List -> StringEntity | application/xml | 21 | [1, two, null, {k=v}]
-Set -> StringEntity | application/xml | 10 | [one, two]
+StringReader -> BYTES | application/xml | <varies> | java.io.StringReader@<hash>
+BufferedReader -> BYTES | application/xml | <varies> | java.io.BufferedReader@<hash>
+Map -> BYTES | application/xml | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
+EmptyMap -> BYTES | application/xml | 2 | {}
+List -> BYTES | application/xml | 21 | [1, two, null, {k=v}]
+Set -> BYTES | application/xml | 10 | [one, two]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
-JsonBuilder (Writable) -> StringEntity | application/xml | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
-Pojo -> StringEntity | application/xml | 15 | Pojo[hello \xe5\xe4\xf6]
-Integer -> StringEntity | application/xml | 2 | 42
-Object[] -> StringEntity | application/xml | <varies> | [Ljava.lang.Object;@<hash>
+JsonBuilder (Writable) -> BYTES | application/xml | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
+Pojo -> BYTES | application/xml | 15 | Pojo[hello \xe5\xe4\xf6]
+Integer -> BYTES | application/xml | 2 | 42
+Object[] -> BYTES | application/xml | <varies> | [Ljava.lang.Object;@<hash>
 null -> EXCEPTION java.lang.NullPointerException
 == text/xml
-String -> StringEntity | text/xml | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | text/xml | 9 | hello \xe5\xe4\xf6
-StringBuilder -> StringEntity | text/xml | 9 | hello \xe5\xe4\xf6
-byte[] -> ByteArrayEntity | text/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | text/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | text/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> StringEntity | text/xml | 9 | hello \xe5\xe4\xf6
-File -> StringEntity | text/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | text/xml | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | text/xml | 9 | hello \xe5\xe4\xf6
+StringBuilder -> BYTES | text/xml | 9 | hello \xe5\xe4\xf6
+byte[] -> BYTES | text/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | text/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | text/xml | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | text/xml | 9 | hello \xe5\xe4\xf6
+File -> BYTES | text/xml | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
-StringReader -> StringEntity | text/xml | <varies> | java.io.StringReader@<hash>
-BufferedReader -> StringEntity | text/xml | <varies> | java.io.BufferedReader@<hash>
-Map -> StringEntity | text/xml | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
-EmptyMap -> StringEntity | text/xml | 2 | {}
-List -> StringEntity | text/xml | 21 | [1, two, null, {k=v}]
-Set -> StringEntity | text/xml | 10 | [one, two]
+StringReader -> BYTES | text/xml | <varies> | java.io.StringReader@<hash>
+BufferedReader -> BYTES | text/xml | <varies> | java.io.BufferedReader@<hash>
+Map -> BYTES | text/xml | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
+EmptyMap -> BYTES | text/xml | 2 | {}
+List -> BYTES | text/xml | 21 | [1, two, null, {k=v}]
+Set -> BYTES | text/xml | 10 | [one, two]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
-JsonBuilder (Writable) -> StringEntity | text/xml | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
-Pojo -> StringEntity | text/xml | 15 | Pojo[hello \xe5\xe4\xf6]
-Integer -> StringEntity | text/xml | 2 | 42
-Object[] -> StringEntity | text/xml | <varies> | [Ljava.lang.Object;@<hash>
+JsonBuilder (Writable) -> BYTES | text/xml | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
+Pojo -> BYTES | text/xml | 15 | Pojo[hello \xe5\xe4\xf6]
+Integer -> BYTES | text/xml | 2 | 42
+Object[] -> BYTES | text/xml | <varies> | [Ljava.lang.Object;@<hash>
 null -> EXCEPTION java.lang.NullPointerException
 == text/html
-String -> StringEntity | text/html | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | text/html | 9 | hello \xe5\xe4\xf6
-StringBuilder -> StringEntity | text/html | 9 | hello \xe5\xe4\xf6
-byte[] -> ByteArrayEntity | text/html | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | text/html | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | text/html | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> StringEntity | text/html | 9 | hello \xe5\xe4\xf6
-File -> StringEntity | text/html | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | text/html | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | text/html | 9 | hello \xe5\xe4\xf6
+StringBuilder -> BYTES | text/html | 9 | hello \xe5\xe4\xf6
+byte[] -> BYTES | text/html | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | text/html | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | text/html | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | text/html | 9 | hello \xe5\xe4\xf6
+File -> BYTES | text/html | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
-StringReader -> StringEntity | text/html | <varies> | java.io.StringReader@<hash>
-BufferedReader -> StringEntity | text/html | <varies> | java.io.BufferedReader@<hash>
-Map -> StringEntity | text/html | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
-EmptyMap -> StringEntity | text/html | 2 | {}
-List -> StringEntity | text/html | 21 | [1, two, null, {k=v}]
-Set -> StringEntity | text/html | 10 | [one, two]
+StringReader -> BYTES | text/html | <varies> | java.io.StringReader@<hash>
+BufferedReader -> BYTES | text/html | <varies> | java.io.BufferedReader@<hash>
+Map -> BYTES | text/html | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
+EmptyMap -> BYTES | text/html | 2 | {}
+List -> BYTES | text/html | 21 | [1, two, null, {k=v}]
+Set -> BYTES | text/html | 10 | [one, two]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
-JsonBuilder (Writable) -> StringEntity | text/html | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
-Pojo -> StringEntity | text/html | 15 | Pojo[hello \xe5\xe4\xf6]
-Integer -> StringEntity | text/html | 2 | 42
-Object[] -> StringEntity | text/html | <varies> | [Ljava.lang.Object;@<hash>
+JsonBuilder (Writable) -> BYTES | text/html | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
+Pojo -> BYTES | text/html | 15 | Pojo[hello \xe5\xe4\xf6]
+Integer -> BYTES | text/html | 2 | 42
+Object[] -> BYTES | text/html | <varies> | [Ljava.lang.Object;@<hash>
 null -> EXCEPTION java.lang.NullPointerException
 == text/plain
-String -> StringEntity | text/plain | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | text/plain | 9 | hello \xe5\xe4\xf6
-StringBuilder -> StringEntity | text/plain | 9 | hello \xe5\xe4\xf6
-byte[] -> ByteArrayEntity | text/plain | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | text/plain | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | text/plain | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> StringEntity | text/plain | 9 | hello \xe5\xe4\xf6
-File -> StringEntity | text/plain | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | text/plain | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | text/plain | 9 | hello \xe5\xe4\xf6
+StringBuilder -> BYTES | text/plain | 9 | hello \xe5\xe4\xf6
+byte[] -> BYTES | text/plain | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | text/plain | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | text/plain | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | text/plain | 9 | hello \xe5\xe4\xf6
+File -> BYTES | text/plain | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
-StringReader -> StringEntity | text/plain | 9 | hello \xe5\xe4\xf6
-BufferedReader -> StringEntity | text/plain | 9 | hello \xe5\xe4\xf6
-Map -> StringEntity | text/plain | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
-EmptyMap -> StringEntity | text/plain | 2 | {}
-List -> StringEntity | text/plain | 21 | [1, two, null, {k=v}]
-Set -> StringEntity | text/plain | 10 | [one, two]
+StringReader -> BYTES | text/plain | 9 | hello \xe5\xe4\xf6
+BufferedReader -> BYTES | text/plain | 9 | hello \xe5\xe4\xf6
+Map -> BYTES | text/plain | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
+EmptyMap -> BYTES | text/plain | 2 | {}
+List -> BYTES | text/plain | 21 | [1, two, null, {k=v}]
+Set -> BYTES | text/plain | 10 | [one, two]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
-JsonBuilder (Writable) -> StringEntity | text/plain | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
-Pojo -> StringEntity | text/plain | 15 | Pojo[hello \xe5\xe4\xf6]
-Integer -> StringEntity | text/plain | 2 | 42
-Object[] -> StringEntity | text/plain | <varies> | [Ljava.lang.Object;@<hash>
+JsonBuilder (Writable) -> BYTES | text/plain | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
+Pojo -> BYTES | text/plain | 15 | Pojo[hello \xe5\xe4\xf6]
+Integer -> BYTES | text/plain | 2 | 42
+Object[] -> BYTES | text/plain | <varies> | [Ljava.lang.Object;@<hash>
 null -> EXCEPTION java.lang.NullPointerException
 == text/plain; charset=ISO-8859-1
-String -> StringEntity | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-StringBuilder -> StringEntity | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-byte[] -> ByteArrayEntity | text/plain; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | text/plain; charset=ISO-8859-1 | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | text/plain; charset=ISO-8859-1 | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> StringEntity | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-File -> StringEntity | text/plain; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+StringBuilder -> BYTES | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+byte[] -> BYTES | text/plain; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | text/plain; charset=ISO-8859-1 | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | text/plain; charset=ISO-8859-1 | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+File -> BYTES | text/plain; charset=ISO-8859-1 | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
-StringReader -> StringEntity | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-BufferedReader -> StringEntity | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-Map -> StringEntity | text/plain; charset=ISO-8859-1 | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
-EmptyMap -> StringEntity | text/plain; charset=ISO-8859-1 | 2 | {}
-List -> StringEntity | text/plain; charset=ISO-8859-1 | 21 | [1, two, null, {k=v}]
-Set -> StringEntity | text/plain; charset=ISO-8859-1 | 10 | [one, two]
+StringReader -> BYTES | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+BufferedReader -> BYTES | text/plain; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+Map -> BYTES | text/plain; charset=ISO-8859-1 | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
+EmptyMap -> BYTES | text/plain; charset=ISO-8859-1 | 2 | {}
+List -> BYTES | text/plain; charset=ISO-8859-1 | 21 | [1, two, null, {k=v}]
+Set -> BYTES | text/plain; charset=ISO-8859-1 | 10 | [one, two]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
-JsonBuilder (Writable) -> StringEntity | text/plain; charset=ISO-8859-1 | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
-Pojo -> StringEntity | text/plain; charset=ISO-8859-1 | 15 | Pojo[hello \xe5\xe4\xf6]
-Integer -> StringEntity | text/plain; charset=ISO-8859-1 | 2 | 42
-Object[] -> StringEntity | text/plain; charset=ISO-8859-1 | <varies> | [Ljava.lang.Object;@<hash>
+JsonBuilder (Writable) -> BYTES | text/plain; charset=ISO-8859-1 | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
+Pojo -> BYTES | text/plain; charset=ISO-8859-1 | 15 | Pojo[hello \xe5\xe4\xf6]
+Integer -> BYTES | text/plain; charset=ISO-8859-1 | 2 | 42
+Object[] -> BYTES | text/plain; charset=ISO-8859-1 | <varies> | [Ljava.lang.Object;@<hash>
 null -> EXCEPTION java.lang.NullPointerException
 == text/csv
-String -> StringEntity | text/csv | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | text/csv | 9 | hello \xe5\xe4\xf6
-StringBuilder -> StringEntity | text/csv | 9 | hello \xe5\xe4\xf6
-byte[] -> ByteArrayEntity | text/csv | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | text/csv | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | text/csv | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> StringEntity | text/csv | 9 | hello \xe5\xe4\xf6
-File -> StringEntity | text/csv | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+String -> BYTES | text/csv | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | text/csv | 9 | hello \xe5\xe4\xf6
+StringBuilder -> BYTES | text/csv | 9 | hello \xe5\xe4\xf6
+byte[] -> BYTES | text/csv | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | text/csv | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | text/csv | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | text/csv | 9 | hello \xe5\xe4\xf6
+File -> BYTES | text/csv | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 MissingFile -> EXCEPTION java.io.FileNotFoundException
-StringReader -> StringEntity | text/csv | 9 | hello \xe5\xe4\xf6
-BufferedReader -> StringEntity | text/csv | 9 | hello \xe5\xe4\xf6
-Map -> StringEntity | text/csv | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
-EmptyMap -> StringEntity | text/csv | 2 | {}
-List -> StringEntity | text/csv | 21 | [1, two, null, {k=v}]
-Set -> StringEntity | text/csv | 10 | [one, two]
+StringReader -> BYTES | text/csv | 9 | hello \xe5\xe4\xf6
+BufferedReader -> BYTES | text/csv | 9 | hello \xe5\xe4\xf6
+Map -> BYTES | text/csv | 59 | {a=1, b=[x, null, \xe5], c=null, d=hello \xe5\xe4\xf6, e={nested=true}}
+EmptyMap -> BYTES | text/csv | 2 | {}
+List -> BYTES | text/csv | 21 | [1, two, null, {k=v}]
+Set -> BYTES | text/csv | 10 | [one, two]
 Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
-JsonBuilder (Writable) -> StringEntity | text/csv | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
-Pojo -> StringEntity | text/csv | 15 | Pojo[hello \xe5\xe4\xf6]
-Integer -> StringEntity | text/csv | 2 | 42
-Object[] -> StringEntity | text/csv | <varies> | [Ljava.lang.Object;@<hash>
+JsonBuilder (Writable) -> BYTES | text/csv | 39 | {"writable":"hello \x5cu00e5\x5cu00e4\x5cu00f6"}
+Pojo -> BYTES | text/csv | 15 | Pojo[hello \xe5\xe4\xf6]
+Integer -> BYTES | text/csv | 2 | 42
+Object[] -> BYTES | text/csv | <varies> | [Ljava.lang.Object;@<hash>
 null -> EXCEPTION java.lang.NullPointerException
 == application/x-www-form-urlencoded
-String -> StringEntity | application/x-www-form-urlencoded | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | application/x-www-form-urlencoded | 9 | hello \xe5\xe4\xf6
+String -> BYTES | application/x-www-form-urlencoded | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | application/x-www-form-urlencoded | 9 | hello \xe5\xe4\xf6
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.StringBuilder as content-type application/x-www-form-urlencoded. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 byte[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 ByteArrayInputStream -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.io.ByteArrayInputStream as content-type application/x-www-form-urlencoded. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
@@ -217,10 +217,10 @@ JsonBuilder (Writable) -> EXCEPTION java.lang.IllegalArgumentException: Don't kn
 Pojo -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type io.restassured.internal.http.EncoderRegistryTest$Pojo as content-type application/x-www-form-urlencoded. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 Integer -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.Integer as content-type application/x-www-form-urlencoded. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 Object[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.Object[] as content-type application/x-www-form-urlencoded. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
-null -> EXCEPTION java.lang.IllegalArgumentException: Source string may not be null
+null -> EXCEPTION java.lang.NullPointerException
 == application/x-www-form-urlencoded; charset=ISO-8859-1
-String -> StringEntity | application/x-www-form-urlencoded; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
-GString -> StringEntity | application/x-www-form-urlencoded; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+String -> BYTES | application/x-www-form-urlencoded; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
+GString -> BYTES | application/x-www-form-urlencoded; charset=ISO-8859-1 | 9 | hello \xe5\xe4\xf6
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.StringBuilder as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 byte[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 ByteArrayInputStream -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.io.ByteArrayInputStream as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
@@ -239,17 +239,17 @@ JsonBuilder (Writable) -> EXCEPTION java.lang.IllegalArgumentException: Don't kn
 Pojo -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type io.restassured.internal.http.EncoderRegistryTest$Pojo as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 Integer -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.Integer as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 Object[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.Object[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
-null -> EXCEPTION java.lang.IllegalArgumentException: Source string may not be null
+null -> EXCEPTION java.lang.NullPointerException
 == application/octet-stream
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
-byte[] -> InputStreamEntity | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | application/octet-stream | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> InputStreamEntity | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-File -> InputStreamEntity | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-MissingFile -> EXCEPTION java.lang.RuntimeException: File <tmp>/missing.txt not found
+byte[] -> STREAM | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | application/octet-stream | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> STREAM | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+File -> FILE | application/octet-stream | 12 | file body.txt
+MissingFile -> FILE | application/octet-stream | 0 | file missing.txt
 StringReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.StringReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 BufferedReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.BufferedReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode {a=1, b=[x, null, å], c=null, d=hello åäö, e={nested=true}} as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
@@ -266,12 +266,12 @@ null -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode n
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
-byte[] -> InputStreamEntity | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | */* | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> InputStreamEntity | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-File -> InputStreamEntity | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-MissingFile -> EXCEPTION java.lang.RuntimeException: File <tmp>/missing.txt not found
+byte[] -> STREAM | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | */* | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> STREAM | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+File -> FILE | */* | 12 | file body.txt
+MissingFile -> FILE | */* | 0 | file missing.txt
 StringReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.StringReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 BufferedReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.BufferedReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode {a=1, b=[x, null, å], c=null, d=hello åäö, e={nested=true}} as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
@@ -288,12 +288,12 @@ null -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode n
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
-byte[] -> InputStreamEntity | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayInputStream -> InputStreamEntity | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-BufferedInputStream -> InputStreamEntity | application/unknown | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> InputStreamEntity | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-File -> InputStreamEntity | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-MissingFile -> EXCEPTION java.lang.RuntimeException: File <tmp>/missing.txt not found
+byte[] -> STREAM | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayInputStream -> STREAM | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+BufferedInputStream -> STREAM | application/unknown | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> STREAM | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+File -> FILE | application/unknown | 12 | file body.txt
+MissingFile -> FILE | application/unknown | 0 | file missing.txt
 StringReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.StringReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
 BufferedReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.BufferedReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
 Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode {a=1, b=[x, null, å], c=null, d=hello åäö, e={nested=true}} as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."

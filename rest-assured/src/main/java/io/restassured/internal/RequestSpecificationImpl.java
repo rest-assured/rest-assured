@@ -55,6 +55,7 @@ import io.restassured.internal.http.CrossHostSensitiveHeaderStripper;
 import io.restassured.internal.http.HTTPBuilder;
 import io.restassured.internal.http.HttpResponseHandler;
 import io.restassured.internal.http.NoSecureConnectionReuseStrategy;
+import io.restassured.internal.http.RequestBody;
 import io.restassured.internal.http.RequestBodyEncoder;
 import io.restassured.internal.http.Status;
 import io.restassured.internal.http.URIBuilder;
@@ -1921,7 +1922,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 entity.addPart(part);
             }
 
-            return entity;
+            return RequestBody.writer(entity::writeTo, entity.getContentLength(), entity.isRepeatable(), entity.getContentType().getValue());
         };
         http.getEncoders().putAt(ct, multiPartEncoder);
     }
