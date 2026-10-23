@@ -17,6 +17,7 @@
 package io.restassured.internal.path.xml;
 
 import io.restassured.internal.common.spi.path.DocumentType;
+import io.restassured.internal.common.spi.path.GPathRootPath;
 import io.restassured.internal.common.spi.path.PathInput;
 import io.restassured.internal.common.spi.path.PathProvider;
 import io.restassured.internal.common.spi.path.PathResult;
@@ -79,5 +80,10 @@ public class GPathXmlProvider implements PathProvider {
         XMLAssertion assertion = new XMLAssertion();
         assertion.setKey(path);
         return PathResult.value(assertion.getResult(document, null));
+    }
+
+    @Override
+    public String joinRootPath(String rootPath, String key) {
+        return GPathRootPath.join(rootPath, key);
     }
 }

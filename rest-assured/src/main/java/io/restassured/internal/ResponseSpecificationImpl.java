@@ -30,6 +30,7 @@ import io.restassured.internal.MapCreator.CollisionStrategy;
 import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.internal.assertion.BodyMatcherGroup;
 import io.restassured.internal.assertion.CookieMatcher;
+import io.restassured.internal.common.spi.path.GPathRootPath;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.transport.TransportResponse;
 import io.restassured.internal.util.MatcherErrorMessageBuilder;
@@ -63,16 +64,10 @@ import static io.restassured.http.ContentType.ANY;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.common.util.GroovyStyleToString.format;
 import static io.restassured.internal.util.GroovyStringConversion.castToString;
-import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.hamcrest.Matchers.equalTo;
 
 public class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
-    private static final String EMPTY = "";
-    private static final String DOT = ".";
-    private static final String SAFE_REF = "?.";
-    private static final String SAFE_INDEX = "?[";
-    private static final String SPREAD_REF = "*.";
     // A format specifier as java.util.Formatter parses it: %[index$][flags][width][.precision][t]conversion
     private static final Pattern FORMAT_SPECIFIER = Pattern.compile("%(\\d+\\$)?([-#+ 0,(<]*)(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
     private static final Pattern CONTENT_TYPE_WITHOUT_PARAMETERS = Pattern.compile("(^[\\w\\d_\\-]+/[\\w\\d_\\-]+)\\s*(?:;)");
@@ -311,7 +306,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         notNull(matcher, "matcher");
 
         validateResponseIfRequired(() -> {
-            bodyMatchers.add(newBodyMatcher(applyArguments(mergeKeyWithRootPath(key), arguments), matcher));
+            bodyMatchers.add(newBodyMatcher(applyArguments(GPathRootPath.join(bodyRootPath, key), arguments), matcher));
             if (additionalKeyMatcherPairs != null && additionalKeyMatcherPairs.length > 0) {
                 // The keys are Strings or, when only arguments are given, lists of arguments
                 Map<?, ?> pairs = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, additionalKeyMatcherPairs);
@@ -323,15 +318,15 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
                     if (matchingKey instanceof List) {
                         // If matching key is instance of list (we assume it's a list of arguments) then we should simply return the merged path,
                         // otherwise merge the current path with the supplied key
-                        keyWithRoot = applyArguments(mergeKeyWithRootPath(""), toArguments(matchingKey));
+                        keyWithRoot = applyArguments(GPathRootPath.join(bodyRootPath, ""), toArguments(matchingKey));
                         hamcrestMatcher = matchingValue;
                     } else if (matchingValue instanceof ArgsAndValue) {
                         // A key that is not a String (for example a GString) is used in its string form
-                        String mergedPath = mergeKeyWithRootPath(castToString(matchingKey));
+                        String mergedPath = GPathRootPath.join(bodyRootPath, castToString(matchingKey));
                         keyWithRoot = applyArguments(mergedPath, ((ArgsAndValue) matchingValue).getArgs());
                         hamcrestMatcher = ((ArgsAndValue) matchingValue).getValue();
                     } else {
-                        keyWithRoot = mergeKeyWithRootPath(castToString(matchingKey));
+                        keyWithRoot = GPathRootPath.join(bodyRootPath, castToString(matchingKey));
                         hamcrestMatcher = matchingValue;
                     }
 
@@ -432,7 +427,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     public ResponseSpecification appendRootPath(String pathToAppend, List<Argument> arguments) {
         notNull(pathToAppend, "Path to append to root path");
         notNull(arguments, "Arguments for path to append");
-        String mergedPath = mergeKeyWithRootPath(pathToAppend);
+        String mergedPath = GPathRootPath.join(bodyRootPath, pathToAppend);
         return rootPath(mergedPath, arguments);
     }
 
@@ -862,22 +857,6 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         }
         specifiers.appendTail(pathToFormat);
         return String.format(pathToFormat.toString(), args.toArray());
-    }
-
-    private String mergeKeyWithRootPath(String key) {
-        if (bodyRootPath != null && !EMPTY.equals(bodyRootPath)) {
-            if (key.isEmpty()) {
-                return bodyRootPath;
-            } else if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
-                return bodyRootPath + substringAfter(key, DOT);
-            } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)
-                    && !key.startsWith(SAFE_REF) && !key.startsWith("[")
-                    && !key.startsWith(SAFE_INDEX) && !key.startsWith(SPREAD_REF)) {
-                return bodyRootPath + DOT + key;
-            }
-            return bodyRootPath + key;
-        }
-        return key;
     }
 
     public void throwIllegalStateExceptionIfRootPathIsNotDefined(String description) {

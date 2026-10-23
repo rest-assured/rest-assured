@@ -17,6 +17,7 @@
 package io.restassured.internal.path.json;
 
 import io.restassured.internal.common.spi.path.DocumentType;
+import io.restassured.internal.common.spi.path.GPathRootPath;
 import io.restassured.internal.common.spi.path.PathInput;
 import io.restassured.internal.common.spi.path.PathProvider;
 import io.restassured.internal.common.spi.path.PathResult;
@@ -77,5 +78,10 @@ public class GPathJsonProvider implements PathProvider {
         JSONAssertion assertion = new JSONAssertion();
         assertion.setKey(path);
         return PathResult.value(assertion.getResult(document, null));
+    }
+
+    @Override
+    public String joinRootPath(String rootPath, String key) {
+        return GPathRootPath.join(rootPath, key);
     }
 }

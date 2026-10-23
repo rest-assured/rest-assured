@@ -84,4 +84,11 @@ class GPathXmlProviderTest {
         assertThat(provider.parseFailure(DocumentType.XML, cause))
                 .isExactlyInstanceOf(XmlPathException.class).hasMessage("Failed to parse the XML document").hasCause(cause);
     }
+
+    @Test
+    void joins_root_paths_like_gpath() {
+        assertThat(provider.joinRootPath("a.b", "c")).isEqualTo("a.b.c");
+        assertThat(provider.joinRootPath("a", "[0]")).isEqualTo("a[0]");
+        assertThat(provider.joinRootPath(null, "c")).isEqualTo("c");
+    }
 }
