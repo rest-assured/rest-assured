@@ -21,6 +21,7 @@ import io.restassured.response.ValidatableResponse;
 
 public class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
+    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
     @Override
     public void parseResponse(HttpResponseDecorator httpResponse, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         super.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar);

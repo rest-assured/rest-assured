@@ -35,6 +35,7 @@ public class ResponseParseException extends HttpResponseException {
 	   everything thrown from HttpBuilder. */
 	private Throwable cause;
 	
+	// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
 	public ResponseParseException( HttpResponseDecorator response, Throwable cause ) {
 		super( response );
 		this.cause = cause;

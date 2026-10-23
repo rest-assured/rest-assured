@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
  * Both checked exceptions are declared because a Groovy closure coerced to this interface would otherwise have them
  * wrapped in an {@link java.lang.reflect.UndeclaredThrowableException}.
  */
+// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
 @FunctionalInterface
 public interface RequestConfigurer {
 

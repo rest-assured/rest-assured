@@ -97,6 +97,6 @@ class HeaderValueFlatteningTest {
     }
 
     private static Collection<String> flatten(Collection<?> value) {
-        return RestAssuredHttpBuilder.flattenToString(value);
+        return RequestDispatcher.flattenToString(value);
     }
 }
