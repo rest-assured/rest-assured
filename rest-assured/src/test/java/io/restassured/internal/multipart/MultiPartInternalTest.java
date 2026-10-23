@@ -17,10 +17,6 @@
 package io.restassured.internal.multipart;
 
 import io.restassured.internal.NoParameterValue;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -103,40 +99,44 @@ class MultiPartInternalTest {
 
     @Test
     void file_content_becomes_file_body_with_charset() throws IOException {
-        File file = file();
+        PartBody body = multiPart(file(), null, "utf-8").getContentBody();
 
-        ContentBody body = (ContentBody) multiPart(file, null, "utf-8").getContentBody();
+        assertThat(body.getFileName()).isEqualTo("file.txt");
+        assertThat(body.getContentType()).isEqualTo("application/octet-stream; charset=UTF-8");
+        assertThat(body.getContentLength()).isEqualTo(4);
+        assertThat(written(body)).isEqualTo("file");
+    }
 
-        assertThat(body).isInstanceOf(FileBody.class);
-        assertThat(((FileBody) body).getFile()).isSameAs(file);
-        assertThat(body.getFilename()).isEqualTo("file.txt");
-        assertThat(((FileBody) body).getContentType().toString()).isEqualTo("application/octet-stream; charset=UTF-8");
+    @Test
+    void file_content_without_file_name_uses_the_name_of_the_file() throws IOException {
+        MultiPartInternal multiPart = multiPart(file(), null, null);
+        multiPart.setFileName(null);
+
+        assertThat(multiPart.getContentBody().getFileName()).isEqualTo("file.txt");
     }
 
     @Test
     void file_content_without_charset_and_with_mime_type() throws IOException {
-        ContentBody body = (ContentBody) multiPart(file(), "application/xml", null).getContentBody();
+        PartBody body = multiPart(file(), "application/xml", null).getContentBody();
 
-        assertThat(((FileBody) body).getContentType().toString()).isEqualTo("application/xml");
+        assertThat(body.getContentType()).isEqualTo("application/xml");
     }
 
     @Test
-    void input_stream_content_becomes_input_stream_body_without_charset() {
-        InputStream stream = stream();
+    void input_stream_content_becomes_input_stream_body_without_charset() throws IOException {
+        PartBody body = multiPart(stream(), null, "UTF-8").getContentBody();
 
-        ContentBody body = (ContentBody) multiPart(stream, null, "UTF-8").getContentBody();
-
-        assertThat(body).isInstanceOf(InputStreamBody.class);
-        assertThat(((InputStreamBody) body).getInputStream()).isSameAs(stream);
-        assertThat(body.getFilename()).isEqualTo("file.txt");
-        assertThat(((InputStreamBody) body).getContentType().toString()).isEqualTo("application/octet-stream");
+        assertThat(body.getFileName()).isEqualTo("file.txt");
+        assertThat(body.getContentType()).isEqualTo("application/octet-stream");
+        assertThat(body.getContentLength()).isEqualTo(-1);
+        assertThat(written(body)).isEqualTo("\u0001");
     }
 
     @Test
     void input_stream_content_with_mime_type() {
-        ContentBody body = (ContentBody) multiPart(stream(), "text/csv; charset=UTF-16", "UTF-8").getContentBody();
+        PartBody body = multiPart(stream(), "text/csv; charset=UTF-16", "UTF-8").getContentBody();
 
-        assertThat(((InputStreamBody) body).getContentType().toString()).isEqualTo("text/csv; charset=UTF-16");
+        assertThat(body.getContentType()).isEqualTo("text/csv; charset=UTF-16");
     }
 
     @Test
@@ -144,11 +144,11 @@ class MultiPartInternalTest {
         byte[] bytes = {65, 66};
         MultiPartInternal multiPart = multiPart(bytes, "application/pdf", "UTF-8");
 
-        ContentBody body = (ContentBody) multiPart.getContentBody();
+        PartBody body = multiPart.getContentBody();
 
-        assertThat(body).isInstanceOf(InputStreamBody.class);
-        assertThat(((InputStreamBody) body).getContentType().toString()).isEqualTo("application/pdf");
-        assertThat(body.getFilename()).isEqualTo("file.txt");
+        assertThat(body.getContentType()).isEqualTo("application/pdf");
+        assertThat(body.getFileName()).isEqualTo("file.txt");
+        assertThat(body.getContentLength()).isEqualTo(-1);
         assertThat(multiPart.getContent()).isSameAs(bytes);
         assertThat(written(body)).isEqualTo("AB");
     }
@@ -166,44 +166,44 @@ class MultiPartInternalTest {
 
     @Test
     void string_content_becomes_string_body() throws IOException {
-        ContentBody body = (ContentBody) multiPart("hello", null, null).getContentBody();
+        PartBody body = multiPart("hello", null, null).getContentBody();
 
-        assertThat(body).isInstanceOf(StringBody.class);
-        assertThat(body.getFilename()).isNull();
-        assertThat(((StringBody) body).getContentType().toString()).isEqualTo("text/plain");
+        assertThat(body.getFileName()).isNull();
+        assertThat(body.getContentType()).isEqualTo("text/plain");
+        assertThat(body.getContentLength()).isEqualTo(5);
         assertThat(written(body)).isEqualTo("hello");
     }
 
     @Test
     void string_content_with_charset_keeps_mime_type_parameters() throws IOException {
-        ContentBody body = (ContentBody) multiPart("<a/>", "application/xml; version=2", "utf-16").getContentBody();
+        PartBody body = multiPart("<a/>", "application/xml; version=2", "utf-16").getContentBody();
 
-        assertThat(((StringBody) body).getContentType().toString()).isEqualTo("application/xml; version=2; charset=UTF-16");
-        assertThat(body.getCharset()).isEqualTo("UTF-16");
+        assertThat(body.getContentType()).isEqualTo("application/xml; version=2; charset=UTF-16");
+        assertThat(written(body)).isEqualTo(new String("<a/>".getBytes(StandardCharsets.UTF_16), StandardCharsets.ISO_8859_1));
     }
 
     @Test
     void string_content_with_charset_replaces_charset_of_mime_type() {
-        ContentBody body = (ContentBody) multiPart("x", "text/plain; charset=US-ASCII", "ISO-8859-1").getContentBody();
+        PartBody body = multiPart("x", "text/plain; charset=US-ASCII", "ISO-8859-1").getContentBody();
 
-        assertThat(((StringBody) body).getContentType().toString()).isEqualTo("text/plain; charset=ISO-8859-1");
+        assertThat(body.getContentType()).isEqualTo("text/plain; charset=ISO-8859-1");
     }
 
     @Test
     void empty_mime_type_and_charset_count_as_unset() throws IOException {
-        assertThat(((StringBody) multiPart("x", "", "").getContentBody()).getContentType().toString()).isEqualTo("text/plain");
-        assertThat(((FileBody) multiPart(file(), "", "").getContentBody()).getContentType().toString()).isEqualTo("application/octet-stream");
-        assertThat(((InputStreamBody) multiPart(stream(), "", "").getContentBody()).getContentType().toString()).isEqualTo("application/octet-stream");
+        assertThat(multiPart("x", "", "").getContentBody().getContentType()).isEqualTo("text/plain");
+        assertThat(multiPart(file(), "", "").getContentBody().getContentType()).isEqualTo("application/octet-stream");
+        assertThat(multiPart(stream(), "", "").getContentBody().getContentType()).isEqualTo("application/octet-stream");
     }
 
     @Test
     void no_parameter_value_content_becomes_empty_string() throws IOException {
         MultiPartInternal multiPart = multiPart(new NoParameterValue(), null, null);
 
-        ContentBody body = (ContentBody) multiPart.getContentBody();
+        PartBody body = multiPart.getContentBody();
 
         assertThat(multiPart.getContent()).isEqualTo("");
-        assertThat(((StringBody) body).getContentType().toString()).isEqualTo("text/plain");
+        assertThat(body.getContentType()).isEqualTo("text/plain");
         assertThat(written(body)).isEmpty();
     }
 
@@ -347,7 +347,7 @@ class MultiPartInternalTest {
 
         assertThat(multiPart.toString()).matches(
                 "io\\.restassured\\.internal\\.multipart\\.MultiPartInternal\\(content, ctrl, file\\.txt, text/xml, UTF-8, \\[a:b], " +
-                        "org\\.apache\\.http\\.entity\\.mime\\.content\\.StringBody@[0-9a-f]+\\)");
+                        "io\\.restassured\\.internal\\.multipart\\.PartBody@[0-9a-f]+\\)");
     }
 
     @Test
@@ -361,7 +361,7 @@ class MultiPartInternalTest {
 
         assertThat(first).matches(
                 "io\\.restassured\\.internal\\.multipart\\.MultiPartInternal\\(\\[65, 66], null, null, application/octet-stream, null, \\[:], " +
-                        "org\\.apache\\.http\\.entity\\.mime\\.content\\.InputStreamBody@[0-9a-f]+\\)");
+                        "io\\.restassured\\.internal\\.multipart\\.PartBody@[0-9a-f]+\\)");
         assertThat(second).startsWith("io.restassured.internal.multipart.MultiPartInternal([65, 66], ");
         assertThat(multiPart.getContent()).isSameAs(bytes);
         assertThat(written(multiPart.getContentBody())).isEqualTo("AB");
@@ -394,9 +394,9 @@ class MultiPartInternalTest {
         return new ByteArrayInputStream(new byte[]{1});
     }
 
-    private static String written(Object body) throws IOException {
+    private static String written(PartBody body) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ((ContentBody) body).writeTo(out);
+        body.writeTo(out);
         return new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
     }
 }
