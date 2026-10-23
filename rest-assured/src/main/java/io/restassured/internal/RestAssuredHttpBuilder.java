@@ -22,55 +22,50 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.http.*;
-import io.restassured.parsing.Parser;
+import io.restassured.internal.transport.TransportResponse;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.conn.BasicClientConnectionManager;
-import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 import java.util.function.Function;
 
 import static io.restassured.http.ContentType.ANY;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 class RestAssuredHttpBuilder extends HTTPBuilder {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String MULTIPART = "multipart";
     private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH = MULTIPART + "/";
-    // A body that is read later keeps the single connection of HttpClient 4's BasicClientConnectionManager until it's read,
-    // so the next request with the same (reused) client consumes it if it's still unread, since that request fails
-    // otherwise. Other connection managers have more connections, which other threads may still be reading from.
+    // A response keeps the single connection of HttpClient 4's BasicClientConnectionManager until its body is read, which
+    // a body that is read later, or one that couldn't be parsed, may never be. So the next request with the same (reused)
+    // client consumes it if it's still unread, since that request fails otherwise. Other connection managers have more
+    // connections, which other threads may still be reading from.
     private static final Map<AbstractHttpClient, HttpEntity> UNREAD_BODIES = Collections.synchronizedMap(new WeakHashMap<>());
 
     private Headers requestHeaders;
     private RestAssuredConfig config;
     private boolean allowContentType;
-    private Parser parser;
+    private HttpContext context;
     FilterableResponseSpecification responseSpecification;
     ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure;
 
     RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, Object defaultURI,
-                           ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType,
-                           Parser parser) {
+                           ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType) {
         super(defaultURI, urlEncodingEnabled, orNull(config, RestAssuredConfig::getEncoderConfig), orNull(config, RestAssuredConfig::getDecoderConfig), orNull(config, RestAssuredConfig::getOAuthConfig), client);
         this.responseSpecification = responseSpecification;
         this.requestHeaders = requestHeaders;
         this.assertionClosure = assertionClosure;
         this.config = config;
         this.allowContentType = allowContentType;
-        this.parser = parser;
     }
 
     private static <E, T> T orNull(E instance, Function<E, T> s) {
@@ -78,19 +73,11 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     }
 
     /**
-     * A copy of HTTP builders doRequest method with two exceptions.
-     * <ol>
-     *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
-     *  <li>If headers contain a list of elements the headers are added and not overridden</li>
-     *  </ol>
+     * Sends the request and hands the response to the REST Assured response. If headers contain a list of elements the
+     * headers are added and not overridden.
      */
     @Override
     protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) throws IOException {
-        if (delegate.getRequest() instanceof HttpPost && assertionClosure != null) {
-            delegate.getResponse().put(
-                    Status.FAILURE.toString(),
-                    (response, content) -> assertionClosure.call(response, content));
-        }
         final HttpRequestBase reqMethod = delegate.getRequest();
         Object acceptContentType = delegate.getContentType();
         if (!requestHeaders.hasHeaderWithName("Accept")) {
@@ -130,47 +117,33 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
         setAcceptEncoding(reqMethod);
         HttpEntity unreadBody = UNREAD_BODIES.remove(client);
         if (unreadBody != null) EntityUtils.consumeQuietly(unreadBody);
-        final HttpResponseDecorator resp = new HttpResponseDecorator(
-                this.client.execute(reqMethod, delegate.getContext()),
-                delegate.getContext(), null);
-        boolean hasBodyAssertions = responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined();
-        // Without body assertions the response reads the body from the connection when it's asked for it
-        boolean bodyIsReadLater = false;
-        try {
-            int status = resp.getStatusLine().getStatusCode();
-            HttpResponseHandler responseHandler = delegate.findResponseHandler(status);
-
-            HttpEntity entity = resp.getEntity();
-            try {
-                // The decoded length of an encoded body isn't known, so it's parsed even when the encoded body is empty
-                if (entity == null || entity.getContentLength() == 0 && !contentDecoding.decodes(contentEncodingOf(resp))) {
-                    // Consuming the empty body releases its connection
-                    EntityUtils.consumeQuietly(entity);
-                    return responseHandler.handle(resp, EMPTY);
-                } else {
-                    Object content = this.parseResponse(resp, acceptContentType);
-                    bodyIsReadLater = !hasBodyAssertions;
-                    return responseHandler.handle(resp, content);
-                }
-            } catch (Exception ex) {
-                // A Groovy closure coerced to HttpResponseHandler has its checked exceptions wrapped by the proxy
-                throw new ResponseParseException(resp, ex instanceof UndeclaredThrowableException ? ex.getCause() : ex);
-            }
-        } finally {
-            if (hasBodyAssertions) {
-                HttpEntity entity = resp.getEntity();
-                if (entity != null) EntityUtils.consumeQuietly(entity);
-            } else if (bodyIsReadLater && client.getConnectionManager() instanceof BasicClientConnectionManager) {
-                UNREAD_BODIES.put(client, resp.getEntity());
-            }
-            // Close idle connections to the server. HttpClient 4 would also close the connection that a body read later is
-            // still to be read from, so then the response closes them once it has read the body instead.
-            ConnectionConfig connectionConfig = connectionConfig();
-            if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse() && !bodyIsReadLater) {
-                ConnectionConfig.CloseIdleConnectionConfig closeConnectionConfig = connectionConfig.closeIdleConnectionConfig();
-                client.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit());
-            }
+        HttpResponse httpResponse = this.client.execute(reqMethod, delegate.getContext());
+        context = delegate.getContext().getDelegate();
+        HttpEntity entity = httpResponse.getEntity();
+        if (entity != null && client.getConnectionManager() instanceof BasicClientConnectionManager) {
+            UNREAD_BODIES.put(client, entity);
         }
+        TransportResponse response = HttpClient4Transport.toTransportResponse(httpResponse, entity == null ? null : entity.getContent(),
+                this::closeIdleConnectionsIfConfigured);
+        boolean hasBodyAssertions = responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined();
+        RequestDispatcher.receive(response, contentDecoding, hasBodyAssertions, assertionClosure);
+        return null;
+    }
+
+    // Closes idle connections to the server once the response is done with
+    private void closeIdleConnectionsIfConfigured() {
+        ConnectionConfig connectionConfig = connectionConfig();
+        if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
+            ConnectionConfig.CloseIdleConnectionConfig closeConnectionConfig = connectionConfig.closeIdleConnectionConfig();
+            client.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit());
+        }
+    }
+
+    /**
+     * @return The context of the last request, which knows the URI after redirects
+     */
+    HttpContext getContext() {
+        return context;
     }
 
     private boolean doesntHaveEntity(HttpRequestBase reqMethod) {
@@ -192,34 +165,6 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
                 );
     }
 
-    /**
-     * We override this method because ParserRegistry.getContentType(..) called by
-     * the super method throws an exception if no content-type is available in the response
-     * and then HTTPBuilder for some reason uses the streaming octet parser instead of the
-     * defaultParser in the ParserRegistry to parse the response. To fix this we set the
-     * content-type of the defaultParser if registered to Rest Assured to the response if no
-     * content-type is defined.
-     */
-    protected Object parseResponse(HttpResponse resp, Object contentType) throws IOException {
-        if (parser != null && ANY.toString().equals(contentType.toString())) {
-            try {
-                HttpResponseContentTypeFinder.findContentType(resp);
-            } catch (IllegalArgumentException ignored) {
-                // This means that no content-type is defined the response
-                HttpEntity entity = resp.getEntity();
-                if (entity != null) {
-                    resp.setEntity(new HttpEntityWrapper(entity) {
-
-                        public org.apache.http.Header getContentType() {
-                            // We don't use CONTENT_TYPE field because of issue 253 (no tests for this!)
-                            return new BasicHeader("Content-Type", parser.getContentType());
-                        }
-                    });
-                }
-            }
-        }
-        return super.parseResponse(resp, contentType);
-    }
 
     /**
      * Flattens a collection header value to the strings that are sent as separate headers, like Groovy's

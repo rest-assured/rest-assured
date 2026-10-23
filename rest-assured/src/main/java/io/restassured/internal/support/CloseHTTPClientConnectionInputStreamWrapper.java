@@ -19,6 +19,7 @@ package io.restassured.internal.support;
 import io.restassured.config.ConnectionConfig;
 import org.apache.http.conn.ClientConnectionManager;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -27,12 +28,23 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
     private static final int ZERO = 0;
     private ConnectionConfig connectionConfig;
     private final ClientConnectionManager connectionManager;
+    private final Closeable onClose;
     private final InputStream wrapped;
 
     public CloseHTTPClientConnectionInputStreamWrapper(ConnectionConfig connectionConfig,
                                                        ClientConnectionManager connectionManager, InputStream wrapped) {
         this.connectionConfig = connectionConfig;
         this.connectionManager = connectionManager;
+        this.onClose = null;
+        this.wrapped = wrapped;
+    }
+
+    /**
+     * @param onClose closed before the wrapped stream is closed
+     */
+    public CloseHTTPClientConnectionInputStreamWrapper(Closeable onClose, InputStream wrapped) {
+        this.connectionManager = null;
+        this.onClose = onClose;
         this.wrapped = wrapped;
     }
 
@@ -63,6 +75,9 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
 
     @Override
     public void close() throws IOException {
+        if (onClose != null) {
+            onClose.close();
+        }
         if (connectionManager != null && connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
             connectionManager.closeIdleConnections(connectionConfig.closeIdleConnectionConfig().getIdleTime(),
                     connectionConfig.closeIdleConnectionConfig().getTimeUnit());

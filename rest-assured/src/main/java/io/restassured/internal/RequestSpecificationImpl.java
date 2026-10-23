@@ -54,11 +54,9 @@ import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.http.ContentTypeExtractor;
 import io.restassured.internal.http.CrossHostSensitiveHeaderStripper;
 import io.restassured.internal.http.HTTPBuilder;
-import io.restassured.internal.http.HttpResponseHandler;
 import io.restassured.internal.http.NoSecureConnectionReuseStrategy;
 import io.restassured.internal.http.RequestBody;
 import io.restassured.internal.http.RequestBodyEncoder;
-import io.restassured.internal.http.Status;
 import io.restassured.internal.http.URIBuilder;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
@@ -1564,7 +1562,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         ResponseSpecificationImpl responseSpecification = (ResponseSpecificationImpl) this.responseSpecification;
         ResponseSpecificationImpl.HamcrestAssertionClosure hamcrestAssertionClosure = (ResponseSpecificationImpl.HamcrestAssertionClosure) assertionClosure;
         RestAssuredHttpBuilder http = new RestAssuredHttpBuilder(responseSpecification, requestHeaders, targetUri, hamcrestAssertionClosure, urlEncodingEnabled,
-                getConfig(), (AbstractHttpClient) requestSpecification.getHttpClient(), allowContentType, responseSpecification.getRpr().getDefaultParser());
+                getConfig(), (AbstractHttpClient) requestSpecification.getHttpClient(), allowContentType);
         applyProxySettings(http);
         applyRestAssuredConfig(http);
         registerRestAssuredEncoders(http);
@@ -1589,7 +1587,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         RestAssuredConfig cfg = getConfig() != null ? getConfig() : new RestAssuredConfig();
         restAssuredResponse.setSessionIdName(cfg.getSessionConfig().sessionIdName());
         restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig());
-        restAssuredResponse.setConnectionManager(http.getClient().getConnectionManager());
         restAssuredResponse.setConfig(cfg);
         restAssuredResponse.setFilterContextProperties(filterContextProperties);
         responseSpecification.setRestAssuredResponse(restAssuredResponse);
@@ -1642,16 +1639,17 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 }
                 Object bodyContent = createFormParamBodyContent(assembleBodyContent(method));
                 if (POST.name().equalsIgnoreCase(method)) {
-                    http.post(formRequestArguments(targetPath, queryParameters, bodyContent, acceptContentType), responseHandler(hamcrestAssertionClosure));
+                    http.post(formRequestArguments(targetPath, queryParameters, bodyContent, acceptContentType), null);
                 } else if (PATCH.name().equalsIgnoreCase(method)) {
-                    http.patch(formRequestArguments(targetPath, mergeMapsAndRetainOrder(requestParameters, queryParameters), bodyContent, acceptContentType), responseHandler(hamcrestAssertionClosure));
+                    http.patch(formRequestArguments(targetPath, mergeMapsAndRetainOrder(requestParameters, queryParameters), bodyContent, acceptContentType), null);
                 } else {
                     requestBody = bodyContent;
-                    sendHttpRequest(http, method, acceptContentType, targetPath, hamcrestAssertionClosure);
+                    sendHttpRequest(http, method, acceptContentType, targetPath);
                 }
             } else {
-                sendHttpRequest(http, method, acceptContentType, targetPath, hamcrestAssertionClosure);
+                sendHttpRequest(http, method, acceptContentType, targetPath);
             }
+            restAssuredResponse.setApacheHttpContext(http.getContext());
         } finally {
             if (originalHttpsScheme == null) {
                 schemeRegistry.unregister("https");
@@ -1672,15 +1670,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         arguments.put("requestContentType", requestHeaders.getValue(CONTENT_TYPE));
         arguments.put("contentType", acceptContentType);
         return arguments;
-    }
-
-    private static HttpResponseHandler responseHandler(ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure) {
-        return (response, content) -> {
-            if (assertionClosure != null) {
-                assertionClosure.call(response, content);
-            }
-            return null;
-        };
     }
 
     public void assertCorrectNumberOfPathParams() {
@@ -1974,8 +1963,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         }
     }
 
-    private void sendHttpRequest(HTTPBuilder http, String method, Object responseContentType, String targetPath,
-                                 ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure) throws IOException, URISyntaxException {
+    private void sendHttpRequest(HTTPBuilder http, String method, Object responseContentType, String targetPath) throws IOException, URISyntaxException {
         Map<String, Object> allQueryParams = mergeMapsAndRetainOrder(requestParameters, queryParameters);
         if (method.equals(GET.name())) {
             allQueryParams = mergeMapsAndRetainOrder(allQueryParams, formParameters);
@@ -1998,13 +1986,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             }
 
             delegate.getUri().setQuery(queryParams);
-
-            HttpResponseHandler responseHandler = assertionClosure.getResponseHandler();
-            // response handler for a success response code:
-            delegate.getResponse().put(Status.SUCCESS.toString(), responseHandler);
-
-            // handler for any failure status code:
-            delegate.getResponse().put(Status.FAILURE.toString(), responseHandler);
         });
     }
 

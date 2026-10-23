@@ -39,6 +39,11 @@ public class ResponseParseException extends HttpResponseException {
 		super( response );
 		this.cause = cause;
 	}
+
+	public ResponseParseException( int statusCode, String reasonPhrase, Throwable cause ) {
+		super( statusCode, reasonPhrase );
+		this.cause = cause;
+	}
 	
 	@Override public Throwable getCause() { return this.cause; }
 }
