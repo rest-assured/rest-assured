@@ -37,6 +37,11 @@
 
     <build>
         <plugins>
+            <!-- Checks that this module doesn't bring Groovy (see the root pom) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

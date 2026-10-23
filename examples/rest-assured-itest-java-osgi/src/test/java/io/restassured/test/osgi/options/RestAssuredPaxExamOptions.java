@@ -59,11 +59,25 @@ public class RestAssuredPaxExamOptions {
      * example in the release build, which doesn't install the release version before running the tests).
      */
     public static Option restAssuredBundles() {
+        return new DefaultCompositeOption(gpathBundles(), restAssuredCoreBundles());
+    }
+
+    /**
+     * rest-assured and rest-assured-common, which don't need a path engine or Groovy (see {@link #restAssuredBundles()}).
+     */
+    public static Option restAssuredCoreBundles() {
         return new DefaultCompositeOption(
-                bundleContaining(JsonPath.class),
-                bundleContaining(XmlPath.class),
                 bundleContaining(RestAssured.class),
                 bundleContaining(TypeRef.class));
+    }
+
+    /**
+     * The GPath path engines, json-path-gpath and xml-path-gpath, which need Groovy (see {@link #restAssuredBundles()}).
+     */
+    public static Option gpathBundles() {
+        return new DefaultCompositeOption(
+                bundleContaining(JsonPath.class),
+                bundleContaining(XmlPath.class));
     }
 
     private static Option bundleContaining(Class<?> type) {

@@ -25,6 +25,7 @@
 
     <artifactId>rest-assured-all</artifactId>
     <name>rest-assured-all</name>
+    <description>REST Assured, rest-assured-common and the GPath path engines (json-path-gpath and xml-path-gpath) in one jar. It depends on Groovy, which the path engines need.</description>
     <packaging>jar</packaging>
 
     <build>
@@ -64,6 +65,10 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                            <!-- Merges the META-INF/services files of the shaded jars -->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
