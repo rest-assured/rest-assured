@@ -641,7 +641,7 @@ class RequestSpecificationImplTest {
     }
 
     @Test
-    void cookies_are_merged_and_a_cookie_without_value_gets_the_string_null() {
+    void cookies_are_merged_and_a_cookie_without_value_has_no_value() {
         Capture capture = capture();
 
         given().filter(capture).cookie("a").cookie("b", "1", 2).cookie(new Cookie.Builder("c", "3").build())
@@ -649,7 +649,7 @@ class RequestSpecificationImplTest {
 
         List<Cookie> cookies = capture.request.getCookies().asList();
         assertThat(cookies).extracting(Cookie::getName).containsExactly("a", "b", "b", "c", "d", "e", "f");
-        assertThat(cookies).extracting(Cookie::getValue).containsExactly("null", "1", "2", "3", "4", "5", null);
+        assertThat(cookies).extracting(Cookie::getValue).containsExactly(null, "1", "2", "3", "4", "5", null);
     }
 
     @Test

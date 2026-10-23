@@ -1242,14 +1242,19 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     public RequestSpecification cookie(String cookieName, Object value, Object... additionalValues) {
         notNull(cookieName, "Cookie name");
         List<Cookie> cookieList = new ArrayList<>();
-        cookieList.add(new Cookie.Builder(cookieName, serializeIfNeeded(value)).build());
+        cookieList.add(new Cookie.Builder(cookieName, cookieValue(value)).build());
         if (additionalValues != null) {
             for (Object additionalValue : additionalValues) {
-                cookieList.add(new Cookie.Builder(cookieName, serializeIfNeeded(additionalValue)).build());
+                cookieList.add(new Cookie.Builder(cookieName, cookieValue(additionalValue)).build());
             }
         }
 
         return cookies(new Cookies(cookieList));
+    }
+
+    // A null value means a cookie without value
+    private String cookieValue(Object value) {
+        return value == null ? null : serializeIfNeeded(value);
     }
 
     @Override
@@ -1562,7 +1567,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         setRequestHeadersToHttpBuilder(http);
 
         if (cookies.exist()) {
-            String cookieHeaderValue = cookies.asList().stream().map(it -> it.getName() + "=" + it.getValue()).collect(Collectors.joining("; "));
+            String cookieHeaderValue = cookies.asList().stream().map(it -> it.getName() + "=" + (it.hasValue() ? it.getValue() : "")).collect(Collectors.joining("; "));
             headersOf(http).put("Cookie", cookieHeaderValue);
         }
 

@@ -242,6 +242,8 @@ public interface RequestSpecification extends RequestSender {
      * <li>token=1234</li>
      * </ol>
      * and expect that the response body is equal to "username, token".
+     * <p/>
+     * A <code>null</code> value creates a cookie without value, which is sent as <code>name=</code>.
      *
      * @param cookies The Map containing the cookie names and their values to set in the request.
      * @return The request specification
@@ -287,6 +289,8 @@ public interface RequestSpecification extends RequestSender {
      * <p/>
      * If you specify <code>additionalValues</code> then the Cookie will be a multi-value cookie. This means that you'll create several cookies with the
      * same name but with different values.
+     * <p/>
+     * A <code>null</code> value creates a cookie without value, which is sent as <code>cookieName=</code>.
      *
      * @param cookieName       The cookie cookieName
      * @param value            The cookie value
@@ -302,7 +306,7 @@ public interface RequestSpecification extends RequestSender {
      * <pre>
      * given().cookie("some_cookie").and().expect().body(equalTo("x")).when().get("/cookie");
      * </pre>
-     * This will set the cookie <code>some_cookie</code> in the GET request to "/cookie".
+     * This will send the cookie <code>some_cookie=</code> (the name with an empty value) in the GET request to "/cookie".
      * </p>
      *
      * @param cookieName The cookie cookieName
