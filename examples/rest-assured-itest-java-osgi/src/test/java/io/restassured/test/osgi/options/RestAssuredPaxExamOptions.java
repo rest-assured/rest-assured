@@ -2,6 +2,7 @@ package io.restassured.test.osgi.options;
 
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.path.jayway.JaywayPath;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
 import org.ops4j.pax.exam.Option;
@@ -13,6 +14,8 @@ import java.net.URL;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 public class RestAssuredPaxExamOptions {
+
+    private static final String SLF4J_2 = "2.0.20";
 
     private RestAssuredPaxExamOptions() {
         throw new AssertionError("Suppress default constructor for non-instantiability");
@@ -78,6 +81,26 @@ public class RestAssuredPaxExamOptions {
         return new DefaultCompositeOption(
                 bundleContaining(JsonPath.class),
                 bundleContaining(XmlPath.class));
+    }
+
+    /**
+     * The JSONPath engine, json-path-jayway (see {@link #restAssuredBundles()}), with Jayway JsonPath 2.10.0 and what its
+     * bundle requires: json-smart, which needs accessors-smart and ASM, and slf4j-api 2, which needs an SLF4J provider
+     * bundle (slf4j-simple here) and an OSGi ServiceLoader Mediator such as SPI Fly. Add {@link #spiflyBundles()}, which
+     * brings ASM too. That holds for Jayway 2.9.0 and later. Jayway 2.8.0 imports slf4j-api 1.7 instead, which needs an
+     * SLF4J 1.7 binding bundle but no SPI Fly, and Jayway 3.0.0 also requires the Jackson 3 bundles
+     * tools.jackson.core.jackson-core and tools.jackson.core.jackson-databind, and com.fasterxml.jackson.core.jackson-annotations
+     * 2.x, which jackson-databind 3 imports.
+     */
+    public static Option jaywayBundles() {
+        return new DefaultCompositeOption(
+                bundleContaining(JaywayPath.class),
+                mavenBundle("com.jayway.jsonpath", "json-path").versionAsInProject(),
+                mavenBundle("net.minidev", "json-smart").versionAsInProject(),
+                mavenBundle("net.minidev", "accessors-smart").versionAsInProject(),
+                // An SLF4J 2, as Jayway 2.9.0 and later import org.slf4j [2.0,3). This module's own slf4j-api is Pax Exam's 1.7.
+                mavenBundle("org.slf4j", "slf4j-api").version(SLF4J_2),
+                mavenBundle("org.slf4j", "slf4j-simple").version(SLF4J_2));
     }
 
     private static Option bundleContaining(Class<?> type) {

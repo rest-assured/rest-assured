@@ -29,3 +29,22 @@ jobs:
           distribution: 'zulu'
       - name: Verify with Maven
         run: mvn verify -B -Posgi-tests
+
+  jayway:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # json-path-jayway supports Jayway JsonPath 2.8.0 and later, and is built with 2.10.0
+        jayway: [2.8.0, 2.9.0, 2.10.0, 3.0.0]
+      fail-fast: false
+    name: Test Jayway JsonPath ${{ matrix.jayway }}, JDK 17
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
+      - name: Verify json-path-jayway, the Spring modules and the integration tests with Maven
+        run: mvn verify -B -Djayway.version=${{ matrix.jayway }} -pl modules/json-path-jayway,modules/spring-mock-mvc,modules/spring-web-test-client,examples/rest-assured-itest-java -am

@@ -70,7 +70,10 @@ public final class JaywayLibrary {
 
     private static boolean exists(String className, ClassLoader classLoader) {
         try {
-            Class.forName(className, false, classLoader);
+            // Other classes through Jayway's own class loader, since in OSGi the Jayway bundle doesn't export its internal
+            // packages, such as the one of SINCE_2_8_0
+            ClassLoader loader = className.equals(JSON_PATH) ? classLoader : Class.forName(JSON_PATH, false, classLoader).getClassLoader();
+            Class.forName(className, false, loader);
             return true;
         } catch (ClassNotFoundException | LinkageError e) {
             return false;
