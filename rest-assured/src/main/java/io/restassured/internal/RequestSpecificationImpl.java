@@ -1927,7 +1927,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         RequestBodyEncoder multiPartEncoder = (contentType, content) -> {
             MultipartWriter writer = new MultipartWriter(subType, charsetToUse, multipartMode, boundaryToUse);
             for (MultiPartInternal multiPart : multiParts) {
-                writer.addPart(multiPart.getControlName(), multiPart.getContentBody(), multiPart.getHeaders());
+                writer.addPart(multiPart.getControlName(), multiPart.getContentBody(charsetToUse), multiPart.getHeaders());
             }
             return RequestBody.writer(writer::writeTo, writer.getContentLength(), writer.isRepeatable(), writer.getContentType());
         };

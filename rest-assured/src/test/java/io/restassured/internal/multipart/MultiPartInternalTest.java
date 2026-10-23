@@ -175,6 +175,27 @@ class MultiPartInternalTest {
     }
 
     @Test
+    void string_content_without_charset_is_encoded_in_the_default_charset_without_adding_it_to_the_content_type() throws IOException {
+        PartBody body = multiPart("åäö", null, null).getContentBody("ISO-8859-1");
+
+        assertThat(body.getContentType()).isEqualTo("text/plain");
+        assertThat(body.getContentLength()).isEqualTo(3);
+        assertThat(written(body)).isEqualTo("åäö");
+    }
+
+    @Test
+    void string_content_without_charset_or_default_charset_is_encoded_as_utf_8() throws IOException {
+        assertThat(written(multiPart("åäö", null, null).getContentBody(null))).isEqualTo(utf8("åäö"));
+        assertThat(written(multiPart("åäö", null, null).getContentBody())).isEqualTo(utf8("åäö"));
+    }
+
+    @Test
+    void charset_of_the_part_or_its_mime_type_wins_over_the_default_charset() throws IOException {
+        assertThat(written(multiPart("åäö", null, "UTF-8").getContentBody("ISO-8859-1"))).isEqualTo(utf8("åäö"));
+        assertThat(written(multiPart("åäö", "text/plain; charset=UTF-8", null).getContentBody("ISO-8859-1"))).isEqualTo(utf8("åäö"));
+    }
+
+    @Test
     void string_content_with_charset_keeps_mime_type_parameters() throws IOException {
         PartBody body = multiPart("<a/>", "application/xml; version=2", "utf-16").getContentBody();
 
@@ -398,5 +419,9 @@ class MultiPartInternalTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         body.writeTo(out);
         return new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
+    }
+
+    private static String utf8(String text) {
+        return new String(text.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
     }
 }

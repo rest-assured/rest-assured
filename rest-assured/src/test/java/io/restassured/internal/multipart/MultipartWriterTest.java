@@ -291,7 +291,7 @@ class MultipartWriterTest {
     }
 
     private static PartBody text(String text) {
-        return PartBody.text(text, MediaType.parse("text/plain"));
+        return PartBody.text(text, MediaType.parse("text/plain"), UTF_8);
     }
 
     private static InputStream stream(String content) {

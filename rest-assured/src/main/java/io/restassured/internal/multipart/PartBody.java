@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * The content of one part of a multipart request: text, a file or a stream, with its content-type and file name.
@@ -47,10 +46,11 @@ public final class PartBody {
     }
 
     /**
-     * @return a part without file name whose text is encoded in the charset of the content-type, or US-ASCII without one
+     * @return a part without file name whose text is encoded in the charset of the content-type, or in the default
+     * charset without one
      */
-    static PartBody text(String text, MediaType contentType) {
-        Charset charset = contentType.getCharset() == null ? StandardCharsets.US_ASCII : contentType.getCharset();
+    static PartBody text(String text, MediaType contentType, Charset defaultCharset) {
+        Charset charset = contentType.getCharset() == null ? defaultCharset : contentType.getCharset();
         return new PartBody(text.getBytes(charset), null, null, contentType, null);
     }
 
