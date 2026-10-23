@@ -121,7 +121,7 @@ description. No client or Jayway module goes into it, because core isn't in it a
 - About 20 public HTTP SPI types must stay stable across 7.x, with the SPI revision as the escape hatch.
 - All REST Assured artifacts must be on one version. The BOM and the version check make that visible.
 - The release has six more artifacts and two relocation poms. Each module needs a parent pom entry, bundle setup,
-  `META-INF/services` and version files, a BOM entry, a `dist` assembly, javadoc and a README line.
+  `META-INF/services` and version files, a BOM entry, javadoc and a README line.
 - There is no legacy HttpClient 4 module in 7.0.0, because #1862 asks for HttpClient 4 to leave every artifact.
 - `http-client-apache5` on the classpath also changes Spring's own `RestClient` in tests, which then retries a 503 or 429
   once. REST Assured doesn't touch the application's client, and the docs name the fix.
