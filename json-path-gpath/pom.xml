@@ -24,12 +24,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>6.3.1-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>json-path-gpath</artifactId>
     <packaging>pom</packaging>
-    <version>6.3.1-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
     <name>json-path-gpath</name>
     <description>The REST Assured 7.0.0 name of json-path. In 6.x it relocates to json-path.</description>
     <url>https://rest-assured.io/</url>
