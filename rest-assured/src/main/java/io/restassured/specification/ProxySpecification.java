@@ -144,7 +144,7 @@ public class ProxySpecification {
      * @return A new ProxySpecification instance
      */
     public ProxySpecification withScheme(String scheme) {
-        return new ProxySpecification(host, port, scheme);
+        return new ProxySpecification(host, port, scheme, username, password);
     }
 
     /**

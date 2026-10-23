@@ -246,7 +246,7 @@ public class WireProxyITest extends WireTest {
     }
 
     @Test public void
-    proxy_specification_with_the_scheme_set_after_the_login_loses_the_login() {
+    proxy_specification_with_the_scheme_set_after_the_login_keeps_the_login() {
         server.respond("/path", proxyRequiringLogin("admin", "secret", Responder.ok()));
 
         given().
@@ -254,10 +254,12 @@ public class WireProxyITest extends WireTest {
         when().
                 get(TARGET).
         then().
-                statusCode(407);
+                statusCode(200).
+                body(equalTo("ok"));
 
-        // Today's behavior: ProxySpecification.withScheme(..) drops the user name and password
-        assertThat(server.onlyRequest().hasHeader("Proxy-Authorization")).isFalse();
+        List<RecordedRequest> requests = server.requests();
+        assertThat(requests).hasSize(2);
+        assertThat(requests.get(1).headers("Proxy-Authorization")).containsExactly(basicAuthorization("admin", "secret"));
     }
 
     @Test public void
