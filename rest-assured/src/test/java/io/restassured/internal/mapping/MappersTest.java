@@ -18,22 +18,30 @@ package io.restassured.internal.mapping;
 
 import com.google.gson.JsonObject;
 import io.restassured.common.mapper.DataToDeserialize;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.internal.mapping.MappingTestSupport.Greeting;
 import io.restassured.internal.mapping.MappingTestSupport.Unserializable;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.path.json.mapper.factory.*;
 import io.restassured.path.xml.mapper.factory.DefaultJakartaEEObjectMapperFactory;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -42,6 +50,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -240,6 +250,105 @@ class MappersTest {
                 .isSameAs(exception);
     }
 
+    @Test
+    void gson_johnzon_and_jsonb_mappers_fail_for_a_null_factory_and_jackson_mappers_dont() {
+        assertThatThrownBy(() -> new GsonMapper(null)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new JohnzonMapper(null)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new JsonbMapper(null)).isInstanceOf(IllegalArgumentException.class);
+        new Jackson2Mapper(null);
+        new Jackson3Mapper(null);
+    }
+
+    @Test
+    void json_mappers_deserialize_generic_types() {
+        Type listOfGreetings = new TypeRef<List<Greeting>>() {
+        }.getType();
+
+        jsonMappers().forEach((name, mapper) -> {
+            Object result = mapper.deserialize(deserializationContext("[" + GREETING_JSON + "]", listOfGreetings, "UTF-8"));
+            assertThat(result).as(name).asInstanceOf(InstanceOfAssertFactories.LIST).hasSize(1);
+        });
+    }
+
+    @Test
+    void johnzon_and_jsonb_mappers_read_the_body_stream_with_the_platform_default_charset() {
+        byte[] latin1 = "{\"firstName\":\"Jöhn\",\"lastName\":\"Doe\"}".getBytes(StandardCharsets.ISO_8859_1);
+        String expectedFirstName = new String("Jöhn".getBytes(StandardCharsets.ISO_8859_1), Charset.defaultCharset());
+
+        Object johnzon = new JohnzonMapper(new DefaultJohnzonObjectMapperFactory()).deserialize(deserializationContext(latin1, Greeting.class, "ISO-8859-1"));
+        Object jsonb = new JsonbMapper(new DefaultYassonObjectMapperFactory()).deserialize(deserializationContext(latin1, Greeting.class, "ISO-8859-1"));
+
+        assertThat(((Greeting) johnzon).getFirstName()).isEqualTo(expectedFirstName);
+        assertThat(((Greeting) jsonb).getFirstName()).isEqualTo(expectedFirstName);
+    }
+
+    @Test
+    void json_mappers_fail_for_invalid_json_like_before() {
+        Map<String, Class<? extends Throwable>> failures = new LinkedHashMap<>();
+        jsonMappers().forEach((name, mapper) -> {
+            Throwable thrown = catchThrowable(() -> mapper.deserialize(deserializationContext("{\"firstName\":", Greeting.class, "UTF-8")));
+            failures.put(name, thrown.getClass());
+            if (thrown.getClass() == RuntimeException.class) {
+                failures.put(name + " cause", thrown.getCause().getClass());
+            }
+        });
+
+        assertThat(failures).containsExactly(
+                entry("gson", com.google.gson.JsonSyntaxException.class),
+                entry("jackson1", java.io.UncheckedIOException.class),
+                entry("jackson2", RuntimeException.class),
+                entry("jackson2 cause", com.fasterxml.jackson.core.io.JsonEOFException.class),
+                entry("jackson3", tools.jackson.core.exc.UnexpectedEndOfInputException.class),
+                entry("johnzon", jakarta.json.stream.JsonParsingException.class),
+                entry("jsonb", RuntimeException.class),
+                entry("jsonb cause", jakarta.json.bind.JsonbException.class));
+    }
+
+    @Test
+    void jakarta_ee_mapper_deserializes_a_class_without_xml_root_element_from_any_root() {
+        Object result = new JakartaEEMapper(new DefaultJakartaEEObjectMapperFactory())
+                .deserialize(deserializationContext("<anything><firstName>John</firstName></anything>", NoRootElement.class, null));
+
+        assertThat(((NoRootElement) result).firstName).isEqualTo("John");
+    }
+
+    @Test
+    void jakarta_ee_mapper_throws_unmarshal_exceptions_unwrapped() {
+        assertThatThrownBy(() -> new JakartaEEMapper(new DefaultJakartaEEObjectMapperFactory()).deserialize(deserializationContext("<greeting>", Greeting.class, null)))
+                .isInstanceOf(jakarta.xml.bind.UnmarshalException.class);
+    }
+
+    @Test
+    void jaxb_mapper_unmarshals_a_root_element_from_a_reader_and_another_class_as_declared_type() throws Exception {
+        JAXBContext jaxbContext = mock(JAXBContext.class);
+        Unmarshaller unmarshaller = mock(Unmarshaller.class);
+        when(jaxbContext.createUnmarshaller()).thenReturn(unmarshaller);
+        Greeting greeting = new Greeting("John", "Doe");
+        NoRootElement noRootElement = new NoRootElement();
+        when(unmarshaller.unmarshal(any(Reader.class))).thenReturn(greeting);
+        when(unmarshaller.unmarshal(any(Source.class), eq(NoRootElement.class))).thenReturn(new JAXBElement<>(new QName("x"), NoRootElement.class, noRootElement));
+        JaxbMapper mapper = new JaxbMapper((type, charset) -> jaxbContext);
+
+        assertThat(mapper.deserialize(deserializationContext("<greeting/>", Greeting.class, null))).isSameAs(greeting);
+        assertThat(mapper.deserialize(deserializationContext("<x/>", NoRootElement.class, null))).isSameAs(noRootElement);
+    }
+
+    @Test
+    void jaxb_mapper_throws_unmarshal_exceptions_unwrapped() throws Exception {
+        JAXBContext jaxbContext = mock(JAXBContext.class);
+        Unmarshaller unmarshaller = mock(Unmarshaller.class);
+        when(jaxbContext.createUnmarshaller()).thenReturn(unmarshaller);
+        JAXBException exception = new JAXBException("boom");
+        when(unmarshaller.unmarshal(any(Reader.class))).thenThrow(exception);
+
+        assertThatThrownBy(() -> new JaxbMapper((type, charset) -> jaxbContext).deserialize(deserializationContext("<greeting/>", Greeting.class, null)))
+                .isSameAs(exception);
+    }
+
+    public static class NoRootElement {
+        public String firstName;
+    }
+
     public static class SelfReferencing {
         public SelfReferencing getSelf() {
             return this;
@@ -250,6 +359,27 @@ class MappersTest {
         ObjectMapperSerializationContextImpl ctx = new ObjectMapperSerializationContextImpl();
         ctx.setObject(object);
         ctx.setCharset(charset);
+        return ctx;
+    }
+
+    private static ObjectMapperDeserializationContextImpl deserializationContext(byte[] body, Type type, String charset) {
+        ObjectMapperDeserializationContextImpl ctx = deserializationContext(new String(body, StandardCharsets.UTF_8), type, charset);
+        ctx.setDataToDeserialize(new DataToDeserialize() {
+            @Override
+            public String asString() {
+                throw new AssertionError("Must read the stream");
+            }
+
+            @Override
+            public byte[] asByteArray() {
+                return body;
+            }
+
+            @Override
+            public InputStream asInputStream() {
+                return new ByteArrayInputStream(body);
+            }
+        });
         return ctx;
     }
 
