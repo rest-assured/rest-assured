@@ -42,7 +42,6 @@ import static io.restassured.config.RestAssuredConfig.config;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 public class WireAuthenticationITest extends WireTest {
@@ -586,16 +585,18 @@ public class WireAuthenticationITest extends WireTest {
     }
 
     @Test public void
-    oauth2_with_query_string_signature_fails_before_sending() {
-        // Today's behavior: the OAuth 2 query string signer casts its OAuth 2 service to an OAuth 1 service
-        assertThatThrownBy(() ->
-                given().
-                        auth().oauth2("token-123", OAuthSignature.QUERY_STRING).
-                when().
-                        get(server.url("/oauth2"))
-        ).isInstanceOf(ClassCastException.class);
+    oauth2_with_query_string_signature_sends_the_token_as_access_token_query_parameter() {
+        given().
+                auth().oauth2("token-123", OAuthSignature.QUERY_STRING).
+                queryParam("q", "a").
+        when().
+                get(server.url("/oauth2")).
+        then().
+                statusCode(200);
 
-        assertThat(server.requests()).isEmpty();
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.target()).isEqualTo("/oauth2?q=a&access_token=token-123");
+        assertThat(request.hasHeader("Authorization")).isFalse();
     }
 
     // No authentication

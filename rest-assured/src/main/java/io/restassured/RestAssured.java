@@ -1508,10 +1508,16 @@ public class RestAssured {
 
     /**
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-     * All requests to all domains will be signed for this instance.
+     * <p>
+     * With {@link OAuthSignature#HEADER} the access token is sent as a bearer token in the <code>Authorization</code> header.
+     * With {@link OAuthSignature#QUERY_STRING} it's added to the request URI as the <code>access_token</code> query
+     * parameter (RFC 6750, section 2.3) and no <code>Authorization</code> header is sent. The query parameter isn't
+     * added to a redirect to another host, unless
+     * {@link io.restassured.config.RedirectConfig#stripSensitiveHeadersOnCrossHostRedirect(boolean)} is turned off.
+     * </p>
      *
-     * @param accessToken
-     * @param signature
+     * @param accessToken The access token
+     * @param signature   Where to send the access token
      * @return The authentication scheme
      */
     public static AuthenticationScheme oauth2(String accessToken, OAuthSignature signature) {

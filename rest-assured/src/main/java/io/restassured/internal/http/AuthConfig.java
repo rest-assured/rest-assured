@@ -17,11 +17,8 @@
 package io.restassured.internal.http;
 
 import com.github.scribejava.core.builder.api.DefaultApi10a;
-import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth10aService;
-import com.github.scribejava.core.oauth.OAuth20Service;
-import com.github.scribejava.core.oauth.OAuthService;
 import io.restassured.authentication.OAuthSignature;
 import io.restassured.internal.TrustAndKeystoreSpecImpl;
 import org.apache.commons.lang3.EnumUtils;
@@ -41,6 +38,8 @@ import org.apache.http.protocol.HttpCoreContext;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.List;
 import java.util.Locale;
@@ -246,6 +245,14 @@ public class AuthConfig {
         }
     }
 
+    /**
+     * Send an OAuth 2 access token with all requests, as a bearer token in the <code>Authorization</code> header or
+     * as the <code>access_token</code> query parameter (RFC 6750, section 2.3). The query parameter isn't added to a
+     * redirect to another host, unless the stripping of sensitive headers on such redirects is turned off.
+     *
+     * @param accessToken The access token, or <code>null</code> to stop sending one
+     * @param signature   Where the token goes
+     */
     public void oauth2(String accessToken, OAuthSignature signature) {
         this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
         if (accessToken != null) {
@@ -280,6 +287,11 @@ public class AuthConfig {
 
         public void process(HttpRequest request, HttpContext ctx) throws HttpException, IOException {
             try {
+                if (!isOAuth1) {
+                    sendOAuth2AccessToken(request, ctx);
+                    return;
+                }
+
                 Verb verb = EnumUtils.getEnum(Verb.class, request.getRequestLine().getMethod().toUpperCase(Locale.ROOT));
                 if (verb == null)
                     return;
@@ -288,7 +300,7 @@ public class AuthConfig {
                 final URI requestURI = new URI(host.toURI()).resolve(request.getRequestLine().getUri());
 
                 OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(), null);
-                this.service = (OAuth10aService) getOauthService(isOAuth1, addEmptyTokenToBaseString);
+                this.service = getOAuth10aService(addEmptyTokenToBaseString);
 
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
@@ -310,12 +322,7 @@ public class AuthConfig {
                     }
                 } else {
                     // If signature is to be added as query param
-                    URI uri = new URI(oauthRequest.getCompleteUrl());
-                    if (request instanceof RequestWrapper) {
-                        ((RequestWrapper) request).setURI(uri);
-                    } else if (request instanceof HttpRequestBase) {
-                        ((HttpRequestBase) request).setURI(uri);
-                    }
+                    setURI(request, new URI(oauthRequest.getCompleteUrl()));
                 }
 
             } catch (URISyntaxException ex) {
@@ -323,46 +330,50 @@ public class AuthConfig {
             }
         }
 
-        private OAuthService getOauthService(boolean oauth1, final boolean useEmptyOAuthToken) {
-            OAuthService service;
-            if (oauth1) {
-                DefaultApi10a api = new DefaultApi10a() {
-                    @Override
-                    public String getRequestTokenEndpoint() {
-                        return null;
-                    }
-
-                    @Override
-                    public String getAuthorizationUrl(OAuth1RequestToken arg0) {
-                        return null;
-                    }
-
-                    @Override
-                    public String getAccessTokenEndpoint() {
-                        return null;
-                    }
-
-                    @Override
-                    public boolean isEmptyOAuthTokenParamIsRequired() {
-                        return useEmptyOAuthToken;
-                    }
-                };
-                service = new OAuth10aService(api, oauthConfig);
-            } else {
-                DefaultApi20 api = new DefaultApi20() {
-                    @Override
-                    public String getAuthorizationUrl(OAuthConfig arg0) {
-                        return null;
-                    }
-
-                    @Override
-                    public String getAccessTokenEndpoint() {
-                        return null;
-                    }
-                };
-                service = new OAuth20Service(api, oauthConfig);
+        private void sendOAuth2AccessToken(HttpRequest request, HttpContext ctx) throws URISyntaxException {
+            String accessToken = ((OAuth2AccessToken) token).getAccessToken();
+            if (signature == OAuthSignature.HEADER) {
+                request.setHeader("Authorization", "Bearer " + accessToken);
+            } else if (!CrossHostSensitiveHeaderStripper.isRedirectToAnotherHost(ctx)) {
+                // The access_token query parameter of RFC 6750, section 2.3. Unlike the Authorization header, the cross-host
+                // header stripper can't remove it, so it's not added to a redirect to another host.
+                String target = request.getRequestLine().getUri();
+                String separator = target.indexOf('?') < 0 ? "?" : target.endsWith("?") || target.endsWith("&") ? "" : "&";
+                setURI(request, new URI(target + separator + "access_token=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)));
             }
-            return service;
+        }
+
+        private static void setURI(HttpRequest request, URI uri) {
+            if (request instanceof RequestWrapper) {
+                ((RequestWrapper) request).setURI(uri);
+            } else if (request instanceof HttpRequestBase) {
+                ((HttpRequestBase) request).setURI(uri);
+            }
+        }
+
+        private OAuth10aService getOAuth10aService(final boolean useEmptyOAuthToken) {
+            DefaultApi10a api = new DefaultApi10a() {
+                @Override
+                public String getRequestTokenEndpoint() {
+                    return null;
+                }
+
+                @Override
+                public String getAuthorizationUrl(OAuth1RequestToken arg0) {
+                    return null;
+                }
+
+                @Override
+                public String getAccessTokenEndpoint() {
+                    return null;
+                }
+
+                @Override
+                public boolean isEmptyOAuthTokenParamIsRequired() {
+                    return useEmptyOAuthToken;
+                }
+            };
+            return new OAuth10aService(api, oauthConfig);
         }
 
         private static SignatureType getOAuthSignatureType(OAuthSignature signature) {

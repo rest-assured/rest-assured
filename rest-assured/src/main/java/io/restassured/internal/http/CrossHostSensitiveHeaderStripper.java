@@ -62,6 +62,16 @@ public class CrossHostSensitiveHeaderStripper implements HttpRequestInterceptor 
         }
     }
 
+    /**
+     * Whether the request in the given context goes to another host than the first request in the same execution, for
+     * an interceptor that runs before this one. It's always <code>false</code> when this interceptor isn't registered.
+     */
+    static boolean isRedirectToAnotherHost(HttpContext context) {
+        HttpHost originHost = (HttpHost) context.getAttribute(ORIGIN_HOST_ATTRIBUTE);
+        HttpHost currentHost = (HttpHost) context.getAttribute(HttpCoreContext.HTTP_TARGET_HOST);
+        return originHost != null && currentHost != null && isCrossOrigin(originHost, currentHost);
+    }
+
     private static boolean isCrossOrigin(HttpHost origin, HttpHost current) {
         return !origin.getHostName().equalsIgnoreCase(current.getHostName())
                 || !origin.getSchemeName().equalsIgnoreCase(current.getSchemeName())
