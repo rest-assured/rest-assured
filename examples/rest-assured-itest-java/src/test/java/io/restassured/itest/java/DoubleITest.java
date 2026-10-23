@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.when;
 import static io.restassured.config.JsonConfig.jsonConfig;
-import static io.restassured.path.json.config.JsonPathConfig.NumberReturnType.DOUBLE;
+import static io.restassured.common.config.NumberReturnType.DOUBLE;
 import static org.hamcrest.Matchers.*;
 
 public class DoubleITest extends WithJetty {

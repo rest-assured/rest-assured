@@ -17,7 +17,6 @@
 package io.restassured.config;
 
 import io.restassured.common.config.NumberReturnType;
-import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -30,7 +29,7 @@ public class JsonConfig implements Config {
      * {@code StreamReadConstraints} default.
      */
     public static final int DEFAULT_NUMBER_LENGTH_LIMIT = 1000;
-    private final JsonPathConfig.NumberReturnType numberReturnType;
+    private final NumberReturnType numberReturnType;
     private final int numberLengthLimit;
     private final JsonPathEngine pathEngine;
     private final boolean isUserDefined;
@@ -39,38 +38,22 @@ public class JsonConfig implements Config {
      * Create a new instance of JsonConfig with the default settings.
      */
     public JsonConfig() {
-        this(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE, DEFAULT_NUMBER_LENGTH_LIMIT, false);
+        this(NumberReturnType.FLOAT_AND_DOUBLE, DEFAULT_NUMBER_LENGTH_LIMIT, false);
     }
 
     public JsonConfig(NumberReturnType numberReturnType) {
-        this(toLegacy(numberReturnType), DEFAULT_NUMBER_LENGTH_LIMIT, true);
-    }
-
-    public JsonConfig(NumberReturnType numberReturnType, boolean isUserDefined) {
-        this(toLegacy(numberReturnType), DEFAULT_NUMBER_LENGTH_LIMIT, isUserDefined);
-    }
-
-    /**
-     * @deprecated Use {@link #JsonConfig(NumberReturnType)} instead. This enum is removed in REST Assured 8.0.0.
-     */
-    @Deprecated
-    public JsonConfig(JsonPathConfig.NumberReturnType numberReturnType) {
         this(numberReturnType, DEFAULT_NUMBER_LENGTH_LIMIT, true);
     }
 
-    /**
-     * @deprecated Use {@link #JsonConfig(NumberReturnType, boolean)} instead. This enum is removed in REST Assured 8.0.0.
-     */
-    @Deprecated
-    public JsonConfig(JsonPathConfig.NumberReturnType numberReturnType, boolean isUserDefined) {
+    public JsonConfig(NumberReturnType numberReturnType, boolean isUserDefined) {
         this(numberReturnType, DEFAULT_NUMBER_LENGTH_LIMIT, isUserDefined);
     }
 
-    private JsonConfig(JsonPathConfig.NumberReturnType numberReturnType, int numberLengthLimit, boolean isUserDefined) {
+    private JsonConfig(NumberReturnType numberReturnType, int numberLengthLimit, boolean isUserDefined) {
         this(numberReturnType, numberLengthLimit, null, isUserDefined);
     }
 
-    private JsonConfig(JsonPathConfig.NumberReturnType numberReturnType, int numberLengthLimit, JsonPathEngine pathEngine, boolean isUserDefined) {
+    private JsonConfig(NumberReturnType numberReturnType, int numberLengthLimit, JsonPathEngine pathEngine, boolean isUserDefined) {
         Validate.notNull(numberReturnType, "numberReturnType cannot be null");
         this.numberReturnType = numberReturnType;
         this.numberLengthLimit = numberLengthLimit;
@@ -78,12 +61,12 @@ public class JsonConfig implements Config {
         this.isUserDefined = isUserDefined;
     }
 
-    public JsonPathConfig.NumberReturnType numberReturnType() {
+    public NumberReturnType numberReturnType() {
         return numberReturnType;
     }
 
     public boolean shouldRepresentJsonNumbersAsBigDecimal() {
-        return numberReturnType() == JsonPathConfig.NumberReturnType.BIG_DECIMAL;
+        return numberReturnType() == NumberReturnType.BIG_DECIMAL;
     }
 
     /**
@@ -100,23 +83,7 @@ public class JsonConfig implements Config {
      * @return A new instance of JsonConfig with the given configuration
      */
     public JsonConfig numberReturnType(NumberReturnType numberReturnType) {
-        return new JsonConfig(toLegacy(numberReturnType), numberLengthLimit, pathEngine, true);
-    }
-
-    /**
-     * Specifies if JSON parsing should use floats and doubles or BigDecimals to represent Json numbers.
-     *
-     * @param numberReturnType The choice.
-     * @return A new instance of JsonConfig with the given configuration
-     * @deprecated Use {@link #numberReturnType(NumberReturnType)} instead. This enum is removed in REST Assured 8.0.0.
-     */
-    @Deprecated
-    public JsonConfig numberReturnType(JsonPathConfig.NumberReturnType numberReturnType) {
         return new JsonConfig(numberReturnType, numberLengthLimit, pathEngine, true);
-    }
-
-    private static JsonPathConfig.NumberReturnType toLegacy(NumberReturnType numberReturnType) {
-        return numberReturnType == null ? null : JsonPathConfig.NumberReturnType.valueOf(numberReturnType.name());
     }
 
     /**

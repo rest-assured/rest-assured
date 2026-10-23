@@ -17,6 +17,7 @@
 package io.restassured.config;
 
 import io.restassured.common.config.NumberReturnType;
+import io.restassured.common.mapper.factory.DefaultGsonObjectMapperFactory;
 import io.restassured.common.mapper.factory.DefaultJAXBObjectMapperFactory;
 import io.restassured.common.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import io.restassured.common.mapper.factory.GsonObjectMapperFactory;
@@ -32,18 +33,20 @@ import static io.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The object mapper factory types and NumberReturnType in rest-assured-common work with core's configs like the old ones.
+ * Core's configs take and return the object mapper factory types and NumberReturnType in rest-assured-common, and
+ * still take the old factory types, which extend them.
  */
 @SuppressWarnings("deprecation")
 class CommonMapperTypesInConfigTest {
 
     @Test
-    void factory_of_the_common_type_is_returned_as_the_old_type_and_creates_the_same_mapper() {
+    void factory_of_the_common_type_is_returned_as_is() {
         Gson gson = new Gson();
         GsonObjectMapperFactory factory = (type, charset) -> gson;
 
-        io.restassured.path.json.mapper.factory.GsonObjectMapperFactory returned = objectMapperConfig().gsonObjectMapperFactory(factory).gsonObjectMapperFactory();
+        GsonObjectMapperFactory returned = objectMapperConfig().gsonObjectMapperFactory(factory).gsonObjectMapperFactory();
 
+        assertThat(returned).isSameAs(factory);
         assertThat(returned.create(Object.class, "UTF-8")).isSameAs(gson);
     }
 
@@ -62,21 +65,21 @@ class CommonMapperTypesInConfigTest {
     }
 
     @Test
-    void common_default_factory_becomes_the_old_default_factory() {
-        ObjectMapperConfig config = objectMapperConfig()
-                .jackson2ObjectMapperFactory(new DefaultJackson2ObjectMapperFactory())
-                .jaxbObjectMapperFactory(new DefaultJAXBObjectMapperFactory());
+    void default_factories_are_the_common_default_factories() {
+        ObjectMapperConfig config = objectMapperConfig();
 
-        assertThat(config.jackson2ObjectMapperFactory()).isExactlyInstanceOf(io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory.class);
-        assertThat(config.jaxbObjectMapperFactory()).isExactlyInstanceOf(io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory.class);
+        assertThat(config.gsonObjectMapperFactory()).isExactlyInstanceOf(DefaultGsonObjectMapperFactory.class);
+        assertThat(config.jackson2ObjectMapperFactory()).isExactlyInstanceOf(DefaultJackson2ObjectMapperFactory.class);
+        assertThat(config.jaxbObjectMapperFactory()).isExactlyInstanceOf(DefaultJAXBObjectMapperFactory.class);
     }
 
     @Test
-    void every_number_return_type_maps_to_the_old_one_with_the_same_name() {
+    void number_return_type_is_returned_as_is() {
         for (NumberReturnType numberReturnType : NumberReturnType.values()) {
-            assertThat(jsonConfig().numberReturnType(numberReturnType).numberReturnType().name()).isEqualTo(numberReturnType.name());
-            assertThat(new JsonConfig(numberReturnType).numberReturnType().name()).isEqualTo(numberReturnType.name());
+            assertThat(jsonConfig().numberReturnType(numberReturnType).numberReturnType()).isSameAs(numberReturnType);
+            assertThat(new JsonConfig(numberReturnType).numberReturnType()).isSameAs(numberReturnType);
         }
+        // JsonPathConfig converts it to its own enum by name
         assertThat(Arrays.stream(JsonPathConfig.NumberReturnType.values()).map(Enum::name))
                 .containsExactly(Arrays.stream(NumberReturnType.values()).map(Enum::name).toArray(String[]::new));
     }

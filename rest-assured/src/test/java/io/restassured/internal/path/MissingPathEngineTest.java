@@ -16,15 +16,18 @@
 
 package io.restassured.internal.path;
 
+import io.restassured.builder.ResponseBuilder;
 import io.restassured.config.JsonPathEngine;
 import io.restassured.internal.common.spi.path.DocumentType;
 import io.restassured.internal.path.PathProviders.JsonEngine;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Runs in its own surefire execution, without the GPath modules and Groovy on the classpath (see the pom).
@@ -100,5 +103,60 @@ class MissingPathEngineTest {
         assertThatThrownBy(() -> PathProviders.forType(DocumentType.HTML, null, "html.body"))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessage(MissingPathEngine.message("html.body", DocumentType.HTML));
+    }
+
+    @Test
+    void json_path_of_a_response_fails_with_the_message() {
+        Response response = response("application/json", "{\"a\":{\"b\":1}}");
+
+        assertThatThrownBy(() -> response.jsonPath())
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(MissingPathEngine.message("jsonPath()", DocumentType.JSON));
+    }
+
+    @Test
+    void xml_and_html_path_of_a_response_fail_with_the_message() {
+        Response response = response("application/xml", "<a><b>1</b></a>");
+
+        assertThatThrownBy(() -> response.xmlPath())
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(MissingPathEngine.message("xmlPath()", DocumentType.XML));
+        assertThatThrownBy(() -> response.htmlPath())
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(MissingPathEngine.message("htmlPath()", DocumentType.HTML));
+    }
+
+    @Test
+    void path_of_a_response_fails_with_the_message() {
+        Response json = response("application/json", "{\"a\":{\"b\":1}}");
+        Response xml = response("application/xml", "<a><b>1</b></a>");
+
+        assertThatThrownBy(() -> json.path("a.b"))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(MissingPathEngine.message("a.b", DocumentType.JSON));
+        assertThatThrownBy(() -> xml.path("a.b"))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(MissingPathEngine.message("a.b", DocumentType.XML));
+    }
+
+    @Test
+    void body_expectation_of_a_response_fails_with_the_message() {
+        Response response = response("application/json", "{\"a\":{\"b\":1}}");
+
+        assertThatThrownBy(() -> response.then().body("a.b", equalTo(1)))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage(MissingPathEngine.message("a.b", DocumentType.JSON));
+    }
+
+    @Test
+    void response_without_paths_works() {
+        Response response = response("application/json", "{\"a\":{\"b\":1}}");
+
+        response.then().statusCode(200).body(equalTo("{\"a\":{\"b\":1}}"));
+        assertThat(response.asString()).isEqualTo("{\"a\":{\"b\":1}}");
+    }
+
+    private static Response response(String contentType, String body) {
+        return new ResponseBuilder().setStatusCode(200).setContentType(contentType).setBody(body).build();
     }
 }

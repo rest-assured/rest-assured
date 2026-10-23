@@ -33,6 +33,7 @@ class MigrateRestAssured6DeprecationsTest implements RewriteTest {
     @Test
     void migrates_rest_assured_configuration() {
         rewriteRun(
+                RecipeTestSupport::allowingRemovedJsonConfigMethods,
                 java(
                         """
                         import io.restassured.RestAssured;

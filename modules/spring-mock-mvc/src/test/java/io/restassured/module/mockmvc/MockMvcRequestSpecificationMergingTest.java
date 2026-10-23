@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc;
 
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
@@ -30,7 +31,6 @@ import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
@@ -352,21 +352,21 @@ public class MockMvcRequestSpecificationMergingTest {
     @Test public void
     configs_of_same_type_are_overwritten_when_defined_in_specification() {
         // Given
-        RestAssuredMockMvcConfig otherConfig = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
-        RestAssuredMockMvcConfig thisConfig = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+        RestAssuredMockMvcConfig otherConfig = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(NumberReturnType.BIG_DECIMAL));
+        RestAssuredMockMvcConfig thisConfig = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setConfig(otherConfig).build();
 
         // When
         MockMvcRequestSpecification spec = RestAssuredMockMvc.given().config(thisConfig).spec(specToMerge);
 
         // Then
-        assertThat(implOf(spec).getRestAssuredMockMvcConfig().getJsonConfig().numberReturnType()).isEqualTo(JsonPathConfig.NumberReturnType.BIG_DECIMAL);
+        assertThat(implOf(spec).getRestAssuredMockMvcConfig().getJsonConfig().numberReturnType()).isEqualTo(NumberReturnType.BIG_DECIMAL);
     }
 
     @Test public void
     config_is_not_overwritten_when_not_defined_in_specification() {
         // Given
-        RestAssuredMockMvcConfig thisConfig = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+        RestAssuredMockMvcConfig thisConfig = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addQueryParam("param1", "value1").build();
 
         // When
@@ -377,7 +377,7 @@ public class MockMvcRequestSpecificationMergingTest {
         // This assertion is commented out since for some reason it fails during the release process
 //        assertThat(implOf(spec).getRestAssuredMockMvcConfig()).isSameAs(thisConfig);
         Assertions.assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
-        assertThat(implOf(spec).getRestAssuredMockMvcConfig().getJsonConfig().numberReturnType()).isEqualTo(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE);
+        assertThat(implOf(spec).getRestAssuredMockMvcConfig().getJsonConfig().numberReturnType()).isEqualTo(NumberReturnType.FLOAT_AND_DOUBLE);
     }
 
     @Test public void
@@ -513,7 +513,7 @@ public class MockMvcRequestSpecificationMergingTest {
     @Test public void
     configurations_are_merged() {
         // Given
-        RestAssuredMockMvcConfig cfg1 = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+        RestAssuredMockMvcConfig cfg1 = new RestAssuredMockMvcConfig().with().jsonConfig(jsonConfig().with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setConfig(cfg1).build();
 
         // When
@@ -523,7 +523,7 @@ public class MockMvcRequestSpecificationMergingTest {
         // Then
         RestAssuredConfig mergedConfig = implOf(spec).getRestAssuredConfig();
         assertThat(mergedConfig.getSessionConfig().sessionIdName()).isEqualTo("php");
-        assertThat(mergedConfig.getJsonConfig().numberReturnType()).isEqualTo(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE);
+        assertThat(mergedConfig.getJsonConfig().numberReturnType()).isEqualTo(NumberReturnType.FLOAT_AND_DOUBLE);
     }
 
     // @formatter:on

@@ -16,9 +16,9 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 
@@ -42,13 +42,13 @@ public class BigDecimalITest extends WithJetty {
 
     @BeforeEach public void
     given_rest_assured_is_configured_with_big_decimal_as_return_type() {
-        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL));
     }
 
     @Test public void
     big_decimal_works_when_configured_in_given_clause() {
         given().
-                config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL))).
+                config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL))).
         when().
                 get("/amount").
         then().
@@ -57,7 +57,7 @@ public class BigDecimalITest extends WithJetty {
 
     @Test public void
     big_decimal_works_when_configured_statically() {
-        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL));
 
         when().
                 get("/amount").
@@ -67,7 +67,7 @@ public class BigDecimalITest extends WithJetty {
 
     @Test public void
     floats_are_used_as_big_decimal_in_anonymous_list_with_numbers_when_configured_accordingly() {
-        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL));
 
         when().
                 get("/anonymous_list_with_numbers").

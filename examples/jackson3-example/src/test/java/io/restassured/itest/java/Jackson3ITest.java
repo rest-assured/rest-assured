@@ -24,7 +24,7 @@ import io.restassured.itest.java.objects.GreetingRootMixin;
 import io.restassured.itest.java.objects.GreetingWrapper;
 import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.path.json.mapper.factory.DefaultJackson3ObjectMapperFactory;
+import io.restassured.common.mapper.factory.DefaultJackson3ObjectMapperFactory;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;

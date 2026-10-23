@@ -16,6 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
@@ -28,7 +29,6 @@ import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.setup.PostController;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
-import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
@@ -404,10 +404,10 @@ public class WebTestClientSpecificationMergingTest {
 		// Given
 		RestAssuredWebTestClientConfig otherConfig = new RestAssuredWebTestClientConfig()
 				.with().jsonConfig(jsonConfig()
-						.with().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+						.with().numberReturnType(NumberReturnType.BIG_DECIMAL));
 		RestAssuredWebTestClientConfig thisConfig = new RestAssuredWebTestClientConfig()
 				.with().jsonConfig(jsonConfig()
-						.with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+						.with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
 		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder()
 				.setConfig(otherConfig).build();
 
@@ -416,7 +416,7 @@ public class WebTestClientSpecificationMergingTest {
 
 		// Then
 		assertThat(implementation(spec).getRestAssuredWebTestClientConfig().getJsonConfig().numberReturnType())
-				.isEqualTo(JsonPathConfig.NumberReturnType.BIG_DECIMAL);
+				.isEqualTo(NumberReturnType.BIG_DECIMAL);
 	}
 
 	@Test
@@ -425,7 +425,7 @@ public class WebTestClientSpecificationMergingTest {
 		// Given
 		RestAssuredWebTestClientConfig thisConfig = new RestAssuredWebTestClientConfig()
 				.with().jsonConfig(jsonConfig()
-						.with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+						.with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
 		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder()
 				.addQueryParam("param1", "value1").build();
 
@@ -435,7 +435,7 @@ public class WebTestClientSpecificationMergingTest {
 		// Then
 		Assertions.assertThat(implementation(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
 		assertThat(implementation(spec).getRestAssuredWebTestClientConfig()
-				.getJsonConfig().numberReturnType()).isEqualTo(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE);
+				.getJsonConfig().numberReturnType()).isEqualTo(NumberReturnType.FLOAT_AND_DOUBLE);
 	}
 
 	@Test
@@ -511,7 +511,7 @@ public class WebTestClientSpecificationMergingTest {
 		// Given
 		RestAssuredWebTestClientConfig cfg1 = new RestAssuredWebTestClientConfig()
 				.with().jsonConfig(jsonConfig()
-						.with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+						.with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
 		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder().setConfig(cfg1).build();
 
 		// When
@@ -523,6 +523,6 @@ public class WebTestClientSpecificationMergingTest {
 		RestAssuredConfig mergedConfig = implementation(spec).getRestAssuredConfig();
 		assertThat(mergedConfig.getSessionConfig().sessionIdName()).isEqualTo("php");
 		assertThat(mergedConfig.getJsonConfig().numberReturnType())
-				.isEqualTo(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE);
+				.isEqualTo(NumberReturnType.FLOAT_AND_DOUBLE);
 	}
 }

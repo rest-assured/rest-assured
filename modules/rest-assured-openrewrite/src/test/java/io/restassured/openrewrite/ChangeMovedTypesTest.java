@@ -124,6 +124,7 @@ class ChangeMovedTypesTest implements RewriteTest {
     @Test
     void changes_number_return_type() {
         rewriteRun(
+                RecipeTestSupport::allowingRemovedJsonConfigMethods,
                 java(
                         """
                         import io.restassured.config.JsonConfig;

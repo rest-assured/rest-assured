@@ -16,6 +16,7 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.Headers;
@@ -244,7 +245,7 @@ public class ResponseITest extends WithJetty {
         // When
         final JsonPath jsonPath =
                 given().
-                        config(RestAssuredConfig.newConfig().with().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL))).
+                        config(RestAssuredConfig.newConfig().with().jsonConfig(jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL))).
                         expect().
                         statusCode(200).
                         when().
@@ -260,12 +261,12 @@ public class ResponseITest extends WithJetty {
         // When
         final JsonPath jsonPath =
                 given().
-                        config(RestAssuredConfig.newConfig().with().jsonConfig(jsonConfig().with().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL))).
+                        config(RestAssuredConfig.newConfig().with().jsonConfig(jsonConfig().with().numberReturnType(NumberReturnType.BIG_DECIMAL))).
                         expect().
                         statusCode(200).
                         body("store.book.price.min()", is(new BigDecimal("8.95"))).
                         when().
-                        get("/jsonStore").jsonPath(JsonPathConfig.jsonPathConfig().with().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+                        get("/jsonStore").jsonPath(JsonPathConfig.jsonPathConfig().with().numberReturnType(NumberReturnType.FLOAT_AND_DOUBLE));
 
         // Then
         assertThat(jsonPath.get("store.book.price.min()"), is(8.95f));

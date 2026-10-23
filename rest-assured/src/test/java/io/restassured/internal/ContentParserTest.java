@@ -21,7 +21,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.parsing.Parser;
-import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
+import io.restassured.common.config.NumberReturnType;
 import io.restassured.response.Response;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;

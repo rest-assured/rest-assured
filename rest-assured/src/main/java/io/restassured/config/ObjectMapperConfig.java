@@ -16,16 +16,10 @@
 
 package io.restassured.config;
 
+import io.restassured.common.mapper.factory.*;
 import io.restassured.common.mapper.resolver.ObjectMapperResolver;
-import io.restassured.internal.path.json.mapping.LegacyJsonObjectMapperFactories;
-import io.restassured.internal.path.xml.mapping.LegacyXmlObjectMapperFactories;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.path.json.mapper.factory.*;
-import io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory;
-import io.restassured.path.xml.mapper.factory.DefaultJakartaEEObjectMapperFactory;
-import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
-import io.restassured.path.xml.mapper.factory.JakartaEEObjectMapperFactory;
 
 /**
  * Allows you to specify configuration for the object mapping functionality.
@@ -156,15 +150,6 @@ public class ObjectMapperConfig implements Config {
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
-    /**
-     * Specify a custom Gson object mapper factory.
-     *
-     * @param gsonObjectMapperFactory The object mapper factory
-     */
-    public ObjectMapperConfig gsonObjectMapperFactory(io.restassured.common.mapper.factory.GsonObjectMapperFactory gsonObjectMapperFactory) {
-        return gsonObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(gsonObjectMapperFactory));
-    }
-
     public Jackson2ObjectMapperFactory jackson2ObjectMapperFactory() {
         return jackson2ObjectMapperFactory;
     }
@@ -185,15 +170,6 @@ public class ObjectMapperConfig implements Config {
     }
 
     /**
-     * Specify a custom Jackson 2 object mapper factory.
-     *
-     * @param jackson2ObjectMapperFactory The object mapper factory
-     */
-    public ObjectMapperConfig jackson2ObjectMapperFactory(io.restassured.common.mapper.factory.Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
-        return jackson2ObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(jackson2ObjectMapperFactory));
-    }
-
-    /**
      * Specify a custom Jackson 3 object mapper factory.
      *
      * @param jackson3ObjectMapperFactory The object mapper factory
@@ -202,15 +178,6 @@ public class ObjectMapperConfig implements Config {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
                 jackson2ObjectMapperFactory, jackson3ObjectMapperFactory, jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
-    }
-
-    /**
-     * Specify a custom Jackson 3 object mapper factory.
-     *
-     * @param jackson3ObjectMapperFactory The object mapper factory
-     */
-    public ObjectMapperConfig jackson3ObjectMapperFactory(io.restassured.common.mapper.factory.Jackson3ObjectMapperFactory jackson3ObjectMapperFactory) {
-        return jackson3ObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(jackson3ObjectMapperFactory));
     }
 
     public JAXBObjectMapperFactory jaxbObjectMapperFactory() {
@@ -241,15 +208,6 @@ public class ObjectMapperConfig implements Config {
     }
 
     /**
-     * Specify a custom JSON-B object mapper factory.
-     *
-     * @param jsonbObjectMapperFactory The object mapper factory
-     */
-    public ObjectMapperConfig jsonbObjectMapperFactory(io.restassured.common.mapper.factory.JsonbObjectMapperFactory jsonbObjectMapperFactory) {
-        return jsonbObjectMapperFactory(LegacyJsonObjectMapperFactories.toLegacy(jsonbObjectMapperFactory));
-    }
-
-    /**
      * Specify a custom JAXB object mapper factory.
      *
      * @param jaxbObjectMapperFactory The object mapper factory
@@ -261,15 +219,6 @@ public class ObjectMapperConfig implements Config {
     }
 
     /**
-     * Specify a custom JAXB object mapper factory.
-     *
-     * @param jaxbObjectMapperFactory The object mapper factory
-     */
-    public ObjectMapperConfig jaxbObjectMapperFactory(io.restassured.common.mapper.factory.JAXBObjectMapperFactory jaxbObjectMapperFactory) {
-        return jaxbObjectMapperFactory(LegacyXmlObjectMapperFactories.toLegacy(jaxbObjectMapperFactory));
-    }
-
-    /**
      * Specify a custom JakartaEE object mapper factory.
      *
      * @param jakartaEEObjectMapperFactory The object mapper factory
@@ -278,15 +227,6 @@ public class ObjectMapperConfig implements Config {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
                 jackson2ObjectMapperFactory, jackson3ObjectMapperFactory, jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
-    }
-
-    /**
-     * Specify a custom JakartaEE object mapper factory.
-     *
-     * @param jakartaEEObjectMapperFactory The object mapper factory
-     */
-    public ObjectMapperConfig jakartaEEObjectMapperFactory(io.restassured.common.mapper.factory.JakartaEEObjectMapperFactory jakartaEEObjectMapperFactory) {
-        return jakartaEEObjectMapperFactory(LegacyXmlObjectMapperFactories.toLegacy(jakartaEEObjectMapperFactory));
     }
 
     /**

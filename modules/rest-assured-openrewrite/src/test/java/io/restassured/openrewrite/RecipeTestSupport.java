@@ -21,6 +21,7 @@ import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RecipeSpec;
+import org.openrewrite.test.TypeValidation;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -52,6 +53,15 @@ final class RecipeTestSupport {
     static void defaults(RecipeSpec spec) {
         spec.parser(JavaParser.fromJavaVersion().classpath(CLASSPATH))
                 .afterRecipe(RecipeTestSupport::assertChangedSourcesCompile);
+    }
+
+    /**
+     * For code written for REST Assured 6 that calls the JsonConfig methods taking JsonPathConfig.NumberReturnType,
+     * which 7.0 removed: those calls have no type on the test classpath. The changed sources must still compile
+     * against the current REST Assured.
+     */
+    static void allowingRemovedJsonConfigMethods(RecipeSpec spec) {
+        spec.typeValidationOptions(TypeValidation.builder().methodInvocations(false).constructorInvocations(false).build());
     }
 
     private static void assertChangedSourcesCompile(RecipeRun run) throws IOException {

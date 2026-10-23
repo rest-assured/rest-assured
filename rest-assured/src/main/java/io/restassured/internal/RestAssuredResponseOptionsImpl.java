@@ -81,8 +81,6 @@ import java.util.function.Supplier;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.util.GroovyStringConversion.castToString;
 import static io.restassured.internal.util.SafeExceptionRethrower.safeRethrow;
-import static io.restassured.path.json.config.JsonPathConfig.jsonPathConfig;
-import static io.restassured.path.xml.config.XmlPathConfig.xmlPathConfig;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -357,34 +355,39 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         return (T) mapper.deserialize(ctx);
     }
 
+    // json-path-gpath and xml-path-gpath are optional, so these methods check for them before GPathResponseViews uses them
+
     public JsonPath jsonPath() {
-        return jsonPath(jsonPathConfig().charset(findCharset()).
-                jackson2ObjectMapperFactory(config.getObjectMapperConfig().jackson2ObjectMapperFactory()).
-                jackson3ObjectMapperFactory(config.getObjectMapperConfig().jackson3ObjectMapperFactory()).
-                gsonObjectMapperFactory(config.getObjectMapperConfig().gsonObjectMapperFactory()).
-                numberReturnType(config.getJsonConfig().numberReturnType()));
+        PathProviders.requireGPath(DocumentType.JSON, "jsonPath()");
+        return GPathResponseViews.jsonPath(asString(), findCharset(), config);
     }
 
     public JsonPath jsonPath(JsonPathConfig config) {
         notNull(config, "JsonPathConfig");
-        return new JsonPath(asString()).using(config);
+        PathProviders.requireGPath(DocumentType.JSON, "jsonPath()");
+        return GPathResponseViews.jsonPath(asString(), config);
     }
 
     public XmlPath xmlPath() {
-        return xmlPath(CompatibilityMode.XML);
+        PathProviders.requireGPath(DocumentType.XML, "xmlPath()");
+        return GPathResponseViews.xmlPath(asString(), findCharset(), config);
     }
 
     public XmlPath xmlPath(XmlPathConfig config) {
-        return newXmlPath(CompatibilityMode.XML, config);
+        notNull(config, "XmlPathConfig");
+        PathProviders.requireGPath(DocumentType.XML, "xmlPath()");
+        return GPathResponseViews.xmlPath(asString(), config);
     }
 
     public XmlPath xmlPath(CompatibilityMode compatibilityMode) {
         notNull(compatibilityMode, "Compatibility mode");
-        return newXmlPath(compatibilityMode);
+        PathProviders.requireGPath(DocumentType.XML, "xmlPath()");
+        return GPathResponseViews.xmlPath(compatibilityMode, asString(), findCharset(), config);
     }
 
     public XmlPath htmlPath() {
-        return xmlPath(CompatibilityMode.HTML);
+        PathProviders.requireGPath(DocumentType.HTML, "htmlPath()");
+        return GPathResponseViews.htmlPath(asString(), findCharset(), config);
     }
 
     public <T> T path(String path, String... arguments) {
@@ -646,19 +649,6 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         } else {
             return contentType;
         }
-    }
-
-    private XmlPath newXmlPath(CompatibilityMode mode) {
-        return newXmlPath(mode, xmlPathConfig().charset(findCharset()).
-                features(config.getXmlConfig().features()).
-                properties(config.getXmlConfig().properties()).
-                declareNamespaces(config.getXmlConfig().declaredNamespaces()).
-                jaxbObjectMapperFactory(config.getObjectMapperConfig().jaxbObjectMapperFactory()));
-    }
-
-    private XmlPath newXmlPath(CompatibilityMode mode, XmlPathConfig config) {
-        notNull(config, "XmlPathConfig");
-        return new XmlPath(mode, asString()).using(config);
     }
 
     private String charsetToString(String charset) {
