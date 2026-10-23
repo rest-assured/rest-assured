@@ -540,7 +540,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         multiPartInternal.setContent(contentBody);
         multiPartInternal.setControlName(controlName);
         multiPartInternal.setFileName(multiPartConfig.defaultFileName());
-        multiPartInternal.setMimeType(OCTET_STREAM);
+        multiPartInternal.setMimeType(MediaType.TEXT_PLAIN_VALUE);
         multiParts.add(multiPartInternal);
         return this;
     }

@@ -29,8 +29,10 @@ import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.filter.FilterContextImpl;
+import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.multipart.MultiPartInternal;
+import io.restassured.internal.multipart.PartBody;
 import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.spring.commons.HeaderHelper;
@@ -53,7 +55,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -682,9 +687,27 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		}
 	}
 
+	// Sends each part like RestAssured writes it: its content as bytes, with its content-type and file name. Like in
+	// RestAssured, a String part without charset is encoded in the charset of the Content-Type set by the user (not the
+	// default charset that is appended to it), or else in the multipart config's default charset, or else as UTF-8.
 	private MultiValueMap<String, HttpEntity<?>> getMultipartBody() {
+		String charsetFromContentType = CharsetExtractor.getCharsetFromContentType(headers.getValue(CONTENT_TYPE));
+		String charset = isBlank(charsetFromContentType) ? config.getMultiPartConfig().defaultCharset() : charsetFromContentType;
 		MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
-		multiParts.stream().forEach(multipart -> multipartBodyBuilder.part(multipart.getFileName(), multipart.getContentBody()));
+		for (MultiPartInternal multiPart : multiParts) {
+			PartBody body = multiPart.getContentBody(charset);
+			ByteArrayOutputStream content = new ByteArrayOutputStream();
+			try {
+				body.writeTo(content);
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+			MultipartBodyBuilder.PartBuilder part = multipartBodyBuilder.part(multiPart.getControlName(), content.toByteArray(),
+					parseMediaType(body.getContentType()));
+			if (body.getFileName() != null) {
+				part.filename(body.getFileName());
+			}
+		}
 		return multipartBodyBuilder.build();
 	}
 

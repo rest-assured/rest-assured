@@ -9,6 +9,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class PatchTest {
     @BeforeAll
@@ -25,6 +26,7 @@ public class PatchTest {
     public void
     can_supply_multipart_file_as_parameter_for_patch() throws IOException {
         File file = new File("rest-assured.txt");
+        Files.writeString(file.toPath(), "rest-assured");
         RestAssuredWebTestClient.given()
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .multiPart(file)
