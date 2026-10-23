@@ -18,21 +18,21 @@ package io.restassured.internal.http;
 
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertAuthScheme;
+import io.restassured.common.spi.http.HttpClientInstance;
+import io.restassured.common.spi.http.HttpHeader;
+import io.restassured.common.spi.http.HttpRequest;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.internal.proxy.RestAssuredProxySelector;
 import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner;
-import io.restassured.internal.transport.HttpTransport;
-import io.restassured.internal.transport.TransportRequest;
-import io.restassured.internal.transport.TransportResponse;
 import io.restassured.specification.ProxySpecification;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -54,7 +54,6 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.URI;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,9 +65,15 @@ import static io.restassured.internal.util.GroovyStringConversion.castToString;
 
 /**
  * Sends requests with the HttpClient 4 client of an {@link HTTPBuilder}, which it configures for one request. Call
- * {@link #restore()} once the request has been sent.
+ * {@link #close()} once the request has been sent.
+ * <p>
+ * It isn't an ordinary {@link HttpClientInstance}: core creates it for each request, and it isn't discovered or shared.
+ * {@link #close()} doesn't close the client, it only puts back the https scheme and the connection reuse strategy of
+ * the client, which the user may reuse. {@link #send(HttpRequest)} ignores {@link HttpRequest#options()}, since the
+ * read timeout, expect-continue and NTLM are set on the client through its parameters and authentication.
+ * </p>
  */
-public class HttpClient4Transport implements HttpTransport {
+public class HttpClient4Transport implements HttpClientInstance {
     // A response keeps the single connection of HttpClient 4's BasicClientConnectionManager until its body is read, which
     // a body that is read later, or one that couldn't be parsed, may never be. So the next request with the same (reused)
     // client consumes it if it's still unread, since that request fails otherwise. Other connection managers have more
@@ -112,23 +117,7 @@ public class HttpClient4Transport implements HttpTransport {
         try {
             if (shouldApplySSLConfig(http, config, authenticationScheme)) {
                 SSLConfig sslConfig = config.getSSLConfig();
-                CertAuthScheme certAuthScheme = new CertAuthScheme();
-                certAuthScheme.setPathToKeyStore(sslConfig.getPathToKeyStore());
-                certAuthScheme.setKeyStorePassword(sslConfig.getKeyStorePassword());
-                certAuthScheme.setKeystoreType(sslConfig.getKeyStoreType());
-                certAuthScheme.setKeyStore(sslConfig.getKeyStore());
-                certAuthScheme.setPathToTrustStore(sslConfig.getPathToTrustStore());
-                certAuthScheme.setTrustStorePassword(sslConfig.getTrustStorePassword());
-                certAuthScheme.setTrustStoreType(sslConfig.getTrustStoreType());
-                certAuthScheme.setTrustStore(sslConfig.getTrustStore());
-                certAuthScheme.setPort(sslConfig.getPort());
-                if (sslConfig.getSSLContext() != null) {
-                    certAuthScheme.setSslContext(sslConfig.getSSLContext());
-                } else {
-                    certAuthScheme.setSslSocketFactory(sslConfig.getSSLSocketFactory());
-                }
-                certAuthScheme.setX509HostnameVerifier(sslConfig.getX509HostnameVerifier());
-                certAuthScheme.authenticate(http);
+                http.getAuth().certificate(ClientSettingsFactory.tlsSettings(sslConfig), sslConfig.getPort(), ClientSettingsFactory.userSocketFactory(sslConfig));
             }
 
             authenticationScheme.authenticate(http);
@@ -144,7 +133,7 @@ public class HttpClient4Transport implements HttpTransport {
             configured = true;
         } finally {
             if (!configured) {
-                restore();
+                close();
             }
         }
     }
@@ -205,7 +194,8 @@ public class HttpClient4Transport implements HttpTransport {
     /**
      * Puts back the https scheme and the connection reuse strategy that the client had before this transport configured it.
      */
-    public void restore() {
+    @Override
+    public void close() {
         if (originalHttpsScheme == null) {
             schemeRegistry.unregister("https");
         } else {
@@ -215,10 +205,10 @@ public class HttpClient4Transport implements HttpTransport {
     }
 
     @Override
-    public TransportResponse send(TransportRequest request) throws IOException {
+    public io.restassured.common.spi.http.HttpResponse send(HttpRequest request) throws IOException {
         HttpRequestBase httpRequest = HttpRequestFactory.createHttpRequest(request.uri(), request.method(), request.body() != null);
-        for (Map.Entry<String, String> header : request.headers()) {
-            httpRequest.addHeader(header.getKey(), header.getValue());
+        for (HttpHeader header : request.headers()) {
+            httpRequest.addHeader(header.name(), header.value());
         }
         if (request.body() != null) {
             ((HttpEntityEnclosingRequest) httpRequest).setEntity(RequestBodyToHttpClient4Entity.toHttpEntity(request.body()));
@@ -227,13 +217,13 @@ public class HttpClient4Transport implements HttpTransport {
         HttpEntity unreadBody = UNREAD_BODIES.remove(client);
         if (unreadBody != null) EntityUtils.consumeQuietly(unreadBody);
         HttpContextDecorator httpContext = new HttpContextDecorator();
-        HttpResponse response = client.execute(httpRequest, httpContext);
+        org.apache.http.HttpResponse response = client.execute(httpRequest, httpContext);
         context = httpContext.getDelegate();
         HttpEntity entity = response.getEntity();
         if (entity != null && client.getConnectionManager() instanceof BasicClientConnectionManager) {
             UNREAD_BODIES.put(client, entity);
         }
-        return toTransportResponse(response, entity == null ? null : entity.getContent(), this::closeIdleConnectionsIfConfigured);
+        return toHttpResponse(response, entity == null ? null : entity.getContent(), this::closeIdleConnectionsIfConfigured);
     }
 
     /**
@@ -253,17 +243,17 @@ public class HttpClient4Transport implements HttpTransport {
 
     /**
      * @param body the body of the response, or <code>null</code>
-     * @return the response as a {@link TransportResponse}
+     * @return the response as an SPI {@link io.restassured.common.spi.http.HttpResponse}
      */
-    public static TransportResponse toTransportResponse(HttpResponse response, InputStream body, Closeable onClose) {
-        List<Map.Entry<String, String>> headers = new ArrayList<>();
+    public static io.restassured.common.spi.http.HttpResponse toHttpResponse(org.apache.http.HttpResponse response, InputStream body, Closeable onClose) {
+        List<HttpHeader> headers = new ArrayList<>();
         for (Header header : response.getAllHeaders()) {
-            headers.add(new AbstractMap.SimpleImmutableEntry<>(header.getName(), header.getValue()));
+            headers.add(new HttpHeader(header.getName(), header.getValue()));
         }
         StatusLine statusLine = response.getStatusLine();
         HttpEntity entity = response.getEntity();
         long contentLength = entity == null ? -1 : entity.getContentLength();
-        return new TransportResponse(statusLine.getProtocolVersion().toString(), statusLine.getStatusCode(), statusLine.getReasonPhrase(),
+        return new io.restassured.common.spi.http.HttpResponse(statusLine.getProtocolVersion().toString(), statusLine.getStatusCode(), statusLine.getReasonPhrase(),
                 headers, contentLength, body, onClose);
     }
 }

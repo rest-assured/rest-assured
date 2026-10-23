@@ -16,6 +16,7 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.common.spi.http.RequestBody;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;

@@ -16,6 +16,7 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.common.spi.http.RequestBody;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.http.ContentType;

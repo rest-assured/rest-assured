@@ -18,7 +18,8 @@ package io.restassured.internal.http;
 
 import io.restassured.authentication.AuthenticationContext;
 import io.restassured.authentication.OAuthSignature;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
+import io.restassured.common.spi.http.TlsSettings;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -80,9 +81,17 @@ public class HTTPBuilderAuthenticationContext implements AuthenticationContext {
     public void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
                             Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
                             int port, HostnameVerifier hostnameVerifier, SSLContext sslContext) {
-        X509HostnameVerifier x509HostnameVerifier = JsseToHttpClient4Ssl.toX509HostnameVerifier(hostnameVerifier);
-        httpBuilder.getAuth().certificate(keyStorePath, keyStorePassword, keyStoreType, keyStore,
-                trustStorePath, trustStorePassword, trustStoreType, trustStore,
-                port, x509HostnameVerifier, JsseToHttpClient4Ssl.toSSLSocketFactory(null, sslContext, x509HostnameVerifier));
+        httpBuilder.getAuth().certificate(ClientSettingsFactory.certificateTlsSettings(keyStorePath, keyStorePassword, keyStoreType, keyStore,
+                trustStorePath, trustStorePassword, trustStoreType, trustStore, hostnameVerifier, sslContext), port, null);
+    }
+
+    /**
+     * Use these TLS settings for https connections, which may have relaxed validation unlike those of
+     * {@link #certificate(Object, String, String, KeyStore, Object, String, String, KeyStore, int, HostnameVerifier, SSLContext)}.
+     *
+     * @param port The HTTPS port, or <code>-1</code> to use the port of the request
+     */
+    public void certificate(TlsSettings tls, int port) {
+        httpBuilder.getAuth().certificate(tls, port, null);
     }
 }

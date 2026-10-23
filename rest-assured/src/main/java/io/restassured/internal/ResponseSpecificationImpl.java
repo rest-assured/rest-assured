@@ -21,6 +21,7 @@ package io.restassured.internal;
 import io.restassured.assertion.DetailedCookieAssertion;
 import io.restassured.assertion.HeaderMatcher;
 import io.restassured.assertion.ResponseTimeMatcher;
+import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Cookies;
@@ -33,7 +34,6 @@ import io.restassured.internal.assertion.CookieMatcher;
 import io.restassured.internal.common.spi.path.GPathRootPath;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.path.PathArguments;
-import io.restassured.internal.transport.TransportResponse;
 import io.restassured.internal.util.MatcherErrorMessageBuilder;
 import io.restassured.listener.ResponseValidationFailureListener;
 import io.restassured.matcher.DetailedCookieMatcher;
@@ -533,7 +533,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         /**
          * Parses the response into the REST Assured response.
          */
-        public void call(TransportResponse response, Object content) {
+        public void call(HttpResponse response, Object content) {
             restAssuredResponse.parseResponse(response, content, hasBodyAssertionsDefined(), rpr);
         }
 

@@ -31,7 +31,6 @@ import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper;
-import io.restassured.internal.transport.TransportResponse;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
@@ -39,6 +38,8 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.common.config.NumberReturnType;
+import io.restassured.common.spi.http.HttpHeader;
+import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.path.xml.XmlPath.CompatibilityMode;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.Response;
@@ -287,13 +288,13 @@ class RestAssuredResponseOptionsImplTest {
 
     @Test
     void parse_response_reads_status_headers_cookies_and_content_type_and_keeps_the_response_to_close() {
-        TransportResponse transportResponse = transportResponseWithHeaders(List.of(Map.entry("Content-Type", "application/json; charset=UTF-8"),
-                Map.entry("Set-Cookie", "a=1"), Map.entry("Set-Cookie", "JSESSIONID=abc; Path=/")));
+        HttpResponse httpResponse = httpResponseWithHeaders(List.of(new HttpHeader("Content-Type", "application/json; charset=UTF-8"),
+                new HttpHeader("Set-Cookie", "a=1"), new HttpHeader("Set-Cookie", "JSESSIONID=abc; Path=/")));
         ResponseParserRegistrar rpr = new ResponseParserRegistrar();
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
         response.setSessionIdName("JSESSIONID");
 
-        response.parseResponse(transportResponse, null, false, rpr);
+        response.parseResponse(httpResponse, null, false, rpr);
 
         assertThat(response.statusCode()).isEqualTo(201);
         assertThat(response.statusLine()).isEqualTo("HTTP/1.1 201 Created");
@@ -307,7 +308,7 @@ class RestAssuredResponseOptionsImplTest {
         assertThat(response.getRpr()).isSameAs(rpr);
         assertThat(response.getDefaultContentType()).isNull();
         assertThat(response.getHasExpectations()).isFalse();
-        assertThat(response.getConnectionManager()).isSameAs(transportResponse);
+        assertThat(response.getConnectionManager()).isSameAs(httpResponse);
         assertThat(response.getContent()).isNull();
     }
 
@@ -315,7 +316,7 @@ class RestAssuredResponseOptionsImplTest {
     void parse_response_without_content_type_header_sets_empty_content_type_and_no_cookies() {
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
-        response.parseResponse(transportResponse(null), null, false, new ResponseParserRegistrar());
+        response.parseResponse(httpResponse(null), null, false, new ResponseParserRegistrar());
 
         assertThat(response.contentType()).isEmpty();
         assertThat(response.detailedCookies().exist()).isFalse();
@@ -328,7 +329,7 @@ class RestAssuredResponseOptionsImplTest {
         rpr.registerDefaultParser(Parser.XML);
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
-        response.parseResponse(transportResponse(null), null, false, rpr);
+        response.parseResponse(httpResponse(null), null, false, rpr);
 
         assertThat(response.getDefaultContentType()).isEqualTo("application/xml");
     }
@@ -338,7 +339,7 @@ class RestAssuredResponseOptionsImplTest {
         InputStream stream = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
-        response.parseResponse(transportResponse("text/plain"), stream, false, new ResponseParserRegistrar());
+        response.parseResponse(httpResponse("text/plain"), stream, false, new ResponseParserRegistrar());
 
         assertThat(response.getContent()).isSameAs(stream);
         assertThat(response.isInputStream()).isTrue();
@@ -356,7 +357,7 @@ class RestAssuredResponseOptionsImplTest {
         };
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
-        response.parseResponse(transportResponse("text/plain; charset=UTF-8"), stream, true,
+        response.parseResponse(httpResponse("text/plain; charset=UTF-8"), stream, true,
                 new ResponseParserRegistrar());
 
         assertThat(response.getContent()).isEqualTo("åäö".getBytes(StandardCharsets.UTF_8));
@@ -369,11 +370,11 @@ class RestAssuredResponseOptionsImplTest {
     @Test
     void parse_response_with_body_assertions_keeps_string_content_and_converts_null_to_empty_string() {
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
-        response.parseResponse(transportResponse("text/plain"), "", true, new ResponseParserRegistrar());
+        response.parseResponse(httpResponse("text/plain"), "", true, new ResponseParserRegistrar());
         assertThat(response.getContent()).isEqualTo("");
 
         RestAssuredResponseImpl nullContent = new RestAssuredResponseImpl();
-        nullContent.parseResponse(transportResponse("text/plain"), null, true, new ResponseParserRegistrar());
+        nullContent.parseResponse(httpResponse("text/plain"), null, true, new ResponseParserRegistrar());
         assertThat(nullContent.getContent()).isEqualTo("");
     }
 
@@ -381,7 +382,7 @@ class RestAssuredResponseOptionsImplTest {
     void parse_response_with_body_assertions_reads_a_reader() {
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
-        response.parseResponse(transportResponse("text/plain"), new StringReader("text"), true,
+        response.parseResponse(httpResponse("text/plain"), new StringReader("text"), true,
                 new ResponseParserRegistrar());
 
         assertThat(response.getContent()).isEqualTo("text");
@@ -403,7 +404,7 @@ class RestAssuredResponseOptionsImplTest {
         };
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
-        assertThatThrownBy(() -> response.parseResponse(transportResponse("text/plain"), stream,
+        assertThatThrownBy(() -> response.parseResponse(httpResponse("text/plain"), stream,
                 true, new ResponseParserRegistrar()))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessage("Failed to parse response.")
@@ -538,7 +539,7 @@ class RestAssuredResponseOptionsImplTest {
     void reading_stream_content_tells_the_http_client_that_the_response_is_done() {
         AtomicInteger done = new AtomicInteger();
         RestAssuredResponseImpl response = response(new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8)), "text/plain");
-        response.setConnectionManager(new TransportResponse("HTTP/1.1", 200, "OK", List.of(), 3, null, done::incrementAndGet));
+        response.setConnectionManager(new HttpResponse("HTTP/1.1", 200, "OK", List.of(), 3, null, done::incrementAndGet));
         assertThat(done).hasValue(0);
 
         assertThat(response.asByteArray()).isEqualTo("abc".getBytes(StandardCharsets.UTF_8));
@@ -944,12 +945,12 @@ class RestAssuredResponseOptionsImplTest {
         return response;
     }
 
-    private static TransportResponse transportResponse(String contentType) {
-        return transportResponseWithHeaders(contentType == null ? List.of() : List.of(Map.entry("Content-Type", contentType)));
+    private static HttpResponse httpResponse(String contentType) {
+        return httpResponseWithHeaders(contentType == null ? List.of() : List.of(new HttpHeader("Content-Type", contentType)));
     }
 
-    private static TransportResponse transportResponseWithHeaders(List<Map.Entry<String, String>> headers) {
-        return new TransportResponse("HTTP/1.1", 201, "Created", headers, -1, null, null);
+    private static HttpResponse httpResponseWithHeaders(List<HttpHeader> headers) {
+        return new HttpResponse("HTTP/1.1", 201, "Created", headers, -1, null, null);
     }
 
     private static byte[] readFully(InputStream stream) {

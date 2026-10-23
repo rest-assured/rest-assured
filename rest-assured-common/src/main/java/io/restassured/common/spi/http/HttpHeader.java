@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.transport;
+package io.restassured.common.spi.http;
 
-import java.io.IOException;
+import java.util.Objects;
 
 /**
- * Sends requests with an HTTP client.
+ * A request or response header.
+ *
+ * @param name  the name, as it's sent or as it was received
+ * @param value the value, which may be empty. {@code null} becomes an empty value.
  */
-public interface HttpTransport {
+public record HttpHeader(String name, String value) {
 
-    /**
-     * Sends the request.
-     *
-     * @return the response, once its head has been received. Its body is still unread.
-     * @throws IOException if the request couldn't be sent or the response couldn't be received
-     */
-    TransportResponse send(TransportRequest request) throws IOException;
+    public HttpHeader {
+        Objects.requireNonNull(name, "name");
+        value = value == null ? "" : value;
+    }
 }

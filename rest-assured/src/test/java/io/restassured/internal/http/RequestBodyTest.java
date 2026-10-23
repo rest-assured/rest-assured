@@ -16,6 +16,7 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.common.spi.http.RequestBody;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

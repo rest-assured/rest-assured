@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.http;
+package io.restassured.common.spi.http;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Objects;
-
-import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * A request body as the HTTP client sends it, independent of any HTTP client library: its content (bytes, a stream,
@@ -184,6 +182,12 @@ public final class RequestBody {
      */
     public ContentWriter getWriter() {
         return (ContentWriter) contentOf(Type.WRITER);
+    }
+
+    private static void notNull(Object value, String name) {
+        if (value == null) {
+            throw new IllegalArgumentException(name + " cannot be null");
+        }
     }
 
     private Object contentOf(Type expected) {

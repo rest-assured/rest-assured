@@ -16,29 +16,21 @@
 
 package io.restassured.internal;
 
+import io.restassured.common.spi.http.TlsSettings;
 import io.restassured.internal.http.HTTPBuilder;
+import io.restassured.internal.http.JsseToHttpClient4Ssl;
 import io.restassured.internal.http.LazySSLSocketFactory;
-import io.restassured.internal.util.GroovyTypes;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.UnrecoverableKeyException;
-
-import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-import static org.apache.http.conn.ssl.SSLSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
 
 public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
 
@@ -55,6 +47,7 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
     private int port;
     private SSLSocketFactory factory;
     private X509HostnameVerifier x509HostnameVerifier;
+    private TlsSettings tlsSettings;
 
     @Override
     public void apply(HTTPBuilder builder, int port) {
@@ -79,53 +72,11 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
 
     private SSLSocketFactory getOrCreateSSLSocketFactory() {
         if (factory == null) {
-            KeyStore keyStore = this.keyStore != null ? this.keyStore : createStore(keyStoreType, keyStorePath, keyStorePassword);
-            KeyStore trustStore = this.trustStore != null ? this.trustStore : createStore(trustStoreType, trustStorePath, trustStorePassword);
-            // Certificate authentication reads the same file as key store and trust store
-            boolean keyStoreFileIsAlsoTrustStore = this.keyStore == null && keyStorePath != null && keyStorePath.equals(trustStorePath);
-            SSLSocketFactory newFactory = createSSLSocketFactory(trustStore, keyStore, keyStorePassword, keyStoreFileIsAlsoTrustStore ? keyStorePath : null);
-            newFactory.setHostnameVerifier(x509HostnameVerifier != null ? x509HostnameVerifier : ALLOW_ALL_HOSTNAME_VERIFIER);
-            factory = newFactory;
+            factory = JsseToHttpClient4Ssl.toSSLSocketFactory(tlsSettings != null ? tlsSettings : ClientSettingsFactory.certificateTlsSettings(keyStorePath,
+                    keyStorePassword, keyStoreType, keyStore, trustStorePath, trustStorePassword, trustStoreType, trustStore,
+                    JsseToHttpClient4Ssl.toHostnameVerifier(x509HostnameVerifier), null));
         }
         return factory;
-    }
-
-    private static SSLSocketFactory createSSLSocketFactory(KeyStore truststore, KeyStore keyStore, String keyPassword, Object keyStoreFileThatIsAlsoTrustStore) {
-        if (truststore == null && keyStore == null) {
-            return SSLSocketFactory.getSocketFactory();
-        }
-        try {
-            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
-            try {
-                sslContextBuilder.loadKeyMaterial(keyStore, keyPassword != null ? keyPassword.toCharArray() : null);
-            } catch (UnrecoverableKeyException e) {
-                // A key store without password is fine when its keys don't need one (for example a PKCS#11 key store),
-                // so this is only reported once reading a key has failed
-                if (keyPassword == null) {
-                    throw new IllegalArgumentException("The private key in the key store can't be read without a password. " +
-                            "Set the key store password with SSLConfig.keyStore(String), for example " +
-                            "config(sslConfig().keyStore(keyStore).keyStore(\"password\")), or, for certificate authentication, " +
-                            "with the key store password given to RestAssured.certificate(..).", e);
-                }
-                if (keyStoreFileThatIsAlsoTrustStore != null) {
-                    UnrecoverableKeyException exception = new UnrecoverableKeyException("The private key in " + keyStoreFileThatIsAlsoTrustStore +
-                            " can't be read with the given password. The file given to certificate(..) is used as key store as well as " +
-                            "trust store, so its private key must have the password of the file. Use RestAssured.certificate(trustStorePath, " +
-                            "trustStorePassword, keyStorePath, keyStorePassword, CertificateAuthSettings) to use separate files, or an " +
-                            "empty key store path to use the file only as trust store.");
-                    exception.initCause(e);
-                    throw exception;
-                }
-                throw e;
-            }
-            // Without a trust store the JVM's default trust is used
-            if (truststore != null) {
-                sslContextBuilder.loadTrustMaterial(truststore);
-            }
-            return new SSLSocketFactory(sslContextBuilder.build(), BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-        } catch (GeneralSecurityException e) {
-            return SafeExceptionRethrower.safeRethrow(e);
-        }
     }
 
     /**
@@ -138,47 +89,18 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
      */
     public KeyStore createStore(Object keyStoreType, Object keyStorePath, Object keyStorePassword) {
         try {
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType.toString());
-            if (keyStorePath == null || (keyStorePath instanceof String && ((String) keyStorePath).isEmpty())) {
-                return null;
-            }
-
-            try (InputStream inputStream = openStore(keyStorePath)) {
-                keyStore.load(inputStream, keyStorePassword == null ? null : keyStorePassword.toString().toCharArray());
-            }
-            return keyStore;
+            return ClientSettingsFactory.keyMaterial(keyStorePath, keyStorePassword == null ? null : keyStorePassword.toString(),
+                    keyStoreType == null ? null : keyStoreType.toString(), null).load();
         } catch (IOException | GeneralSecurityException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
     }
 
-    private InputStream openStore(Object keyStorePath) throws IOException {
-        final File file;
-        if (keyStorePath instanceof File) {
-            file = (File) keyStorePath;
-        } else {
-            String path = toPath(keyStorePath);
-            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-            URL resource = contextClassLoader == null ? null : contextClassLoader.getResource(path);
-            if (resource == null) { // To allow for backward compatibility
-                resource = getClass().getResource(path);
-            }
-
-            if (resource != null) {
-                return resource.openStream();
-            }
-            // Fallback to load path as file if not found in classpath
-            file = new File(path);
-        }
-        return new BufferedInputStream(new FileInputStream(file));
-    }
-
-    private static String toPath(Object keyStorePath) {
-        if (keyStorePath instanceof String || GroovyTypes.isGString(keyStorePath)) {
-            return keyStorePath.toString();
-        }
-        throw new IllegalArgumentException("The path to a key store or trust store must be a String or a java.io.File but was "
-                + keyStorePath.getClass().getName() + ".");
+    /**
+     * Use these TLS settings instead of the key store, trust store and host name verifier of this spec.
+     */
+    public void setTlsSettings(TlsSettings tlsSettings) {
+        this.tlsSettings = tlsSettings;
     }
 
     public Object getKeyStorePath() {

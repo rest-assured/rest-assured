@@ -29,6 +29,8 @@ import io.restassured.http.Method;
 import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
+import io.restassured.internal.http.RelaxedCertAuthScheme;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
@@ -1343,7 +1345,9 @@ public class RestAssured {
      * {@link SSLConfig#keyStore(java.security.KeyStore)} or {@link SSLConfig#trustStore(java.security.KeyStore)} is used
      * instead of the file for that purpose. The keys of such a key store are read with the key store password of the
      * {@link SSLConfig} ({@link SSLConfig#keyStore(String)}) if there is one, and otherwise with <code>password</code>.
-     * The file is read as key store with the trust store type, unless the key store type is set.
+     * The file is read as key store with the trust store type, unless the key store type is set. With
+     * {@link SSLConfig#relaxedHTTPSValidation()}, the client certificate is still sent, and every server certificate
+     * and host name is trusted.
      * </p>
      *
      * @param certURL  URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
@@ -1355,11 +1359,13 @@ public class RestAssured {
         CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
                 keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
                 port(sslConfig.getPort());
-        // Keep an SSLContext as such, instead of turning it into an HttpClient 4 SSLSocketFactory
-        settings = sslConfig.getSSLContext() != null ? settings.sslContext(sslConfig.getSSLContext()) : settings.sslSocketFactory(sslConfig.getSSLSocketFactory());
+        // Keep an SSLContext and relaxed validation as such, instead of turning them into an HttpClient 4 SSLSocketFactory
+        settings = sslConfig.getSSLContext() != null ? settings.sslContext(sslConfig.getSSLContext()) : settings.sslSocketFactory(ClientSettingsFactory.userSocketFactory(sslConfig));
         // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
         String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
-        return certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
+        AuthenticationScheme scheme = certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
+        String relaxedProtocol = sslConfig.getRelaxedHTTPSValidationProtocol();
+        return relaxedProtocol == null ? scheme : new RelaxedCertAuthScheme((CertAuthScheme) scheme, relaxedProtocol);
     }
 
     /**
