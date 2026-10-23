@@ -33,7 +33,6 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -164,14 +163,13 @@ public class WireConnectionITest extends WireTest {
     }
 
     @Test public void
-    close_idle_connections_after_each_response_closes_the_connection_before_a_large_body_is_read() {
-        RestAssuredConfig config = config().connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponse());
+    close_idle_connections_after_each_response_closes_the_connection_after_a_large_body_is_read() {
+        RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance()).connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponse());
+        Response large = given().config(config).get(server.url("/unread"));
 
-        // Today's behavior: the connection is closed as soon as the response arrives, so only what the client already
-        // buffered can be read, and a larger body fails
-        assertThatThrownBy(() -> given().config(config).get(server.url("/unread")).asByteArray())
-                .isExactlyInstanceOf(SocketException.class)
-                .hasMessage("Socket closed");
+        assertThat(large.asByteArray()).hasSize(UNREAD_BODY_SIZE);
+        String next = remotePortOfReadResponse(config, server.url("/port"));
+        assertThat(next).isNotEqualTo(large.header(REMOTE_PORT_HEADER));
     }
 
     @Test public void

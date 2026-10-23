@@ -126,6 +126,9 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
         final HttpResponseDecorator resp = new HttpResponseDecorator(
                 this.client.execute(reqMethod, delegate.getContext()),
                 delegate.getContext(), null);
+        boolean hasBodyAssertions = responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined();
+        // Without body assertions the response reads the body from the connection when it's asked for it
+        boolean bodyIsReadLater = false;
         try {
             int status = resp.getStatusLine().getStatusCode();
             HttpResponseHandler responseHandler = delegate.findResponseHandler(status);
@@ -136,20 +139,23 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
                 if (entity == null || entity.getContentLength() == 0 && !contentDecoding.decodes(contentEncodingOf(resp))) {
                     return responseHandler.handle(resp, EMPTY);
                 } else {
-                    return responseHandler.handle(resp, this.parseResponse(resp, acceptContentType));
+                    Object content = this.parseResponse(resp, acceptContentType);
+                    bodyIsReadLater = !hasBodyAssertions;
+                    return responseHandler.handle(resp, content);
                 }
             } catch (Exception ex) {
                 // A Groovy closure coerced to HttpResponseHandler has its checked exceptions wrapped by the proxy
                 throw new ResponseParseException(resp, ex instanceof UndeclaredThrowableException ? ex.getCause() : ex);
             }
         } finally {
-            if (responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined()) {
+            if (hasBodyAssertions) {
                 HttpEntity entity = resp.getEntity();
                 if (entity != null) EntityUtils.consumeQuietly(entity);
             }
-            // Close idle connections to the server
+            // Close idle connections to the server. HttpClient 4 would also close the connection that a body read later is
+            // still to be read from, so then the response closes them once it has read the body instead.
             ConnectionConfig connectionConfig = connectionConfig();
-            if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
+            if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse() && !bodyIsReadLater) {
                 ConnectionConfig.CloseIdleConnectionConfig closeConnectionConfig = connectionConfig.closeIdleConnectionConfig();
                 client.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit());
             }

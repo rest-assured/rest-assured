@@ -18,6 +18,7 @@ package io.restassured.internal;
 
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.config.ConnectionConfig;
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.JsonConfig;
 import io.restassured.config.LogConfig;
@@ -44,6 +45,7 @@ import io.restassured.path.xml.XmlPath.CompatibilityMode;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.Response;
 import org.apache.http.HttpVersion;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.BasicHttpContext;
@@ -72,6 +74,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Characterizes {@link RestAssuredResponseOptionsImpl}: parsing of the HTTP response, the body accessors and how often the
@@ -538,6 +543,19 @@ class RestAssuredResponseOptionsImplTest {
         response.asString();
 
         assertThat(closed).hasValue(1);
+    }
+
+    @Test
+    void reading_stream_content_closes_idle_connections_when_configured_to() {
+        ClientConnectionManager connectionManager = mock(ClientConnectionManager.class);
+        RestAssuredResponseImpl response = response(new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8)), "text/plain");
+        response.setConfig(RestAssuredConfig.config().connectionConfig(ConnectionConfig.connectionConfig().closeIdleConnectionsAfterEachResponse()));
+        response.setConnectionManager(connectionManager);
+        verifyNoInteractions(connectionManager);
+
+        assertThat(response.asByteArray()).isEqualTo("abc".getBytes(StandardCharsets.UTF_8));
+
+        verify(connectionManager).closeIdleConnections(0, TimeUnit.NANOSECONDS);
     }
 
     @Test
