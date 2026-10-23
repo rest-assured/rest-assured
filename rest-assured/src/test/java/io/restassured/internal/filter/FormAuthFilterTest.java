@@ -40,6 +40,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.EncoderConfig.encoderConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SessionConfig.sessionConfig;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -182,6 +183,88 @@ class FormAuthFilterTest {
         assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /login-page", "POST /login", "POST /secured-post");
         assertThat(server.lastRequestTo("GET /login-page").cookies()).isEqualTo("PAGE=p1");
         assertThat(server.lastRequestTo("POST /login").cookies()).isEqualTo("PAGE=p1");
+    }
+
+    @Test
+    void sends_cookies_of_login_page_when_following_its_302_to_the_same_host_on_another_port() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page").withCookie("PAGE=p1"));
+            otherServer.route("GET /login-page", r -> Reply.html(loginPage("/login", "")));
+
+            given().auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
+
+            assertThat(otherServer.requestLines()).containsExactly("GET /login-page");
+            assertThat(otherServer.lastRequestTo("GET /login-page").cookies()).isEqualTo("PAGE=p1");
+        }
+    }
+
+    @Test
+    void does_not_send_cookies_of_login_page_to_another_host_when_following_its_302() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("http://localhost:" + otherServer.port() + "/login-page").withCookie("PAGE=p1"));
+            otherServer.route("GET /login-page", r -> Reply.html(loginPage("/login", "")));
+
+            given().auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
+
+            assertThat(otherServer.requestLines()).containsExactly("GET /login-page");
+            assertThat(otherServer.lastRequestTo("GET /login-page").cookies()).isNull();
+            // The login form is still posted to the host that set the cookie
+            assertThat(server.requestLines()).containsExactly("POST /secured-post", "POST /login", "POST /secured-post");
+            assertThat(server.lastRequestTo("POST /login").cookies()).isEqualTo("PAGE=p1");
+        }
+    }
+
+    @Test
+    void sends_login_request_through_the_proxy_of_the_request() throws IOException {
+        try (RecordingServer proxy = new RecordingServer()) {
+            proxy.route("GET /secured", securedOr(r -> Reply.html(loginPage("login", ""))));
+            proxy.route("POST /login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+            given().proxy("127.0.0.1", proxy.port()).auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+            assertThat(proxy.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured");
+            assertThat(server.requestLines()).isEmpty();
+        }
+    }
+
+    @Test
+    void fetches_csrf_page_through_the_proxy_of_the_request() throws IOException {
+        try (RecordingServer proxy = new RecordingServer()) {
+            proxy.route("GET /csrf-page", r -> Reply.html(loginPage("login", "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/>")));
+            proxy.route("POST /login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+            proxy.route("GET /secured", securedOr(r -> Reply.text("denied")));
+
+            given().proxy("127.0.0.1", proxy.port()).csrf("/csrf-page").auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+            assertThat(proxy.requestLines()).containsExactly("GET /csrf-page", "POST /login", "GET /secured");
+            assertThat(proxy.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe&_csrf=tok");
+            assertThat(server.requestLines()).isEmpty();
+        }
+    }
+
+    @Test
+    void follows_302_of_login_page_through_the_proxy_of_the_request() throws IOException {
+        try (RecordingServer proxy = new RecordingServer()) {
+            proxy.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/login-page"));
+            proxy.route("GET /login-page", r -> Reply.html(loginPage("login", "")));
+            proxy.route("POST /login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+            given().proxy("127.0.0.1", proxy.port()).auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
+
+            assertThat(proxy.requestLines()).containsExactly("POST /secured-post", "GET /login-page", "POST /login", "POST /secured-post");
+            assertThat(server.requestLines()).isEmpty();
+        }
+    }
+
+    @Test
+    void sends_login_request_with_the_config_of_the_request() {
+        given().
+                config(config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
+                auth().form("John", "Doe").
+        when().
+                get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").header("Content-Type")).isEqualTo("application/x-www-form-urlencoded");
     }
 
     @Test

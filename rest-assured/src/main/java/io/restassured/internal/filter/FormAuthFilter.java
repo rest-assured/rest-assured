@@ -35,6 +35,7 @@ import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
+import io.restassured.specification.ProxySpecification;
 import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
@@ -95,7 +96,7 @@ public class FormAuthFilter implements AuthFilter {
             Response loginPageResponse;
             URI loginPageUri;
             if (csrfConfig.isCsrfEnabled()) {
-                RequestSpecification csrfPageRequestSpec = given().auth().none().disableCsrf().cookies(requestSpec.getCookies());
+                RequestSpecification csrfPageRequestSpec = requestWithSettingsOf(requestSpec).cookies(requestSpec.getCookies());
                 loginPageResponse = csrfPageRequestSpec.get(csrfConfig.getCsrfTokenPath());
                 loginPageUri = urlOf(loginPageResponse, ((FilterableRequestSpecification) csrfPageRequestSpec).getURI());
                 cookiesFromLoginPage = loginPageResponse.cookies();
@@ -114,8 +115,13 @@ public class FormAuthFilter implements AuthFilter {
                         throw new IllegalArgumentException("The request for the login page was redirected (302) without a Location header, " +
                                 "so REST Assured couldn't follow the redirect to the login page.");
                     }
-                    RequestSpecification redirectedLoginPageRequestSpec = given().auth().none().cookies(cookiesFromLoginPage);
-                    loginPageResponse = redirectedLoginPageRequestSpec.get(location);
+                    URI redirectedLoginPageUri = URIUtils.resolve(loginPageUri, location);
+                    RequestSpecification redirectedLoginPageRequestSpec = requestWithSettingsOf(requestSpec);
+                    // The cookies belong to the host that set them, so they aren't sent to another host, as a browser wouldn't
+                    if (isSameHost(loginPageUri, redirectedLoginPageUri)) {
+                        redirectedLoginPageRequestSpec.cookies(cookiesFromLoginPage);
+                    }
+                    loginPageResponse = redirectedLoginPageRequestSpec.get(redirectedLoginPageUri);
                     loginPageUri = urlOf(loginPageResponse, ((FilterableRequestSpecification) redirectedLoginPageRequestSpec).getURI());
                 }
             }
@@ -161,7 +167,7 @@ public class FormAuthFilter implements AuthFilter {
             cookiesFromLoginPage = null;
         }
 
-        RequestSpecification loginRequestSpec = given().auth().none().and().disableCsrf().and().formParams(userNameInputField, userName, passwordInputField, password);
+        RequestSpecification loginRequestSpec = requestWithSettingsOf(requestSpec).formParams(userNameInputField, userName, passwordInputField, password);
 
         URI uri = toURI(requestSpec.getURI());
         String origin = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort());
@@ -209,6 +215,31 @@ public class FormAuthFilter implements AuthFilter {
         // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
         requestSpec.cookies(loggedInResponse.cookies());
         return ctx.next(requestSpec, responseSpec);
+    }
+
+    /**
+     * @return A request that is sent like the original request (with its config, so with its SSL settings and timeouts, and
+     * through its proxy) but carries nothing of it: no authentication, CSRF handling, filters, headers, parameters or body.
+     * Unlike {@code given().spec(requestSpec)}, which copies all of those too.
+     */
+    private static RequestSpecification requestWithSettingsOf(FilterableRequestSpecification requestSpec) {
+        RequestSpecification spec = given().auth().none().disableCsrf();
+        RestAssuredConfig config = requestSpec.getConfig();
+        if (config != null) {
+            spec.config(config);
+        }
+        ProxySpecification proxy = requestSpec.getProxySpecification();
+        if (proxy != null) {
+            spec.proxy(proxy);
+        }
+        return spec;
+    }
+
+    /**
+     * Cookies are scoped to the host that set them, not to its scheme or port (RFC 6265, section 5.1.3 and 8.5)
+     */
+    private static boolean isSameHost(URI uri, URI other) {
+        return uri.getHost() != null && uri.getHost().equalsIgnoreCase(other.getHost());
     }
 
     public static void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
