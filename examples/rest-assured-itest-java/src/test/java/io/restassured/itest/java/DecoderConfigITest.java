@@ -69,12 +69,10 @@ public class DecoderConfigITest extends WithJetty {
 
     @Test public void
     decoder_config_can_be_configured_to_use_no_decoders() {
-        String hasAcceptEncodingParameter = "$.any { it.containsKey('Accept-Encoding') }";
-
         given().
                 config(RestAssuredConfig.newConfig().decoderConfig(DecoderConfig.decoderConfig().with().noContentDecoders())).
         expect().
-                body(hasAcceptEncodingParameter, is(false)).
+                body("$", not(hasKey("Accept-Encoding"))).
         when().
                 get("/headersWithValues");
     }
