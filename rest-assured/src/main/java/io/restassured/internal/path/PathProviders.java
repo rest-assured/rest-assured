@@ -38,7 +38,7 @@ public final class PathProviders {
     static final String GPATH_XML = "io.restassured.internal.path.xml.GPathXmlProvider";
 
     // The JSON engines in the order they're picked when none is configured
-    private static final List<JsonEngine> JSON_ENGINES = List.of(new JsonEngine(JsonPathEngine.GPATH, GPATH_JSON, "json-path"));
+    private static final List<JsonEngine> JSON_ENGINES = List.of(new JsonEngine(JsonPathEngine.GPATH, GPATH_JSON, "json-path-gpath"));
 
     private static final Map<String, Optional<PathProvider>> LOADED = new ConcurrentHashMap<>();
 
@@ -53,8 +53,8 @@ public final class PathProviders {
         if (type == DocumentType.JSON) {
             return forJson(config.getJsonConfig().pathEngine(), JSON_ENGINES);
         }
-        return load(GPATH_XML, "xml-path")
-                .orElseThrow(() -> new IllegalStateException("REST Assured found no XML path engine. Add io.rest-assured:xml-path to your test dependencies."));
+        return load(GPATH_XML, "xml-path-gpath")
+                .orElseThrow(() -> new IllegalStateException("REST Assured found no XML path engine. Add io.rest-assured:xml-path-gpath to your test dependencies."));
     }
 
     static PathProvider forJson(JsonPathEngine configured, List<JsonEngine> engines) {
@@ -64,7 +64,7 @@ public final class PathProviders {
                     + " but io.rest-assured:" + engine.artifactId() + " isn't on the classpath."));
         }
         return engines.stream().map(engine -> load(engine.className(), engine.artifactId())).flatMap(Optional::stream).findFirst()
-                .orElseThrow(() -> new IllegalStateException("REST Assured found no JSON path engine. Add io.rest-assured:json-path to your test dependencies."));
+                .orElseThrow(() -> new IllegalStateException("REST Assured found no JSON path engine. Add io.rest-assured:json-path-gpath to your test dependencies."));
     }
 
     /**

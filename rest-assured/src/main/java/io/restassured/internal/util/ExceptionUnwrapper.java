@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 /**
  * Runs code and rethrows the exception it throws without the wrappers that reflection, proxies and Groovy (which
- * json-path, xml-path and user code written in Groovy still use) put around it, so that callers see the original
+ * json-path-gpath, xml-path-gpath and user code written in Groovy still use) put around it, so that callers see the original
  * exception, for example an {@code AssertionError} or an {@code SSLException}.
  */
 public final class ExceptionUnwrapper {

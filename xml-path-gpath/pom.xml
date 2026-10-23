@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2026 the original author or authors.
+  ~ Copyright 2019 the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,30 +15,126 @@
   ~ limitations under the License.
   -->
 
-<!--
-  ~ xml-path-gpath is the name xml-path gets in REST Assured 7.0.0. In 6.x this pom only relocates to xml-path at the same version,
-  ~ so that you can switch to the new name before upgrading. In 7.0.0 the jar moves here and xml-path relocates to xml-path-gpath.
-  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
+        <groupId>io.rest-assured</groupId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>io.rest-assured</groupId>
-    <artifactId>xml-path-gpath</artifactId>
-    <packaging>pom</packaging>
-    <version>7.0.0-SNAPSHOT</version>
-    <name>xml-path-gpath</name>
-    <description>The REST Assured 7.0.0 name of xml-path. In 6.x it relocates to xml-path.</description>
-    <url>https://rest-assured.io/</url>
+    <modelVersion>4.0.0</modelVersion>
 
-    <distributionManagement>
-        <relocation>
+    <artifactId>xml-path-gpath</artifactId>
+    <name>xml-path-gpath</name>
+    <description>XmlPath and the GPath path engine for XML and HTML, the path syntax REST Assured has always used. It depends on Groovy.</description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <!-- The version file in META-INF/rest-assured, which REST Assured reads to check that its artifacts have the same version -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/rest-assured-version</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            io.restassured.path.xml.*,
+                            io.restassured.internal.path.xml.*
+                        </Export-Package>
+                        <Import-Package>
+                            groovy.*;version="${groovy.range}",
+                            org.apache.groovy.*;version="${groovy.range}",
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy-xml</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.rest-assured</groupId>
-            <artifactId>xml-path</artifactId>
-            <message>xml-path-gpath is the REST Assured 7.0.0 name of xml-path. In REST Assured 6.x it resolves to xml-path, so nothing changes until you upgrade.</message>
-        </relocation>
-    </distributionManagement>
+            <artifactId>rest-assured-common</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ccil.cowan.tagsoup</groupId>
+            <artifactId>tagsoup</artifactId>
+        </dependency>
+        <!-- Backward compatibility with JAXB (Jakarta EE 8?) -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- Jakarta EE 9 -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

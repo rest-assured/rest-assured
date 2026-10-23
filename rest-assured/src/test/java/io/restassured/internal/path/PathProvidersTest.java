@@ -52,32 +52,32 @@ class PathProvidersTest {
     @Test
     void the_first_json_engine_on_the_classpath_is_used_when_none_is_configured() {
         List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "missing"),
-                new JsonEngine(JsonPathEngine.GPATH, PathProviders.GPATH_JSON, "json-path"));
+                new JsonEngine(JsonPathEngine.GPATH, PathProviders.GPATH_JSON, "json-path-gpath"));
 
         assertThat(PathProviders.forJson(null, engines)).isExactlyInstanceOf(GPathJsonProvider.class);
     }
 
     @Test
     void a_configured_json_engine_that_isnt_on_the_classpath_fails() {
-        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path"));
+        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path-gpath"));
 
         assertThatThrownBy(() -> PathProviders.forJson(JsonPathEngine.GPATH, engines))
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage("JsonConfig.pathEngine is GPATH but io.rest-assured:json-path isn't on the classpath.");
+                .hasMessage("JsonConfig.pathEngine is GPATH but io.rest-assured:json-path-gpath isn't on the classpath.");
     }
 
     @Test
     void no_json_engine_on_the_classpath_fails() {
-        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path"));
+        List<JsonEngine> engines = List.of(new JsonEngine(JsonPathEngine.GPATH, "io.restassured.path.missing.Provider", "json-path-gpath"));
 
         assertThatThrownBy(() -> PathProviders.forJson(null, engines))
                 .isExactlyInstanceOf(IllegalStateException.class)
-                .hasMessage("REST Assured found no JSON path engine. Add io.rest-assured:json-path to your test dependencies.");
+                .hasMessage("REST Assured found no JSON path engine. Add io.rest-assured:json-path-gpath to your test dependencies.");
     }
 
     @Test
     void loads_each_provider_once() {
-        assertThat(PathProviders.load(PathProviders.GPATH_JSON, "json-path")).containsSame(PathProviders.load(PathProviders.GPATH_JSON, "json-path").orElseThrow());
+        assertThat(PathProviders.load(PathProviders.GPATH_JSON, "json-path-gpath")).containsSame(PathProviders.load(PathProviders.GPATH_JSON, "json-path-gpath").orElseThrow());
     }
 
     @Test

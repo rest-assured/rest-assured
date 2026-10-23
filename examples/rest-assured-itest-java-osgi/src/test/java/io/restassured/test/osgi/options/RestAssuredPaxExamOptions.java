@@ -50,7 +50,7 @@ public class RestAssuredPaxExamOptions {
     }
 
     /**
-     * The REST Assured bundles under test: json-path, xml-path, rest-assured and rest-assured-common.
+     * The REST Assured bundles under test: json-path-gpath, xml-path-gpath, rest-assured and rest-assured-common.
      * <p>
      * Each bundle is the jar that this module's test classpath loads one of its classes from. In a reactor build, such as
      * {@code mvn verify -Posgi-tests -pl examples/rest-assured-itest-java-osgi -am} or the release build, that is the jar
