@@ -35,6 +35,13 @@ public class HttpResponseException extends org.apache.http.client.HttpResponseEx
 				resp.getStatusLine().getReasonPhrase() );
 		this.response = resp;
 	}
+
+	/**
+	 * Creates an exception without a response, so {@link #getResponse()} returns <code>null</code>.
+	 */
+	public HttpResponseException( int statusCode, String reasonPhrase ) {
+		super( statusCode, reasonPhrase );
+	}
 	
 	public HttpResponseDecorator getResponse() {
 		return response;

@@ -30,9 +30,8 @@ import io.restassured.internal.MapCreator.CollisionStrategy;
 import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.internal.assertion.BodyMatcherGroup;
 import io.restassured.internal.assertion.CookieMatcher;
-import io.restassured.internal.http.HttpResponseDecorator;
-import io.restassured.internal.http.HttpResponseHandler;
 import io.restassured.internal.log.LogRepository;
+import io.restassured.internal.transport.TransportResponse;
 import io.restassured.internal.util.MatcherErrorMessageBuilder;
 import io.restassured.listener.ResponseValidationFailureListener;
 import io.restassured.matcher.DetailedCookieMatcher;
@@ -503,13 +502,11 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
             this.responseSpecification = responseSpecification;
         }
 
-        public Object call(Object response, Object content) {
-            restAssuredResponse.parseResponse((HttpResponseDecorator) response, content, hasBodyAssertionsDefined(), rpr);
-            return null;
-        }
-
-        public Object call(Object response) {
-            return call(response, null);
+        /**
+         * Parses the response into the REST Assured response.
+         */
+        public void call(TransportResponse response, Object content) {
+            restAssuredResponse.parseResponse(response, content, hasBodyAssertionsDefined(), rpr);
         }
 
         /**
@@ -523,13 +520,6 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
 
         private boolean requiresPathParsing() {
             return bodyMatchers.requiresPathParsing();
-        }
-
-        /**
-         * @return A handler that parses the response into the REST Assured response.
-         */
-        public HttpResponseHandler getResponseHandler() {
-            return this::call;
         }
 
         public void validate(Response response) {
