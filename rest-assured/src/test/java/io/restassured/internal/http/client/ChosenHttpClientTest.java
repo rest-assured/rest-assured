@@ -16,10 +16,16 @@
 
 package io.restassured.internal.http.client;
 
+import io.restassured.authentication.AuthenticationScheme;
+import io.restassured.authentication.CertAuthScheme;
 import io.restassured.common.exception.ResponseTimeoutException;
+import io.restassured.common.spi.http.HttpHeader;
 import io.restassured.common.spi.http.HttpRequest;
+import io.restassured.common.spi.http.HttpResponse;
+import io.restassured.common.spi.http.NtlmCredentials;
 import io.restassured.common.spi.http.UnsupportedFeatureException;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -27,10 +33,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpTimeoutException;
 import java.time.Duration;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
@@ -57,6 +65,10 @@ class ChosenHttpClientTest {
 
     private static RequestSpecification with(RestAssuredConfig config) {
         return given().config(config);
+    }
+
+    private static RequestSpecification withAuthenticationScheme(AuthenticationScheme scheme) {
+        return given(new RequestSpecBuilder().setAuth(scheme).build()).config(config().httpClient(APACHE5));
     }
 
     @Test
@@ -98,13 +110,86 @@ class ChosenHttpClientTest {
     }
 
     @Test
-    void authentication_that_answers_a_challenge_fails() {
-        assertThatThrownBy(() -> with(APACHE5).auth().basic("user", "password").get("http://localhost/path"))
+    void ntlm_authentication_gives_the_client_the_credentials() {
+        with(APACHE5).auth().ntlm("user", "password", "workstation", "domain").get("http://localhost:1234/path");
+
+        assertThat(FakeHttpClients.sent.get(0).options().ntlm())
+                .isEqualTo(new NtlmCredentials("localhost", 1234, "user", "password", "workstation", "domain"));
+    }
+
+    @Test
+    void authentication_that_answers_a_challenge_sends_no_credentials_until_the_server_asks() {
+        FakeHttpClients.response = request -> request.headers().stream().anyMatch(header -> header.name().equals("Authorization"))
+                ? FakeHttpClients.ok("ok") : unauthorized();
+
+        with(APACHE5).auth().basic("user", "password").
+        when().
+                get("http://localhost/path").
+        then().
+                statusCode(200);
+
+        assertThat(FakeHttpClients.sent).hasSize(2);
+        assertThat(FakeHttpClients.sent.get(0).headers()).noneSatisfy(header -> assertThat(header.name()).isEqualTo("Authorization"));
+        assertThat(FakeHttpClients.sent.get(1).headers()).anySatisfy(header -> {
+            assertThat(header.name()).isEqualTo("Authorization");
+            assertThat(header.value()).isEqualTo("Basic dXNlcjpwYXNzd29yZA==");
+        });
+    }
+
+    @Test
+    void a_redirect_is_followed_by_the_chosen_client() {
+        FakeHttpClients.response = request -> request.uri().getPath().equals("/path")
+                ? redirect("http://localhost/moved") : FakeHttpClients.ok("ok");
+
+        with(APACHE5).get("http://localhost/path").then().statusCode(200);
+
+        assertThat(FakeHttpClients.sent).hasSize(2);
+        assertThat(FakeHttpClients.sent.get(1).uri()).isEqualTo(URI.create("http://localhost/moved"));
+    }
+
+    @Test
+    void an_authentication_scheme_that_only_knows_the_http_builder_fails() {
+        assertThatThrownBy(() -> withAuthenticationScheme(new HttpBuilderOnlyAuthScheme()).get("http://localhost/path"))
                 .isExactlyInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(" + FakeHttpClients.Apache5.class.getName() + ".class)) can't "
-                        + "authenticate with BasicAuthScheme yet. Remove httpClientConfig().client(..) to use Apache HttpClient 4, "
-                        + "or use preemptive basic authentication.");
+                        + "authenticate with " + HttpBuilderOnlyAuthScheme.class.getName() + ", which only implements the deprecated "
+                        + "authenticate(HTTPBuilder). Remove httpClientConfig().client(..) to use Apache HttpClient 4, or implement "
+                        + "io.restassured.authentication.ContextAuthenticationScheme instead.");
         assertThat(FakeHttpClients.sent).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void certificate_authentication_with_an_http_client_4_socket_factory_fails() {
+        CertAuthScheme scheme = new CertAuthScheme();
+        scheme.setSslSocketFactory(SSLSocketFactory.getSocketFactory());
+
+        assertThatThrownBy(() -> withAuthenticationScheme(scheme).get("https://localhost/path"))
+                .isExactlyInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(" + FakeHttpClients.Apache5.class.getName() + ".class)) can't "
+                        + "use the HttpClient 4 SSLSocketFactory of certificate authentication. Remove httpClientConfig().client(..) to use "
+                        + "Apache HttpClient 4, or give certificate authentication an SSLContext.");
+    }
+
+    private static HttpResponse unauthorized() {
+        return new HttpResponse("HTTP/1.1", 401, "Unauthorized", List.of(new HttpHeader("WWW-Authenticate", "Basic realm=\"test\"")),
+                0, new ByteArrayInputStream(new byte[0]), null);
+    }
+
+    private static HttpResponse redirect(String location) {
+        return new HttpResponse("HTTP/1.1", 302, "Found", List.of(new HttpHeader("Location", location)),
+                0, new ByteArrayInputStream(new byte[0]), null);
+    }
+
+    /**
+     * A scheme written for REST Assured 6.x, which only knows the HTTPBuilder of HttpClient 4.
+     */
+    @SuppressWarnings("deprecation")
+    private static class HttpBuilderOnlyAuthScheme implements AuthenticationScheme {
+        @Override
+        public void authenticate(io.restassured.internal.http.HTTPBuilder httpBuilder) {
+            httpBuilder.getAuth().basic("user", "password");
+        }
     }
 
     @Test

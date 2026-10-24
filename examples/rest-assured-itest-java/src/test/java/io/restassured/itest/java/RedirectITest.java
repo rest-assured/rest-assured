@@ -18,10 +18,10 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.common.exception.TooManyRedirectsException;
 import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
-import org.apache.http.client.ClientProtocolException;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -70,7 +70,7 @@ public class RedirectITest extends WithJetty {
     }
 
     @Test
-    public void throwsClientProtocolExceptionIfMaxNumberOfRedirectAreExceeded() {
+    public void throwsTooManyRedirectsExceptionIfMaxNumberOfRedirectAreExceeded() {
         RestAssured.config = RestAssuredConfig.config().redirect(RedirectConfig.redirectConfig().followRedirects(true).and().maxRedirects(0));
         try {
             assertThatThrownBy(() ->
@@ -81,7 +81,7 @@ public class RedirectITest extends WithJetty {
                     header("Location", is("http://localhost:8080/hello")).
                 when().
                     get("/redirect")
-            ).isInstanceOf(ClientProtocolException.class);
+            ).isInstanceOf(TooManyRedirectsException.class).hasMessage("Maximum redirects (0) exceeded");
         } finally {
             RestAssured.reset();
         }

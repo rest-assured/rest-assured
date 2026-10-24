@@ -23,7 +23,10 @@ import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -80,6 +83,48 @@ public class CookieMatcherTest {
         assertThat(deviceCookie.isSecured()).isTrue();
         assertThat(deviceCookie.isHttpOnly()).isTrue();
         assertThat(deviceCookie.getSameSite()).isEqualTo("Lax");
+    }
+
+    /**
+     * Characterization of how an <code>Expires</code> attribute is read, which REST Assured did with HttpClient 4's
+     * DateUtils until 7.0.0: RFC 1123, RFC 1036 and asctime, in GMT, where a pattern that matches only the start of
+     * the value is accepted, and a four digit year is read as it stands even by the two digit year pattern.
+     */
+    @Test public void
+    reads_the_expires_attribute_of_every_standard_format() {
+        List<String> cookies = Arrays.asList(
+                "rfc1123=1; Expires=Wed, 21 Oct 2099 07:28:00 GMT",
+                "rfc1036=1; Expires=Wednesday, 21-Oct-99 07:28:00 GMT",
+                "asctime=1; Expires=Wed Oct 21 07:28:00 2099",
+                "fourDigitYearWithDashes=1; Expires=Wed, 21-Oct-2099 07:28:00 GMT",
+                "quoted=1; Expires=\"Wed, 21 Oct 2099 07:28:00 GMT\"",
+                "trailingGarbage=1; Expires=Wed, 21 Oct 2099 07:28:00 GMT and then some",
+                "wrongWeekday=1; Expires=Mon, 21 Oct 2099 07:28:00 GMT",
+                "unparsable=1; Expires=NO DATE!");
+
+        Cookies result = CookieMatcher.getCookies(cookies);
+
+        Date expected = Date.from(ZonedDateTime.of(2099, 10, 21, 7, 28, 0, 0, ZoneId.of("GMT")).toInstant());
+        assertThat(result.get("rfc1123").getExpiryDate()).isEqualTo(expected);
+        assertThat(result.get("rfc1036").getExpiryDate()).isEqualTo(expected);
+        assertThat(result.get("asctime").getExpiryDate()).isEqualTo(expected);
+        assertThat(result.get("fourDigitYearWithDashes").getExpiryDate()).isEqualTo(expected);
+        assertThat(result.get("quoted").getExpiryDate()).isEqualTo(expected);
+        assertThat(result.get("trailingGarbage").getExpiryDate()).isEqualTo(expected);
+        // The weekday isn't checked
+        assertThat(result.get("wrongWeekday").getExpiryDate()).isEqualTo(expected);
+        assertThat(result.get("unparsable").getExpiryDate()).isNull();
+    }
+
+    /**
+     * Characterization: a two digit year is one of this century, so a date in the past stays in the past.
+     */
+    @Test public void
+    reads_a_two_digit_year_as_a_year_of_this_century() {
+        Cookies result = CookieMatcher.getCookies(Arrays.asList("rfc1036=1; Expires=Wed, 21-Oct-15 07:28:00 GMT"));
+
+        assertThat(result.get("rfc1036").getExpiryDate())
+                .isEqualTo(Date.from(ZonedDateTime.of(2015, 10, 21, 7, 28, 0, 0, ZoneId.of("GMT")).toInstant()));
     }
 
     @Test public void

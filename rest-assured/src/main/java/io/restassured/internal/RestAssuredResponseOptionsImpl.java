@@ -69,6 +69,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +105,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     private Map filterContextProperties;
     private Object connectionManager;
     private HttpContext apacheHttpContext;
+    private URI effectiveUri;
     private String defaultContentType;
     private ResponseParserRegistrar rpr;
     private DecoderConfig decoderConfig;
@@ -215,6 +217,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public void setApacheHttpContext(HttpContext context) {
         this.apacheHttpContext = context;
+    }
+
+    public void setEffectiveUri(URI effectiveUri) {
+        this.effectiveUri = effectiveUri;
     }
 
     public void setConnectionManager(Object connectionManager) {
@@ -582,6 +588,14 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public HttpContext getApacheHttpContext() {
         return apacheHttpContext;
+    }
+
+    /**
+     * @return The URI of the request that the response answers, which is the last one of its redirects, or
+     * <code>null</code> if the response didn't come from an HTTP request
+     */
+    public URI getEffectiveUri() {
+        return effectiveUri;
     }
 
     public long time() {

@@ -17,6 +17,8 @@
 package io.restassured.itest.java.wire;
 
 import io.restassured.RestAssured;
+import io.restassured.authentication.AuthenticationScheme;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
 import io.restassured.specification.RequestSpecification;
@@ -120,6 +122,20 @@ public class WireSslITest extends WireTest {
                 statusCode(200);
 
         assertThat(server.onlyRequest().localPort()).isEqualTo(server.httpsPort());
+    }
+
+    @Test public void
+    the_ssl_config_is_applied_with_an_authentication_scheme_that_only_implements_the_http_builder_method() {
+        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
+
+        with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).
+                spec(new RequestSpecBuilder().setAuth(legacy).build()).
+        when().
+                get(validUrl()).
+        then().
+                statusCode(200);
+
+        assertThat(server.onlyRequest().header("Authorization")).isEqualTo("Bearer token-123");
     }
 
     @Test public void

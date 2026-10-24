@@ -2,11 +2,9 @@ package io.restassured.internal.assertion;
 
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
+import io.restassured.internal.http.cookie.CookieDates;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.utils.DateUtils;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
@@ -15,7 +13,7 @@ import java.util.*;
 import static io.restassured.http.Cookie.*;
 
 public class CookieMatcher {
-    private static final Log log = LogFactory.getLog(CookieMatcher.class);
+    private static final System.Logger log = System.getLogger(CookieMatcher.class.getName());
     private Object cookieName;
     private Matcher<String> matcher;
 
@@ -140,11 +138,11 @@ public class CookieMatcher {
                 builder.setHttpOnly(true);
             } else if (StringUtils.equalsIgnoreCase(name, EXPIRES)) {
                 value = StringUtils.trim(StringUtils.remove(value, "\""));
-                Date parsedDate = DateUtils.parseDate(value);
+                Date parsedDate = CookieDates.parse(value, CookieDates.STANDARD_PATTERNS);
                 if (parsedDate != null) {
                     builder.setExpiryDate(parsedDate);
                 } else {
-                    log.warn("Ignoring unparsable 'Expires' attribute value: " + value);
+                    log.log(System.Logger.Level.WARNING, "Ignoring unparsable 'Expires' attribute value: " + value);
                 }
 
             } else if (StringUtils.equalsIgnoreCase(name, SAME_SITE)) {

@@ -118,7 +118,7 @@ class HttpClientSettingsTest {
     }
 
     @Test
-    void reused_client_gets_back_the_redirect_strategy_of_its_factory_after_following_redirects_for_all_methods() {
+    void the_redirect_strategy_of_a_client_factory_is_left_alone_since_rest_assured_follows_the_redirects_itself() {
         RedirectStrategy factoryStrategy = new LaxRedirectStrategy();
         HttpClientConfig httpClientConfig = httpClientConfig().httpClientFactory(() -> {
             DefaultHttpClient client = new DefaultHttpClient(new PoolingClientConnectionManager());

@@ -16,12 +16,9 @@
 
 package io.restassured.itest.java.wire;
 
+import io.restassured.common.exception.TooManyRedirectsException;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import org.apache.http.ProtocolException;
-import org.apache.http.client.CircularRedirectException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.RedirectException;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +26,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.net.ProtocolException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -154,6 +152,18 @@ public class WireRedirectITest extends WireTest {
         response.then().statusCode(200).body(equalTo("landed"));
     }
 
+    @ParameterizedTest(name = "after {0}")
+    @ValueSource(ints = {307, 308})
+    public void
+    following_all_methods_repeats_a_delete_without_a_body_on_307_and_308(int status) {
+        server.respond("/from", Responder.redirect(status, "/to"));
+
+        given().config(config().redirect(redirectConfig().followRedirectsForAllMethods(true))).delete(server.url("/from")).then().statusCode(200);
+
+        assertThat(server.requests()).extracting(RecordedRequest::requestLine).containsExactly("DELETE /from HTTP/1.1", "DELETE /to HTTP/1.1");
+        assertThat(server.requests().get(1).body()).isEmpty();
+    }
+
     @Test public void
     a_post_followed_by_a_303_sends_a_get_with_the_posts_content_type_and_charset() {
         server.respond("/from", Responder.redirect(303, "/to"));
@@ -271,12 +281,12 @@ public class WireRedirectITest extends WireTest {
     }
 
     @Test public void
-    more_redirects_than_the_max_throw_a_client_protocol_exception_caused_by_a_redirect_exception() {
+    more_redirects_than_the_max_throw_a_too_many_redirects_exception() {
         server.respond("/a", Responder.redirect(302, "/b"));
         server.respond("/b", Responder.redirect(302, "/c"));
         server.respond("/c", Responder.redirect(302, "/d"));
 
-        assertRedirectFails(() -> given().redirects().max(2).get(server.url("/a")), RedirectException.class, "Maximum redirects (2) exceeded");
+        assertRedirectFails(() -> given().redirects().max(2).get(server.url("/a")), TooManyRedirectsException.class, "Maximum redirects (2) exceeded");
         assertThat(server.requests()).extracting(RecordedRequest::target).containsExactly("/a", "/b", "/c");
     }
 
@@ -285,7 +295,7 @@ public class WireRedirectITest extends WireTest {
         server.respond("/a", Responder.redirect(302, "/b"));
         server.respond("/b", Responder.redirect(302, "/c"));
 
-        assertRedirectFails(() -> given().config(config().redirect(redirectConfig().maxRedirects(1))).get(server.url("/a")), RedirectException.class, "Maximum redirects (1) exceeded");
+        assertRedirectFails(() -> given().config(config().redirect(redirectConfig().maxRedirects(1))).get(server.url("/a")), TooManyRedirectsException.class, "Maximum redirects (1) exceeded");
         assertThat(server.requests()).extracting(RecordedRequest::target).containsExactly("/a", "/b");
     }
 
@@ -293,7 +303,7 @@ public class WireRedirectITest extends WireTest {
     max_redirects_zero_fails_on_the_first_redirect() {
         server.respond("/from", Responder.redirect(302, "/to"));
 
-        assertRedirectFails(() -> given().redirects().max(0).get(server.url("/from")), RedirectException.class, "Maximum redirects (0) exceeded");
+        assertRedirectFails(() -> given().redirects().max(0).get(server.url("/from")), TooManyRedirectsException.class, "Maximum redirects (0) exceeded");
         assertThat(server.onlyRequest().target()).isEqualTo("/from");
     }
 
@@ -301,16 +311,16 @@ public class WireRedirectITest extends WireTest {
     at_most_100_redirects_are_followed_by_default() {
         server.respond("/loop", Responder.redirect(302, "/loop"));
 
-        assertRedirectFails(() -> given().redirects().allowCircular(true).get(server.url("/loop")), RedirectException.class, "Maximum redirects (100) exceeded");
+        assertRedirectFails(() -> given().redirects().allowCircular(true).get(server.url("/loop")), TooManyRedirectsException.class, "Maximum redirects (100) exceeded");
         assertThat(server.requests()).hasSize(101);
     }
 
     @Test public void
-    a_circular_redirect_throws_a_client_protocol_exception_caused_by_a_circular_redirect_exception_by_default() {
+    a_circular_redirect_throws_a_protocol_exception_by_default() {
         server.respond("/a", Responder.redirect(302, "/b"));
         server.respond("/b", Responder.redirect(302, "/a"));
 
-        assertRedirectFails(() -> given().get(server.url("/a")), CircularRedirectException.class, "Circular redirect to '" + server.url("/b") + "'");
+        assertRedirectFails(() -> given().get(server.url("/a")), ProtocolException.class, "Circular redirect to '" + server.url("/b") + "'");
         // Today's behavior: the first URI isn't counted as visited, so /a is requested twice before the loop is detected
         assertThat(server.requests()).extracting(RecordedRequest::target).containsExactly("/a", "/b", "/a");
     }
@@ -329,7 +339,7 @@ public class WireRedirectITest extends WireTest {
         server.respond("/a", Responder.redirect(302, "/b"));
         server.respond("/b", Responder.redirect(302, "/a"));
 
-        assertRedirectFails(() -> given().redirects().allowCircular(true).redirects().max(3).get(server.url("/a")), RedirectException.class, "Maximum redirects (3) exceeded");
+        assertRedirectFails(() -> given().redirects().allowCircular(true).redirects().max(3).get(server.url("/a")), TooManyRedirectsException.class, "Maximum redirects (3) exceeded");
         assertThat(server.requests()).extracting(RecordedRequest::target).containsExactly("/a", "/b", "/a", "/b");
     }
 
@@ -337,7 +347,7 @@ public class WireRedirectITest extends WireTest {
     allow_circular_redirects_in_the_config_follows_a_loop_until_max_redirects() {
         server.respond("/loop", Responder.redirect(302, "/loop"));
 
-        assertRedirectFails(() -> given().config(config().redirect(redirectConfig().allowCircularRedirects(true).maxRedirects(2))).get(server.url("/loop")), RedirectException.class, "Maximum redirects (2) exceeded");
+        assertRedirectFails(() -> given().config(config().redirect(redirectConfig().allowCircularRedirects(true).maxRedirects(2))).get(server.url("/loop")), TooManyRedirectsException.class, "Maximum redirects (2) exceeded");
         assertThat(server.requests()).hasSize(3);
     }
 
@@ -428,7 +438,7 @@ public class WireRedirectITest extends WireTest {
     @ParameterizedTest(name = "Location {0}")
     @ValueSource(strings = {"/t o", "/to?q=a b"})
     public void
-    a_location_with_a_space_throws_a_client_protocol_exception_caused_by_a_protocol_exception(String location) {
+    a_location_with_a_space_throws_a_protocol_exception(String location) {
         server.respond("/from", Responder.redirect(302, location));
 
         assertRedirectFails(() -> given().get(server.url("/from")), ProtocolException.class, "Invalid redirect URI: " + location);
@@ -516,9 +526,9 @@ public class WireRedirectITest extends WireTest {
         assertThat(followUp.headers("Cookie")).containsExactly("session=abc");
     }
 
-    // Today's behavior: HttpClient 4's ClientProtocolException, caused by the HttpClient 4 exception that tells why
-    private static void assertRedirectFails(ThrowingCallable request, Class<? extends Exception> cause, String causeMessage) {
-        assertThatThrownBy(request).isInstanceOf(ClientProtocolException.class).cause().isInstanceOf(cause).hasMessage(causeMessage);
+    // A redirect that REST Assured won't follow throws a java.net.ProtocolException, or its TooManyRedirectsException
+    private static void assertRedirectFails(ThrowingCallable request, Class<? extends Exception> type, String message) {
+        assertThatThrownBy(request).isExactlyInstanceOf(type).hasMessage(message);
     }
 
     private void sendWithSensitiveHeaders(RequestSpecification spec) {

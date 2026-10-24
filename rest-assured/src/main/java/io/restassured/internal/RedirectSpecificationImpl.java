@@ -16,46 +16,40 @@
 
 package io.restassured.internal;
 
+import io.restassured.internal.http.exchange.RedirectSettings;
 import io.restassured.specification.RedirectSpecification;
 import io.restassured.specification.RequestSpecification;
 
-import java.util.Map;
-
-import static org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.MAX_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.REJECT_RELATIVE_REDIRECT;
-
 public class RedirectSpecificationImpl implements RedirectSpecification {
     private final RequestSpecification requestSpecification;
-    private final Map<String, Object> httpClientParams;
+    private final RedirectSettings.Overrides redirects;
 
-    public RedirectSpecificationImpl(RequestSpecification requestSpecification, Map<String, Object> httpClientParams) {
+    public RedirectSpecificationImpl(RequestSpecification requestSpecification, RedirectSettings.Overrides redirects) {
         this.requestSpecification = requestSpecification;
-        this.httpClientParams = httpClientParams;
+        this.redirects = redirects;
     }
 
     @Override
     public RequestSpecification max(int maxNumberOfRedirect) {
-        httpClientParams.put(MAX_REDIRECTS, maxNumberOfRedirect);
+        redirects.max(maxNumberOfRedirect);
         return requestSpecification;
     }
 
     @Override
     public RequestSpecification follow(boolean followRedirects) {
-        httpClientParams.put(HANDLE_REDIRECTS, followRedirects);
+        redirects.follow(followRedirects);
         return requestSpecification;
     }
 
     @Override
     public RequestSpecification allowCircular(boolean allowCircularRedirects) {
-        httpClientParams.put(ALLOW_CIRCULAR_REDIRECTS, allowCircularRedirects);
+        redirects.allowCircular(allowCircularRedirects);
         return requestSpecification;
     }
 
     @Override
     public RequestSpecification rejectRelative(boolean rejectRelativeRedirects) {
-        httpClientParams.put(REJECT_RELATIVE_REDIRECT, rejectRelativeRedirects);
+        redirects.rejectRelative(rejectRelativeRedirects);
         return requestSpecification;
     }
 }
