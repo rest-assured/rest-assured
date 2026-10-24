@@ -64,9 +64,6 @@ public class JaywayOSGiITest {
                         spiflyBundles(),
                         mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
                         mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
 
                         /* rest-assured, rest-assured-common and json-path-jayway, the bundles built by this build, and Jayway */
                         restAssuredCoreBundles(),

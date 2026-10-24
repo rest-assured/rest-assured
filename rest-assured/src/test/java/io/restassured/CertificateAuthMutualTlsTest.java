@@ -300,12 +300,8 @@ class CertificateAuthMutualTlsTest {
                         get(url()));
 
         // The JDK client reads the TLS settings at the first HTTPS request, and reports a failure as the cause of an SSLException
-        Throwable failure = thrown;
-        if (TestClient.isJdk()) {
-            assertThat(thrown).isInstanceOf(SSLException.class);
-            failure = thrown.getCause();
-        }
-        assertThat(failure)
+        assertThat(thrown).isInstanceOf(SSLException.class);
+        assertThat(thrown.getCause())
                 .isInstanceOf(UnrecoverableKeyException.class)
                 .hasMessage("The private key in " + keyStore + " can't be read with the given password. The file given to " +
                         "certificate(..) is used as key store as well as trust store, so its private key must have the password " +

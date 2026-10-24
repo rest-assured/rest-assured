@@ -21,9 +21,7 @@ import com.sun.net.httpserver.HttpsServer;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertAuthScheme;
 import io.restassured.authentication.CertificateAuthSettings;
-import io.restassured.authentication.ContextAuthenticationScheme;
 import io.restassured.config.SSLConfig;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,12 +141,10 @@ class SSLContextAndHostnameVerifierTest {
 
     // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the cause of an SSLException
     private static Throwable hostNameRejection(Throwable e) {
+        assertThat(e).isInstanceOf(SSLException.class);
         Throwable rejection = e;
-        if (TestClient.isJdk()) {
-            assertThat(e).isInstanceOf(SSLException.class);
-            while (!(rejection instanceof SSLPeerUnverifiedException) && rejection.getCause() != null) {
-                rejection = rejection.getCause();
-            }
+        while (!(rejection instanceof SSLPeerUnverifiedException) && rejection.getCause() != null) {
+            rejection = rejection.getCause();
         }
         assertThat(rejection).isInstanceOf(SSLPeerUnverifiedException.class);
         return rejection;
@@ -178,7 +174,7 @@ class SSLContextAndHostnameVerifierTest {
     @Test
     void certificate_scheme_used_through_an_authentication_context_connects() throws Exception {
         AuthenticationScheme certificate = RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD, certAuthSettings().sslContext(clientSslContextTrustingTheServer()));
-        RestAssured.authentication = (ContextAuthenticationScheme) certificate::authenticate;
+        RestAssured.authentication = certificate::authenticate;
 
         given().
         when().
@@ -206,7 +202,6 @@ class SSLContextAndHostnameVerifierTest {
 
         assertThat(sslConfig.getSSLContext()).isSameAs(sslContext);
         assertThat(sslConfig.getHostnameVerifier()).isSameAs(REJECT_ALL);
-        assertThat(sslConfig.getSSLSocketFactory()).isNotNull();
     }
 
     @Test
@@ -214,17 +209,6 @@ class SSLContextAndHostnameVerifierTest {
         assertThat(sslConfig().getHostnameVerifier()).isSameAs(sslConfig().strictHostnames().getHostnameVerifier());
         assertThat(sslConfig().allowAllHostnames().getHostnameVerifier()).isNotSameAs(sslConfig().getHostnameVerifier());
         assertThat(sslConfig().getSSLContext()).isNull();
-        assertThat(sslConfig().getSSLSocketFactory()).isNull();
-    }
-
-    @Test
-    void the_last_of_ssl_context_and_ssl_socket_factory_wins() throws Exception {
-        SSLContext sslContext = clientSslContextTrustingTheServer();
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
-
-        assertThat(sslConfig().sslContext(sslContext).sslSocketFactory(sslSocketFactory).getSSLContext()).isNull();
-        assertThat(sslConfig().sslContext(sslContext).sslSocketFactory(sslSocketFactory).getSSLSocketFactory()).isSameAs(sslSocketFactory);
-        assertThat(sslConfig().sslSocketFactory(sslSocketFactory).sslContext(sslContext).getSSLContext()).isSameAs(sslContext);
     }
 
     @Test
@@ -248,9 +232,6 @@ class SSLContextAndHostnameVerifierTest {
 
         assertThat(scheme.getSslContext()).isSameAs(sslContext);
         assertThat(scheme.getHostnameVerifier()).isSameAs(REJECT_ALL);
-
-        scheme.setSslSocketFactory(new SSLSocketFactory(sslContext));
-        assertThat(scheme.getSslContext()).isNull();
     }
 
     private String httpsUrl() {

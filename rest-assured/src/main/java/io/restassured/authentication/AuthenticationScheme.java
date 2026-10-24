@@ -16,30 +16,19 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 /**
- * Authenticates a request. Implement {@link ContextAuthenticationScheme} to write your own scheme without depending on
- * the HTTP client.
+ * Authenticates a request, without depending on the HTTP client that sends it. For example:
+ * <pre>
+ * RestAssured.authentication = context -> context.header("X-Api-Key", "secret");
+ * </pre>
  */
+@FunctionalInterface
 public interface AuthenticationScheme {
 
     /**
-     * @param httpBuilder The HTTP builder of the request
-     * @deprecated HTTPBuilder exposes HttpClient 4 and is removed in REST Assured 7.0.0. Implement
-     * {@link ContextAuthenticationScheme} instead, which only needs {@link #authenticate(AuthenticationContext)}.
-     */
-    @Deprecated
-    void authenticate(HTTPBuilder httpBuilder);
-
-    /**
-     * Authenticate the request through the given context. In REST Assured 6.x this throws unless the scheme implements
-     * it, and REST Assured calls {@link #authenticate(HTTPBuilder)}. In 7.0.0 this is the method every scheme implements.
+     * Authenticate the request through the given context.
      *
      * @param context What the scheme can do to the request
      */
-    default void authenticate(AuthenticationContext context) {
-        throw new UnsupportedOperationException(getClass().getName() + " doesn't implement authenticate(AuthenticationContext). Implement "
-                + ContextAuthenticationScheme.class.getName() + " instead of " + AuthenticationScheme.class.getName() + ".");
-    }
+    void authenticate(AuthenticationContext context);
 }

@@ -30,6 +30,7 @@ import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.internal.csrf.CsrfData;
 import io.restassured.internal.csrf.CsrfTokenFinder;
+import io.restassured.internal.http.exchange.Redirects;
 import io.restassured.internal.support.HtmlDocument;
 import io.restassured.internal.support.HtmlDocument.Element;
 import io.restassured.internal.util.SafeExceptionRethrower;
@@ -41,7 +42,6 @@ import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -105,7 +105,7 @@ public class FormAuthFilter implements AuthFilter {
                         throw new IllegalArgumentException("The request for the login page was redirected (302) without a Location header, " +
                                 "so REST Assured couldn't follow the redirect to the login page.");
                     }
-                    URI redirectedLoginPageUri = URIUtils.resolve(loginPageUri, location);
+                    URI redirectedLoginPageUri = Redirects.resolve(loginPageUri, location);
                     RequestSpecification redirectedLoginPageRequestSpec = requestWithSettingsOf(requestSpec);
                     // The cookies belong to the host that set them, so they aren't sent to another host, as a browser wouldn't
                     if (isSameHost(loginPageUri, redirectedLoginPageUri)) {
@@ -331,13 +331,13 @@ public class FormAuthFilter implements AuthFilter {
         URI baseUri = loginPageUri;
         if (baseHref != null) {
             try {
-                baseUri = URIUtils.resolve(loginPageUri, baseHref.trim());
+                baseUri = Redirects.resolve(loginPageUri, baseHref.trim());
             } catch (IllegalArgumentException e) {
                 // An invalid base URL is ignored
             }
         }
         try {
-            return URIUtils.resolve(baseUri, formAction.trim());
+            return Redirects.resolve(baseUri, formAction.trim());
         } catch (IllegalArgumentException e) {
             return null;
         }

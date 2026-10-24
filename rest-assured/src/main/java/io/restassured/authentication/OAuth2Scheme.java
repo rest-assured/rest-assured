@@ -16,21 +16,10 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 public class OAuth2Scheme implements AuthenticationScheme {
 
     private String accessToken;
     private OAuthSignature signature;
-
-    @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-        if (signature != null) {
-            httpBuilder.getAuth().oauth2(accessToken, signature);
-        } else {
-            httpBuilder.getAuth().oauth2(accessToken);
-        }
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

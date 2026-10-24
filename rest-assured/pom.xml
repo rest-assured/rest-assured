@@ -16,9 +16,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <properties>
-        <httpclient.version>4.5.14</httpclient.version>
-    </properties>
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
@@ -69,15 +66,15 @@
                              path providers are loaded by class name, which bnd can't see, so their packages are listed.
                              Core doesn't depend on json-path-jayway, so bnd can't derive its version range: it's this
                              version up to the next minor, since REST Assured's modules must have the same minor version. TagSoup is only needed for HTML. The HTTP
-                             client modules (http-client-jdk and http-client-apache5) are optional too, and found by class
-                             name in the same way. -->
+                             client modules are found by class name in the same way: http-client-jdk, the default, is
+                             required, and http-client-apache5 is optional. -->
                         <Import-Package>
                             io.restassured.path.json.*;resolution:=optional,
                             io.restassured.path.xml.*;resolution:=optional,
                             io.restassured.internal.path.json;resolution:=optional,
                             io.restassured.internal.path.xml;resolution:=optional,
                             io.restassured.internal.path.jayway;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
-                            io.restassured.http.jdk;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
+                            io.restassured.http.jdk;version="${range;[==,=+);${version_cleanup;${project.version}}}",
                             io.restassured.http.apache5;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
                             org.ccil.cowan.tagsoup;resolution:=optional,
                             *
@@ -89,7 +86,6 @@
                             io.restassured.internal.path.json,
                             io.restassured.internal.path.xml,
                             io.restassured.internal.path.jayway,
-                            io.restassured.http.jdk,
                             io.restassured.http.apache5
                         </DynamicImport-Package>
                         <!-- HTTP clients of other libraries are found with ServiceLoader, which SPI Fly makes work in OSGi.
@@ -144,15 +140,12 @@
     </build>
 
     <dependencies>
+        <!-- The default HTTP client, loaded by class name, so it's kept off the compile classpath -->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>${httpclient.version}</version>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>http-client-jdk</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Jakarta EE 8 -->
@@ -242,13 +235,6 @@
             <optional>true</optional>
         </dependency>
         <!-- Test dependencies -->
-        <!-- Lets -Drestassured.http.client=jdk run the tests on the JDK HTTP client until it's the default -->
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>http-client-jdk</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

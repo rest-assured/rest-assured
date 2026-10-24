@@ -18,24 +18,12 @@ package io.restassured.config;
 
 import io.restassured.common.spi.http.ClientCustomizer;
 import io.restassured.common.spi.http.HttpClientProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,61 +112,6 @@ public class HttpClientConfigTest {
     }
 
     @Test
-    @Timeout(10)
-    public void reusedHttpClientInstanceIsCreatedOnceWhenManyThreadsAskForItAtTheSameTime() throws Exception {
-        final int numberOfThreads = 16;
-        final AtomicInteger numberOfCreatedClients = new AtomicInteger();
-        final HttpClientConfig httpClientConfig = new HttpClientConfig()
-                .httpClientFactory(() -> {
-                    numberOfCreatedClients.incrementAndGet();
-                    try {
-                        // Widen the window between the null check and the assignment
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    return new DefaultHttpClient();
-                })
-                .reuseHttpClientInstance();
-
-        final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        try {
-            final CountDownLatch ready = new CountDownLatch(numberOfThreads);
-            final CountDownLatch start = new CountDownLatch(1);
-            final List<Future<HttpClient>> futures = new ArrayList<>();
-            for (int i = 0; i < numberOfThreads; i++) {
-                futures.add(executor.submit(() -> {
-                    ready.countDown();
-                    start.await();
-                    return httpClientConfig.httpClientInstance();
-                }));
-            }
-            ready.await();
-            start.countDown();
-
-            final HttpClient first = futures.get(0).get();
-            for (Future<HttpClient> future : futures) {
-                assertThat(future.get()).isSameAs(first);
-            }
-            assertThat(numberOfCreatedClients).hasValue(1);
-        } finally {
-            executor.shutdownNow();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-        }
-    }
-
-    @Test
-    public void reusedHttpClientInstanceIsKeptByCopiesThatDontChangeHowTheClientIsCreated() {
-        final HttpClientConfig httpClientConfig = new HttpClientConfig().reuseHttpClientInstance();
-        final HttpClient httpClient = httpClientConfig.httpClientInstance();
-
-        assertThat(httpClientConfig.httpClientInstance()).isSameAs(httpClient);
-        assertThat(httpClientConfig.httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE).httpClientInstance()).isSameAs(httpClient);
-        assertThat(httpClientConfig.reuseHttpClientInstance().httpClientInstance()).isSameAs(httpClient);
-        assertThat(httpClientConfig.setParam("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS).httpClientInstance()).isNotSameAs(httpClient);
-    }
-
-    @Test
     public void newSettingsHaveTheDefaultsOfTheParameters() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig();
 
@@ -192,7 +125,7 @@ public class HttpClientConfigTest {
     }
 
     @Test
-    public void newSettingsSetTheHttpClientParametersThatHttpClient4Reads() {
+    public void newSettingsSetTheStringParameters() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig()
                 .connectTimeout(Duration.ofSeconds(1))
                 .readTimeout(Duration.ofSeconds(2))
@@ -209,7 +142,7 @@ public class HttpClientConfigTest {
                 entry("http.protocol.cookie-policy", "default"),
                 entry("http.protocol.cookie-datepatterns", Collections.singletonList("yyyy-MM-dd")),
                 entry("http.protocol.expect-continue", true));
-        assertThat(httpClientConfig.httpMultipartMode()).isEqualTo(HttpMultipartMode.RFC6532);
+        assertThat(httpClientConfig.multipartMode()).isEqualTo(MultipartMode.RFC6532);
     }
 
     @Test
@@ -220,8 +153,7 @@ public class HttpClientConfigTest {
                 .setParam("http.conn-manager.timeout", 3000L)
                 .setParam("http.protocol.cookie-policy", "compatibility")
                 .setParam("http.protocol.cookie-datepatterns", Collections.singletonList("yyyy-MM-dd"))
-                .setParam("http.protocol.expect-continue", true)
-                .httpMultipartMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                .setParam("http.protocol.expect-continue", true);
 
         assertThat(httpClientConfig.connectTimeout()).isEqualTo(Duration.ofSeconds(1));
         assertThat(httpClientConfig.readTimeout()).isEqualTo(Duration.ofSeconds(2));
@@ -229,7 +161,6 @@ public class HttpClientConfigTest {
         assertThat(httpClientConfig.keepsResponseCookies()).isTrue();
         assertThat(httpClientConfig.cookieDatePatterns()).containsExactly("yyyy-MM-dd");
         assertThat(httpClientConfig.expectsContinue()).isTrue();
-        assertThat(httpClientConfig.multipartMode()).isEqualTo(MultipartMode.BROWSER_COMPATIBLE);
     }
 
     @Test
@@ -256,11 +187,10 @@ public class HttpClientConfigTest {
     }
 
     @Test
-    public void everyMultipartModeHasAnHttpClient4Counterpart() {
+    public void everyMultipartModeIsKept() {
         for (MultipartMode multipartMode : MultipartMode.values()) {
             assertThat(new HttpClientConfig().multipartMode(multipartMode).multipartMode()).isEqualTo(multipartMode);
         }
-        assertThat(MultipartMode.values()).hasSameSizeAs(HttpMultipartMode.values());
     }
 
     @Test
@@ -298,25 +228,38 @@ public class HttpClientConfigTest {
     public void clientAndCustomizersAreKeptByTheOtherSettings() {
         HttpClientConfig config = new HttpClientConfig().client(HttpClientType.JDK).customizeClient(StringBuilder.class, builder -> { })
                 .setParam("a", "b").readTimeout(Duration.ofSeconds(1)).reuseHttpClientInstance().dontReuseHttpClientInstance()
-                .withParams(Collections.emptyMap()).addParams(Collections.emptyMap()).multipartMode(MultipartMode.BROWSER_COMPATIBLE)
-                .httpClientFactory(DefaultHttpClient::new);
+                .withParams(Collections.emptyMap()).addParams(Collections.emptyMap()).multipartMode(MultipartMode.BROWSER_COMPATIBLE);
 
         assertThat(config.client()).isEqualTo(HttpClientType.JDK);
         assertThat(config.customizers()).hasSize(1);
     }
 
     @Test
-    public void choosingAClientKeepsTheReusedHttpClientInstance() {
-        HttpClientConfig config = new HttpClientConfig().reuseHttpClientInstance();
-        HttpClient httpClient = config.httpClientInstance();
-
-        assertThat(config.client("jdk").customizeClient(StringBuilder.class, builder -> { }).httpClientInstance()).isSameAs(httpClient);
-    }
-
-    @Test
     public void providerNamesOfHttpClientTypes() {
         assertThat(HttpClientType.JDK.providerName()).isEqualTo("jdk");
         assertThat(HttpClientType.APACHE5.providerName()).isEqualTo("apache5");
+    }
+
+    @Test
+    public void reusedHttpClientInstanceIsKeptByCopiesThatDontChangeHowTheClientIsCreated() {
+        final HttpClientConfig httpClientConfig = new HttpClientConfig().reuseHttpClientInstance();
+        final Object reuseIdentity = httpClientConfig.reuseIdentity();
+
+        assertThat(reuseIdentity).isNotNull();
+        assertThat(httpClientConfig.multipartMode(MultipartMode.BROWSER_COMPATIBLE).reuseIdentity()).isSameAs(reuseIdentity);
+        assertThat(httpClientConfig.reuseHttpClientInstance().reuseIdentity()).isSameAs(reuseIdentity);
+        assertThat(httpClientConfig.setParam("http.protocol.max-redirects", CUSTOM_MAX_REDIRECTS).reuseIdentity()).isNotNull().isNotSameAs(reuseIdentity);
+        assertThat(httpClientConfig.connectTimeout(Duration.ofSeconds(1)).reuseIdentity()).isNotNull().isNotSameAs(reuseIdentity);
+        assertThat(new HttpClientConfig().reuseHttpClientInstance().reuseIdentity()).isNotSameAs(reuseIdentity);
+        assertThat(httpClientConfig.dontReuseHttpClientInstance().reuseIdentity()).isNull();
+        assertThat(new HttpClientConfig().reuseIdentity()).isNull();
+    }
+
+    @Test
+    public void choosingAClientKeepsTheReusedHttpClientInstance() {
+        HttpClientConfig config = new HttpClientConfig().reuseHttpClientInstance();
+
+        assertThat(config.client("jdk").customizeClient(StringBuilder.class, builder -> { }).reuseIdentity()).isSameAs(config.reuseIdentity());
     }
 
     public abstract static class CustomProvider implements HttpClientProvider {

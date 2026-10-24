@@ -30,7 +30,6 @@ import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.http.RelaxedCertAuthScheme;
-import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
@@ -1357,10 +1356,9 @@ public class RestAssured {
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
         CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
-                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
+                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).hostnameVerifier(sslConfig.getHostnameVerifier()).
                 port(sslConfig.getPort());
-        // Keep an SSLContext and relaxed validation as such, instead of turning them into an HttpClient 4 SSLSocketFactory
-        settings = sslConfig.getSSLContext() != null ? settings.sslContext(sslConfig.getSSLContext()) : settings.sslSocketFactory(ClientSettingsFactory.userSocketFactory(sslConfig));
+        settings = sslConfig.getSSLContext() == null ? settings : settings.sslContext(sslConfig.getSSLContext());
         // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
         String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
         AuthenticationScheme scheme = certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
@@ -1427,12 +1425,8 @@ public class RestAssured {
         scheme.setTrustStoreType(certificateAuthSettings.getTrustStoreType());
         scheme.setPathToTrustStore(trustStorePath);
         scheme.setTrustStorePassword(trustStorePassword);
-        scheme.setX509HostnameVerifier(certificateAuthSettings.getX509HostnameVerifier());
-        if (certificateAuthSettings.getSSLContext() != null) {
-            scheme.setSslContext(certificateAuthSettings.getSSLContext());
-        } else {
-            scheme.setSslSocketFactory(certificateAuthSettings.getSSLSocketFactory());
-        }
+        scheme.setHostnameVerifier(certificateAuthSettings.getHostnameVerifier());
+        scheme.setSslContext(certificateAuthSettings.getSSLContext());
         return scheme;
     }
 
@@ -1729,7 +1723,7 @@ public class RestAssured {
      * <p>
      * <h1>SSL Configuration</h1>
      * <p/>
-     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below.
      * <p/>
      * <h1>SSLPeerUnverifiedException</h1>
      * <p/>

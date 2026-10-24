@@ -18,7 +18,6 @@ package io.restassured.itest.java.wire;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
-import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
@@ -281,7 +280,7 @@ public class WireRequestMethodITest extends WireTest {
     private static void assertNoContentLength(RecordedRequest request) {
         String method = request.method();
         boolean jdkSendsContentLength = !method.equals("GET") && !method.equals("DELETE") && (!method.equals("HEAD") || Runtime.version().feature() < 18);
-        if (TestClient.isJdk() && jdkSendsContentLength) {
+        if (jdkSendsContentLength) {
             // JDK differences table, not in the table (W5): the JDK client sends Content-Length: 0 for a method without a
             // body other than GET, DELETE and, from Java 18, HEAD
             assertThat(request.header("Content-Length")).isEqualTo("0");

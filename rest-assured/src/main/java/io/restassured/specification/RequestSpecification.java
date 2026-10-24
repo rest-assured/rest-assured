@@ -645,7 +645,7 @@ public interface RequestSpecification extends RequestSender {
      * <p>
      * <h1>SSL Configuration</h1>
      * <p/>
-     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below.
      * <p/>
      * <h1>SSLPeerUnverifiedException</h1>
      * <p/>

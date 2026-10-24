@@ -16,22 +16,12 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
-import java.util.Map;
-
 /**
  * Used for preemptive oauth2 header authentication
  */
 public class PreemptiveOAuth2HeaderScheme implements AuthenticationScheme {
 
     private String accessToken;
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void authenticate(HTTPBuilder httpBuilder) {
-        ((Map<Object, Object>) httpBuilder.getHeaders()).put("Authorization", generateAuthToken());
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

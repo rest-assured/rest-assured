@@ -16,9 +16,7 @@
 
 package io.restassured.internal.support;
 
-import io.restassured.config.ConnectionConfig;
 import io.restassured.internal.http.client.TransportExceptions;
-import org.apache.http.conn.ClientConnectionManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,24 +28,13 @@ import java.io.InputStream;
 public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
     private static final int MINUS_ONE = -1;
     private static final int ZERO = 0;
-    private ConnectionConfig connectionConfig;
-    private final ClientConnectionManager connectionManager;
     private final Closeable onClose;
     private final InputStream wrapped;
 
-    public CloseHTTPClientConnectionInputStreamWrapper(ConnectionConfig connectionConfig,
-                                                       ClientConnectionManager connectionManager, InputStream wrapped) {
-        this.connectionConfig = connectionConfig;
-        this.connectionManager = connectionManager;
-        this.onClose = null;
-        this.wrapped = wrapped;
-    }
-
     /**
-     * @param onClose closed before the wrapped stream is closed
+     * @param onClose closed before the wrapped stream is closed, or {@code null}
      */
     public CloseHTTPClientConnectionInputStreamWrapper(Closeable onClose, InputStream wrapped) {
-        this.connectionManager = null;
         this.onClose = onClose;
         this.wrapped = wrapped;
     }
@@ -101,10 +88,6 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
     public void close() throws IOException {
         if (onClose != null) {
             onClose.close();
-        }
-        if (connectionManager != null && connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
-            connectionManager.closeIdleConnections(connectionConfig.closeIdleConnectionConfig().getIdleTime(),
-                    connectionConfig.closeIdleConnectionConfig().getTimeUnit());
         }
         if (wrapped != null) {
             wrapped.close();

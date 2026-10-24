@@ -16,12 +16,6 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-import io.restassured.internal.http.JsseToHttpClient4Ssl;
-import io.restassured.internal.http.client.ClientSettingsFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
@@ -37,29 +31,14 @@ public class CertAuthScheme implements AuthenticationScheme {
     private int port = -1;
     private KeyStore trustStore;
     private KeyStore keyStore;
-    private X509HostnameVerifier x509HostnameVerifier;
-    private SSLSocketFactory sslSocketFactory;
+    private HostnameVerifier hostnameVerifier;
     private SSLContext sslContext;
 
     @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.getAuth().certificate(ClientSettingsFactory.certificateTlsSettings(this), port, sslSocketFactory);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalStateException if an SSLSocketFactory is set with {@link #setSslSocketFactory(SSLSocketFactory)},
-     *                               since an {@link AuthenticationContext} only takes an {@link SSLContext}
-     */
-    @Override
     public void authenticate(AuthenticationContext context) {
-        if (sslSocketFactory != null) {
-            throw new IllegalStateException("An SSLSocketFactory can't be used with an AuthenticationContext. Use setSslContext(..) instead of setSslSocketFactory(..).");
-        }
         context.certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
                 pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
-                port, JsseToHttpClient4Ssl.toHostnameVerifier(x509HostnameVerifier), sslContext);
+                port, hostnameVerifier, sslContext);
     }
 
     public Object getPathToKeyStore() {
@@ -134,51 +113,12 @@ public class CertAuthScheme implements AuthenticationScheme {
         this.keyStore = keyStore;
     }
 
-    /**
-     * @deprecated Use {@link #getHostnameVerifier()} instead. HttpClient 4 types are removed from the API in REST
-     * Assured 7.0.0.
-     */
-    @Deprecated
-    public X509HostnameVerifier getX509HostnameVerifier() {
-        return x509HostnameVerifier;
-    }
-
-    /**
-     * @deprecated Use {@link #setHostnameVerifier(HostnameVerifier)} instead. HttpClient 4 types are removed from the
-     * API in REST Assured 7.0.0.
-     */
-    @Deprecated
-    public void setX509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
-        this.x509HostnameVerifier = x509HostnameVerifier;
-    }
-
     public HostnameVerifier getHostnameVerifier() {
-        return JsseToHttpClient4Ssl.toHostnameVerifier(x509HostnameVerifier);
+        return hostnameVerifier;
     }
 
     public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-        this.x509HostnameVerifier = JsseToHttpClient4Ssl.toX509HostnameVerifier(hostnameVerifier);
-    }
-
-    /**
-     * @deprecated Use {@link #getSslContext()} instead. HttpClient 4 types are removed from the API in REST Assured
-     * 7.0.0.
-     */
-    @Deprecated
-    public SSLSocketFactory getSslSocketFactory() {
-        return sslSocketFactory;
-    }
-
-    /**
-     * A scheme with an SSLSocketFactory can't be used through an {@link AuthenticationContext}.
-     *
-     * @deprecated Use {@link #setSslContext(SSLContext)} instead. HttpClient 4 types are removed from the API in REST
-     * Assured 7.0.0.
-     */
-    @Deprecated
-    public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
-        this.sslSocketFactory = sslSocketFactory;
-        this.sslContext = null;
+        this.hostnameVerifier = hostnameVerifier;
     }
 
     public SSLContext getSslContext() {
@@ -186,12 +126,10 @@ public class CertAuthScheme implements AuthenticationScheme {
     }
 
     /**
-     * Use an {@link SSLContext} that you have set up yourself. It replaces an SSLSocketFactory set by
-     * {@link #setSslSocketFactory(SSLSocketFactory)}. Host names are verified strictly unless another verifier is set
-     * with {@link #setHostnameVerifier(HostnameVerifier)}.
+     * Use an {@link SSLContext} that you have set up yourself. Host names are verified strictly unless another verifier
+     * is set with {@link #setHostnameVerifier(HostnameVerifier)}.
      */
     public void setSslContext(SSLContext sslContext) {
         this.sslContext = sslContext;
-        this.sslSocketFactory = null;
     }
 }

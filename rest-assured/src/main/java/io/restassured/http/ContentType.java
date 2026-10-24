@@ -18,7 +18,6 @@ package io.restassured.http;
 
 import io.restassured.internal.http.ContentTypeExtractor;
 import io.restassured.internal.http.EncoderRegistry;
-import io.restassured.internal.http.HttpResponseContentTypeFinder;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
@@ -45,7 +44,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
  * The only difference being, equivalent content-types (i.e.
  * <code>application/xml</code> and <code>text/xml</code> are all added to the
  * request's <code>Accept</code> header.  By default, all equivalent content-types
- * are handled the same by the {@link EncoderRegistry} and {@link HttpResponseContentTypeFinder}
+ * are handled the same by the {@link EncoderRegistry} and the response parsers
  * as well.
  *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>

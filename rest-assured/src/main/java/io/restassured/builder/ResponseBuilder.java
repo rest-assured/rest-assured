@@ -33,13 +33,13 @@ import java.util.List;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static org.apache.commons.lang3.StringUtils.trim;
-import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * A builder to make it easier to create new {@link Response} implementations. This is useful if you're working with {@link Filter}s and want to
  * change the response you get from the sever somehow.
  */
 public class ResponseBuilder {
+    private static final String CONTENT_TYPE = "Content-Type";
 
     private RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
 
@@ -56,12 +56,11 @@ public class ResponseBuilder {
             restAssuredResponse.setDefaultContentType(raResponse.getDefaultContentType());
             restAssuredResponse.setDecoderConfig(raResponse.getDecoderConfig());
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
-            restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
+            restAssuredResponse.setResponseCloser(raResponse.getResponseCloser());
             restAssuredResponse.setConfig(raResponse.getConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
             restAssuredResponse.setLogRepository(raResponse.getLogRepository());
             restAssuredResponse.setFilterContextProperties(raResponse.getFilterContextProperties());
-            restAssuredResponse.setApacheHttpContext(raResponse.getApacheHttpContext());
             restAssuredResponse.setEffectiveUri(raResponse.getEffectiveUri());
         } else {
             restAssuredResponse.setContent(response.asInputStream());

@@ -242,6 +242,20 @@ public final class Redirects {
         return segments;
     }
 
+    /**
+     * Resolves a reference, such as the action of a login form, against a URI, as a relative {@code Location} is
+     * resolved
+     *
+     * @throws IllegalArgumentException if the reference isn't a URI
+     */
+    public static URI resolve(URI base, String reference) {
+        try {
+            return resolve(base, new URI(reference));
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+    }
+
     // Resolves a relative location against the URI of the request, as REST Assured has always resolved it
     private static URI resolve(URI requestUri, URI location) throws URISyntaxException {
         String reference = location.toASCIIString();

@@ -16,6 +16,7 @@
 package io.restassured.internal;
 
 import io.restassured.RestAssured;
+import io.restassured.authentication.AuthenticationContext;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.NoAuthScheme;
@@ -54,9 +55,9 @@ import io.restassured.internal.http.BoundaryExtractor;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.http.ContentDecoding;
 import io.restassured.internal.http.ContentTypeExtractor;
-import io.restassured.internal.http.HTTPBuilder;
-import io.restassured.internal.http.HttpClient4Transport;
+import io.restassured.internal.http.EncoderRegistry;
 import io.restassured.internal.http.RequestBodyEncoder;
+import io.restassured.internal.http.StringHashMap;
 import io.restassured.internal.http.URIBuilder;
 import io.restassured.internal.http.auth.ChallengeHandler;
 import io.restassured.internal.http.auth.CoreAuthenticationContext;
@@ -97,12 +98,11 @@ import io.restassured.specification.RequestLogSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import io.restassured.spi.AuthFilter;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.AbstractHttpClient;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -204,7 +204,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     private Map<String, Object> queryParameters = new LinkedHashMap<>();
     private Map<String, Object> formParameters = new LinkedHashMap<>();
     private Map<String, Object> namedPathParameters = new LinkedHashMap<>();
-    private Map<String, Object> httpClientParams = new LinkedHashMap<>();
     private RedirectSettings.Overrides redirects = new RedirectSettings.Overrides();
     private AuthenticationScheme authenticationScheme = new NoAuthScheme();
     private FilterableResponseSpecification responseSpecification;
@@ -219,8 +218,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     private ProxySpecification proxySpecification = null;
 
     private LogRepository logRepository;
-
-    private AbstractHttpClient httpClient;
 
     private boolean allowContentType;
 
@@ -268,7 +265,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.queryParameters = copyParameters(other.queryParameters);
         this.formParameters = copyParameters(other.formParameters);
         this.namedPathParameters = copyParameters(other.namedPathParameters);
-        this.httpClientParams = copyParameters(other.httpClientParams);
         this.redirects = other.redirects.copy();
         this.authenticationScheme = other.authenticationScheme;
         this.requestHeaders = other.requestHeaders;
@@ -280,7 +276,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.multiParts = new ArrayList<>(other.multiParts);
         this.proxySpecification = other.proxySpecification;
         this.logRepository = other.logRepository == null ? null : new LogRepository(other.logRepository);
-        this.httpClient = other.httpClient;
         this.allowContentType = other.allowContentType;
         this.addCsrfFilter = other.addCsrfFilter;
         this.explicitlySetValues.addAll(other.explicitlySetValues);
@@ -1039,11 +1034,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public RequestSpecification proxy(String host, int port, String scheme) {
-        try {
-            return proxy(new org.apache.http.client.utils.URIBuilder().setHost(host).setPort(port).setScheme(scheme).build());
-        } catch (URISyntaxException e) {
-            return SafeExceptionRethrower.safeRethrow(e);
-        }
+        // An IPv6 address is bracketed, as proxy(URI) has it, and any other host is kept as it is, even one that a URI
+        // doesn't allow, such as my_proxy
+        boolean ipv6Address = host != null && host.contains(":") && !host.startsWith("[");
+        return proxy(new ProxySpecification(ipv6Address ? "[" + host + "]" : host, port, scheme));
     }
 
     @Override
@@ -1591,10 +1585,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
         assertCorrectNumberOfPathParams();
 
-        // The Groovy implementation checked "!requestSpecification.getHttpClient() instanceof AbstractHttpClient" here, which
-        // never fired. A client that isn't an AbstractHttpClient fails with a ClassCastException instead (see below and
-        // applyPathParamsAndSendRequest).
-
         ResponseSpecificationImpl responseSpecification = (ResponseSpecificationImpl) this.responseSpecification;
         ResponseSpecificationImpl.HamcrestAssertionClosure hamcrestAssertionClosure = (ResponseSpecificationImpl.HamcrestAssertionClosure) assertionClosure;
         RestAssuredConfig config = getConfig();
@@ -1603,15 +1593,13 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         UnsupportedFeatures.verifyCustomizers(client, cfg.getHttpClientConfig().customizers());
         String defaultUserAgent = HttpClientParams.validate(cfg.getHttpClientConfig());
         EncoderConfig encoderConfig = config == null ? new EncoderConfig() : config.getEncoderConfig();
-        AbstractHttpClient httpClient4 = client.isHttpClient4() ? (AbstractHttpClient) requestSpecification.getHttpClient() : null;
-        HTTPBuilder http = new HTTPBuilder(targetUri, urlEncodingEnabled, encoderConfig, config == null ? null : config.getDecoderConfig(),
-                config == null ? null : config.getOAuthConfig(), httpClient4);
-        applyRestAssuredConfig(http);
-        registerRestAssuredEncoders(http);
-        setRequestHeadersToHttpBuilder(http);
+        Template template = new Template(toUri(targetUri), new StringHashMap<>(), newEncoders(encoderConfig));
+        applyRestAssuredConfig(template.encoders());
+        registerRestAssuredEncoders(template.encoders());
+        setRequestHeaders(template.headers());
 
         if (cookies.exist()) {
-            Map<Object, Object> httpHeaders = headersOf(http);
+            Map<Object, Object> httpHeaders = template.headers();
             Stream<String> cookiePairs = cookies.asList().stream().map(it -> it.getName() + "=" + (it.hasValue() ? it.getValue() : ""));
             Object cookieHeaderName = findHeaderName(httpHeaders, "Cookie");
             if (cookieHeaderName != null) {
@@ -1634,20 +1622,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
-        AuthenticationScheme legacyAuthenticationScheme = null;
-        CoreAuthenticationContext authentication = new CoreAuthenticationContext(headersOf(http), ((URIBuilder) http.getUri()).toURI(),
-                cfg.getOAuthConfig());
-        if (ProviderTransport.needsHttpBuilder(authenticationScheme)) {
-            if (!client.isHttpClient4()) {
-                throw ProviderTransport.cantAuthenticate(client, authenticationScheme);
-            }
-            legacyAuthenticationScheme = authenticationScheme;
-        } else {
-            authenticationScheme.authenticate(authentication);
-        }
-        HttpClientInstance transport = client.isHttpClient4()
-                ? new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, legacyAuthenticationScheme, authentication)
-                : ProviderTransport.create(client, cfg, proxySpecification, authenticationScheme, authentication);
+        CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig());
+        authenticate(authenticationScheme, authentication);
+        HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication);
         try {
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
             RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), authentication.ntlm());
@@ -1658,16 +1635,16 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 }
                 Object bodyContent = createFormParamBodyContent(assembleBodyContent(method));
                 if (POST.name().equalsIgnoreCase(method)) {
-                    request = newFormRequest(http, method, targetPath, queryParameters, bodyContent, acceptContentType, encoderConfig, contentDecoding, options);
+                    request = newFormRequest(template, method, targetPath, queryParameters, bodyContent, acceptContentType, encoderConfig, contentDecoding, options);
                 } else if (PATCH.name().equalsIgnoreCase(method)) {
-                    request = newFormRequest(http, method, targetPath, mergeMapsAndRetainOrder(requestParameters, queryParameters), bodyContent,
+                    request = newFormRequest(template, method, targetPath, mergeMapsAndRetainOrder(requestParameters, queryParameters), bodyContent,
                             acceptContentType, encoderConfig, contentDecoding, options);
                 } else {
                     requestBody = bodyContent;
-                    request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
+                    request = newRequest(template, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
                 }
             } else {
-                request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
+                request = newRequest(template, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
             }
 
             Exchange exchange = new Exchange(transport, redirects.resolve(cfg.getRedirectConfig()),
@@ -1675,9 +1652,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                     authentication.oauthSigner(), keptCookies(cfg.getHttpClientConfig()), defaultUserAgent);
             Exchanged exchanged = exchange.send(request);
             restAssuredResponse.setEffectiveUri(exchanged.effectiveUri());
-            if (transport instanceof HttpClient4Transport) {
-                restAssuredResponse.setApacheHttpContext(((HttpClient4Transport) transport).context());
-            }
             RequestDispatcher.receive(exchanged.response(), contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
         } catch (IOException e) {
             throw TransportExceptions.translate(e);
@@ -1685,6 +1659,31 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             transport.close();
         }
         return restAssuredResponse;
+    }
+
+    /**
+     * Turns the {@link AbstractMethodError} of a scheme that was compiled against REST Assured 6.x, and implements only
+     * the authenticate(HTTPBuilder) method that REST Assured 7 removed, into an error that says what to do.
+     */
+    private static void authenticate(AuthenticationScheme scheme, AuthenticationContext context) {
+        try {
+            scheme.authenticate(context);
+        } catch (AbstractMethodError e) {
+            if (implementsAuthenticate(scheme.getClass())) {
+                throw e;
+            }
+            throw new IllegalStateException("The authentication scheme " + scheme.getClass().getName() + " doesn't implement authenticate("
+                    + AuthenticationContext.class.getName() + "), which REST Assured 7 calls instead of authenticate(HTTPBuilder). Implement "
+                    + "authenticate(AuthenticationContext) and compile the scheme against REST Assured 7.", e);
+        }
+    }
+
+    private static boolean implementsAuthenticate(Class<?> schemeClass) {
+        try {
+            return !Modifier.isAbstract(schemeClass.getMethod("authenticate", AuthenticationContext.class).getModifiers());
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
     }
 
     /**
@@ -1702,36 +1701,59 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     // A POST, or a PATCH with form params or multiparts, is sent URL encoded unless the request has a content type
-    private HttpRequest newFormRequest(HTTPBuilder http, String method, String targetPath, Map<String, Object> query, Object bodyContent,
+    private HttpRequest newFormRequest(Template template, String method, String targetPath, Map<String, Object> query, Object bodyContent,
                                        Object acceptContentType, EncoderConfig encoderConfig, ContentDecoding contentDecoding,
                                        RequestOptions options) throws URISyntaxException {
         if (allowContentType) {
             String contentType = requestHeaders.getValue(CONTENT_TYPE);
-            return newRequest(http, method, targetPath, query, acceptContentType, contentType == null ? URLENC.toString() : contentType, bodyContent,
+            return newRequest(template, method, targetPath, query, acceptContentType, contentType == null ? URLENC.toString() : contentType, bodyContent,
                     encoderConfig, contentDecoding, options);
         }
-        return newRequest(http, method, targetPath, query, http.getContentType(), null, bodyContent, encoderConfig, contentDecoding, options);
+        return newRequest(template, method, targetPath, query, ANY, null, bodyContent, encoderConfig, contentDecoding, options);
     }
 
-    private HttpRequest newRequest(HTTPBuilder http, String method, String targetPath, Object acceptContentType, EncoderConfig encoderConfig,
+    private HttpRequest newRequest(Template template, String method, String targetPath, Object acceptContentType, EncoderConfig encoderConfig,
                                    ContentDecoding contentDecoding, RequestOptions options) throws URISyntaxException {
         Map<String, Object> query = mergeMapsAndRetainOrder(requestParameters, queryParameters);
         if (method.equals(GET.name())) {
             query = mergeMapsAndRetainOrder(query, formParameters);
         }
         String requestContentType = allowContentType ? defineRequestContentTypeAsString(method) : null;
-        return newRequest(http, method, targetPath, query, acceptContentType, requestContentType, requestBody, encoderConfig, contentDecoding, options);
+        return newRequest(template, method, targetPath, query, acceptContentType, requestContentType, requestBody, encoderConfig, contentDecoding, options);
     }
 
-    private HttpRequest newRequest(HTTPBuilder http, String method, String targetPath, Map<String, Object> query, Object acceptContentType,
+    private HttpRequest newRequest(Template template, String method, String targetPath, Map<String, Object> query, Object acceptContentType,
                                    String requestContentType, Object body, EncoderConfig encoderConfig, ContentDecoding contentDecoding,
                                    RequestOptions options) throws URISyntaxException {
-        URIBuilder uri = new URIBuilder(((URIBuilder) http.getUri()).toURI(), urlEncodingEnabled, encoderConfig);
+        URIBuilder uri = new URIBuilder(template.baseUri(), urlEncodingEnabled, encoderConfig);
         uri.setPath(targetPath);
         uri.setQuery(query);
         // The headers of the request specification, the cookies and the headers of the authentication scheme
-        return RequestDispatcher.newRequest(method, uri.toURI(), http.getHeaders(), acceptContentType, requestContentType, body, allowContentType,
-                requestHeaders.hasHeaderWithName("Accept"), http.getEncoders(), contentDecoding, options);
+        return RequestDispatcher.newRequest(method, uri.toURI(), template.headers(), acceptContentType, requestContentType, body, allowContentType,
+                requestHeaders.hasHeaderWithName("Accept"), template.encoders(), contentDecoding, options);
+    }
+
+    private static URI toUri(String targetUri) {
+        try {
+            return URIBuilder.convertToURI(targetUri);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    // The encoders of the content types, with the content types that the encoder config maps onto another one
+    private static EncoderRegistry newEncoders(EncoderConfig encoderConfig) {
+        EncoderRegistry encoders = new EncoderRegistry();
+        for (Entry<String, ContentType> entry : encoderConfig.contentEncoders().entrySet()) {
+            encoders.putAt(entry.getKey(), encoders.getAt(entry.getValue().getContentTypeStrings()[0]));
+        }
+        return encoders;
+    }
+
+    /**
+     * What every request of a send has in common: the URI without the path and query, the headers and the encoders
+     */
+    private record Template(URI baseUri, Map<Object, Object> headers, EncoderRegistry encoders) {
     }
 
     public void assertCorrectNumberOfPathParams() {
@@ -1784,12 +1806,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         }
     }
 
-    // The http client params, which HttpClient4Transport sets on the client, are collected in httpClientParams
-    public void applyRestAssuredConfig(HTTPBuilder http) {
+    private void applyRestAssuredConfig(EncoderRegistry encoders) {
         if (restAssuredConfig != null) {
-            applyHttpClientConfig(restAssuredConfig.getHttpClientConfig());
-            applyEncoderConfig(http, restAssuredConfig.getEncoderConfig());
-            http.getEncoders().setObjectMapperConfig(restAssuredConfig.getObjectMapperConfig());
+            encoders.setEncoderConfig(restAssuredConfig.getEncoderConfig());
+            encoders.setObjectMapperConfig(restAssuredConfig.getObjectMapperConfig());
             applySessionConfig(restAssuredConfig.getSessionConfig());
         }
     }
@@ -1797,16 +1817,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     public void applySessionConfig(SessionConfig sessionConfig) {
         if (sessionConfig.isSessionIdValueDefined() && !cookies.hasCookieWithName(sessionConfig.sessionIdName())) {
             cookie(sessionConfig.sessionIdName(), sessionConfig.sessionIdValue());
-        }
-    }
-
-    public void applyEncoderConfig(HTTPBuilder httpBuilder, EncoderConfig encoderConfig) {
-        httpBuilder.getEncoders().setEncoderConfig(encoderConfig);
-    }
-
-    public void applyHttpClientConfig(HttpClientConfig httpClientConfig) {
-        for (Entry<String, ?> entry : new LinkedHashMap<String, Object>(httpClientConfig.params()).entrySet()) {
-            httpClientParams.putIfAbsent(entry.getKey(), entry.getValue());
         }
     }
 
@@ -1831,8 +1841,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         return newMap;
     }
 
-    public void setRequestHeadersToHttpBuilder(HTTPBuilder http) {
-        Map<Object, Object> httpHeaders = headersOf(http);
+    private void setRequestHeaders(Map<Object, Object> httpHeaders) {
         for (Header header : requestHeaders) {
             String headerValue = header.getValue();
             // Headers whose names differ only in case are the same header and are sent under the name used first
@@ -1859,11 +1868,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         return httpHeaders.keySet().stream().filter(it -> headerName.equalsIgnoreCase(String.valueOf(it))).findFirst().orElse(null);
     }
 
-    @SuppressWarnings("unchecked")
-    private static Map<Object, Object> headersOf(HTTPBuilder http) {
-        return (Map<Object, Object>) http.getHeaders();
-    }
-
     private Object createFormParamBodyContent(Object bodyContent) {
         return bodyContent instanceof Map ? createFormParamBody(objects((Map<?, ?>) bodyContent)) : bodyContent;
     }
@@ -1881,7 +1885,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(baseUriPath, basePath), path);
     }
 
-    private void registerRestAssuredEncoders(HTTPBuilder http) {
+    private void registerRestAssuredEncoders(EncoderRegistry encoders) {
         // Multipart form-data
         if (multiParts.isEmpty()) {
             return;
@@ -1924,7 +1928,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             }
             return RequestBody.writer(writer::writeTo, writer.getContentLength(), writer.isRepeatable(), writer.getContentType());
         };
-        http.getEncoders().putAt(ct, multiPartEncoder);
+        encoders.putAt(ct, multiPartEncoder);
     }
 
     private static String generateBoundary() {
@@ -2212,7 +2216,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         filters.add(new SendRequestFilter());
         ResponseSpecificationImpl responseSpecificationImpl = (ResponseSpecificationImpl) responseSpecification;
         FilterContextImpl ctx = newFilterContext(responseSpecificationImpl.getAssertionClosure(), filters.iterator(), new LinkedHashMap<>());
-        httpClient = (AbstractHttpClient) httpClientConfig().httpClientInstance();
         Response response = ctx.next(this, responseSpecification);
         responseSpecificationImpl.getAssertionClosure().validate(response);
         return response;
@@ -2591,11 +2594,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RestAssuredConfig getConfig() {
         return restAssuredConfig;
-    }
-
-    @Override
-    public HttpClient getHttpClient() {
-        return httpClient;
     }
 
     @Override

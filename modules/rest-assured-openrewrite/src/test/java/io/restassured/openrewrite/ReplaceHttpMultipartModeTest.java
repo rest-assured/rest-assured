@@ -26,7 +26,7 @@ class ReplaceHttpMultipartModeTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        RecipeTestSupport.defaults(spec);
+        RecipeTestSupport.defaultsWithRestAssured6Configuration(spec);
         spec.recipe(new ReplaceHttpMultipartMode());
     }
 
@@ -96,7 +96,7 @@ class ReplaceHttpMultipartModeTest implements RewriteTest {
 
                         class A {
                             HttpClientConfig strict = new HttpClientConfig().httpMultipartMode(HttpMultipartMode.STRICT);
-                            HttpMultipartMode mode = strict.httpMultipartMode();
+                            HttpMultipartMode mode = HttpMultipartMode.STRICT;
                         }
                         """,
                         """
@@ -106,7 +106,7 @@ class ReplaceHttpMultipartModeTest implements RewriteTest {
 
                         class A {
                             HttpClientConfig strict = new HttpClientConfig().multipartMode(MultipartMode.STRICT);
-                            HttpMultipartMode mode = strict.httpMultipartMode();
+                            HttpMultipartMode mode = HttpMultipartMode.STRICT;
                         }
                         """
                 )

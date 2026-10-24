@@ -16,16 +16,10 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 /**
  * Authentication scheme that doesn't do any authentication
  */
 public class NoAuthScheme implements AuthenticationScheme {
-
-    @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

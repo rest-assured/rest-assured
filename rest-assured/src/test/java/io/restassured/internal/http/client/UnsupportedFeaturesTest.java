@@ -56,26 +56,6 @@ class UnsupportedFeaturesTest {
     }
 
     @Test
-    void what_only_http_client_4_does_says_how_to_use_it() {
-        Selection byConfig = new Selection(new FakeHttpClients.Apache5(), How.CONFIG, "httpClientConfig().client(APACHE5)");
-        Selection byProperty = new Selection(new FakeHttpClients.Apache5(), How.SYSTEM_PROPERTY, "the system property restassured.http.client=apache5");
-        Selection onTheClasspath = new Selection(new FakeHttpClients.Apache5(), How.CLASSPATH, null);
-
-        assertThat(UnsupportedFeatures.httpClient4Only(byConfig, "use the HttpClient 4 SSLSocketFactory of certificate authentication",
-                "give certificate authentication an SSLContext"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(APACHE5)) can't use the HttpClient 4 SSLSocketFactory of "
-                        + "certificate authentication. Remove httpClientConfig().client(..) to use Apache HttpClient 4, or give certificate "
-                        + "authentication an SSLContext.");
-        assertThat(UnsupportedFeatures.httpClient4Only(byProperty, "do this", "do that"))
-                .hasMessage("Apache HttpClient 5 (chosen with the system property restassured.http.client=apache5) can't do this. "
-                        + "Remove the system property restassured.http.client to use Apache HttpClient 4, or do that.");
-        assertThat(UnsupportedFeatures.httpClient4Only(onTheClasspath, "do this", "do that"))
-                .hasMessage("Apache HttpClient 5 (found on the classpath, http-client-apache5) can't do this. "
-                        + "Remove io.rest-assured:http-client-apache5 from the classpath to use Apache HttpClient 4, or do that.");
-    }
-
-    @Test
     void a_customizer_for_the_builder_of_the_chosen_client_or_a_supertype_is_accepted() {
         Selection jdk = new Selection(new FakeHttpClients.Jdk(), How.DEFAULT, null);
 
@@ -98,13 +78,5 @@ class UnsupportedFeaturesTest {
 
         assertThatThrownBy(() -> UnsupportedFeatures.verifyCustomizers(okHttp, List.of(new ClientCustomizer(Object.class, builder -> { }))))
                 .hasMessage("A customizer for java.lang.Object is configured, but REST Assured uses OkHttp, which can't be customized.");
-    }
-
-    @Test
-    void a_customizer_fails_for_http_client_4() {
-        assertThatThrownBy(() -> UnsupportedFeatures.verifyCustomizers(new Selection(null, How.DEFAULT, null),
-                List.of(new ClientCustomizer(HttpClient.Builder.class, builder -> { }))))
-                .hasMessage("A customizer for java.net.http.HttpClient$Builder is configured, but REST Assured uses Apache HttpClient 4, "
-                        + "which you customize with httpClientConfig().httpClientFactory(..).");
     }
 }

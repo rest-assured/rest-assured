@@ -32,7 +32,7 @@ import java.util.Map;
  * String. 
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
-class StringHashMap<V> extends HashMap<Object,V> {
+public class StringHashMap<V> extends HashMap<Object,V> {
 	
 	private static final long serialVersionUID = -92935672093270924L;
 

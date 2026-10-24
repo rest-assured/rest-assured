@@ -193,38 +193,58 @@ public class SSLITest {
             RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation())).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         }
 
-        @Disabled("Site is not working anymore")
+        // The certificate of the server is issued for org.restassured, not localhost, and no trust store trusts it.
+        // Relaxed validation accepts it all the same.
         @Test
         public void
         relaxed_https_validation_works_using_instance_dsl() {
-            RestAssured.given().relaxedHTTPSValidation().when().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+            RestAssured.given().relaxedHTTPSValidation().when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         }
 
-        @Disabled("Site is not working anymore")
         @Test
         public void
         relaxed_https_validation_works_when_defined_statically() {
             RestAssured.useRelaxedHTTPSValidation();
 
             try {
-                RestAssured.get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+                RestAssured.get("https://localhost:8443/hello").then().spec(helloWorldSpec());
             } finally {
                 RestAssured.reset();
             }
         }
 
-        @Disabled("Site is not working anymore")
         @Test
         public void
         relaxed_https_validation_works_when_defined_statically_with_base_uri() {
             RestAssured.useRelaxedHTTPSValidation();
-            RestAssured.baseURI = "https://bunny.cloudamqp.com";
+            RestAssured.baseURI = "https://localhost:8443";
 
             try {
-                RestAssured.get("/api/").then().statusCode(200);
+                RestAssured.get("/hello").then().spec(helloWorldSpec());
             } finally {
                 RestAssured.reset();
             }
+        }
+
+        @Test
+        public void
+        allow_all_hostnames_accepts_a_trusted_certificate_issued_for_another_host_using_instance_dsl() {
+            // The certificate of the server is issued for org.restassured, not localhost
+            RestAssured.given().
+                    config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().trustStore("jetty_localhost_client.jks", "test1234").allowAllHostnames())).
+                    when().
+                    get("https://localhost:8443/hello").
+                    then().
+                    spec(helloWorldSpec());
+        }
+
+        @Test
+        public void
+        a_trusted_certificate_issued_for_another_host_is_rejected_without_allow_all_hostnames() {
+            RestAssuredConfig config = RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().trustStore("jetty_localhost_client.jks", "test1234"));
+
+            assertThatThrownBy(() -> RestAssured.given().config(config).get("https://localhost:8443/hello"))
+                    .isInstanceOf(javax.net.ssl.SSLException.class);
         }
 
         @Test

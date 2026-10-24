@@ -17,21 +17,15 @@
 package io.restassured.config;
 
 import io.restassured.internal.common.assertion.AssertParameter;
-import io.restassured.internal.http.JsseToHttpClient4Ssl;
-import io.restassured.internal.http.client.ClientSettingsFactory;
+import io.restassured.internal.http.HostnameVerifiers;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-
-import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
 
 /**
  * Configure SSL for REST Assured.
@@ -40,11 +34,11 @@ import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER
  * <p>
  * <h1>SSL Configuration</h1>
  * <p/>
- * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+ * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below.
  * <p/>
  * <h1>SSLPeerUnverifiedException</h1>
  * <p/>
- * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
+ * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
  * <p/>
  * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
  * <pre>
@@ -101,11 +95,8 @@ public class SSLConfig implements Config {
     private final KeyStore trustStore;
     private final KeyStore keyStore;
     private final HostnameVerifier hostnameVerifier;
-    // The verifier as HttpClient 4 type, so that getX509HostnameVerifier() returns the same instance every time
-    private final X509HostnameVerifier x509HostnameVerifier;
     private final String relaxedProtocol;
     private final boolean isUserConfigured;
-    private final SSLSocketFactory sslSocketFactory;
     private final SSLContext sslContext;
 
     /**
@@ -121,7 +112,7 @@ public class SSLConfig implements Config {
     public SSLConfig keyStore(String pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -135,7 +126,7 @@ public class SSLConfig implements Config {
     public SSLConfig keyStore(File pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -157,7 +148,7 @@ public class SSLConfig implements Config {
     public SSLConfig trustStore(String pathToTrustStore, String password) {
         Validate.notNull(pathToTrustStore, "Path to trust store on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -171,7 +162,7 @@ public class SSLConfig implements Config {
     public SSLConfig trustStore(File pathToTrustStore, String password) {
         Validate.notNull(pathToTrustStore, "Path to trust store on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -183,18 +174,18 @@ public class SSLConfig implements Config {
      * <li>{@link java.security.KeyStore#getDefaultType()}</li>
      * <li>No explicit default port</li>
      * <li>No trust store</li>
-     * <li>No SSLSocketFactory and no SSLContext</li>
-     * <li>{@link org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER} as {@link X509HostnameVerifier} implementation</li>
+     * <li>No SSLContext</li>
+     * <li>Strict host name verification (see {@link #strictHostnames()})</li>
      * </ul>
      */
     public SSLConfig() {
-        this(null, null, null, null, KeyStore.getDefaultType(), KeyStore.getDefaultType(), UNDEFINED_PORT, null, null, STRICT_HOSTNAME_VERIFIER, null, null, null, false);
+        this(null, null, null, null, KeyStore.getDefaultType(), KeyStore.getDefaultType(), UNDEFINED_PORT, null, null, HostnameVerifiers.STRICT, null, null, false);
     }
 
     private SSLConfig(Object pathToKeyStore, Object pathToTrustStore, String keyStorePassword, String trustStorePassword,
                       String keyStoreType, String trustStoreType, int port, KeyStore keystore,
-                      KeyStore trustStore, HostnameVerifier hostnameVerifier, SSLSocketFactory sslSocketFactory,
-                      SSLContext sslContext, String relaxedProtocol, boolean isUserConfigured) {
+                      KeyStore trustStore, HostnameVerifier hostnameVerifier, SSLContext sslContext, String relaxedProtocol,
+                      boolean isUserConfigured) {
         AssertParameter.notNull(keyStoreType, "Certificate type");
         AssertParameter.notNull(hostnameVerifier, HostnameVerifier.class);
         this.pathToKeyStore = pathToKeyStore;
@@ -206,12 +197,9 @@ public class SSLConfig implements Config {
         this.port = port;
         this.trustStore = trustStore;
         this.keyStore = keystore;
-        // The copies get the X509 form, so that a JSSE verifier is wrapped only once
-        this.x509HostnameVerifier = JsseToHttpClient4Ssl.toX509HostnameVerifier(hostnameVerifier);
-        this.hostnameVerifier = JsseToHttpClient4Ssl.toHostnameVerifier(this.x509HostnameVerifier);
+        this.hostnameVerifier = hostnameVerifier;
         this.relaxedProtocol = relaxedProtocol;
         this.isUserConfigured = isUserConfigured;
-        this.sslSocketFactory = sslSocketFactory;
         this.sslContext = sslContext;
     }
 
@@ -222,7 +210,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig keystoreType(String keystoreType) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keystoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keystoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -232,7 +220,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig trustStoreType(String trustStoreType) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -243,7 +231,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig port(int port) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -253,7 +241,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig trustStore(KeyStore trustStore) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -263,7 +251,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig keyStore(KeyStore keyStore) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -296,27 +284,12 @@ public class SSLConfig implements Config {
         } catch (NoSuchAlgorithmException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, null, null, protocol, true);
-    }
-
-    /**
-     * Specify a {@link org.apache.http.conn.ssl.SSLSocketFactory}. This will override settings from trust store as well as keystore and password.
-     * It replaces an {@link SSLContext} set by {@link #sslContext(SSLContext)}.
-     *
-     * @param sslSocketFactory The {@link org.apache.http.conn.ssl.SSLSocketFactory} to use.
-     * @return A new SSLConfig instance
-     * @deprecated Use {@link #sslContext(SSLContext)} instead, and {@link #hostnameVerifier(HostnameVerifier)} for the
-     * host name verification. HttpClient 4 types are removed from the API in REST Assured 7.0.0.
-     */
-    @Deprecated
-    public SSLConfig sslSocketFactory(SSLSocketFactory sslSocketFactory) {
-        AssertParameter.notNull(sslSocketFactory, SSLSocketFactory.class);
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, null, null, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, null, protocol, true);
     }
 
     /**
      * Use an {@link SSLContext} that you have set up yourself, for example with your own key and trust managers. This
-     * overrides the trust store and key store settings. Host names are still verified as configured by
+     * overrides the trust store and key store settings, and relaxed HTTPS validation. Host names are still verified as configured by
      * {@link #hostnameVerifier(HostnameVerifier)}, {@link #allowAllHostnames()} or {@link #strictHostnames()} (the default).
      *
      * @param sslContext The SSL context to use.
@@ -324,13 +297,12 @@ public class SSLConfig implements Config {
      */
     public SSLConfig sslContext(SSLContext sslContext) {
         AssertParameter.notNull(sslContext, SSLContext.class);
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, null, sslContext, null, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, null, true);
     }
 
     /**
      * Provide a custom {@link HostnameVerifier} that decides whether the host name of the server matches its
-     * certificate. You can use it for example to allow a specific host name. It isn't used when an SSLSocketFactory
-     * is set with sslSocketFactory(..), since that factory verifies host names itself, or with
+     * certificate. You can use it for example to allow a specific host name. It isn't used with
      * {@link #relaxedHTTPSValidation()}, which allows every host name.
      *
      * @param hostnameVerifier The HostnameVerifier to use.
@@ -340,43 +312,25 @@ public class SSLConfig implements Config {
      */
     public SSLConfig hostnameVerifier(HostnameVerifier hostnameVerifier) {
         AssertParameter.notNull(hostnameVerifier, HostnameVerifier.class);
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
-    }
-
-    /**
-     * Provide a custom {@link X509HostnameVerifier} implementation that'll be used by the {@link org.apache.http.conn.ssl.SSLSocketFactory}. You can replace the
-     * {@link X509HostnameVerifier} for example if you want to allow all host names etc.
-     *
-     * @param x509HostnameVerifier The X509HostnameVerifier to use.
-     * @return A new SSLConfig instance
-     * @see #allowAllHostnames()
-     * @see #strictHostnames()
-     * @deprecated Use {@link #hostnameVerifier(HostnameVerifier)} instead. HttpClient 4 types are removed from the API
-     * in REST Assured 7.0.0.
-     */
-    @Deprecated
-    public SSLConfig x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
      * Configure the SSLConfig to use strict host name verification (this is the default behavior).
      *
      * @return A new SSLConfig instance
-     * @see org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER
      */
     public SSLConfig strictHostnames() {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, STRICT_HOSTNAME_VERIFIER, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, HostnameVerifiers.STRICT, sslContext, relaxedProtocol, true);
     }
 
     /**
      * Configure the SSLConfig to allow all host names.
      *
      * @return A new SSLConfig instance
-     * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
      */
     public SSLConfig allowAllHostnames() {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, sslSocketFactory, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, HostnameVerifiers.ALLOW_ALL, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -477,36 +431,10 @@ public class SSLConfig implements Config {
     }
 
     /**
-     * @return The configured SSLSocketFactory, or a new one created from the {@link SSLContext} set by
-     * {@link #sslContext(SSLContext)} and the configured host name verification, or, after
-     * {@link #relaxedHTTPSValidation()}, a new one that trusts every certificate and host name and sends the client
-     * certificate of the key store. The key store is read on each call then, so this method throws the exception of
-     * reading it, such as an IOException for a wrong password.
-     * @deprecated Use {@link #getSSLContext()} instead. HttpClient 4 types are removed from the API in REST Assured 7.0.0.
-     */
-    @Deprecated
-    public SSLSocketFactory getSSLSocketFactory() {
-        if (sslSocketFactory != null || sslContext == null && relaxedProtocol == null) {
-            return sslSocketFactory;
-        }
-        return JsseToHttpClient4Ssl.toSSLSocketFactory(ClientSettingsFactory.tlsSettings(this));
-    }
-
-    /**
      * @return The SSL context set by {@link #sslContext(SSLContext)}, or {@code null} if none is set.
      */
     public SSLContext getSSLContext() {
         return sslContext;
-    }
-
-    /**
-     * @return The X509HostnameVerifier instance.
-     * @deprecated Use {@link #getHostnameVerifier()} instead. HttpClient 4 types are removed from the API in REST
-     * Assured 7.0.0.
-     */
-    @Deprecated
-    public X509HostnameVerifier getX509HostnameVerifier() {
-        return x509HostnameVerifier;
     }
 
     /**

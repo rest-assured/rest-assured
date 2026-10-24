@@ -29,26 +29,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The OSGi headers of the rest-assured bundle for the HTTP client modules, which are found by class name, and for the
- * HTTP clients of other libraries, which are found with ServiceLoader and SPI Fly. All of them are optional, so that
- * the bundle resolves without them (see {@link NoPathEngineOSGiITest}).
+ * HTTP clients of other libraries, which are found with ServiceLoader and SPI Fly. http-client-jdk, the default
+ * client, is required. The others are optional, so that the bundle resolves without them (see
+ * {@link NoPathEngineOSGiITest}).
  */
 public class RestAssuredBundleManifestTest {
 
     @Test
-    public void the_http_client_modules_and_json_path_jayway_are_optional_imports_of_this_version_up_to_the_next_minor() throws Exception {
+    public void the_http_client_modules_and_json_path_jayway_are_imports_of_this_version_up_to_the_next_minor() throws Exception {
         List<String> imports = clauses(header("Import-Package"));
         // Such as [7.0,7.1) for 7.0.0.SNAPSHOT
         String[] version = header("Bundle-Version").split("\\.");
         String range = "version=\"[" + version[0] + "." + version[1] + "," + version[0] + "." + (Integer.parseInt(version[1]) + 1) + ")\"";
 
-        assertThat(imports).anySatisfy(clause -> assertThat(clause).startsWith("io.restassured.http.jdk;").contains("resolution:=optional").contains(range));
+        assertThat(imports).anySatisfy(clause -> assertThat(clause).startsWith("io.restassured.http.jdk;").doesNotContain("resolution:=optional").contains(range));
         assertThat(imports).anySatisfy(clause -> assertThat(clause).startsWith("io.restassured.http.apache5;").contains("resolution:=optional").contains(range));
         assertThat(imports).anySatisfy(clause -> assertThat(clause).startsWith("io.restassured.internal.path.jayway;").contains("resolution:=optional").contains(range));
     }
 
     @Test
-    public void the_http_client_modules_are_dynamic_imports_and_not_exported() throws Exception {
-        assertThat(clauses(header("DynamicImport-Package"))).contains("io.restassured.http.jdk", "io.restassured.http.apache5");
+    public void the_optional_http_client_module_is_a_dynamic_import_and_no_http_client_module_is_exported() throws Exception {
+        assertThat(clauses(header("DynamicImport-Package"))).contains("io.restassured.http.apache5").doesNotContain("io.restassured.http.jdk");
         assertThat(clauses(header("Export-Package"))).noneMatch(clause -> clause.startsWith("io.restassured.http.jdk") || clause.startsWith("io.restassured.http.apache5"));
     }
 

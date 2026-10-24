@@ -57,7 +57,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * <li>the client of {@link HttpClientConfig#client()}</li>
  * <li>the client named by the system property {@code restassured.http.client}, read for each request</li>
  * <li>http-client-apache5, if it's on the classpath</li>
- * <li>HttpClient 4, the default until REST Assured 7.0.0 makes http-client-jdk the default</li>
+ * <li>http-client-jdk, the default module, which rest-assured depends on</li>
  * </ol>
  * REST Assured's own client modules are found by class name, after checking that their version matches REST
  * Assured's. The clients of other libraries are found with {@link ServiceLoader}, only when one is named or for the
@@ -111,7 +111,8 @@ public final class HttpClientProviders {
      * @return The client that sends a request with this config. The choice is made once for each way of choosing, except
      * that in OSGi the classpath is searched again while http-client-apache5 is missing. The first time a client is
      * chosen, a message says which one it is.
-     * @throws IllegalStateException If the chosen client isn't on the classpath, or its version doesn't match
+     * @throws IllegalStateException If the chosen client isn't on the classpath, or its version doesn't match, or no
+     *                               client module is on the classpath
      */
     public static Selection select(HttpClientConfig config) {
         return INSTANCE.selectFor(config);
@@ -130,7 +131,7 @@ public final class HttpClientProviders {
         Selection selection = selections.get(choice);
         if (selection == null) {
             selection = resolve(choice);
-            // Without http-client-apache5, which may be installed later in OSGi
+            // The default, while http-client-apache5 may be installed later in OSGi
             if (selection.how() != How.DEFAULT || !osgi) {
                 Selection other = selections.putIfAbsent(choice, selection);
                 selection = other == null ? selection : other;
@@ -142,9 +143,11 @@ public final class HttpClientProviders {
     private Selection resolve(Choice choice) {
         Selection selection;
         if (choice.how() == How.CLASSPATH) {
-            BuiltIn apache5 = builtInOf(HttpClientType.APACHE5);
-            selection = load(apache5).map(provider -> new Selection(provider, How.CLASSPATH, null))
-                    .orElseGet(() -> new Selection(null, How.DEFAULT, null));
+            selection = load(builtInOf(HttpClientType.APACHE5)).map(provider -> new Selection(provider, How.CLASSPATH, null))
+                    .or(() -> load(builtInOf(HttpClientType.JDK)).map(provider -> new Selection(provider, How.DEFAULT, null)))
+                    .orElseThrow(() -> new IllegalStateException("REST Assured found no HTTP client module. Add io.rest-assured:"
+                            + builtInOf(HttpClientType.JDK).artifactId() + " (no other dependencies) or io.rest-assured:"
+                            + builtInOf(HttpClientType.APACHE5).artifactId() + " to your test dependencies."));
         } else {
             String chosenBy = chosenBy(choice);
             HttpClientProvider provider;
@@ -245,12 +248,12 @@ public final class HttpClientProviders {
 
     private void logOnce(Selection selection) {
         HttpClientProvider provider = selection.provider();
-        if (!loggedClients.add(provider == null ? "" : provider.getClass().getName())) {
+        if (!loggedClients.add(provider.getClass().getName())) {
             return;
         }
-        // Until the JDK client becomes the default module, the default is HttpClient 4, which has no provider
+        // The default needs no message in every test run
         if (selection.how() == How.DEFAULT) {
-            log.accept(DEBUG, "REST Assured uses Apache HttpClient 4.");
+            log.accept(DEBUG, "REST Assured uses " + provider.displayName() + " from " + provider.artifact() + ".");
             return;
         }
         StringBuilder message = new StringBuilder("REST Assured uses the HTTP client from ").append(provider.artifact());
@@ -408,7 +411,7 @@ public final class HttpClientProviders {
          */
         CLASSPATH,
         /**
-         * The default, used when nothing else is
+         * The default module, http-client-jdk, used when nothing else is
          */
         DEFAULT
     }
@@ -416,24 +419,11 @@ public final class HttpClientProviders {
     /**
      * The client that sends a request.
      *
-     * @param provider The provider of the client, or {@code null} for HttpClient 4
+     * @param provider The provider of the client
      * @param how      How it was chosen
      * @param chosenBy The choice in words, such as {@code httpClientConfig().client(JDK)}, or {@code null} if it wasn't chosen
      */
     public record Selection(HttpClientProvider provider, How how, String chosenBy) {
-        /**
-         * @return Whether the request is sent with HttpClient 4, which isn't a provider
-         */
-        public boolean isHttpClient4() {
-            return provider == null;
-        }
-
-        /**
-         * @return The name of the client in messages, such as {@code the JDK HTTP client}
-         */
-        public String displayName() {
-            return provider == null ? "Apache HttpClient 4" : provider.displayName();
-        }
     }
 
     record BuiltIn(HttpClientType type, String className, String artifactId) {

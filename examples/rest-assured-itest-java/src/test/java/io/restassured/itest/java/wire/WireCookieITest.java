@@ -16,14 +16,17 @@
 
 package io.restassured.itest.java.wire;
 
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.HttpClientType;
+import io.restassured.config.MultipartMode;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
-import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -190,6 +193,21 @@ public class WireCookieITest extends WireTest {
     }
 
     @Test public void
+    kept_response_cookies_are_shared_by_copies_of_the_config_that_keep_its_http_client() {
+        HttpClientConfig reused = httpClientConfig().reuseHttpClientInstance().keepResponseCookies(true);
+        server.respond("/set", setCookies("a=1"));
+
+        given().config(config().httpClient(reused)).get(server.url("/set")).asString();
+        given().config(config().httpClient(reused.multipartMode(MultipartMode.BROWSER_COMPATIBLE).client(HttpClientType.JDK))).get(server.url("/p")).asString();
+        given().config(config().httpClient(reused.readTimeout(Duration.ofSeconds(30)))).get(server.url("/p")).asString();
+
+        List<RecordedRequest> requests = server.requests();
+        assertThat(requests.get(1).headers("Cookie")).containsExactly("a=1");
+        // As in REST Assured 6, a copy with other settings starts with a new HTTP client, so without the kept cookies
+        assertThat(requests.get(2).hasHeader("Cookie")).isFalse();
+    }
+
+    @Test public void
     kept_response_cookies_are_sent_in_a_second_cookie_header_after_the_request_cookies() {
         RestAssuredConfig config = reuseAndKeepResponseCookies();
         server.respond("/set", setCookies("a=1"));
@@ -197,8 +215,9 @@ public class WireCookieITest extends WireTest {
         given().config(config).get(server.url("/set")).asString();
         given().config(config).cookie("x", "9").cookie("a", "explicit").get(server.url("/p")).asString();
 
-        // Today's behavior: two Cookie headers, and a kept cookie is sent even when the request sets one with the same name
-        assertThat(server.lastRequest().headers("Cookie")).containsExactly(cookieHeaders("x=9; a=explicit", "a=1"));
+        // Today's behavior: a kept cookie is sent even when the request sets one with the same name. JDK differences table,
+        // not in the table: the JDK client joins the Cookie headers of a request into one
+        assertThat(server.lastRequest().headers("Cookie")).containsExactly("x=9; a=explicit; a=1");
     }
 
     @Test public void
@@ -568,8 +587,8 @@ public class WireCookieITest extends WireTest {
         response.then().statusCode(200);
         List<RecordedRequest> requests = server.requests();
         assertThat(requests.get(0).headers("Cookie")).containsExactly("c=v");
-        // Today's behavior: two Cookie headers on the follow-up
-        assertThat(requests.get(1).headers("Cookie")).containsExactly(cookieHeaders("c=v", "fromRedirect=1"));
+        // JDK differences table, not in the table: the JDK client joins the Cookie headers of a request into one
+        assertThat(requests.get(1).headers("Cookie")).containsExactly("c=v; fromRedirect=1");
         assertThat(response.getCookies()).isEmpty();
     }
 
@@ -657,10 +676,5 @@ public class WireCookieITest extends WireTest {
             responder = responder.withHeader("Set-Cookie", setCookieHeaders[i]);
         }
         return responder;
-    }
-
-    // JDK differences table, not in the table: the JDK client joins the Cookie headers of a request into one
-    private static String[] cookieHeaders(String... headers) {
-        return TestClient.isJdk() ? new String[]{String.join("; ", headers)} : headers;
     }
 }

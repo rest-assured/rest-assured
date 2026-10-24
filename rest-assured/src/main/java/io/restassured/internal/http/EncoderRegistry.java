@@ -36,10 +36,8 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * <p>This class handles creation of the request body (i.e. for a
- * PUT or POST operation) based on content-type.   When a
- * {@link HTTPBuilder.RequestConfigDelegate#setBody(Object) body} is set from the builder, it is
- * processed based on the {@link HTTPBuilder.RequestConfigDelegate#getRequestContentType()
- * request content-type}.  For instance, the {@link #encodeJSON(Object, Object)}
+ * PUT or POST operation) based on content-type.   A request body is
+ * processed based on the request content-type.  For instance, the {@link #encodeJSON(Object, Object)}
  * method will be invoked if the request content-type is JSON, which will
  * cause a Map body to be encoded as a JSON object in the request body.
  * Every encoder produces a {@link RequestBody}.</p>
@@ -289,7 +287,7 @@ public class EncoderRegistry {
 
     /**
      * Retrieve a encoder for the given content-type.  This
-     * is called by HTTPBuilder to retrieve the correct encoder for a given
+     * is called by REST Assured to retrieve the correct encoder for a given
      * content-type.  The encoder is then used to serialize the request data
      * in the request body.
      *
@@ -339,7 +337,7 @@ public class EncoderRegistry {
      * Register a new encoder for the given content type.  If any encoder
      * previously existed for that content type it will be replaced.  The
      * encoder is called with the request content-type and the request body,
-     * which is whatever is set via {@link HTTPBuilder.RequestConfigDelegate#setBody(Object, Object)}.
+     * which is whatever the request specification sends.
      *
      * @param contentType
      */

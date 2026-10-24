@@ -62,9 +62,6 @@ public class PathOSGiITest {
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy").versionAsInProject(),
 
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
                         mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject(),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
 

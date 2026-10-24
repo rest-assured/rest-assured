@@ -16,8 +16,6 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 public class OAuthScheme implements AuthenticationScheme {
 
     private String consumerKey;
@@ -25,15 +23,6 @@ public class OAuthScheme implements AuthenticationScheme {
     private String accessToken;
     private String secretToken;
     private OAuthSignature signature;
-
-    @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-        if (signature != null) {
-            httpBuilder.getAuth().oauth(consumerKey, consumerSecret, accessToken, secretToken, signature);
-        } else {
-            httpBuilder.getAuth().oauth(consumerKey, consumerSecret, accessToken, secretToken);
-        }
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

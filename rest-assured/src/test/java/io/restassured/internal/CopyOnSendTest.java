@@ -78,7 +78,6 @@ class CopyOnSendTest {
         assertThat(queryable.getCookies().exist()).isFalse();
         assertThat((Object) queryable.getBody()).isNull();
         assertThat(queryable.getAuthenticationScheme()).isInstanceOf(NoAuthScheme.class);
-        assertThat(queryable.getHttpClient()).isNull();
     }
 
     @Test

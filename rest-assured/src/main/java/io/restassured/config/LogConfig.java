@@ -30,7 +30,8 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * Configure the logging for REST Assured. <p>Note that <i>only</i> things known to REST Assured (i.e. the request- and response specifications) will be logged. If you need to log what's <i>actually</i> sent on the wire
- * refer to the <a href="http://hc.apache.org/httpcomponents-client-ga/logging.html">HTTP Client logging docs</a> or use an external tool such as
+ * refer to the logging docs of the HTTP client, such as the <code>jdk.httpclient.HttpClient.log</code> system property of the
+ * JDK HTTP client, or use an external tool such as
  * <a href="http://www.wireshark.org/">Wireshark</a>.</p>
  */
 public class LogConfig implements Config {

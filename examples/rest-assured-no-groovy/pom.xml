@@ -25,14 +25,38 @@
 
     <artifactId>rest-assured-no-groovy</artifactId>
     <name>REST Assured without Groovy</name>
-    <description>Checks that a project that depends only on rest-assured doesn't get Groovy</description>
+    <description>Checks that a project that depends only on rest-assured doesn't get Groovy or Apache HttpClient 4</description>
 
     <build>
         <plugins>
-            <!-- Fails the build if rest-assured brings Groovy (see the root pom) -->
+            <!-- Fails the build if rest-assured brings Groovy (see the root pom), or Apache HttpClient 4 and the libraries
+                 it needed, which REST Assured 7.0 replaced with the JDK HTTP client -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>ban-http-client-4</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>org.apache.httpcomponents:*:*:*:compile</exclude>
+                                        <exclude>org.apache.httpcomponents:*:*:*:runtime</exclude>
+                                        <exclude>commons-codec:*:*:*:compile</exclude>
+                                        <exclude>commons-codec:*:*:*:runtime</exclude>
+                                        <exclude>commons-logging:*:*:*:compile</exclude>
+                                        <exclude>commons-logging:*:*:*:runtime</exclude>
+                                    </excludes>
+                                    <message>Apache HttpClient 4, commons-codec and commons-logging must not be compile or runtime dependencies: REST Assured uses the JDK HTTP client.</message>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

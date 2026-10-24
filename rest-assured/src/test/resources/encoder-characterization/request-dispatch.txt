@@ -3,49 +3,42 @@
 GET /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 GET /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 /s/500
 GET /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body body 500
 /json/201
 GET /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body {"status":201}
 /e/204
 GET /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
 /e/200
 GET /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
 /e/404
 GET /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
 == GET query, headers and cookies
@@ -53,7 +46,6 @@ GET /e/404
 GET /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -63,7 +55,6 @@ GET /s/200?q=a%20b&multi=1&multi=2
 GET /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -74,14 +65,12 @@ GET /s/404?q=a%20b&multi=1&multi=2
 GET /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /404
 GET /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == GET form params
@@ -89,7 +78,6 @@ GET /s/404
 GET /s/200?q=1&f=1&g=%C3%A5%C3%A4
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -97,7 +85,6 @@ GET /s/200?q=1&f=1&g=%C3%A5%C3%A4
 GET /s/404?q=1&f=1&g=%C3%A5%C3%A4
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -106,7 +93,6 @@ GET /s/404?q=1&f=1&g=%C3%A5%C3%A4
 GET /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -115,7 +101,6 @@ GET /s/200
 GET /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -125,14 +110,12 @@ GET /s/404
 GET /s/200?f=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 GET /s/404?f=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == GET no content-type with body
@@ -140,7 +123,6 @@ GET /s/404?f=1
 GET /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -148,7 +130,6 @@ GET /s/200
 GET /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -157,14 +138,12 @@ GET /s/404
 GET /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 GET /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == GET expected response content-type
@@ -172,7 +151,6 @@ GET /s/404
 GET /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -180,7 +158,6 @@ GET /s/200
 GET /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -189,7 +166,6 @@ GET /s/404
 GET /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -198,7 +174,6 @@ GET /s/200
 GET /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -208,7 +183,6 @@ GET /s/404
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -217,7 +191,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -226,7 +199,6 @@ POST /s/404
 POST /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -235,7 +207,6 @@ POST /s/500
 POST /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -244,7 +215,6 @@ POST /json/201
 POST /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -253,7 +223,6 @@ POST /e/204
 POST /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -262,7 +231,6 @@ POST /e/200
 POST /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -272,7 +240,6 @@ POST /e/404
 POST /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > Cookie: [c=v; d=w]
@@ -284,7 +251,6 @@ POST /s/200?q=a%20b&multi=1&multi=2
 POST /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > Cookie: [c=v; d=w]
@@ -297,7 +263,6 @@ POST /s/404?q=a%20b&multi=1&multi=2
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -306,7 +271,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -316,7 +280,6 @@ POST /s/404
 POST /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -325,7 +288,6 @@ POST /s/200?q=1
 POST /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -335,7 +297,6 @@ POST /s/404?q=1
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -344,7 +305,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -354,7 +314,6 @@ POST /s/404
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -362,7 +321,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -371,7 +329,6 @@ POST /s/404
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -379,7 +336,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -388,7 +344,6 @@ POST /s/404
 POST /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -397,7 +352,6 @@ POST /s/200
 POST /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -407,7 +361,6 @@ POST /s/404
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -416,7 +369,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: 
@@ -426,7 +378,6 @@ POST /s/404
 POST /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -435,7 +386,6 @@ POST /s/200
 POST /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -445,7 +395,6 @@ POST /s/404
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -453,7 +402,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -461,7 +409,6 @@ PUT /s/404
 PUT /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body body 500
@@ -469,7 +416,6 @@ PUT /s/500
 PUT /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body {"status":201}
@@ -477,7 +423,6 @@ PUT /json/201
 PUT /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
@@ -485,7 +430,6 @@ PUT /e/204
 PUT /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
@@ -493,7 +437,6 @@ PUT /e/200
 PUT /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
@@ -502,7 +445,6 @@ PUT /e/404
 PUT /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
@@ -513,7 +455,6 @@ PUT /s/200?q=a%20b&multi=1&multi=2
 PUT /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
@@ -525,7 +466,6 @@ PUT /s/404?q=a%20b&multi=1&multi=2
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -533,7 +473,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -542,7 +481,6 @@ PUT /s/404
 PUT /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -551,7 +489,6 @@ PUT /s/200?q=1
 PUT /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -561,7 +498,6 @@ PUT /s/404?q=1
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -570,7 +506,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -580,7 +515,6 @@ PUT /s/404
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -588,7 +522,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -597,7 +530,6 @@ PUT /s/404
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -605,7 +537,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -614,7 +545,6 @@ PUT /s/404
 PUT /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -622,7 +552,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -631,7 +560,6 @@ PUT /s/404
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/json]
     > body: 
@@ -640,7 +568,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/json]
     > body: 
@@ -650,7 +577,6 @@ PUT /s/404
 PUT /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -659,7 +585,6 @@ PUT /s/200
 PUT /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -669,7 +594,6 @@ PUT /s/404
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -677,7 +601,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -685,7 +608,6 @@ PATCH /s/404
 PATCH /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body body 500
@@ -693,7 +615,6 @@ PATCH /s/500
 PATCH /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body {"status":201}
@@ -701,7 +622,6 @@ PATCH /json/201
 PATCH /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
@@ -709,7 +629,6 @@ PATCH /e/204
 PATCH /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
@@ -717,7 +636,6 @@ PATCH /e/200
 PATCH /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
@@ -726,7 +644,6 @@ PATCH /e/404
 PATCH /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
@@ -737,7 +654,6 @@ PATCH /s/200?q=a%20b&multi=1&multi=2
 PATCH /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
@@ -749,7 +665,6 @@ PATCH /s/404?q=a%20b&multi=1&multi=2
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -757,7 +672,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -766,7 +680,6 @@ PATCH /s/404
 PATCH /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -775,7 +688,6 @@ PATCH /s/200?q=1
 PATCH /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -785,7 +697,6 @@ PATCH /s/404?q=1
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -794,7 +705,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -804,7 +714,6 @@ PATCH /s/404
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -812,7 +721,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -821,7 +729,6 @@ PATCH /s/404
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -829,7 +736,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -838,7 +744,6 @@ PATCH /s/404
 PATCH /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -846,7 +751,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -855,7 +759,6 @@ PATCH /s/404
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/json]
     > body: 
@@ -864,7 +767,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/json]
     > body: 
@@ -874,7 +776,6 @@ PATCH /s/404
 PATCH /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -883,7 +784,6 @@ PATCH /s/200
 PATCH /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -893,49 +793,42 @@ PATCH /s/404
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 /s/500
 DELETE /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body body 500
 /json/201
 DELETE /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body {"status":201}
 /e/204
 DELETE /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
 /e/200
 DELETE /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
 /e/404
 DELETE /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
 == DELETE query, headers and cookies
@@ -943,7 +836,6 @@ DELETE /e/404
 DELETE /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -953,7 +845,6 @@ DELETE /s/200?q=a%20b&multi=1&multi=2
 DELETE /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -964,14 +855,12 @@ DELETE /s/404?q=a%20b&multi=1&multi=2
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /404
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == DELETE form params
@@ -979,7 +868,6 @@ DELETE /s/404
 DELETE /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -988,7 +876,6 @@ DELETE /s/200?q=1
 DELETE /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -998,7 +885,6 @@ DELETE /s/404?q=1
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1007,7 +893,6 @@ DELETE /s/200
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1017,7 +902,6 @@ DELETE /s/404
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1025,7 +909,6 @@ DELETE /s/200
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1034,7 +917,6 @@ DELETE /s/404
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1042,7 +924,6 @@ DELETE /s/200
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1051,14 +932,12 @@ DELETE /s/404
 DELETE /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 DELETE /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == DELETE expected response content-type
@@ -1066,7 +945,6 @@ DELETE /s/404
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -1074,7 +952,6 @@ DELETE /s/200
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -1083,7 +960,6 @@ DELETE /s/404
 DELETE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1092,7 +968,6 @@ DELETE /s/200
 DELETE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1102,49 +977,49 @@ DELETE /s/404
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 /s/500
 OPTIONS /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body body 500
 /json/201
 OPTIONS /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body {"status":201}
 /e/204
 OPTIONS /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
 /e/200
 OPTIONS /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
 /e/404
 OPTIONS /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
 == OPTIONS query, headers and cookies
@@ -1152,7 +1027,7 @@ OPTIONS /e/404
 OPTIONS /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -1162,7 +1037,7 @@ OPTIONS /s/200?q=a%20b&multi=1&multi=2
 OPTIONS /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -1173,14 +1048,14 @@ OPTIONS /s/404?q=a%20b&multi=1&multi=2
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /404
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == OPTIONS form params
@@ -1188,7 +1063,6 @@ OPTIONS /s/404
 OPTIONS /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -1197,7 +1071,6 @@ OPTIONS /s/200?q=1
 OPTIONS /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -1207,7 +1080,6 @@ OPTIONS /s/404?q=1
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1216,7 +1088,6 @@ OPTIONS /s/200
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1226,7 +1097,6 @@ OPTIONS /s/404
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1234,7 +1104,6 @@ OPTIONS /s/200
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1243,7 +1112,6 @@ OPTIONS /s/404
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1251,7 +1119,6 @@ OPTIONS /s/200
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1260,14 +1127,14 @@ OPTIONS /s/404
 OPTIONS /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
 /s/404
 OPTIONS /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
 == OPTIONS expected response content-type
@@ -1275,7 +1142,7 @@ OPTIONS /s/404
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -1283,7 +1150,7 @@ OPTIONS /s/200
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
+    > Content-length: [0]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -1292,7 +1159,6 @@ OPTIONS /s/404
 OPTIONS /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1301,7 +1167,6 @@ OPTIONS /s/200
 OPTIONS /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1311,49 +1176,42 @@ OPTIONS /s/404
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
 /s/404
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
 /s/500
 HEAD /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body 
 /json/201
 HEAD /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body 
 /e/204
 HEAD /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
 /e/200
 HEAD /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
 /e/404
 HEAD /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
 == HEAD query, headers and cookies
@@ -1361,7 +1219,6 @@ HEAD /e/404
 HEAD /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -1371,7 +1228,6 @@ HEAD /s/200?q=a%20b&multi=1&multi=2
 HEAD /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
     > X-single: [s]
@@ -1382,14 +1238,12 @@ HEAD /s/404?q=a%20b&multi=1&multi=2
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
 /404
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
 == HEAD form params
@@ -1397,7 +1251,6 @@ HEAD /s/404
 HEAD /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -1406,7 +1259,6 @@ HEAD /s/200?q=1
 HEAD /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -1416,7 +1268,6 @@ HEAD /s/404?q=1
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1425,7 +1276,6 @@ HEAD /s/200
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1435,7 +1285,6 @@ HEAD /s/404
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
@@ -1443,7 +1292,6 @@ HEAD /s/200
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
@@ -1452,7 +1300,6 @@ HEAD /s/404
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
@@ -1460,7 +1307,6 @@ HEAD /s/200
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
@@ -1469,14 +1315,12 @@ HEAD /s/404
 HEAD /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
 /s/404
 HEAD /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
 == HEAD expected response content-type
@@ -1484,7 +1328,6 @@ HEAD /s/404
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -1492,7 +1335,6 @@ HEAD /s/200
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-type: [application/json]
     > body: 
     < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected content-type "JSON" doesn't match actual content-type "text/plain".\n
@@ -1501,7 +1343,6 @@ HEAD /s/404
 HEAD /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1510,7 +1351,6 @@ HEAD /s/200
 HEAD /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1520,7 +1360,6 @@ HEAD /s/404
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1528,7 +1367,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1536,7 +1374,6 @@ PURGE /s/404
 PURGE /s/500
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 500 Internal Server Error | status 500 | content-type text/plain | X-Reply [r1, r2] | body body 500
@@ -1544,7 +1381,6 @@ PURGE /s/500
 PURGE /json/201
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 201 Created | status 201 | content-type application/json | X-Reply [r1, r2] | body {"status":201}
@@ -1552,7 +1388,6 @@ PURGE /json/201
 PURGE /e/204
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 204 No Content | status 204 | content-type  | X-Reply [r1, r2] | body 
@@ -1560,7 +1395,6 @@ PURGE /e/204
 PURGE /e/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type  | X-Reply [r1, r2] | body 
@@ -1568,7 +1402,6 @@ PURGE /e/200
 PURGE /e/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type  | X-Reply [r1, r2] | body 
@@ -1577,7 +1410,6 @@ PURGE /e/404
 PURGE /s/200?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
@@ -1588,7 +1420,6 @@ PURGE /s/200?q=a%20b&multi=1&multi=2
 PURGE /s/404?q=a%20b&multi=1&multi=2
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Cookie: [c=v; d=w]
     > X-dup: [1, 2, 3]
@@ -1600,7 +1431,6 @@ PURGE /s/404?q=a%20b&multi=1&multi=2
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1608,7 +1438,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1617,7 +1446,6 @@ PURGE /s/404
 PURGE /s/200?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -1626,7 +1454,6 @@ PURGE /s/200?q=1
 PURGE /s/404?q=1
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [12]
     > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
     > body: f=1&g=%E5%E4
@@ -1636,7 +1463,6 @@ PURGE /s/404?q=1
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1645,7 +1471,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [7]
     > Content-type: [application/json]
     > body: {"a":1}
@@ -1655,7 +1480,6 @@ PURGE /s/404
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1663,7 +1487,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [3]
     > body: f=1
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1672,7 +1495,6 @@ PURGE /s/404
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1680,7 +1502,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [4]
     > body: text
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1689,7 +1510,6 @@ PURGE /s/404
 PURGE /s/200
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
@@ -1697,7 +1517,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [text/plain]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > body: 
     < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
@@ -1706,7 +1525,6 @@ PURGE /s/404
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/json]
     > body: 
@@ -1715,7 +1533,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [0]
     > Content-type: [application/json]
     > body: 
@@ -1725,7 +1542,6 @@ PURGE /s/404
 PURGE /s/200
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
@@ -1734,7 +1550,6 @@ PURGE /s/200
 PURGE /s/404
     > Accept: [*/*]
     > Accept-encoding: [gzip,deflate]
-    > Connection: [Keep-Alive]
     > Content-length: [108]
     > Content-type: [multipart/form-data; boundary=BOUNDARY]
     > body: --BOUNDARY\x0d\x0aContent-Disposition: form-data; name="part"\x0d\x0aContent-Type: text/plain\x0d\x0a\x0d\x0acontent\x0d\x0a--BOUNDARY--\x0d\x0a
