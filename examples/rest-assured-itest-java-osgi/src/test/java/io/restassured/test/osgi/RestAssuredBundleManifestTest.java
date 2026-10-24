@@ -37,9 +37,9 @@ public class RestAssuredBundleManifestTest {
 
     @Test
     public void the_http_client_modules_and_json_path_jayway_are_imports_of_this_version_up_to_the_next_minor() throws Exception {
-        List<String> imports = clauses(header("Import-Package"));
+        List<String> imports = clauses(header(RestAssured.class, "Import-Package"));
         // Such as [7.0,7.1) for 7.0.0.SNAPSHOT
-        String[] version = header("Bundle-Version").split("\\.");
+        String[] version = header(RestAssured.class, "Bundle-Version").split("\\.");
         String range = "version=\"[" + version[0] + "." + version[1] + "," + version[0] + "." + (Integer.parseInt(version[1]) + 1) + ")\"";
 
         assertThat(imports).anySatisfy(clause -> assertThat(clause).startsWith("io.restassured.http.jdk;").doesNotContain("resolution:=optional").contains(range));
@@ -49,19 +49,20 @@ public class RestAssuredBundleManifestTest {
 
     @Test
     public void the_optional_http_client_module_is_a_dynamic_import_and_no_http_client_module_is_exported() throws Exception {
-        assertThat(clauses(header("DynamicImport-Package"))).contains("io.restassured.http.apache5").doesNotContain("io.restassured.http.jdk");
-        assertThat(clauses(header("Export-Package"))).noneMatch(clause -> clause.startsWith("io.restassured.http.jdk") || clause.startsWith("io.restassured.http.apache5"));
+        assertThat(clauses(header(RestAssured.class, "DynamicImport-Package"))).contains("io.restassured.http.apache5").doesNotContain("io.restassured.http.jdk");
+        assertThat(clauses(header(RestAssured.class, "Export-Package"))).noneMatch(clause -> clause.startsWith("io.restassured.http.jdk") || clause.startsWith("io.restassured.http.apache5"));
     }
 
     @Test
     public void the_service_loader_requirements_are_optional() throws Exception {
-        assertThat(clauses(header("Require-Capability"))).contains(
+        assertThat(clauses(header(RestAssured.class, "Require-Capability"))).contains(
                 "osgi.extender;filter:=\"(osgi.extender=osgi.serviceloader.processor)\";resolution:=optional",
                 "osgi.serviceloader;filter:=\"(osgi.serviceloader=io.restassured.common.spi.http.HttpClientProvider)\";cardinality:=multiple;resolution:=optional");
     }
 
-    private static String header(String name) throws Exception {
-        File jar = new File(RestAssured.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    // A header of the bundle jar that holds the class
+    static String header(Class<?> type, String name) throws Exception {
+        File jar = new File(type.getProtectionDomain().getCodeSource().getLocation().toURI());
         try (JarFile jarFile = new JarFile(jar)) {
             Attributes attributes = jarFile.getManifest().getMainAttributes();
             String value = attributes.getValue(name);
@@ -71,7 +72,7 @@ public class RestAssuredBundleManifestTest {
     }
 
     // The clauses of a header, which are separated by commas outside of quotes
-    private static List<String> clauses(String header) {
+    static List<String> clauses(String header) {
         List<String> clauses = new ArrayList<>();
         StringBuilder clause = new StringBuilder();
         boolean quoted = false;

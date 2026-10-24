@@ -80,7 +80,7 @@ public class RestAssuredOSGiITest {
     }
 
     @Test
-    public void the_jdk_http_client_is_the_default() {
+    public void the_jdk_http_client_is_the_default_without_the_apache_http_client_5_module() {
         HttpClientProviders.Selection selection = HttpClientProviders.select(config().getHttpClientConfig());
 
         assertEquals(JdkHttpClientProvider.class, selection.provider().getClass());
