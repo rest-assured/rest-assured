@@ -431,4 +431,24 @@ class ExchangeTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThat(closed[0]).isTrue();
     }
+
+    @Test
+    void removes_the_empty_path_segments_but_the_last_like_http_client_4() {
+        assertThat(Exchange.withoutEmptyPathSegments(URI.create("http://h:1/x//y?q=a%20b#f"))).hasToString("http://h:1/x/y?q=a%20b#f");
+        assertThat(Exchange.withoutEmptyPathSegments(URI.create("http://h/x//"))).hasToString("http://h/x/");
+        assertThat(Exchange.withoutEmptyPathSegments(URI.create("http://h//a%2Fb///c"))).hasToString("http://h/a%2Fb/c");
+        assertThat(Exchange.withoutEmptyPathSegments(URI.create("http://h//"))).hasToString("http://h/");
+        URI unchanged = URI.create("http://h/x/y/?q=a//b");
+        assertThat(Exchange.withoutEmptyPathSegments(unchanged)).isSameAs(unchanged);
+    }
+
+    @Test
+    void sends_each_hop_without_empty_path_segments() throws IOException {
+        transport.answer = request -> request.uri().getPath().equals("/a/b") ? response(302, new HttpHeader("Location", "/c//d")) : ok();
+
+        Exchange.Exchanged exchanged = exchange(DEFAULTS, null, null, null).send(request("GET", URI.create("http://example.com/a//b"), null));
+
+        assertThat(transport.targets()).containsExactly("http://example.com/a/b", "http://example.com/c/d");
+        assertThat(exchanged.effectiveUri()).hasToString("http://example.com/c/d");
+    }
 }

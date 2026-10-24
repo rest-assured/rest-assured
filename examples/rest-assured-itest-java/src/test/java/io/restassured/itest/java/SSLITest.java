@@ -44,6 +44,7 @@ import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.restassured.config.ConnectionConfig.connectionConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -285,7 +286,10 @@ public class SSLITest {
                 System.setProperty("javax.net.ssl.trustStore", trustStore);
                 System.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
                 System.setProperty("javax.net.ssl.trustStorePassword", "test1234");
-                RestAssured.get("https://localhost:" + server.getAddress().getPort() + "/").then().statusCode(200);
+                // JDK differences table, connection reuse: a client reads the trust store properties when it's created, and
+                // the shared JDK client may have been created by an earlier test, so this request gets a client of its own
+                RestAssured.given().config(RestAssuredConfig.config().connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponse())).
+                        get("https://localhost:" + server.getAddress().getPort() + "/").then().statusCode(200);
             } finally {
                 previousProperties.forEach((property, value) -> {
                     if (value == null) {

@@ -18,6 +18,7 @@ package io.restassured.internal.http;
 
 import com.sun.net.httpserver.HttpServer;
 import io.restassured.RestAssured;
+import io.restassured.TestClient;
 import io.restassured.config.MultiPartConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -38,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.internal.http.EncoderCharacterization.*;
@@ -53,6 +55,11 @@ import static org.hamcrest.Matchers.equalTo;
 class RequestDispatchTest {
 
     private static final List<String> METHODS = Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "PURGE");
+    // JDK differences table, header names and order, and Content-Length: 0: the golden files are HttpClient 4's, and the
+    // JDK client sends no Connection header, and a Content-Length: 0 for OPTIONS, custom methods and, on Java 17, HEAD
+    private static final UnaryOperator<String> WHAT_THE_CLIENTS_SEND_DIFFERENTLY = TestClient.isJdk()
+            ? text -> text.replaceAll("(?m)^    > (Connection: \\[Keep-Alive]|Content-length: \\[0])\n", "")
+            : UnaryOperator.identity();
 
     private HttpServer server;
     private volatile String received;
@@ -142,7 +149,7 @@ class RequestDispatchTest {
                 }
             }
         }
-        assertMatchesGoldenFile("request-dispatch.txt", out.toString());
+        assertMatchesGoldenFile("request-dispatch.txt", out.toString(), WHAT_THE_CLIENTS_SEND_DIFFERENTLY);
     }
 
     @Test
@@ -166,7 +173,7 @@ class RequestDispatchTest {
                         expect().statusCode(200).when().request(method, "/s/404"))).append('\n');
             }
         }
-        assertMatchesGoldenFile("request-dispatch-expectations.txt", out.toString());
+        assertMatchesGoldenFile("request-dispatch-expectations.txt", out.toString(), WHAT_THE_CLIENTS_SEND_DIFFERENTLY);
     }
 
     @Test
@@ -180,8 +187,13 @@ class RequestDispatchTest {
                 serverThread.join(10_000);
 
                 assertThat(t).as(method).isInstanceOf(ResponseParseException.class);
-                assertThat(t.getCause()).as(method).isInstanceOf(ConnectionClosedException.class)
-                        .hasMessageContaining("Premature end of Content-Length delimited message body");
+                if (TestClient.isJdk()) {
+                    // The JDK client reports a body cut short with an IOException of its own
+                    assertThat(t.getCause()).as(method).isInstanceOf(IOException.class);
+                } else {
+                    assertThat(t.getCause()).as(method).isInstanceOf(ConnectionClosedException.class)
+                            .hasMessageContaining("Premature end of Content-Length delimited message body");
+                }
             }
         }
     }

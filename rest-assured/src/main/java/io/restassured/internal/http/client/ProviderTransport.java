@@ -132,7 +132,8 @@ public final class ProviderTransport implements HttpClientInstance {
             }
         }
         HttpResponse sent = response;
-        return new HttpResponse(sent.protocolVersion(), sent.statusCode(), sent.reasonPhrase(), sent.headers(), sent.contentLength(), sent.body(), () -> {
+        String reasonPhrase = ReasonPhrases.orStandard(sent.reasonPhrase(), sent.statusCode());
+        return new HttpResponse(sent.protocolVersion(), sent.statusCode(), reasonPhrase, sent.headers(), sent.contentLength(), sent.body(), () -> {
             try {
                 sent.close();
             } finally {

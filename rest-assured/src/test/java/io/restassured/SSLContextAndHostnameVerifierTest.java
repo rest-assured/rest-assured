@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.InputStream;
@@ -137,8 +138,20 @@ class SSLContextAndHostnameVerifierTest {
                         config(config().sslConfig(sslConfig().hostnameVerifier(REJECT_ALL).sslContext(clientSslContextTrustingTheServer()))).
                 when().
                         get(httpsUrl()))
-                .isInstanceOf(SSLPeerUnverifiedException.class)
-                .hasMessageContaining("Host name 'localhost' was rejected by the configured HostnameVerifier");
+                .satisfies(e -> assertThat(hostNameRejection(e)).hasMessageContaining("Host name 'localhost' was rejected by the configured HostnameVerifier"));
+    }
+
+    // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the cause of an SSLException
+    private static Throwable hostNameRejection(Throwable e) {
+        Throwable rejection = e;
+        if (TestClient.isJdk()) {
+            assertThat(e).isInstanceOf(SSLException.class);
+            while (!(rejection instanceof SSLPeerUnverifiedException) && rejection.getCause() != null) {
+                rejection = rejection.getCause();
+            }
+        }
+        assertThat(rejection).isInstanceOf(SSLPeerUnverifiedException.class);
+        return rejection;
     }
 
     @Test
@@ -148,7 +161,7 @@ class SSLContextAndHostnameVerifierTest {
                         config(config().sslConfig(sslConfig().trustStore(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD).trustStoreType("PKCS12").hostnameVerifier(REJECT_ALL))).
                 when().
                         get(httpsUrl()))
-                .isInstanceOf(SSLPeerUnverifiedException.class);
+                .satisfies(SSLContextAndHostnameVerifierTest::hostNameRejection);
     }
 
     @Test
@@ -182,7 +195,7 @@ class SSLContextAndHostnameVerifierTest {
                         auth().certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD, certAuthSettings().sslContext(clientSslContextTrustingTheServer()).hostnameVerifier(REJECT_ALL)).
                 when().
                         get(httpsUrl()))
-                .isInstanceOf(SSLPeerUnverifiedException.class);
+                .satisfies(SSLContextAndHostnameVerifierTest::hostNameRejection);
     }
 
     @Test

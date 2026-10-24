@@ -18,6 +18,7 @@ package io.restassured.itest.java.wire;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
@@ -203,7 +204,7 @@ public class WireRequestMethodITest extends WireTest {
         RecordedRequest request = server.onlyRequest();
         assertThat(request.method()).isEqualTo("OPTIONS");
         assertThat(request.header("Content-Type")).isEqualTo(TEXT_PLAIN_ISO_8859_1);
-        assertThat(request.hasHeader("Content-Length")).isFalse();
+        assertNoContentLength(request);
         assertThat(request.body()).isEmpty();
     }
 
@@ -273,8 +274,20 @@ public class WireRequestMethodITest extends WireTest {
 
     private static void assertSendsNoBodyHeaders(RecordedRequest request) {
         assertThat(request.hasHeader("Content-Type")).isFalse();
-        assertThat(request.hasHeader("Content-Length")).isFalse();
+        assertNoContentLength(request);
         assertThat(request.hasHeader("Transfer-Encoding")).isFalse();
+    }
+
+    private static void assertNoContentLength(RecordedRequest request) {
+        String method = request.method();
+        boolean jdkSendsContentLength = !method.equals("GET") && !method.equals("DELETE") && (!method.equals("HEAD") || Runtime.version().feature() < 18);
+        if (TestClient.isJdk() && jdkSendsContentLength) {
+            // JDK differences table, not in the table (W5): the JDK client sends Content-Length: 0 for a method without a
+            // body other than GET, DELETE and, from Java 18, HEAD
+            assertThat(request.header("Content-Length")).isEqualTo("0");
+        } else {
+            assertThat(request.hasHeader("Content-Length")).isFalse();
+        }
     }
 
     // Sends the request to the url, typed so that a method reference or lambda can be an argument of a parameterized test

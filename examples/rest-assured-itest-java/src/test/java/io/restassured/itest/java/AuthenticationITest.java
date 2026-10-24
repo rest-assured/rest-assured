@@ -23,6 +23,7 @@ import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.session.SessionFilter;
+import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
@@ -242,7 +243,8 @@ public class AuthenticationITest extends WithJetty {
                 statusCode(200).
                 body(equalTo("OK"));
 
-        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+        // JDK differences table, header names and order
+        assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Request method:\tPOST%n" +
                         "Request URI:\thttp://localhost:8080/j_spring_security_check%n" +
                         "Proxy:\t\t\t<none>%n" +
                         "Request params:\t<none>%n" +
@@ -260,7 +262,7 @@ public class AuthenticationITest extends WithJetty {
                         "Set-Cookie: jsessionid=1234%n" +
                         "Content-Length: 2%n" +
                         "Server: Jetty(9.4.58.v20250814)%n%nNO%n",
-                RestAssured.config().getEncoderConfig().defaultContentCharset())));
+                RestAssured.config().getEncoderConfig().defaultContentCharset()))));
     }
 
     @Test

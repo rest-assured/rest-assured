@@ -171,6 +171,13 @@ public final class WireServer implements AutoCloseable {
     }
 
     /**
+     * @return the number of plain HTTP connections that are open now
+     */
+    public int openConnections() {
+        return http.getConnectedEndPoints().size();
+    }
+
+    /**
      * Forgets the recorded requests and the registered responders.
      */
     public void reset() {

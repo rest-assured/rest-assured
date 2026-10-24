@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.UnaryOperator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -103,6 +104,13 @@ final class EncoderCharacterization {
     }
 
     static void assertMatchesGoldenFile(String name, String actual) throws IOException, URISyntaxException {
+        assertMatchesGoldenFile(name, actual, UnaryOperator.identity());
+    }
+
+    /**
+     * @param ignored removes what the comparison ignores, from the actual output and from the golden file
+     */
+    static void assertMatchesGoldenFile(String name, String actual, UnaryOperator<String> ignored) throws IOException, URISyntaxException {
         Path actualFile = Paths.get("target", "encoder-characterization", name);
         Files.createDirectories(actualFile.getParent());
         Files.write(actualFile, actual.getBytes(StandardCharsets.UTF_8));
@@ -110,6 +118,6 @@ final class EncoderCharacterization {
         URL expectedResource = EncoderCharacterization.class.getResource("/encoder-characterization/" + name);
         assertThat(expectedResource).as("golden file " + name + " (actual output written to " + actualFile.toAbsolutePath() + ")").isNotNull();
         String expected = new String(Files.readAllBytes(Paths.get(expectedResource.toURI())), StandardCharsets.UTF_8);
-        assertThat(actual).as("actual output written to " + actualFile.toAbsolutePath()).isEqualTo(expected);
+        assertThat(ignored.apply(actual)).as("actual output written to " + actualFile.toAbsolutePath()).isEqualTo(ignored.apply(expected));
     }
 }

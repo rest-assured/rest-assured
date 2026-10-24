@@ -335,14 +335,15 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void parse_response_without_body_assertions_keeps_the_stream() {
+    void parse_response_without_body_assertions_keeps_the_stream() throws IOException {
         InputStream stream = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
         RestAssuredResponseImpl response = new RestAssuredResponseImpl();
 
         response.parseResponse(httpResponse("text/plain"), stream, false, new ResponseParserRegistrar());
 
-        assertThat(response.getContent()).isSameAs(stream);
         assertThat(response.isInputStream()).isTrue();
+        // Wrapped, so that the response is closed once it's unreachable
+        assertThat(((InputStream) response.getContent()).readAllBytes()).isEqualTo("x".getBytes(StandardCharsets.UTF_8));
     }
 
     @Test

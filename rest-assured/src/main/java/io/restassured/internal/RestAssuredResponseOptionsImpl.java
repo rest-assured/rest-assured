@@ -45,6 +45,7 @@ import io.restassured.internal.path.PathProviders;
 import io.restassured.internal.print.ResponsePrinter;
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper;
 import io.restassured.internal.support.Prettifier;
+import io.restassured.internal.support.UnreadBodies;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperType;
@@ -113,7 +114,9 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     private RestAssuredConfig config;
 
     void parseResponse(HttpResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
-        parse(response, content, hasBodyAssertions, responseParserRegistrar);
+        boolean readLater = !hasBodyAssertions && content instanceof InputStream;
+        parse(response, readLater ? UnreadBodies.closeWhenUnreachable((InputStream) content, response) : content, hasBodyAssertions,
+                responseParserRegistrar);
         // Closing a body that is read later tells the HTTP client that REST Assured is done with the response (see asInputStream)
         connectionManager = response;
     }

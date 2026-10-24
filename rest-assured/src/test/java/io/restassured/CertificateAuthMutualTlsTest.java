@@ -28,6 +28,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
@@ -46,7 +47,9 @@ import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static io.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static io.restassured.config.SSLConfig.sslConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -290,11 +293,19 @@ class CertificateAuthMutualTlsTest {
     void certificate_explains_that_the_private_key_must_have_the_password_of_the_file() throws Exception {
         String keyStore = createStore("JKS", "another password", true);
 
-        assertThatThrownBy(() ->
+        Throwable thrown = catchThrowable(() ->
                 given().
                         auth().certificate(keyStore, PASSWORD, certAuthSettings().trustStoreType("JKS")).
                 when().
-                        get(url()))
+                        get(url()));
+
+        // The JDK client reads the TLS settings at the first HTTPS request, and reports a failure as the cause of an SSLException
+        Throwable failure = thrown;
+        if (TestClient.isJdk()) {
+            assertThat(thrown).isInstanceOf(SSLException.class);
+            failure = thrown.getCause();
+        }
+        assertThat(failure)
                 .isInstanceOf(UnrecoverableKeyException.class)
                 .hasMessage("The private key in " + keyStore + " can't be read with the given password. The file given to " +
                         "certificate(..) is used as key store as well as trust store, so its private key must have the password " +
