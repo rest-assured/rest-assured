@@ -21,10 +21,12 @@ import io.restassured.common.spi.http.ClientSharing;
 import io.restassured.common.spi.http.HttpClientInstance;
 import io.restassured.common.spi.http.HttpClientProvider;
 import io.restassured.config.ConnectionConfig;
+import io.restassured.config.ConnectionConfig.CloseIdleConnectionConfig;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.internal.http.cookie.CookieStore;
 import io.restassured.internal.support.VersionFiles;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,7 +41,8 @@ import static java.lang.System.Logger.Level.WARNING;
  * Decides which client instance sends a request, and when REST Assured closes it:
  * <ul>
  * <li>With {@link ConnectionConfig#closeIdleConnectionsAfterEachResponse()}, a new instance that is closed once
- * REST Assured is done with the response.</li>
+ * REST Assured is done with the response. With an idle time above 0, an instance that is kept closes its connections
+ * that have been idle for longer than that ({@link HttpClientInstance#closeIdleConnections(Duration)}).</li>
  * <li>A client that is {@link ClientSharing#SHARED} is shared by all requests with the same settings, up to
  * 16 instances. When another one is needed, the least recently used one is removed, and closed once the responses
  * that use it are done.</li>
@@ -81,25 +84,43 @@ public final class HttpClientInstances {
      * @throws io.restassured.common.spi.http.UnsupportedFeatureException If the client can't do what the settings ask for
      */
     public Lease acquire(HttpClientProvider provider, ClientSettings settings, HttpClientConfig httpClientConfig, ConnectionConfig connectionConfig) {
+        Duration idleTime = null;
         if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
-            if (connectionConfig.closeIdleConnectionConfig().getIdleTime() <= 0) {
+            CloseIdleConnectionConfig closeIdle = connectionConfig.closeIdleConnectionConfig();
+            if (closeIdle.getIdleTime() <= 0) {
                 HttpClientInstance instance = provider.newClient(settings);
                 return new Lease(instance, () -> closeQuietly(instance));
-            } else if (provider.sharing() == ClientSharing.SHARED) {
-                VersionFiles.warnOnce("connectionConfig().closeIdleConnectionsAfterEachResponseAfter(..) with an idle time above 0 has no equivalent in "
-                        + provider.displayName() + ", which closes idle connections after a time that its library decides. For the JDK HTTP client, "
-                        + "set it with the system property jdk.httpclient.keepalive.timeout (in seconds).");
             }
+            idleTime = Duration.of(closeIdle.getIdleTime(), closeIdle.getTimeUnit().toChronoUnit());
         }
         Key key = new Key(provider.getClass(), settings);
+        Lease lease;
         if (provider.sharing() == ClientSharing.SHARED) {
-            return shared(provider, key);
+            lease = shared(provider, key);
         } else if (httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()) {
             Map<Key, HttpClientInstance> instances = reused.computeIfAbsent(httpClientConfig.reuseIdentity(), identity -> new ConcurrentHashMap<>());
-            return new Lease(instances.computeIfAbsent(key, it -> provider.newClient(settings)), () -> { });
+            lease = new Lease(instances.computeIfAbsent(key, it -> provider.newClient(settings)), () -> { });
+        } else {
+            // Closed after the response anyway
+            HttpClientInstance instance = provider.newClient(settings);
+            return new Lease(instance, () -> closeQuietly(instance));
         }
-        HttpClientInstance instance = provider.newClient(settings);
-        return new Lease(instance, () -> closeQuietly(instance));
+        return idleTime == null ? lease : closingIdleConnections(lease, idleTime, provider);
+    }
+
+    // An instance that is kept closes the connections that have been idle for longer than the idle time once it's released
+    private static Lease closingIdleConnections(Lease lease, Duration idleTime, HttpClientProvider provider) {
+        return new Lease(lease.instance(), () -> {
+            try {
+                if (!lease.instance().closeIdleConnections(idleTime)) {
+                    VersionFiles.warnOnce("connectionConfig().closeIdleConnectionsAfterEachResponseAfter(..) with an idle time above 0 has no equivalent in "
+                            + provider.displayName() + ", which closes idle connections after a time that its library decides. For the JDK HTTP client, "
+                            + "set it with the system property jdk.httpclient.keepalive.timeout (in seconds).");
+                }
+            } finally {
+                lease.release();
+            }
+        });
     }
 
     private Lease shared(HttpClientProvider provider, Key key) {

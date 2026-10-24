@@ -50,6 +50,8 @@ public final class Exchange {
     private static final String AUTHORIZATION = "Authorization";
     private static final String COOKIE = "Cookie";
     private static final String USER_AGENT = "User-Agent";
+    // REST Assured sends the length of the body itself, so a request can't set these
+    private static final List<String> BODY_LENGTH_HEADERS = List.of("Content-Length", "Transfer-Encoding");
 
     private final HttpClientInstance transport;
     private final RedirectSettings redirects;
@@ -91,8 +93,11 @@ public final class Exchange {
      * @throws io.restassured.common.exception.TooManyRedirectsException if the request is redirected too often
      * @throws java.net.ProtocolException                                if a redirect is circular, or relative and
      *                                                                  relative redirects are rejected
+     * @throws UnsupportedOperationException                             if the request sets a {@code Content-Length} or
+     *                                                                  {@code Transfer-Encoding} header
      */
     public Exchanged send(HttpRequest request) throws IOException {
+        rejectBodyLengthHeaders(request.headers());
         Origin origin = Origin.of(request.uri());
         List<HttpHeader> headers = request.headers();
         List<URI> visited = new ArrayList<>();
@@ -162,6 +167,15 @@ public final class Exchange {
             }
         }
         return response;
+    }
+
+    private static void rejectBodyLengthHeaders(List<HttpHeader> headers) {
+        for (String name : BODY_LENGTH_HEADERS) {
+            if (hasHeader(headers, name)) {
+                throw new UnsupportedOperationException("REST Assured can't send a " + name + " header that the request sets. Remove the header: "
+                        + "REST Assured sends the length of the body itself, as a Content-Length header, or chunked when the length is unknown.");
+            }
+        }
     }
 
     private static HttpRequest withoutEmptyPathSegments(HttpRequest hop) {

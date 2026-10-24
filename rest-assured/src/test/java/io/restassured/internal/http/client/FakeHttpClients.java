@@ -26,6 +26,7 @@ import io.restassured.common.spi.http.HttpResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -122,6 +123,8 @@ public final class FakeHttpClients {
         public final ClientSettings settings;
         public volatile boolean closed;
         public final AtomicInteger closes = new AtomicInteger();
+        // The idle times it was asked to close the idle connections for
+        public final List<Duration> idleConnectionsClosed = new CopyOnWriteArrayList<>();
 
         FakeClient(FakeProvider provider, ClientSettings settings) {
             this.provider = provider;
@@ -132,6 +135,13 @@ public final class FakeHttpClients {
         public HttpResponse send(HttpRequest request) throws IOException {
             sent.add(request);
             return response.answer(request);
+        }
+
+        // Only the fake Apache HttpClient 5 can, as with the real ones
+        @Override
+        public boolean closeIdleConnections(Duration idleTime) {
+            idleConnectionsClosed.add(idleTime);
+            return provider instanceof Apache5;
         }
 
         @Override

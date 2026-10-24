@@ -23,6 +23,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
@@ -215,9 +216,8 @@ public class WireCookieITest extends WireTest {
         given().config(config).get(server.url("/set")).asString();
         given().config(config).cookie("x", "9").cookie("a", "explicit").get(server.url("/p")).asString();
 
-        // Today's behavior: a kept cookie is sent even when the request sets one with the same name. JDK differences table,
-        // not in the table: the JDK client joins the Cookie headers of a request into one
-        assertThat(server.lastRequest().headers("Cookie")).containsExactly("x=9; a=explicit; a=1");
+        // Today's behavior: two Cookie headers, and a kept cookie is sent even when the request sets one with the same name
+        assertThat(server.lastRequest().headers("Cookie")).containsExactly(cookieHeaders("x=9; a=explicit", "a=1"));
     }
 
     @Test public void
@@ -587,8 +587,8 @@ public class WireCookieITest extends WireTest {
         response.then().statusCode(200);
         List<RecordedRequest> requests = server.requests();
         assertThat(requests.get(0).headers("Cookie")).containsExactly("c=v");
-        // JDK differences table, not in the table: the JDK client joins the Cookie headers of a request into one
-        assertThat(requests.get(1).headers("Cookie")).containsExactly("c=v; fromRedirect=1");
+        // Today's behavior: two Cookie headers on the follow-up
+        assertThat(requests.get(1).headers("Cookie")).containsExactly(cookieHeaders("c=v", "fromRedirect=1"));
         assertThat(response.getCookies()).isEmpty();
     }
 
@@ -676,5 +676,10 @@ public class WireCookieITest extends WireTest {
             responder = responder.withHeader("Set-Cookie", setCookieHeaders[i]);
         }
         return responder;
+    }
+
+    // JDK differences table, not in the table: the JDK client joins the Cookie headers of a request into one
+    private static String[] cookieHeaders(String... headers) {
+        return TestClient.isJdk() ? new String[]{String.join("; ", headers)} : headers;
     }
 }

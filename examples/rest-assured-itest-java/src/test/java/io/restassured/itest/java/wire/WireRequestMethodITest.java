@@ -18,6 +18,7 @@ package io.restassured.itest.java.wire;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,9 @@ import java.util.stream.Stream;
 import static io.restassured.RestAssured.given;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
@@ -74,7 +77,12 @@ public class WireRequestMethodITest extends WireTest {
         RecordedRequest request = server.onlyRequest();
         assertThat(request.requestLine()).isEqualTo(method + " /m HTTP/1.1");
         assertThat(request.hasHeader("Content-Type")).isFalse();
-        assertThat(request.header("Content-Length")).isEqualTo("0");
+        if (TestClient.isApache5() && method.equals("PURGE")) {
+            // Apache HttpClient 5 adds Content-Length: 0 only for the methods it knows to have a body, unlike HttpClient 4
+            assertThat(request.hasHeader("Content-Length")).isFalse();
+        } else {
+            assertThat(request.header("Content-Length")).isEqualTo("0");
+        }
         assertThat(request.body()).isEmpty();
     }
 
@@ -110,6 +118,7 @@ public class WireRequestMethodITest extends WireTest {
     @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE", "QUERY", "PURGE"})
     public void
     every_method_sends_a_string_body_as_text_plain_iso_8859_1(String method) {
+        assumeFalse(isTraceOnApache5(method), "Apache HttpClient 5 can't send a body with TRACE, see trace_with_a_body_fails_on_apache_http_client_5");
         given().body("hello").request(method, server.url("/m")).then().statusCode(200);
 
         RecordedRequest request = server.onlyRequest();
@@ -124,6 +133,7 @@ public class WireRequestMethodITest extends WireTest {
     @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE", "QUERY", "PURGE"})
     public void
     every_method_sends_an_empty_string_body_with_content_type_and_content_length_zero(String method) {
+        assumeFalse(isTraceOnApache5(method), "Apache HttpClient 5 can't send a body with TRACE, see trace_with_a_body_fails_on_apache_http_client_5");
         given().body("").request(method, server.url("/m")).then().statusCode(200);
 
         RecordedRequest request = server.onlyRequest();
@@ -277,10 +287,27 @@ public class WireRequestMethodITest extends WireTest {
         assertThat(request.hasHeader("Transfer-Encoding")).isFalse();
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"hello", ""})
+    public void
+    trace_with_a_body_fails_on_apache_http_client_5(String body) {
+        TestClient.assumeApache5();
+
+        assertThatThrownBy(() -> given().body(body).request("TRACE", server.url("/m")))
+                .isExactlyInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("Apache HttpClient 5")
+                .hasMessageContaining("can't send a body with a TRACE request");
+        assertThat(server.requests()).isEmpty();
+    }
+
+    private static boolean isTraceOnApache5(String method) {
+        return TestClient.isApache5() && method.equals("TRACE");
+    }
+
     private static void assertNoContentLength(RecordedRequest request) {
         String method = request.method();
         boolean jdkSendsContentLength = !method.equals("GET") && !method.equals("DELETE") && (!method.equals("HEAD") || Runtime.version().feature() < 18);
-        if (jdkSendsContentLength) {
+        if (TestClient.isJdk() && jdkSendsContentLength) {
             // JDK differences table, not in the table (W5): the JDK client sends Content-Length: 0 for a method without a
             // body other than GET, DELETE and, from Java 18, HEAD
             assertThat(request.header("Content-Length")).isEqualTo("0");

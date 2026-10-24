@@ -16,6 +16,7 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.WithJetty;
 import org.junit.jupiter.api.Test;
 
@@ -95,8 +96,8 @@ public class GivenWhenThenErrorITest extends WithJetty {
         Assertions.assertThat(thrown)
             .isInstanceOf(AssertionError.class)
             .hasMessageContaining("Expected header \"Ikk\" was not \"jux\", was \"null\". Headers are:")
-            .hasMessageContaining("content-type=application/json;charset=utf-8")
-            .hasMessageContaining("content-length=33");
+            .hasMessageContaining(ResponseLog.normalize("Content-Type=application/json;charset=utf-8"))
+            .hasMessageContaining(ResponseLog.normalize("Content-Length=33"));
     }
 
     @Test public void

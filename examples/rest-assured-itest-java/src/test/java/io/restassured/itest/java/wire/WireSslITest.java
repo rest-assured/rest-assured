@@ -19,6 +19,7 @@ package io.restassured.itest.java.wire;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
@@ -280,9 +281,13 @@ public class WireSslITest extends WireTest {
     a_hostname_verifier_that_rejects_the_host_fails_with_ssl_peer_unverified_exception() {
         Throwable thrown = catchThrowable(() -> with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD).hostnameVerifier((host, session) -> false)).get(validUrl()));
 
-        // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the cause of an
-        // SSLException
-        assertThat(thrown).isExactlyInstanceOf(SSLException.class).cause().isExactlyInstanceOf(SSLPeerUnverifiedException.class);
+        if (TestClient.isJdk()) {
+            // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the cause of
+            // an SSLException
+            assertThat(thrown).isExactlyInstanceOf(SSLException.class).cause().isExactlyInstanceOf(SSLPeerUnverifiedException.class);
+        } else {
+            assertThat(thrown).isExactlyInstanceOf(SSLPeerUnverifiedException.class);
+        }
         assertThat(server.requests()).isEmpty();
     }
 

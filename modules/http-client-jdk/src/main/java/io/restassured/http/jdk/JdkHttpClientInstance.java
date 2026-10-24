@@ -84,8 +84,9 @@ final class JdkHttpClientInstance implements HttpClientInstance {
     private static final String TUNNELING_DISABLED_SCHEMES = "jdk.http.auth.tunneling.disabledSchemes";
     // Read once, as the JDK client reads it (its default, in net.properties, is Basic)
     private static final boolean TUNNELING_DISABLES_BASIC = disablesBasic(System.getProperty(TUNNELING_DISABLED_SCHEMES, "Basic"));
-    // The headers the JDK client refuses unless -Djdk.httpclient.allowRestrictedHeaders names them (Java 17 to 21)
-    private static final Set<String> RESTRICTED_HEADERS = Set.of("connection", "content-length", "expect", "host", "upgrade");
+    // The headers the JDK client refuses unless -Djdk.httpclient.allowRestrictedHeaders names them (Java 17 to 21).
+    // Content-Length is restricted too, but REST Assured rejects it before any client sees it.
+    private static final Set<String> RESTRICTED_HEADERS = Set.of("connection", "expect", "host", "upgrade");
     private static final int PROXY_AUTHENTICATION_REQUIRED = 407;
     private static final AtomicBoolean WARNED_ABOUT_CONNECTION_REQUEST_TIMEOUT = new AtomicBoolean();
 

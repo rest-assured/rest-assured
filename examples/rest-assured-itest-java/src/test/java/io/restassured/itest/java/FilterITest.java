@@ -31,6 +31,7 @@ import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.filter.FormAuthFilter;
+import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.SpookyGreetJsonResponseFilter;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
@@ -82,18 +83,18 @@ public class FilterITest extends WithJetty {
             RestAssured.reset();
         }
         // JDK differences table, header names and order
-        assertThat(writer.toString(), is(String.format("HTTP/1.1 409 Conflict%n" +
-                "content-length: 5%n" +
-                "content-type: text/plain;charset=utf-8%n" +
-                "server: Jetty(9.4.58.v20250814)%n" +
+        assertThat(writer.toString(), is(ResponseLog.normalize(String.format("HTTP/1.1 409 Conflict%n" +
+                "Content-Type: text/plain;charset=utf-8%n" +
+                "Content-Length: 5%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "ERROR%n" +
                 "HTTP/1.1 409 Conflict%n" +
-                "content-length: 5%n" +
-                "content-type: text/plain;charset=utf-8%n" +
-                "server: Jetty(9.4.58.v20250814)%n" +
+                "Content-Type: text/plain;charset=utf-8%n" +
+                "Content-Length: 5%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
-                "ERROR%n")));
+                "ERROR%n"))));
     }
 
     @Test

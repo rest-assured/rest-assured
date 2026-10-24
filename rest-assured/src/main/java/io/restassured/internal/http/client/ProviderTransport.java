@@ -30,11 +30,14 @@ import io.restassured.internal.http.client.HttpClientProviders.Selection;
 import io.restassured.specification.ProxySpecification;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Sends a request with the client of an {@link io.restassured.common.spi.http.HttpClientProvider}, through an instance
- * from {@link HttpClientInstances}, which it releases once REST Assured is done with the response. {@link #close()}
- * does nothing, since the response releases the instance.
+ * Sends the hops of one request, its redirects and the answers to its challenges, with the client of an
+ * {@link io.restassured.common.spi.http.HttpClientProvider}. It takes an instance from {@link HttpClientInstances} at
+ * the first hop and keeps it for the others, so that a client that's created for each request is created once for all
+ * of them, as in REST Assured 6.x. It releases the instance once it's closed and REST Assured is done with every
+ * response.
  */
 public final class ProviderTransport implements HttpClientInstance {
     private final Selection selection;
@@ -42,6 +45,10 @@ public final class ProviderTransport implements HttpClientInstance {
     private final ClientSettings settings;
     private final HttpClientConfig httpClientConfig;
     private final ConnectionConfig connectionConfig;
+    // Guarded by this
+    private Lease lease;
+    private int openResponses;
+    private boolean closed;
 
     ProviderTransport(Selection selection, HttpClientInstances instances, ClientSettings settings, HttpClientConfig httpClientConfig,
                       ConnectionConfig connectionConfig) {
@@ -67,10 +74,10 @@ public final class ProviderTransport implements HttpClientInstance {
 
     @Override
     public HttpResponse send(HttpRequest request) throws IOException {
-        Lease lease = acquire();
+        HttpClientInstance instance = acquire();
         HttpResponse response = null;
         try {
-            response = lease.instance().send(request);
+            response = instance.send(request);
         } catch (UnsupportedFeatureException e) {
             throw UnsupportedFeatures.translate(selection, e);
         } catch (IOException e) {
@@ -78,32 +85,65 @@ public final class ProviderTransport implements HttpClientInstance {
             throw TransportExceptions.translate(e, settings.proxy() == null ? request.uri().getHost() : settings.proxy().host());
         } finally {
             if (response == null) {
-                lease.release();
+                responseDone();
             }
         }
         HttpResponse sent = response;
         String reasonPhrase = ReasonPhrases.orStandard(sent.reasonPhrase(), sent.statusCode());
+        AtomicBoolean done = new AtomicBoolean();
         return new HttpResponse(sent.protocolVersion(), sent.statusCode(), reasonPhrase, sent.headers(), sent.contentLength(), sent.body(), () -> {
             try {
                 sent.close();
             } finally {
-                lease.release();
+                if (done.compareAndSet(false, true)) {
+                    responseDone();
+                }
             }
         });
     }
 
-    private Lease acquire() {
-        try {
-            return instances.acquire(selection.provider(), settings, httpClientConfig, connectionConfig);
-        } catch (UnsupportedFeatureException e) {
-            throw UnsupportedFeatures.translate(selection, e);
+    // The instance of the request, taken at its first hop, with one more response open
+    private synchronized HttpClientInstance acquire() {
+        if (closed) {
+            throw new IllegalStateException("The request has been sent");
+        }
+        if (lease == null) {
+            try {
+                lease = instances.acquire(selection.provider(), settings, httpClientConfig, connectionConfig);
+            } catch (UnsupportedFeatureException e) {
+                throw UnsupportedFeatures.translate(selection, e);
+            }
+        }
+        openResponses++;
+        return lease.instance();
+    }
+
+    private void responseDone() {
+        Lease released;
+        synchronized (this) {
+            openResponses--;
+            released = closed && openResponses == 0 ? lease : null;
+        }
+        if (released != null) {
+            released.release();
         }
     }
 
     /**
-     * Does nothing, since the response releases the client instance.
+     * Tells that the request sends no more hops. The client instance is released now, or once the last response is closed.
      */
     @Override
     public void close() {
+        Lease released;
+        synchronized (this) {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            released = openResponses == 0 ? lease : null;
+        }
+        if (released != null) {
+            released.release();
+        }
     }
 }

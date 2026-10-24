@@ -29,6 +29,7 @@
         <module>json-schema-validator</module>
         <module>json-path-jayway</module>
         <module>http-client-jdk</module>
+        <module>http-client-apache5</module>
         <module>spring-mock-mvc</module>
         <module>scala-support</module>
         <module>scala-extensions</module>

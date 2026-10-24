@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright 2026 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>modules</artifactId>
+        <version>7.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>http-client-apache5</artifactId>
+    <packaging>bundle</packaging>
+    <version>7.0.0-SNAPSHOT</version>
+    <name>http-client-apache5</name>
+    <description>Sends REST Assured's requests with Apache HttpClient 5 (classic API).</description>
+    <url>https://rest-assured.io/</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- The SLF4J that HttpClient 5 depends on, for the binding of the tests -->
+        <slf4j.version>1.7.36</slf4j.version>
+    </properties>
+
+    <build>
+        <!-- The version file in META-INF/rest-assured, which REST Assured reads to check that its artifacts have the same version -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/rest-assured-version</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- Checks that this module doesn't bring Groovy (see the root pom) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>io.restassured.http.apache5</Export-Package>
+                        <!-- Apache5Library checks for a class of httpcore5-h2 by its name, which bnd doesn't see -->
+                        <Import-Package>org.apache.hc.core5.http2,*</Import-Package>
+                        <!-- REST Assured finds the provider with ServiceLoader, which SPI Fly makes work in OSGi. HttpClient 5's
+                             jars aren't bundles and carry no package versions, so its packages are imported without a range -->
+                        <Provide-Capability>osgi.serviceloader;osgi.serviceloader=io.restassured.common.spi.http.HttpClientProvider</Provide-Capability>
+                        <Require-Capability>osgi.extender;filter:="(osgi.extender=osgi.serviceloader.registrar)";resolution:=optional</Require-Capability>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured-common</artifactId>
+            <version>7.0.0-SNAPSHOT</version>
+        </dependency>
+        <!-- Not shaded, so that customizeClient(HttpClientBuilder.class, ..) gets the real builder and users can upgrade it.
+             It brings httpcore5, httpcore5-h2 and slf4j-api. HttpClient 5.2.1 and later is supported (Apache5Library) -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
+        <!-- Test. Not rest-assured, so that these tests talk to the client the way any user of the SPI does -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- HttpClient 5 logs through SLF4J, which warns without a binding -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

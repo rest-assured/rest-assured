@@ -256,7 +256,7 @@ class JdkHttpClientInstanceTest {
 
     @Test
     void a_restricted_header_is_unsupported_with_the_system_property_that_allows_it() {
-        for (String name : List.of("Host", "Connection", "Content-Length", "Upgrade")) {
+        for (String name : List.of("Host", "Connection", "Upgrade")) {
             assertThatThrownBy(() -> send(request("GET", server.uri("/"), null, new HttpHeader(name, "1"))))
                     .isInstanceOf(UnsupportedFeatureException.class)
                     .hasMessage("The HTTP client can't send a " + name + " header. To do it anyway, start the JVM with -Djdk.httpclient.allowRestrictedHeaders="

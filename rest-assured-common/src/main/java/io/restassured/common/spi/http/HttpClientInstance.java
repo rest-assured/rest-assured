@@ -18,6 +18,7 @@ package io.restassured.common.spi.http;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * A client of an HTTP client library, created by {@link HttpClientProvider#newClient(ClientSettings)}.
@@ -46,6 +47,19 @@ public interface HttpClientInstance extends Closeable {
      * @throws IOException if the request can't be sent or the response can't be read
      */
     HttpResponse send(HttpRequest request) throws IOException;
+
+    /**
+     * Closes the connections that have been idle for at least the idle time, for
+     * {@code connectionConfig().closeIdleConnectionsAfterEachResponseAfter(..)}. REST Assured calls it once it's done
+     * with a response of a client that it keeps for later requests.
+     *
+     * @param idleTime how long a connection must have been idle, above 0
+     * @return {@code true} if the client closed them, or {@code false} if its library can't, which REST Assured then
+     * warns about once. This default returns {@code false}.
+     */
+    default boolean closeIdleConnections(Duration idleTime) {
+        return false;
+    }
 
     /**
      * Closes the client and its connections. It may do nothing when the library can't close a client.

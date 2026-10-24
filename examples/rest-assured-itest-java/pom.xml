@@ -170,5 +170,27 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- So that the tests that customize HttpClientBuilder compile in both runs. HttpClient 5 alone doesn't make
+             REST Assured use it, only http-client-apache5 does (the apache5 profile). -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <profiles>
+        <!-- Runs the tests with Apache HttpClient 5 instead of the JDK client: mvn verify -Papache5 -->
+        <profile>
+            <id>apache5</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.rest-assured</groupId>
+                    <artifactId>http-client-apache5</artifactId>
+                    <version>7.0.0-SNAPSHOT</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
