@@ -27,6 +27,7 @@ import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.util.TimeValue;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -60,6 +61,7 @@ public class HttpClientConfigITest extends WithJetty {
     }
 
     @Test
+    @Tag(TestClient.APACHE5_ONLY)
     public void aCustomizerOfApacheHttpClient5GetsTheBuilder() {
         HttpClientConfig customized = customizeApache5(builder -> builder.addRequestInterceptorFirst((request, entity, context) -> request.addHeader("X-Intercepted", "yes")));
         RequestSpecification request = given().config(RestAssuredConfig.config().httpClient(customized));
@@ -72,6 +74,7 @@ public class HttpClientConfigITest extends WithJetty {
     }
 
     @Test
+    @Tag(TestClient.APACHE5_ONLY)
     public void aCustomizerOfApacheHttpClient5CantTurnOnRedirectsBecauseRestAssuredFollowsThem() {
         HttpClientConfig customized = customizeApache5(builder -> builder.setRedirectStrategy(DefaultRedirectStrategy.INSTANCE));
         RequestSpecification request = given().config(RestAssuredConfig.config().httpClient(customized).redirect(RedirectConfig.redirectConfig().followRedirects(false)))
@@ -85,6 +88,7 @@ public class HttpClientConfigITest extends WithJetty {
     }
 
     @Test
+    @Tag(TestClient.APACHE5_ONLY)
     public void aCustomizerOfApacheHttpClient5CantTurnOnRetries() throws IOException {
         HttpClientConfig customized = customizeApache5(builder -> builder.setRetryStrategy(new DefaultHttpRequestRetryStrategy(3, TimeValue.ofMilliseconds(1))));
         // Closes each connection without an answer

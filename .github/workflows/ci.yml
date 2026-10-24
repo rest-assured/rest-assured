@@ -27,6 +27,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
+          cache: 'maven'
       - name: Verify with Maven
         run: mvn verify -B -Posgi-tests
 
@@ -46,12 +47,20 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu'
+          cache: 'maven'
       - name: Verify json-path-jayway, the Spring modules and the integration tests with Maven
         run: mvn verify -B -Djayway.version=${{ matrix.jayway }} -pl modules/json-path-jayway,modules/spring-mock-mvc,modules/spring-web-test-client,examples/rest-assured-itest-java -am
 
   apache5:
     runs-on: ubuntu-latest
-    name: Test Apache HttpClient 5, JDK 17
+    strategy:
+      matrix:
+        # http-client-apache5 supports Apache HttpClient 5.2.1 and later, and is built with 5.6.5. Each entry compiles the
+        # module against that version and runs its tests and the integration tests with it: 5.2.1, the minimum, and the
+        # newest patch of each later line
+        httpclient5: [5.2.1, 5.3.1, 5.4.4, 5.5.2, 5.6.5]
+      fail-fast: false
+    name: Test Apache HttpClient ${{ matrix.httpclient5 }}, JDK 17
 
     steps:
       - uses: actions/checkout@v3
@@ -60,5 +69,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu'
+          cache: 'maven'
       - name: Verify http-client-apache5 and the integration tests with Apache HttpClient 5 with Maven
-        run: mvn verify -B -Papache5 -pl modules/http-client-apache5,examples/rest-assured-itest-java -am
+        run: mvn verify -B -Papache5 -Dhttpclient5.version=${{ matrix.httpclient5 }} -pl modules/http-client-apache5,examples/rest-assured-itest-java -am

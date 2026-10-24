@@ -20,6 +20,8 @@ import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.TestClient;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -894,6 +896,7 @@ public class WireRequestEncodingITest extends WireTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"Host", "Connection", "Upgrade"})
+    @Tag(TestClient.APACHE5_ONLY)
     public void
     header_that_the_jdk_client_restricts(String name) {
         Map<String, String> values = Map.of("Host", "example.test", "Connection", "close", "Upgrade", "example/1");
@@ -901,17 +904,34 @@ public class WireRequestEncodingITest extends WireTest {
         if (TestClient.isJdk()) {
             // JDK differences table, restricted headers: the JDK client sends them only when the JVM allows it
             assertThatThrownBy(() -> given().header(name, values.get(name)).get(server.url("/h")))
-                    .isInstanceOf(UnsupportedOperationException.class)
-                    .hasMessageContaining("-Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT));
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage(TestClient.cantMessage("send a " + name + " header")
+                            + ", or start the JVM with -Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT) + ".");
             assertThat(server.requests()).isEmpty();
-        } else {
-            given().header(name, values.get(name)).get(server.url("/h"));
-
-            // Jetty answers a request with an Upgrade header itself, so the request isn't recorded
-            if (!name.equals("Upgrade")) {
-                assertThat(server.onlyRequest().headers(name)).containsExactly(values.get(name));
-            }
+            return;
         }
+        Response response = given().header(name, values.get(name)).get(server.url("/h"));
+
+        if (name.equals("Upgrade")) {
+            // Jetty answers a request to upgrade to a protocol that it doesn't know with a 400 itself, so the request
+            // isn't recorded
+            response.then().statusCode(400);
+        } else {
+            assertThat(server.onlyRequest().headers(name)).containsExactly(values.get(name));
+        }
+    }
+
+    @Test @Tag(TestClient.APACHE5_ONLY) public void
+    expect_header_other_than_100_continue_is_sent_as_is() {
+        if (TestClient.isJdk()) {
+            assertThatThrownBy(() -> given().header("Expect", "something").get(server.url("/h")))
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage(TestClient.cantMessage("send the header Expect: something, only Expect: 100-continue") + ".");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        // Jetty answers an expectation that it doesn't know with a 417 itself, so the request isn't recorded
+        given().header("Expect", "something").get(server.url("/h")).then().statusCode(417);
     }
 
     @ParameterizedTest

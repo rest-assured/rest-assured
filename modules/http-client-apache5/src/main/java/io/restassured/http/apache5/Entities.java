@@ -53,6 +53,10 @@ final class Entities {
         }
     }
 
+    static HttpEntity empty() {
+        return new ByteArrayEntity(new byte[0], null);
+    }
+
     /**
      * A body that its writer writes to the connection, such as a multipart body.
      */
