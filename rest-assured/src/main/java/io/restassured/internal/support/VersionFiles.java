@@ -26,8 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * It uses only JDK types, so that it can run before anything from rest-assured-common is loaded.
  */
 public final class VersionFiles {
-    static final String VERSION = "version";
-    static final String PATH_SPI_REVISION = "path-spi-revision";
+    public static final String VERSION = "version";
+    public static final String PATH_SPI_REVISION = "path-spi-revision";
+    public static final String HTTP_SPI_REVISION = "http-spi-revision";
 
     private static final Set<String> WARNED = ConcurrentHashMap.newKeySet();
 
@@ -71,7 +72,7 @@ public final class VersionFiles {
     /**
      * @return Whether the class loader is an OSGi bundle's, which can't read the resources of other bundles.
      */
-    static boolean isOsgiBundle(ClassLoader classLoader) {
+    public static boolean isOsgiBundle(ClassLoader classLoader) {
         for (Class<?> type = classLoader == null ? null : classLoader.getClass(); type != null; type = type.getSuperclass()) {
             for (Class<?> implemented : type.getInterfaces()) {
                 if (implemented.getName().equals("org.osgi.framework.BundleReference")) {
@@ -85,7 +86,7 @@ public final class VersionFiles {
     /**
      * Logs a warning, once for each message.
      */
-    static void warnOnce(String message) {
+    public static void warnOnce(String message) {
         if (WARNED.add(message)) {
             System.getLogger("io.restassured").log(System.Logger.Level.WARNING, message);
         }
@@ -96,7 +97,10 @@ public final class VersionFiles {
         return parts.length < 2 ? version : parts[0] + "." + parts[1];
     }
 
-    private static Properties load(ClassLoader classLoader, String resource) {
+    /**
+     * @return The properties file, or {@code null} if the class loader can't find or read it
+     */
+    public static Properties load(ClassLoader classLoader, String resource) {
         try (InputStream in = classLoader == null ? null : classLoader.getResourceAsStream(resource)) {
             if (in == null) {
                 return null;

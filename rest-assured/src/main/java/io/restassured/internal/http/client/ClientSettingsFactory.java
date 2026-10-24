@@ -36,7 +36,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
-import java.util.List;
 
 /**
  * Translates REST Assured's configuration into the settings of the HTTP client SPI.
@@ -57,7 +56,7 @@ public final class ClientSettingsFactory {
     public static ClientSettings clientSettings(SSLConfig sslConfig, TlsSettings certificate, ProxySpecification proxy, HttpClientConfig httpClientConfig) {
         TlsSettings tls = certificate != null ? certificate : sslConfig.isUserConfigured() ? tlsSettings(sslConfig) : null;
         return new ClientSettings(tls, proxySettings(proxy), HttpVersion.HTTP_1_1, httpClientConfig.connectTimeout(),
-                httpClientConfig.connectionRequestTimeout(), List.of());
+                httpClientConfig.connectionRequestTimeout(), httpClientConfig.customizers());
     }
 
     /**
