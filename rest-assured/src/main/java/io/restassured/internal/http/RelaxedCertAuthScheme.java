@@ -43,7 +43,6 @@ public class RelaxedCertAuthScheme extends CertAuthScheme {
         setTrustStorePassword(scheme.getTrustStorePassword());
         setTrustStoreType(scheme.getTrustStoreType());
         setTrustStore(scheme.getTrustStore());
-        setPort(scheme.getPort());
         setHostnameVerifier(scheme.getHostnameVerifier());
         setSslContext(scheme.getSslContext());
     }
@@ -66,7 +65,7 @@ public class RelaxedCertAuthScheme extends CertAuthScheme {
         if (getRelaxedProtocol() == null) {
             super.authenticate(context);
         } else if (context instanceof CertificateAuthenticationContext) {
-            ((CertificateAuthenticationContext) context).certificate(ClientSettingsFactory.certificateTlsSettings(this), getPort());
+            ((CertificateAuthenticationContext) context).certificate(ClientSettingsFactory.certificateTlsSettings(this));
         } else {
             throw new IllegalStateException("Certificate authentication with the relaxed HTTPS validation of RestAssured.config " +
                     "can't be applied to " + context.getClass().getName() + ".");

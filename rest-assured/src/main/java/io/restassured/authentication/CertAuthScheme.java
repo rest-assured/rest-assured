@@ -28,7 +28,6 @@ public class CertAuthScheme implements AuthenticationScheme {
     private Object pathToTrustStore;
     private String trustStorePassword;
     private String trustStoreType = KeyStore.getDefaultType();
-    private int port = -1;
     private KeyStore trustStore;
     private KeyStore keyStore;
     private HostnameVerifier hostnameVerifier;
@@ -38,7 +37,7 @@ public class CertAuthScheme implements AuthenticationScheme {
     public void authenticate(AuthenticationContext context) {
         context.certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
                 pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
-                port, hostnameVerifier, sslContext);
+                hostnameVerifier, sslContext);
     }
 
     public Object getPathToKeyStore() {
@@ -87,14 +86,6 @@ public class CertAuthScheme implements AuthenticationScheme {
 
     public void setTrustStoreType(String trustStoreType) {
         this.trustStoreType = trustStoreType;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public KeyStore getTrustStore() {

@@ -74,7 +74,6 @@ class AuthenticationSpecificationImplTest {
         assertThat(scheme.getTrustStorePassword()).isEqualTo("secret");
         assertThat(scheme.getTrustStoreType()).isEqualTo(KeyStore.getDefaultType());
         assertThat(scheme.getKeystoreType()).isEqualTo(KeyStore.getDefaultType());
-        assertThat(scheme.getPort()).isEqualTo(-1);
         assertThat(scheme.getHostnameVerifier()).isSameAs(certAuthSettings().strictHostnames().getHostnameVerifier());
         assertThat(scheme.getKeyStore()).isNull();
         assertThat(scheme.getTrustStore()).isNull();
@@ -88,7 +87,7 @@ class AuthenticationSpecificationImplTest {
         SSLContext sslContext = SSLContext.getDefault();
 
         CertAuthScheme scheme = schemeOf(given().auth().certificate("keystore.p12", "secret", certAuthSettings().
-                keyStoreType("PKCS12").trustStoreType("JKS").port(8443).keyStore(keyStore).trustStore(trustStore).
+                keyStoreType("PKCS12").trustStoreType("JKS").keyStore(keyStore).trustStore(trustStore).
                 allowAllHostnames().sslContext(sslContext)), CertAuthScheme.class);
 
         assertThat(scheme.getPathToKeyStore()).isEqualTo("keystore.p12");
@@ -97,7 +96,6 @@ class AuthenticationSpecificationImplTest {
         assertThat(scheme.getTrustStorePassword()).isEqualTo("secret");
         assertThat(scheme.getKeystoreType()).isEqualTo("PKCS12");
         assertThat(scheme.getTrustStoreType()).isEqualTo("JKS");
-        assertThat(scheme.getPort()).isEqualTo(8443);
         assertThat(scheme.getKeyStore()).isSameAs(keyStore);
         assertThat(scheme.getTrustStore()).isSameAs(trustStore);
         assertThat(scheme.getHostnameVerifier()).isSameAs(certAuthSettings().allowAllHostnames().getHostnameVerifier());
