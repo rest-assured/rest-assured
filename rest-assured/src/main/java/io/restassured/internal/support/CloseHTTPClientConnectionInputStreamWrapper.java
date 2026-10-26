@@ -17,12 +17,16 @@
 package io.restassured.internal.support;
 
 import io.restassured.config.ConnectionConfig;
+import io.restassured.internal.http.client.TransportExceptions;
 import org.apache.http.conn.ClientConnectionManager;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * The body of a response that is read after the request, which turns the timeouts of the clients into REST Assured's.
+ */
 public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
     private static final int MINUS_ONE = -1;
     private static final int ZERO = 0;
@@ -50,27 +54,47 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
 
     @Override
     public int read() throws IOException {
-        return wrapped == null ? MINUS_ONE : wrapped.read();
+        try {
+            return wrapped == null ? MINUS_ONE : wrapped.read();
+        } catch (IOException e) {
+            throw TransportExceptions.translate(e);
+        }
     }
 
     @Override
     public int read(byte[] b) throws IOException {
-        return wrapped == null ? MINUS_ONE : wrapped.read(b);
+        try {
+            return wrapped == null ? MINUS_ONE : wrapped.read(b);
+        } catch (IOException e) {
+            throw TransportExceptions.translate(e);
+        }
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        return wrapped == null ? MINUS_ONE : wrapped.read(b, off, len);
+        try {
+            return wrapped == null ? MINUS_ONE : wrapped.read(b, off, len);
+        } catch (IOException e) {
+            throw TransportExceptions.translate(e);
+        }
     }
 
     @Override
     public long skip(long n) throws IOException {
-        return wrapped == null ? ZERO : wrapped.skip(n);
+        try {
+            return wrapped == null ? ZERO : wrapped.skip(n);
+        } catch (IOException e) {
+            throw TransportExceptions.translate(e);
+        }
     }
 
     @Override
     public int available() throws IOException {
-        return wrapped == null ? ZERO : wrapped.available();
+        try {
+            return wrapped == null ? ZERO : wrapped.available();
+        } catch (IOException e) {
+            throw TransportExceptions.translate(e);
+        }
     }
 
     @Override

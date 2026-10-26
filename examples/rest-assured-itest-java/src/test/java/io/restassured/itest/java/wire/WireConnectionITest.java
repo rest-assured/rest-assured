@@ -16,10 +16,12 @@
 
 package io.restassured.itest.java.wire;
 
+import io.restassured.common.exception.ConnectionTimeoutException;
+import io.restassured.common.exception.ResponseTimeoutException;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.internal.http.ResponseParseException;
 import io.restassured.response.Response;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +30,6 @@ import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -50,6 +51,7 @@ import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.itest.java.wire.Responder.REMOTE_PORT_HEADER;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static org.hamcrest.Matchers.equalTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -99,7 +101,7 @@ public class WireConnectionITest extends WireTest {
     }
 
     @Test public void
-    a_read_timeout_throws_socket_timeout_exception() {
+    a_read_timeout_throws_response_timeout_exception() {
         CountDownLatch release = releaseServer;
         server.respond("/wait", (request, response) -> {
             await(release);
@@ -107,18 +109,37 @@ public class WireConnectionITest extends WireTest {
         });
 
         assertThatThrownBy(() -> given().config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)))).get(server.url("/wait")))
-                .isExactlyInstanceOf(SocketTimeoutException.class);
+                .isExactlyInstanceOf(ResponseTimeoutException.class)
+                .satisfies(WireConnectionITest::isCausedByTheHttpClient);
         assertThat(server.onlyRequest().target()).isEqualTo("/wait");
     }
 
     @Test public void
-    a_connect_timeout_throws_connect_timeout_exception() throws IOException {
+    a_read_timeout_while_the_body_is_read_for_the_assertions_throws_response_timeout_exception() {
+        RestAssuredConfig config = config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)));
+
+        assertThatThrownBy(() -> given().config(config).expect().body(equalTo("first part, rest")).when().get(server.url("/slow")))
+                .isExactlyInstanceOf(ResponseParseException.class)
+                .cause()
+                .isExactlyInstanceOf(ResponseTimeoutException.class)
+                .satisfies(WireConnectionITest::isCausedByTheHttpClient);
+    }
+
+    @Test public void
+    a_read_timeout_while_the_body_is_read_after_the_request_throws_response_timeout_exception() {
+        Response response = given().config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)))).get(server.url("/slow"));
+
+        assertThatThrownBy(response::asString)
+                .isExactlyInstanceOf(ResponseTimeoutException.class)
+                .satisfies(WireConnectionITest::isCausedByTheHttpClient);
+    }
+
+    @Test public void
+    a_connect_timeout_throws_connection_timeout_exception() throws IOException {
         try (UnresponsiveServer unresponsive = UnresponsiveServer.start()) {
             assertThatThrownBy(() -> given().config(config().httpClient(httpClientConfig().connectTimeout(Duration.ofMillis(300)))).get("http://127.0.0.1:" + unresponsive.port() + "/"))
-                    // Today's behavior: HttpClient 4's ConnectTimeoutException, an InterruptedIOException but not a SocketTimeoutException
-                    .isExactlyInstanceOf(ConnectTimeoutException.class)
-                    .isInstanceOf(InterruptedIOException.class)
-                    .isNotInstanceOf(SocketTimeoutException.class);
+                    .isExactlyInstanceOf(ConnectionTimeoutException.class)
+                    .satisfies(WireConnectionITest::isCausedByTheHttpClient);
         }
     }
 
@@ -278,6 +299,11 @@ public class WireConnectionITest extends WireTest {
 
         assertThat(next).isEqualTo(first);
         assertThat(server.requests()).hasSize(2);
+    }
+
+    // By the exception of the HTTP client, which REST Assured wraps once
+    private static void isCausedByTheHttpClient(Throwable timeout) {
+        assertThat(timeout.getCause()).isInstanceOf(IOException.class).isNotInstanceOfAny(ConnectionTimeoutException.class, ResponseTimeoutException.class);
     }
 
     private Future<?> closeInBackground(InputStream body) {

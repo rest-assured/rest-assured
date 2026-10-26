@@ -35,11 +35,22 @@ public final class ModuleVersionCheck {
     private ModuleVersionCheck() {
     }
 
+    /**
+     * Checks a path engine module, such as json-path-gpath.
+     */
     public static void verify(String artifactId) {
         verify(ModuleVersionCheck.class.getClassLoader(), artifactId);
     }
 
     static void verify(ClassLoader classLoader, String artifactId) {
+        verify(classLoader, artifactId, VersionFiles.PATH_SPI_REVISION);
+    }
+
+    /**
+     * @param spiRevisionKey The key of the SPI revision that the module and REST Assured must agree on, such as
+     *                       {@link VersionFiles#HTTP_SPI_REVISION} for an HTTP client module
+     */
+    public static void verify(ClassLoader classLoader, String artifactId, String spiRevisionKey) {
         Properties restAssured = VersionFiles.read(classLoader, "rest-assured");
         if (restAssured == null || VersionFiles.isOsgiBundle(classLoader)) {
             return;
@@ -55,7 +66,7 @@ public final class ModuleVersionCheck {
                 + ". Use one version for all REST Assured artifacts, for example by importing io.rest-assured:rest-assured-bom.";
         // A module without a version file is older than REST Assured 7.0.0
         if (module == null || !VersionFiles.sameMinorVersion(moduleVersion, restAssuredVersion)
-                || !Objects.equals(module.getProperty(VersionFiles.PATH_SPI_REVISION), restAssured.getProperty(VersionFiles.PATH_SPI_REVISION))) {
+                || !Objects.equals(module.getProperty(spiRevisionKey), restAssured.getProperty(spiRevisionKey))) {
             throw new IllegalStateException(message);
         }
         VersionFiles.warnOnce(message);

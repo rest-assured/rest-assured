@@ -19,6 +19,7 @@ import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.NoAuthScheme;
+import io.restassured.common.spi.http.HttpClientInstance;
 import io.restassured.common.spi.http.HttpRequest;
 import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.common.spi.http.RequestBody;
@@ -60,6 +61,11 @@ import io.restassured.internal.http.HttpClient4Transport;
 import io.restassured.internal.http.RequestBodyEncoder;
 import io.restassured.internal.http.URIBuilder;
 import io.restassured.internal.http.client.ClientSettingsFactory;
+import io.restassured.internal.http.client.HttpClientProviders;
+import io.restassured.internal.http.client.HttpClientProviders.Selection;
+import io.restassured.internal.http.client.ProviderTransport;
+import io.restassured.internal.http.client.TransportExceptions;
+import io.restassured.internal.http.client.UnsupportedFeatures;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
@@ -85,6 +91,7 @@ import io.restassured.specification.ResponseSpecification;
 import io.restassured.spi.AuthFilter;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -1586,9 +1593,15 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         ResponseSpecificationImpl responseSpecification = (ResponseSpecificationImpl) this.responseSpecification;
         ResponseSpecificationImpl.HamcrestAssertionClosure hamcrestAssertionClosure = (ResponseSpecificationImpl.HamcrestAssertionClosure) assertionClosure;
         RestAssuredConfig config = getConfig();
+        RestAssuredConfig cfg = config != null ? config : new RestAssuredConfig();
+        Selection client = HttpClientProviders.select(cfg.getHttpClientConfig());
+        UnsupportedFeatures.verifyCustomizers(client, cfg.getHttpClientConfig().customizers());
         EncoderConfig encoderConfig = config == null ? new EncoderConfig() : config.getEncoderConfig();
+        // A client from a provider gets an unused HttpClient 4 client, which only shows what the authentication scheme asks for
+        AbstractHttpClient httpClient4 = client.isHttpClient4() ? (AbstractHttpClient) requestSpecification.getHttpClient()
+                : ProviderTransport.needsHttpClient4ToAuthenticate(authenticationScheme) ? new DefaultHttpClient() : null;
         HTTPBuilder http = new HTTPBuilder(targetUri, urlEncodingEnabled, encoderConfig, config == null ? null : config.getDecoderConfig(),
-                config == null ? null : config.getOAuthConfig(), (AbstractHttpClient) requestSpecification.getHttpClient());
+                config == null ? null : config.getOAuthConfig(), httpClient4);
         applyRestAssuredConfig(http);
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http);
@@ -1609,7 +1622,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         // Allow returning a the response
         RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
         restAssuredResponse.setLogRepository(logRepository);
-        RestAssuredConfig cfg = getConfig() != null ? getConfig() : new RestAssuredConfig();
         restAssuredResponse.setSessionIdName(cfg.getSessionConfig().sessionIdName());
         restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig());
         restAssuredResponse.setConfig(cfg);
@@ -1618,7 +1630,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
-        HttpClient4Transport transport = new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, authenticationScheme);
+        HttpClientInstance transport = client.isHttpClient4()
+                ? new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, authenticationScheme)
+                : ProviderTransport.create(client, http, cfg, proxySpecification, authenticationScheme);
         try {
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
             RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), null);
@@ -1642,8 +1656,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             }
 
             HttpResponse response = transport.send(request);
-            restAssuredResponse.setApacheHttpContext(transport.context());
+            if (transport instanceof HttpClient4Transport) {
+                restAssuredResponse.setApacheHttpContext(((HttpClient4Transport) transport).context());
+            }
             RequestDispatcher.receive(response, contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
+        } catch (IOException e) {
+            throw TransportExceptions.translate(e);
         } finally {
             transport.close();
         }
