@@ -35,8 +35,6 @@ import io.restassured.internal.common.spi.path.DocumentType;
 import io.restassured.internal.common.spi.path.PathInput;
 import io.restassured.internal.common.spi.path.PathProvider;
 import io.restassured.internal.http.CharsetExtractor;
-import io.restassured.internal.http.HttpClient4Transport;
-import io.restassured.internal.http.HttpResponseDecorator;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperDeserializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
@@ -59,11 +57,10 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.protocol.HttpContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -104,8 +101,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     private Object statusCode;
     private Object sessionIdName;
     private Map filterContextProperties;
-    private Object connectionManager;
-    private HttpContext apacheHttpContext;
+    // Closing it tells the HTTP client that REST Assured is done with the response
+    private Closeable responseCloser;
     private URI effectiveUri;
     private String defaultContentType;
     private ResponseParserRegistrar rpr;
@@ -117,14 +114,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         boolean readLater = !hasBodyAssertions && content instanceof InputStream;
         parse(response, readLater ? UnreadBodies.closeWhenUnreachable((InputStream) content, response) : content, hasBodyAssertions,
                 responseParserRegistrar);
-        // Closing a body that is read later tells the HTTP client that REST Assured is done with the response (see asInputStream)
-        connectionManager = response;
-    }
-
-    // Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
-    void parseResponse(HttpResponseDecorator httpResponse, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
-        parse(HttpClient4Transport.toHttpResponse(httpResponse, null, null), content, hasBodyAssertions, responseParserRegistrar);
-        apacheHttpContext = httpResponse.getContext().getDelegate();
+        // Closed along with a body that is read later (see asInputStream)
+        responseCloser = response;
     }
 
     private void parse(HttpResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
@@ -218,16 +209,12 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         this.filterContextProperties = filterContextProperties;
     }
 
-    public void setApacheHttpContext(HttpContext context) {
-        this.apacheHttpContext = context;
-    }
-
     public void setEffectiveUri(URI effectiveUri) {
         this.effectiveUri = effectiveUri;
     }
 
-    public void setConnectionManager(Object connectionManager) {
-        this.connectionManager = connectionManager;
+    public void setResponseCloser(Closeable responseCloser) {
+        this.responseCloser = responseCloser;
     }
 
     public void setDefaultContentType(String defaultContentType) {
@@ -457,10 +444,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public InputStream asInputStream() {
         if (content == null || content instanceof InputStream) {
-            if (connectionManager instanceof HttpResponse) {
-                return new CloseHTTPClientConnectionInputStreamWrapper((HttpResponse) connectionManager, (InputStream) content);
-            }
-            return new CloseHTTPClientConnectionInputStreamWrapper(config.getConnectionConfig(), (ClientConnectionManager) connectionManager, (InputStream) content);
+            return new CloseHTTPClientConnectionInputStreamWrapper(responseCloser, (InputStream) content);
         } else {
             return content instanceof String ? new ByteArrayInputStream(convertStringToByteArray((String) content)) : new ByteArrayInputStream((byte[]) content);
         }
@@ -569,8 +553,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         return sessionIdName;
     }
 
-    public Object getConnectionManager() {
-        return connectionManager;
+    public Closeable getResponseCloser() {
+        return responseCloser;
     }
 
     public Object getResponseHeaders() {
@@ -587,10 +571,6 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public Map getFilterContextProperties() {
         return filterContextProperties;
-    }
-
-    public HttpContext getApacheHttpContext() {
-        return apacheHttpContext;
     }
 
     /**

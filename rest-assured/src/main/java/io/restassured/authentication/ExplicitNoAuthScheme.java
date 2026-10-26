@@ -16,8 +16,6 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 /**
  * Authentication scheme that doesn't do any authentication.
  * This is different from NoAuthScheme because it's used to indicate
@@ -25,10 +23,6 @@ import io.restassured.internal.http.HTTPBuilder;
  * to override a default authentication scheme.
  */
 public class ExplicitNoAuthScheme implements AuthenticationScheme {
-
-    @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

@@ -17,11 +17,8 @@
 package io.restassured.itest.java.wire;
 
 import io.restassured.RestAssured;
-import io.restassured.authentication.AuthenticationScheme;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
-import io.restassured.itest.java.support.TestClient;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
@@ -127,21 +124,6 @@ public class WireSslITest extends WireTest {
     }
 
     @Test public void
-    the_ssl_config_is_applied_with_an_authentication_scheme_that_only_implements_the_http_builder_method() {
-        TestClient.assumeHttpClient4();
-        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
-
-        with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).
-                spec(new RequestSpecBuilder().setAuth(legacy).build()).
-        when().
-                get(validUrl()).
-        then().
-                statusCode(200);
-
-        assertThat(server.onlyRequest().header("Authorization")).isEqualTo("Bearer token-123");
-    }
-
-    @Test public void
     a_trust_store_in_the_request_specification_makes_the_certificate_trusted() {
         given().trustStore(VALID_TRUST_STORE, PASSWORD).when().get(validUrl()).then().statusCode(200);
     }
@@ -163,8 +145,8 @@ public class WireSslITest extends WireTest {
         with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).when().get(server.httpsUrl("127.0.0.1", "/tls")).then().statusCode(200);
     }
 
-    // Certificates whose name doesn't match the host. HttpClient 4's host name check throws a plain SSLException, while a
-    // client that checks the name during the handshake throws an SSLHandshakeException, so any SSLException will do.
+    // Certificates whose name doesn't match the host. A client that checks the name during the handshake throws an
+    // SSLHandshakeException, and one that checks it after a plain SSLException, so any SSLException will do.
 
     @Test public void
     a_trusted_certificate_whose_name_doesnt_match_fails_by_default() {
@@ -298,13 +280,9 @@ public class WireSslITest extends WireTest {
     a_hostname_verifier_that_rejects_the_host_fails_with_ssl_peer_unverified_exception() {
         Throwable thrown = catchThrowable(() -> with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD).hostnameVerifier((host, session) -> false)).get(validUrl()));
 
-        if (TestClient.isJdk()) {
-            // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the
-            // cause of an SSLException
-            assertThat(thrown).isExactlyInstanceOf(SSLException.class).cause().isExactlyInstanceOf(SSLPeerUnverifiedException.class);
-        } else {
-            assertThat(thrown).isExactlyInstanceOf(SSLPeerUnverifiedException.class);
-        }
+        // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the cause of an
+        // SSLException
+        assertThat(thrown).isExactlyInstanceOf(SSLException.class).cause().isExactlyInstanceOf(SSLPeerUnverifiedException.class);
         assertThat(server.requests()).isEmpty();
     }
 
@@ -344,21 +322,16 @@ public class WireSslITest extends WireTest {
     }
 
     @Test public void
-    https_connections_with_ssl_settings_arent_reused_even_when_the_http_client_instance_is() {
+    https_connections_arent_shared_by_requests_with_other_ssl_settings() {
         // Intentional: a connection made with request specific SSL settings mustn't serve a later request with other ones
         RestAssuredConfig config = config().sslConfig(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).httpClient(httpClientConfig().reuseHttpClientInstance());
 
         String first = remotePortOfReadResponse(config, validUrl());
-        if (TestClient.isJdk()) {
-            // JDK differences table, connection reuse: the JDK client has one client, and so one pool of connections,
-            // for each set of SSL settings, so only a request with other settings is sure to get a new connection
-            String other = remotePortOfReadResponse(config.sslConfig(sslConfig().relaxedHTTPSValidation()), validUrl());
-            assertThat(other).isNotEqualTo(first);
-            return;
-        }
-        String second = remotePortOfReadResponse(config, validUrl());
+        // JDK differences table, connection reuse: the JDK client has one client, and so one pool of connections, for each
+        // set of SSL settings, so only a request with other settings is sure to get a new connection
+        String other = remotePortOfReadResponse(config.sslConfig(sslConfig().relaxedHTTPSValidation()), validUrl());
 
-        assertThat(second).isNotEqualTo(first);
+        assertThat(other).isNotEqualTo(first);
     }
 
     // Answers like the responder, with the TLS protocol of the connection in TLS_HEADER

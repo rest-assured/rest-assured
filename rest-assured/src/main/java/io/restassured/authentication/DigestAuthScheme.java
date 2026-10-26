@@ -20,7 +20,7 @@ package io.restassured.authentication;
  * Used for digest authentication. It only answers a Digest challenge from the server, so the password is never sent in
  * clear text to a server that asks for Basic authentication.
  */
-public class DigestAuthScheme implements ContextAuthenticationScheme {
+public class DigestAuthScheme implements AuthenticationScheme {
 
     private String userName;
     private String password;

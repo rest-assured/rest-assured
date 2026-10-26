@@ -26,14 +26,14 @@ class MigrateRestAssured6DeprecationsTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        RecipeTestSupport.defaults(spec);
+        RecipeTestSupport.defaultsWithRestAssured6Configuration(spec);
         spec.recipeFromResources("io.restassured.MigrateRestAssured6Deprecations");
     }
 
     @Test
     void migrates_rest_assured_configuration() {
         rewriteRun(
-                RecipeTestSupport::allowingRemovedJsonConfigMethods,
+                RecipeTestSupport::allowingRemovedMethods,
                 java(
                         """
                         import io.restassured.RestAssured;

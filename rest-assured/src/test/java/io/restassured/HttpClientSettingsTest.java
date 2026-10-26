@@ -18,12 +18,7 @@ package io.restassured;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import io.restassured.config.HttpClientConfig;
-import org.apache.http.client.RedirectStrategy;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import io.restassured.common.exception.ResponseTimeoutException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
@@ -39,14 +33,12 @@ import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RedirectConfig.redirectConfig;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
  * The HTTP client settings added in 6.3.0 as replacements for HttpClient 4 parameters and redirect strategies.
  */
-@SuppressWarnings("deprecation")
 class HttpClientSettingsTest {
 
     private HttpServer server;
@@ -118,20 +110,15 @@ class HttpClientSettingsTest {
     }
 
     @Test
-    void the_redirect_strategy_of_a_client_factory_is_left_alone_since_rest_assured_follows_the_redirects_itself() {
-        TestClient.assumeHttpClient4();
-        RedirectStrategy factoryStrategy = new LaxRedirectStrategy();
-        HttpClientConfig httpClientConfig = httpClientConfig().httpClientFactory(() -> {
-            DefaultHttpClient client = new DefaultHttpClient(new PoolingClientConnectionManager());
-            client.setRedirectStrategy(factoryStrategy);
-            return client;
-        }).reuseHttpClientInstance();
-        RestAssured.config = config().httpClient(httpClientConfig);
-
-        given().config(RestAssured.config.redirect(redirectConfig().followRedirectsForAllMethods(true))).body("data").when().put(url("/redirect-302")).then().statusCode(200);
-        given().body("data").when().put(url("/redirect-302")).then().statusCode(302);
-
-        assertThat(((AbstractHttpClient) httpClientConfig.httpClientInstance()).getRedirectStrategy()).isSameAs(factoryStrategy);
+    void post_307_redirect_is_repeated_with_the_same_method_and_body_when_following_redirects_for_all_methods() {
+        given().
+                config(config().redirect(redirectConfig().followRedirectsForAllMethods(true))).
+                body("data").
+        when().
+                post(url("/redirect-307")).
+        then().
+                statusCode(200).
+                body(equalTo("POST body=data cookie=null expect=null"));
     }
 
     @Test
@@ -157,9 +144,6 @@ class HttpClientSettingsTest {
 
     @Test
     void expect_continue_header_is_sent_when_configured() {
-        // JDK differences table, Expect: 100-continue: the JDK client writes 100-Continue
-        String expect = TestClient.isJdk() ? "100-Continue" : "100-continue";
-
         given().
                 config(config().httpClient(httpClientConfig().expectContinue(true))).
                 body("data").
@@ -167,7 +151,8 @@ class HttpClientSettingsTest {
                 post(url("/echo")).
         then().
                 statusCode(200).
-                body(equalTo("POST body=data cookie=null expect=" + expect));
+                // JDK differences table, Expect: 100-continue: the JDK client writes 100-Continue
+                body(equalTo("POST body=data cookie=null expect=100-Continue"));
     }
 
     @Test
@@ -177,7 +162,7 @@ class HttpClientSettingsTest {
                         config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(200)))).
                 when().
                         get(url("/slow")))
-                .isInstanceOf(SocketTimeoutException.class);
+                .isExactlyInstanceOf(ResponseTimeoutException.class);
     }
 
     private String url(String path) {

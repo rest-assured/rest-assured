@@ -16,7 +16,6 @@
 
 package io.restassured.authentication;
 
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.HostnameVerifier;
@@ -27,10 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Each built-in scheme asks the {@link AuthenticationContext} for what it asks of HTTPBuilder.
+ * What each built-in scheme asks of the {@link AuthenticationContext}.
  */
 @SuppressWarnings("deprecation")
 class AuthenticationContextTest {
@@ -139,26 +137,6 @@ class AuthenticationContextTest {
 
         assertThat(context.calls).containsExactly("certificate[keystore.p12, password, PKCS12, null, null, null, " + KeyStore.getDefaultType()
                 + ", null, 8443, " + hostnameVerifier + ", " + sslContext + "]");
-    }
-
-    @Test
-    void certificate_scheme_with_an_ssl_socket_factory_fails_with_a_context() throws Exception {
-        CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setSslSocketFactory(new SSLSocketFactory(SSLContext.getDefault()));
-
-        assertThatThrownBy(() -> scheme.authenticate(context))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("An SSLSocketFactory can't be used with an AuthenticationContext. Use setSslContext(..) instead of setSslSocketFactory(..).");
-    }
-
-    @Test
-    void scheme_that_only_implements_the_http_builder_method_fails_with_a_context() {
-        AuthenticationScheme scheme = httpBuilder -> {
-        };
-
-        assertThatThrownBy(() -> scheme.authenticate(context))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("doesn't implement authenticate(AuthenticationContext). Implement io.restassured.authentication.ContextAuthenticationScheme");
     }
 
     private static class RecordingContext implements AuthenticationContext {

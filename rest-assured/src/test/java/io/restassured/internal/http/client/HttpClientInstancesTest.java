@@ -20,6 +20,7 @@ import io.restassured.common.spi.http.ClientSettings;
 import io.restassured.common.spi.http.HttpVersion;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.config.MultipartMode;
 import io.restassured.internal.http.client.FakeHttpClients.FakeClient;
 import io.restassured.internal.http.client.HttpClientInstances.Lease;
 import org.junit.jupiter.api.AfterEach;
@@ -116,6 +117,21 @@ class HttpClientInstancesTest {
         lease.release();
 
         assertThat(closed(lease)).isTrue();
+    }
+
+    @Test
+    void copies_of_a_reused_config_that_keep_how_the_client_is_created_share_its_instances_and_cookie_store() {
+        HttpClientConfig reused = httpClientConfig().reuseHttpClientInstance();
+        HttpClientConfig copy = reused.client("apache5").multipartMode(MultipartMode.BROWSER_COMPATIBLE);
+        HttpClientConfig withOtherParams = reused.setParam("a", "b");
+        Lease first = instances.acquire(new FakeHttpClients.Apache5(), SETTINGS, reused, DEFAULT_CONNECTIONS);
+        Lease fromCopy = instances.acquire(new FakeHttpClients.Apache5(), SETTINGS, copy, DEFAULT_CONNECTIONS);
+        Lease fromCopyWithOtherParams = instances.acquire(new FakeHttpClients.Apache5(), SETTINGS, withOtherParams, DEFAULT_CONNECTIONS);
+
+        assertThat(fromCopy.instance()).isSameAs(first.instance());
+        assertThat(fromCopyWithOtherParams.instance()).isNotSameAs(first.instance());
+        assertThat(instances.cookieStore(copy)).isSameAs(instances.cookieStore(reused));
+        assertThat(instances.cookieStore(withOtherParams)).isNotSameAs(instances.cookieStore(reused));
     }
 
     @Test

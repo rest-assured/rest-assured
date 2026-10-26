@@ -131,27 +131,6 @@ public class CookieFilterTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    public void theHttpClient4CookieStoreWritesThroughToTheFilter() {
-        cookieFilter.filter(reqOriginDomain, response, testFilterContext);
-        org.apache.http.client.CookieStore store = cookieFilter.getCookieStore();
-        org.apache.http.impl.cookie.BasicClientCookie added = new org.apache.http.impl.cookie.BasicClientCookie("added", "value");
-        added.setDomain("somedomain.com");
-        added.setPath("/");
-
-        store.addCookie(added);
-
-        assertThat(cookieFilter.getCookies().getValue("added"), Matchers.is("value"));
-        assertThat(store.getCookies().size(), Matchers.is(3));
-        assertThat(store.getCookies().get(0).getName(), Matchers.is("added"));
-        assertThat(store.getCookies().get(1).getDomain(), Matchers.is("somedomain.com"));
-        assertThat(store.clearExpired(new java.util.Date(Long.MAX_VALUE)), Matchers.is(true));
-        assertThat(cookieFilter.getCookies().size(), Matchers.is(1));
-        store.clear();
-        assertThat(cookieFilter.getCookies().size(), Matchers.is(0));
-    }
-
-    @Test
     public void addedCookieIsSentToRequestsOnItsDomainOnly() {
         cookieFilter.addCookie(new Cookie.Builder("added", "value").setDomain("somedomain.com").build());
         FilterableRequestSpecification reqNonMatchingDomain =

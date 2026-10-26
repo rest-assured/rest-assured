@@ -43,13 +43,13 @@ import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.path.xml.XmlPath.CompatibilityMode;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.Response;
-import org.apache.http.protocol.BasicHttpContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -255,15 +255,13 @@ class RestAssuredResponseOptionsImplTest {
         ResponseParserRegistrar rpr = new ResponseParserRegistrar();
         DecoderConfig decoderConfig = DecoderConfig.decoderConfig();
         Map<String, Object> properties = new HashMap<>();
-        BasicHttpContext context = new BasicHttpContext();
-        Object connectionManager = new Object();
+        Closeable responseCloser = () -> { };
 
         response.setConfig(config);
         response.setRpr(rpr);
         response.setDecoderConfig(decoderConfig);
         response.setFilterContextProperties(properties);
-        response.setApacheHttpContext(context);
-        response.setConnectionManager(connectionManager);
+        response.setResponseCloser(responseCloser);
         response.setDefaultContentType("application/json");
         response.setHasExpectations(true);
         response.setContent("body");
@@ -272,8 +270,7 @@ class RestAssuredResponseOptionsImplTest {
         assertThat(response.getRpr()).isSameAs(rpr);
         assertThat(response.getDecoderConfig()).isSameAs(decoderConfig);
         assertThat(response.getFilterContextProperties()).isSameAs(properties);
-        assertThat(response.getApacheHttpContext()).isSameAs(context);
-        assertThat(response.getConnectionManager()).isSameAs(connectionManager);
+        assertThat(response.getResponseCloser()).isSameAs(responseCloser);
         assertThat(response.getDefaultContentType()).isEqualTo("application/json");
         assertThat(response.getHasExpectations()).isTrue();
         assertThat(response.getContent()).isEqualTo("body");
@@ -308,7 +305,7 @@ class RestAssuredResponseOptionsImplTest {
         assertThat(response.getRpr()).isSameAs(rpr);
         assertThat(response.getDefaultContentType()).isNull();
         assertThat(response.getHasExpectations()).isFalse();
-        assertThat(response.getConnectionManager()).isSameAs(httpResponse);
+        assertThat(response.getResponseCloser()).isSameAs(httpResponse);
         assertThat(response.getContent()).isNull();
     }
 
@@ -540,7 +537,7 @@ class RestAssuredResponseOptionsImplTest {
     void reading_stream_content_tells_the_http_client_that_the_response_is_done() {
         AtomicInteger done = new AtomicInteger();
         RestAssuredResponseImpl response = response(new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8)), "text/plain");
-        response.setConnectionManager(new HttpResponse("HTTP/1.1", 200, "OK", List.of(), 3, null, done::incrementAndGet));
+        response.setResponseCloser(new HttpResponse("HTTP/1.1", 200, "OK", List.of(), 3, null, done::incrementAndGet));
         assertThat(done).hasValue(0);
 
         assertThat(response.asByteArray()).isEqualTo("abc".getBytes(StandardCharsets.UTF_8));

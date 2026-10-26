@@ -16,35 +16,37 @@
 
 package io.restassured.internal.http;
 
+import java.io.IOException;
+
 /**
- * Wraps an error response in an exception for flow control purposes.  That is,
- * you can still inspect response headers, but in a 
- * <code>catch( HttpResponseException ex ) {  }</code> block. 
- * 
+ * An exception about a response, with its status code and reason phrase. The message is the one of Apache
+ * HttpClient 4's {@code HttpResponseException}, which this class extended before REST Assured 7.0.0.
+ *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  * @since 0.5
  */
-public class HttpResponseException extends org.apache.http.client.HttpResponseException {
-	
-	private static final long serialVersionUID = -34809347677236L;
+public class HttpResponseException extends IOException {
 
-	HttpResponseDecorator response;
-	
-	// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
-	public HttpResponseException( HttpResponseDecorator resp ) {
-		super( resp.getStatusLine().getStatusCode(), 
-				resp.getStatusLine().getReasonPhrase() );
-		this.response = resp;
-	}
+    private static final long serialVersionUID = -34809347677236L;
 
-	/**
-	 * Creates an exception without a response, so {@link #getResponse()} returns <code>null</code>.
-	 */
-	public HttpResponseException( int statusCode, String reasonPhrase ) {
-		super( statusCode, reasonPhrase );
-	}
-	
-	public HttpResponseDecorator getResponse() {
-		return response;
-	}
+    private final int statusCode;
+    private final String reasonPhrase;
+
+    public HttpResponseException(int statusCode, String reasonPhrase) {
+        this(statusCode, reasonPhrase, null);
+    }
+
+    protected HttpResponseException(int statusCode, String reasonPhrase, Throwable cause) {
+        super("status code: " + statusCode + (reasonPhrase == null || reasonPhrase.isBlank() ? "" : ", reason phrase: " + reasonPhrase), cause);
+        this.statusCode = statusCode;
+        this.reasonPhrase = reasonPhrase;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getReasonPhrase() {
+        return reasonPhrase;
+    }
 }

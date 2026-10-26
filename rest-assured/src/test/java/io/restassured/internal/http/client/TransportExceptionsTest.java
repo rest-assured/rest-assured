@@ -18,25 +18,23 @@ package io.restassured.internal.http.client;
 
 import io.restassured.common.exception.ConnectionTimeoutException;
 import io.restassured.common.exception.ResponseTimeoutException;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpTimeoutException;
+import java.nio.channels.UnresolvedAddressException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TransportExceptionsTest {
 
     @Test
-    void connect_and_connection_pool_timeouts_become_connection_timeout_exceptions() {
+    void connect_timeouts_become_connection_timeout_exceptions() {
         assertTranslated(new HttpConnectTimeoutException("HTTP connect timed out"), ConnectionTimeoutException.class);
-        assertTranslated(new ConnectTimeoutException("Connect to localhost:1 failed: connect timed out"), ConnectionTimeoutException.class);
-        assertTranslated(new ConnectionPoolTimeoutException("Timeout waiting for connection from pool"), ConnectionTimeoutException.class);
     }
 
     @Test
@@ -52,6 +50,26 @@ class TransportExceptionsTest {
         for (IOException exception : exceptions) {
             assertThat(TransportExceptions.translate(exception)).isSameAs(exception);
         }
+    }
+
+    @Test
+    void a_connect_exception_for_an_unresolved_address_becomes_an_unknown_host_exception_for_the_host() {
+        // What the JDK client throws on Java 17 and 21 for a host that can't be resolved
+        ConnectException exception = new ConnectException();
+        ConnectException inner = new ConnectException();
+        inner.initCause(new UnresolvedAddressException());
+        exception.initCause(inner);
+
+        assertThat(TransportExceptions.translate(exception, "unknown.invalid")).isExactlyInstanceOf(UnknownHostException.class)
+                .hasMessage("unknown.invalid").hasCause(exception);
+    }
+
+    @Test
+    void other_connect_exceptions_and_timeouts_are_translated_as_without_a_host() {
+        ConnectException refused = new ConnectException("Connection refused");
+        assertThat(TransportExceptions.translate(refused, "localhost")).isSameAs(refused);
+        assertThat(TransportExceptions.translate(new HttpConnectTimeoutException("HTTP connect timed out"), "localhost"))
+                .isExactlyInstanceOf(ConnectionTimeoutException.class);
     }
 
     private static void assertTranslated(IOException exception, Class<? extends SocketTimeoutException> type) {

@@ -16,8 +16,6 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 /**
  * Used for NTLM authentication
  */
@@ -27,11 +25,6 @@ public class NTLMAuthScheme implements AuthenticationScheme {
     private String password;
     private String workstation;
     private String domain;
-
-    @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.getAuth().ntlm(userName, password, workstation, domain);
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

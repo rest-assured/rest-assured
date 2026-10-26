@@ -22,7 +22,6 @@ import io.restassured.authentication.FormAuthConfig;
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
-import io.restassured.config.EncoderConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
@@ -1029,6 +1028,14 @@ class RequestSpecificationImplTest {
         assertThatThrownBy(() -> given().proxy((URI) null)).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("String cannot be null");
     }
 
+    @Test
+    void proxy_with_host_port_and_scheme_keeps_a_host_that_a_uri_doesnt_allow_and_brackets_an_ipv6_address() {
+        assertThat(proxyOf(given().proxy("my_proxy", 4, "http"))).isEqualTo("my_proxy:4:http");
+        assertThat(proxyOf(given().proxy("::1", 5, "http"))).isEqualTo("[::1]:5:http");
+        assertThat(proxyOf(given().proxy("[::1]", 6, "http"))).isEqualTo("[::1]:6:http");
+        assertThat(proxyOf(given().proxy(URI.create("http://[::1]:7")))).isEqualTo("[::1]:7:http");
+    }
+
     private static String proxyOf(RequestSpecification spec) {
         ProxySpecification proxy = ((FilterableRequestSpecification) spec).getProxySpecification();
         return proxy.getHost() + ":" + proxy.getPort() + ":" + proxy.getScheme();
@@ -1037,7 +1044,7 @@ class RequestSpecificationImplTest {
     @Test
     void ssl_shortcuts_change_the_ssl_config() {
         FilterableRequestSpecification spec = (FilterableRequestSpecification) given().relaxedHTTPSValidation("TLS");
-        assertThat(spec.getConfig().getSSLConfig().getSSLSocketFactory()).isNotNull();
+        assertThat(spec.getConfig().getSSLConfig().getRelaxedHTTPSValidationProtocol()).isEqualTo("TLS");
         assertThat(spec.getConfig().getSSLConfig().getHostnameVerifier()).isSameAs(SSLConfig.sslConfig().strictHostnames().getHostnameVerifier());
 
         FilterableRequestSpecification keyStore = (FilterableRequestSpecification) given().keyStore("ks.jks", "pw");

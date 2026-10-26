@@ -46,7 +46,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Which encodings REST Assured asks for, and what the user gets back for each {@code Content-Encoding} of a response.
- * Decoding gzip and deflate is going to move from HttpClient 4 interceptors into REST Assured's core.
+ * REST Assured's core decodes gzip and deflate, whichever client sends the request.
  */
 public class WireContentDecodingITest extends WireTest {
     private static final String JSON = "{\"message\":\"hello hällo hello hello hello\"}";

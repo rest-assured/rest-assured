@@ -20,7 +20,6 @@ package io.restassured.config;
  * Configures the redirect settings that can be used with RestAssured.
  *
  * @see RestAssuredConfig
- * @see org.apache.http.client.params.ClientPNames
  */
 public class RedirectConfig implements Config {
 

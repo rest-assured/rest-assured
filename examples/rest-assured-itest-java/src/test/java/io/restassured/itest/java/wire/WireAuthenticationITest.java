@@ -17,11 +17,8 @@
 package io.restassured.itest.java.wire;
 
 import io.restassured.RestAssured;
-import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.OAuthSignature;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RedirectConfig;
-import io.restassured.itest.java.support.TestClient;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.Mac;
@@ -238,7 +235,7 @@ public class WireAuthenticationITest extends WireTest {
         then().
                 statusCode(401);
 
-        // Today's behavior: HttpClient 4 encodes the credentials as US-ASCII, so non-ASCII characters become '?'
+        // Today's behavior: the credentials are encoded as US-ASCII, as HttpClient 4 did, so non-ASCII characters become '?'
         assertThat(server.lastRequest().header("Authorization")).isEqualTo(basicAuthorization("j?hn", "p?ssword"));
     }
 
@@ -600,56 +597,6 @@ public class WireAuthenticationITest extends WireTest {
         RecordedRequest request = server.onlyRequest();
         assertThat(request.target()).isEqualTo("/oauth2?q=a&access_token=token-123");
         assertThat(request.hasHeader("Authorization")).isFalse();
-    }
-
-    // Authentication schemes that only implement the deprecated authenticate(HTTPBuilder)
-
-    @Test public void
-    an_oauth2_header_that_a_legacy_scheme_adds_is_not_sent_after_a_redirect_to_another_host() {
-        TestClient.assumeHttpClient4();
-        server.respond("/redirect", Responder.redirect(302, server.url("127.0.0.1", "/target")));
-        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
-
-        given().
-                spec(new RequestSpecBuilder().setAuth(legacy).build()).
-        when().
-                get(server.url("/redirect")).
-        then().
-                statusCode(200);
-
-        assertThat(server.requests()).extracting(r -> r.header("Authorization")).containsExactly("Bearer token-123", null);
-    }
-
-    @Test public void
-    an_oauth2_query_token_that_a_legacy_scheme_adds_is_not_sent_after_a_redirect_to_another_host() {
-        TestClient.assumeHttpClient4();
-        server.respond("/redirect", Responder.redirect(302, server.url("127.0.0.1", "/target")));
-        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123", OAuthSignature.QUERY_STRING);
-
-        given().
-                spec(new RequestSpecBuilder().setAuth(legacy).build()).
-        when().
-                get(server.url("/redirect")).
-        then().
-                statusCode(200);
-
-        assertThat(server.requests()).extracting(RecordedRequest::target).containsExactly("/redirect?access_token=token-123", "/target");
-    }
-
-    @Test public void
-    an_oauth2_header_that_a_legacy_scheme_adds_is_sent_after_a_redirect_to_the_same_host() {
-        TestClient.assumeHttpClient4();
-        server.respond("/redirect", Responder.redirect(302, server.url("/target")));
-        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
-
-        given().
-                spec(new RequestSpecBuilder().setAuth(legacy).build()).
-        when().
-                get(server.url("/redirect")).
-        then().
-                statusCode(200);
-
-        assertThat(server.requests()).extracting(r -> r.header("Authorization")).containsExactly("Bearer token-123", "Bearer token-123");
     }
 
     // No authentication

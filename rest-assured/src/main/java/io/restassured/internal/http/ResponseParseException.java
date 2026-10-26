@@ -17,34 +17,18 @@
 package io.restassured.internal.http;
 
 /**
- * Thrown when a response body is parsed unsuccessfully.  This most often 
- * occurs when a server returns an error status code and sends a different 
- * content-type body from what was expected.  You can inspect the response 
- * content-type by calling <code>ex.response.contentType</code>.
- * 
+ * Thrown when a response body is parsed unsuccessfully.  This most often
+ * occurs when a server returns an error status code and sends a different
+ * content-type body from what was expected.
+ *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  * @since 0.5.0
  */
 public class ResponseParseException extends HttpResponseException {
-	
-	private static final long serialVersionUID = -1398234959324603287L;
 
-	/* TODO this is a bit wonky because org.apache.http...HttpResponseException
-	   does not have a constructor to pass the 'cause'.  But I want this to 
-	   extend HttpResponseException so that one exception type can catch 
-	   everything thrown from HttpBuilder. */
-	private Throwable cause;
-	
-	// Only kept for tests until phase 7 of the 7.0.0 plan, don't build on it
-	public ResponseParseException( HttpResponseDecorator response, Throwable cause ) {
-		super( response );
-		this.cause = cause;
-	}
+    private static final long serialVersionUID = -1398234959324603287L;
 
-	public ResponseParseException( int statusCode, String reasonPhrase, Throwable cause ) {
-		super( statusCode, reasonPhrase );
-		this.cause = cause;
-	}
-	
-	@Override public Throwable getCause() { return this.cause; }
+    public ResponseParseException(int statusCode, String reasonPhrase, Throwable cause) {
+        super(statusCode, reasonPhrase, cause);
+    }
 }

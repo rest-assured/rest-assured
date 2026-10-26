@@ -16,10 +16,7 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 import java.util.Base64;
-import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
@@ -30,12 +27,6 @@ public class PreemptiveBasicAuthScheme implements AuthenticationScheme {
 
     private String userName;
     private String password;
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void authenticate(HTTPBuilder httpBuilder) {
-        ((Map<Object, Object>) httpBuilder.getHeaders()).put("Authorization", generateAuthToken());
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

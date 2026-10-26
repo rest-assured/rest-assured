@@ -29,7 +29,7 @@ class ResponseConverter {
 
         RestAssuredResponseImpl std = new RestAssuredResponseImpl();
         std.setConfig(mvc.getConfig());
-        std.setConnectionManager(mvc.getConnectionManager());
+        std.setResponseCloser(mvc.getResponseCloser());
         std.setContent(mvc.getContent());
         std.setContentType(mvc.getContentType());
         std.setCookies(mvc.detailedCookies());
@@ -43,7 +43,7 @@ class ResponseConverter {
         std.setRpr(mvc.getRpr());
         std.setFilterContextProperties(mvc.getFilterContextProperties());
         std.setLogRepository(mvc.getLogRepository());
-        std.setApacheHttpContext(mvc.getApacheHttpContext());
+        std.setEffectiveUri(mvc.getEffectiveUri());
         return std;
     }
 }

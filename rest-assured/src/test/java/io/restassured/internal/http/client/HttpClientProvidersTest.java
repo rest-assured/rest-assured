@@ -56,6 +56,7 @@ class HttpClientProvidersTest {
     private static final BuiltIn NO_JDK = new BuiltIn(HttpClientType.JDK, "io.restassured.http.jdk.NotOnTheClasspath", "http-client-jdk");
     private static final BuiltIn NO_APACHE5 = new BuiltIn(HttpClientType.APACHE5, "io.restassured.http.apache5.NotOnTheClasspath", "http-client-apache5");
     private static final String BROKEN = "com.example.BrokenHttpClientProvider";
+    private static final String DEFAULT_MESSAGE = "DEBUG REST Assured uses the JDK HTTP client from io.rest-assured:http-client-jdk.";
     private static final String PIN = " To pin a client, use httpClientConfig().client(..) or the system property restassured.http.client.";
 
     @TempDir
@@ -74,12 +75,12 @@ class HttpClientProvidersTest {
     // The order
 
     @Test
-    void without_a_choice_http_client_4_is_used_and_a_debug_message_says_so() {
+    void without_a_choice_http_client_jdk_is_used_and_a_debug_message_says_so() {
         Selection selection = providers(JDK, NO_APACHE5).selectFor(httpClientConfig());
 
-        assertThat(selection.isHttpClient4()).isTrue();
+        assertThat(selection.provider()).isInstanceOf(FakeHttpClients.Jdk.class);
         assertThat(selection.how()).isEqualTo(How.DEFAULT);
-        assertThat(logged).containsExactly("DEBUG REST Assured uses Apache HttpClient 4.");
+        assertThat(logged).containsExactly(DEFAULT_MESSAGE);
     }
 
     @Test
@@ -108,9 +109,9 @@ class HttpClientProvidersTest {
         thirdParty(FakeHttpClients.OkHttp.class, "com.example:ra-okhttp", HttpClientSpi.REVISION);
         HttpClientProviders providers = providers(JDK, NO_APACHE5);
 
-        assertThat(providers.selectFor(httpClientConfig()).isHttpClient4()).isTrue();
+        assertThat(providers.selectFor(httpClientConfig()).provider()).isInstanceOf(FakeHttpClients.Jdk.class);
         assertThat(providers.selectFor(httpClientConfig().client("okhttp")).provider()).isInstanceOf(FakeHttpClients.OkHttp.class);
-        assertThat(logged).containsExactly("DEBUG REST Assured uses Apache HttpClient 4.",
+        assertThat(logged).containsExactly(DEFAULT_MESSAGE,
                 "INFO REST Assured uses the HTTP client from com.example:ra-okhttp, chosen with httpClientConfig().client(\"okhttp\").");
     }
 
@@ -170,6 +171,14 @@ class HttpClientProvidersTest {
     }
 
     // Failures
+
+    @Test
+    void without_a_client_module_it_fails_with_what_to_add() {
+        assertThatThrownBy(() -> providers(NO_JDK, NO_APACHE5).selectFor(httpClientConfig()))
+                .isExactlyInstanceOf(IllegalStateException.class)
+                .hasMessage("REST Assured found no HTTP client module. Add io.rest-assured:http-client-jdk (no other dependencies) or "
+                        + "io.rest-assured:http-client-apache5 to your test dependencies.");
+    }
 
     @Test
     void a_chosen_client_module_that_isnt_on_the_classpath_fails() {
@@ -258,7 +267,7 @@ class HttpClientProvidersTest {
     void in_osgi_a_client_module_that_is_installed_later_is_found() {
         hiddenClasses.add(FakeHttpClients.Apache5.class.getName());
         HttpClientProviders providers = osgiProviders(JDK, APACHE5);
-        assertThat(providers.selectFor(httpClientConfig()).isHttpClient4()).isTrue();
+        assertThat(providers.selectFor(httpClientConfig()).provider()).isInstanceOf(FakeHttpClients.Jdk.class);
 
         hiddenClasses.clear();
 
@@ -269,11 +278,11 @@ class HttpClientProvidersTest {
     void outside_osgi_the_absence_of_a_client_module_is_kept() {
         hiddenClasses.add(FakeHttpClients.Apache5.class.getName());
         HttpClientProviders providers = providers(JDK, APACHE5);
-        assertThat(providers.selectFor(httpClientConfig()).isHttpClient4()).isTrue();
+        assertThat(providers.selectFor(httpClientConfig()).provider()).isInstanceOf(FakeHttpClients.Jdk.class);
 
         hiddenClasses.clear();
 
-        assertThat(providers.selectFor(httpClientConfig()).isHttpClient4()).isTrue();
+        assertThat(providers.selectFor(httpClientConfig()).provider()).isInstanceOf(FakeHttpClients.Jdk.class);
     }
 
     @Test

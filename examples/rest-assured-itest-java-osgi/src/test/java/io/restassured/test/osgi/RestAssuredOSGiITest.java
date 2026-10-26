@@ -16,6 +16,8 @@
 
 package io.restassured.test.osgi;
 
+import io.restassured.http.jdk.JdkHttpClientProvider;
+import io.restassured.internal.http.client.HttpClientProviders;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -24,7 +26,9 @@ import org.ops4j.pax.exam.junit.PaxExam;
 
 import java.net.UnknownHostException;
 
+import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
+import static org.junit.Assert.assertEquals;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.spiflyBundles;
@@ -58,9 +62,6 @@ public class RestAssuredOSGiITest {
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy").versionAsInProject(),
 
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
                         mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject(),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
 
@@ -76,5 +77,13 @@ public class RestAssuredOSGiITest {
                 get("http://dummy").
                 then().
                 statusCode(200);
+    }
+
+    @Test
+    public void the_jdk_http_client_is_the_default() {
+        HttpClientProviders.Selection selection = HttpClientProviders.select(config().getHttpClientConfig());
+
+        assertEquals(JdkHttpClientProvider.class, selection.provider().getClass());
+        assertEquals(HttpClientProviders.How.DEFAULT, selection.how());
     }
 }

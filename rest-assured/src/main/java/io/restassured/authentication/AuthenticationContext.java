@@ -24,7 +24,7 @@ import java.security.KeyStore;
  * What an {@link AuthenticationScheme} can do to a request, without depending on the HTTP client that sends it.
  * REST Assured passes one to {@link AuthenticationScheme#authenticate(AuthenticationContext)} for each request.
  *
- * @see ContextAuthenticationScheme
+ * @see AuthenticationScheme
  */
 public interface AuthenticationContext {
 

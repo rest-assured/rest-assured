@@ -26,7 +26,8 @@ class FindAuthenticationSchemesOverridingOnlyHttpBuilderTest implements RewriteT
 
     @Override
     public void defaults(RecipeSpec spec) {
-        RecipeTestSupport.defaults(spec);
+        // With REST Assured 6's PreemptiveBasicAuthScheme, which has the authenticate(HTTPBuilder) that super calls
+        RecipeTestSupport.defaultsWithRestAssured6Configuration(spec);
         spec.recipe(new FindAuthenticationSchemesOverridingOnlyHttpBuilder());
     }
 

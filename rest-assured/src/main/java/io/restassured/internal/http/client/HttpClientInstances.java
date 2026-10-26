@@ -44,7 +44,8 @@ import static java.lang.System.Logger.Level.WARNING;
  * 16 instances. When another one is needed, the least recently used one is removed, and closed once the responses
  * that use it are done.</li>
  * <li>A client that is {@link ClientSharing#PER_REQUEST} gets a new instance for each request, which is closed, or with
- * {@link HttpClientConfig#reuseHttpClientInstance()} one instance for each config and settings, which isn't.</li>
+ * {@link HttpClientConfig#reuseHttpClientInstance()} one instance for each config and its copies
+ * ({@link HttpClientConfig#reuseIdentity()}), provider and settings, which isn't.</li>
  * </ul>
  */
 public final class HttpClientInstances {
@@ -53,9 +54,9 @@ public final class HttpClientInstances {
     private static final HttpClientInstances INSTANCE = new HttpClientInstances();
 
     private final Map<Key, Shared> shared = new LinkedHashMap<>(MAX_SHARED, 0.75f, true);
-    // The configs aren't equal to each other, so the instances are kept for each config object for as long as it's used
-    private final Map<HttpClientConfig, Map<Key, HttpClientInstance>> reused = Collections.synchronizedMap(new WeakHashMap<>());
-    private final Map<HttpClientConfig, CookieStore> cookieStores = Collections.synchronizedMap(new WeakHashMap<>());
+    // Kept for each reuse identity of the configs for as long as a config with it is used
+    private final Map<Object, Map<Key, HttpClientInstance>> reused = Collections.synchronizedMap(new WeakHashMap<>());
+    private final Map<Object, CookieStore> cookieStores = Collections.synchronizedMap(new WeakHashMap<>());
 
     HttpClientInstances() {
     }
@@ -68,11 +69,11 @@ public final class HttpClientInstances {
     }
 
     /**
-     * @return The cookie store of the config, which keeps the cookies of the responses of its requests as long as the
-     * config is used, as {@link HttpClientConfig#reuseHttpClientInstance()} keeps its client instances
+     * @return The cookie store of a config with {@link HttpClientConfig#reuseHttpClientInstance()} and its copies, which
+     * keeps the cookies of the responses of their requests as long as they're used, as the client instances are kept
      */
     public CookieStore cookieStore(HttpClientConfig httpClientConfig) {
-        return cookieStores.computeIfAbsent(httpClientConfig, config -> new CookieStore());
+        return cookieStores.computeIfAbsent(httpClientConfig.reuseIdentity(), identity -> new CookieStore());
     }
 
     /**
@@ -94,7 +95,7 @@ public final class HttpClientInstances {
         if (provider.sharing() == ClientSharing.SHARED) {
             return shared(provider, key);
         } else if (httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()) {
-            Map<Key, HttpClientInstance> instances = reused.computeIfAbsent(httpClientConfig, config -> new ConcurrentHashMap<>());
+            Map<Key, HttpClientInstance> instances = reused.computeIfAbsent(httpClientConfig.reuseIdentity(), identity -> new ConcurrentHashMap<>());
             return new Lease(instances.computeIfAbsent(key, it -> provider.newClient(settings)), () -> { });
         }
         HttpClientInstance instance = provider.newClient(settings);

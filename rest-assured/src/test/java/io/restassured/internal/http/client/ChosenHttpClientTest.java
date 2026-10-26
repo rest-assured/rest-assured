@@ -16,9 +16,7 @@
 
 package io.restassured.internal.http.client;
 
-import io.restassured.TestClient;
 import io.restassured.authentication.AuthenticationScheme;
-import io.restassured.authentication.CertAuthScheme;
 import io.restassured.common.exception.ResponseTimeoutException;
 import io.restassured.common.spi.http.HttpHeader;
 import io.restassured.common.spi.http.HttpRequest;
@@ -29,8 +27,6 @@ import io.restassured.config.HttpClientConfig;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +40,6 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
-import static io.restassured.config.SSLConfig.sslConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
@@ -161,30 +156,6 @@ class ChosenHttpClientTest {
         assertThat(with(APACHE5).get("http://localhost/299").statusLine()).isEqualTo("HTTP/1.1 299 ");
     }
 
-    @Test
-    void an_authentication_scheme_that_only_knows_the_http_builder_fails() {
-        assertThatThrownBy(() -> withAuthenticationScheme(new HttpBuilderOnlyAuthScheme()).get("http://localhost/path"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(" + FakeHttpClients.Apache5.class.getName() + ".class)) can't "
-                        + "authenticate with " + HttpBuilderOnlyAuthScheme.class.getName() + ", which only implements the deprecated "
-                        + "authenticate(HTTPBuilder). Remove httpClientConfig().client(..) to use Apache HttpClient 4, or implement "
-                        + "io.restassured.authentication.ContextAuthenticationScheme instead.");
-        assertThat(FakeHttpClients.sent).isEmpty();
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void certificate_authentication_with_an_http_client_4_socket_factory_fails() {
-        CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setSslSocketFactory(SSLSocketFactory.getSocketFactory());
-
-        assertThatThrownBy(() -> withAuthenticationScheme(scheme).get("https://localhost/path"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(" + FakeHttpClients.Apache5.class.getName() + ".class)) can't "
-                        + "use the HttpClient 4 SSLSocketFactory of certificate authentication. Remove httpClientConfig().client(..) to use "
-                        + "Apache HttpClient 4, or give certificate authentication an SSLContext.");
-    }
-
     private static HttpResponse unauthorized() {
         return new HttpResponse("HTTP/1.1", 401, "Unauthorized", List.of(new HttpHeader("WWW-Authenticate", "Basic realm=\"test\"")),
                 0, new ByteArrayInputStream(new byte[0]), null);
@@ -193,39 +164,6 @@ class ChosenHttpClientTest {
     private static HttpResponse redirect(String location) {
         return new HttpResponse("HTTP/1.1", 302, "Found", List.of(new HttpHeader("Location", location)),
                 0, new ByteArrayInputStream(new byte[0]), null);
-    }
-
-    /**
-     * A scheme written for REST Assured 6.x, which only knows the HTTPBuilder of HttpClient 4.
-     */
-    @SuppressWarnings("deprecation")
-    private static class HttpBuilderOnlyAuthScheme implements AuthenticationScheme {
-        @Override
-        public void authenticate(io.restassured.internal.http.HTTPBuilder httpBuilder) {
-            httpBuilder.getAuth().basic("user", "password");
-        }
-    }
-
-    @Test
-    void an_http_client_factory_fails() {
-        HttpClientConfig factory = APACHE5.httpClientFactory(DefaultHttpClient::new);
-
-        assertThatThrownBy(() -> with(factory).get("http://localhost/path"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(" + FakeHttpClients.Apache5.class.getName() + ".class)) can't "
-                        + "use the HttpClient 4 client of httpClientConfig().httpClientFactory(..). Remove httpClientConfig().client(..) to use "
-                        + "Apache HttpClient 4, or customize the client with httpClientConfig().customizeClient(..).");
-        assertThat(FakeHttpClients.created).isEmpty();
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void an_http_client_4_socket_factory_fails() {
-        assertThatThrownBy(() -> with(config().httpClient(APACHE5).sslConfig(sslConfig().sslSocketFactory(SSLSocketFactory.getSocketFactory()))).get("https://localhost/"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(" + FakeHttpClients.Apache5.class.getName() + ".class)) can't "
-                        + "use the HttpClient 4 SSLSocketFactory of sslConfig().sslSocketFactory(..). Remove httpClientConfig().client(..) to use "
-                        + "Apache HttpClient 4, or use sslConfig().sslContext(..).");
     }
 
     @Test
@@ -242,15 +180,6 @@ class ChosenHttpClientTest {
                 .isExactlyInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("A customizer for java.net.http.HttpClient$Builder is configured, but REST Assured uses Apache HttpClient 5.");
         assertThat(FakeHttpClients.created).isEmpty();
-    }
-
-    @Test
-    void a_customizer_fails_with_http_client_4() {
-        TestClient.assumeHttpClient4();
-        assertThatThrownBy(() -> with(httpClientConfig().customizeClient(HttpClient.Builder.class, builder -> { })).get("http://localhost/path"))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("A customizer for java.net.http.HttpClient$Builder is configured, but REST Assured uses Apache HttpClient 4, "
-                        + "which you customize with httpClientConfig().httpClientFactory(..).");
     }
 
     @Test

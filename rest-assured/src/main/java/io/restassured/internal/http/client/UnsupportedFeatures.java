@@ -39,7 +39,6 @@ public final class UnsupportedFeatures {
     public static UnsupportedOperationException translate(Selection selection, UnsupportedFeatureException e) {
         String fix;
         switch (selection.how()) {
-            // Not reached until the JDK client becomes the default module, when HttpClient 4 is removed
             case DEFAULT:
                 fix = "Add io.rest-assured:http-client-apache5 to your test dependencies and REST Assured uses it";
                 break;
@@ -51,32 +50,6 @@ public final class UnsupportedFeatures {
         }
         return new UnsupportedOperationException(clientAndHow(selection) + " can't " + e.feature() + ". " + fix
                 + (e.workaround() == null ? "." : ", or " + e.workaround() + "."), e);
-    }
-
-    /**
-     * For what REST Assured only does with Apache HttpClient 4 so far.
-     *
-     * @param feature    What the client can't do, after "can't", with "yet" if REST Assured will do it later
-     * @param workaround What to do instead with the chosen client, after "or"
-     * @return The exception with a message that says which client it is, how it was chosen and how to use HttpClient 4
-     */
-    public static UnsupportedOperationException httpClient4Only(Selection selection, String feature, String workaround) {
-        String useHttpClient4;
-        switch (selection.how()) {
-            case CONFIG:
-                useHttpClient4 = "Remove httpClientConfig().client(..) to use Apache HttpClient 4";
-                break;
-            case SYSTEM_PROPERTY:
-                useHttpClient4 = "Remove the system property " + HttpClientProviders.SYSTEM_PROPERTY + " to use Apache HttpClient 4";
-                break;
-            case CLASSPATH:
-                useHttpClient4 = "Remove " + selection.provider().artifact() + " from the classpath to use Apache HttpClient 4";
-                break;
-            default:
-                // Not reached until the JDK client becomes the default module, when HttpClient 4 is removed
-                useHttpClient4 = "Choose another client with httpClientConfig().client(..)";
-        }
-        return new UnsupportedOperationException(clientAndHow(selection) + " can't " + feature + ". " + useHttpClient4 + ", or " + workaround + ".");
     }
 
     private static String clientAndHow(Selection selection) {
@@ -103,16 +76,11 @@ public final class UnsupportedFeatures {
         if (customizers.isEmpty()) {
             return;
         }
-        Class<?> builderType = selection.isHttpClient4() ? null : selection.provider().builderType();
+        Class<?> builderType = selection.provider().builderType();
         for (ClientCustomizer customizer : customizers) {
             if (builderType == null || !customizer.builderType().isAssignableFrom(builderType)) {
-                String message = "A customizer for " + customizer.builderType().getName() + " is configured, but REST Assured uses " + selection.displayName();
-                if (selection.isHttpClient4()) {
-                    message += ", which you customize with httpClientConfig().httpClientFactory(..)";
-                } else if (builderType == null) {
-                    message += ", which can't be customized";
-                }
-                throw new UnsupportedOperationException(message + ".");
+                throw new UnsupportedOperationException("A customizer for " + customizer.builderType().getName() + " is configured, but REST Assured uses "
+                        + selection.provider().displayName() + (builderType == null ? ", which can't be customized." : "."));
             }
         }
     }

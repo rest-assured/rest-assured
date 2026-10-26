@@ -26,7 +26,7 @@ class ReplaceX509HostnameVerifierSettersTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        RecipeTestSupport.defaults(spec);
+        RecipeTestSupport.defaultsWithRestAssured6Configuration(spec);
         spec.recipeFromResources("io.restassured.ReplaceX509HostnameVerifierSetters");
     }
 

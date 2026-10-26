@@ -2,6 +2,7 @@ package io.restassured.test.osgi.options;
 
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.http.jdk.JdkHttpClientProvider;
 import io.restassured.path.jayway.JaywayPath;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
@@ -53,7 +54,7 @@ public class RestAssuredPaxExamOptions {
     }
 
     /**
-     * The REST Assured bundles under test: json-path-gpath, xml-path-gpath, rest-assured and rest-assured-common.
+     * The REST Assured bundles under test: json-path-gpath, xml-path-gpath, rest-assured, rest-assured-common and http-client-jdk.
      * <p>
      * Each bundle is the jar that this module's test classpath loads one of its classes from. In a reactor build, such as
      * {@code mvn verify -Posgi-tests -pl examples/rest-assured-itest-java-osgi -am} or the release build, that is the jar
@@ -66,12 +67,14 @@ public class RestAssuredPaxExamOptions {
     }
 
     /**
-     * rest-assured and rest-assured-common, which don't need a path engine or Groovy (see {@link #restAssuredBundles()}).
+     * rest-assured, rest-assured-common and http-client-jdk, the default HTTP client that rest-assured requires, which
+     * don't need a path engine or Groovy (see {@link #restAssuredBundles()}).
      */
     public static Option restAssuredCoreBundles() {
         return new DefaultCompositeOption(
                 bundleContaining(RestAssured.class),
-                bundleContaining(TypeRef.class));
+                bundleContaining(TypeRef.class),
+                bundleContaining(JdkHttpClientProvider.class));
     }
 
     /**

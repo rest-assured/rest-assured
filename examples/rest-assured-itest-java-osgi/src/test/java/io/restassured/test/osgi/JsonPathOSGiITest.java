@@ -56,10 +56,6 @@ public class JsonPathOSGiITest {
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy").versionAsInProject(),
-
-                        wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient").versionAsInProject()),
-                        wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpmime").versionAsInProject()),
-                        wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
 
                         /* Rest Assured dependencies needed in the Pax Exam container (the bundles built by this build) to be able to execute the tests below */

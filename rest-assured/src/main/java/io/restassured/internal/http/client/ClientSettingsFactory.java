@@ -27,11 +27,10 @@ import io.restassured.common.spi.http.RequestOptions;
 import io.restassured.common.spi.http.TlsSettings;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.SSLConfig;
-import io.restassured.internal.http.JsseToHttpClient4Ssl;
+import io.restassured.internal.http.HostnameVerifiers;
 import io.restassured.internal.http.RelaxedCertAuthScheme;
 import io.restassured.internal.util.GroovyTypes;
 import io.restassured.specification.ProxySpecification;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -75,7 +74,7 @@ public final class ClientSettingsFactory {
                 .trustStore(keyMaterial(sslConfig.getPathToTrustStore(), sslConfig.getTrustStorePassword(), sslConfig.getTrustStoreType(), sslConfig.getTrustStore()))
                 .sslContext(sslConfig.getSSLContext())
                 .relaxedProtocol(sslConfig.getRelaxedHTTPSValidationProtocol());
-        return JsseToHttpClient4Ssl.hostnames(tls, sslConfig.getHostnameVerifier()).build();
+        return HostnameVerifiers.hostnames(tls, sslConfig.getHostnameVerifier()).build();
     }
 
     /**
@@ -113,17 +112,7 @@ public final class ClientSettingsFactory {
         if (hostnameVerifier == null) {
             return tls.hostnames(sslContext == null ? HostnameVerification.ALLOW_ALL : HostnameVerification.STRICT);
         }
-        return JsseToHttpClient4Ssl.hostnames(tls, hostnameVerifier);
-    }
-
-    /**
-     * @return the SSLSocketFactory given to {@link SSLConfig#sslSocketFactory}, or {@code null}. Unlike
-     * {@link SSLConfig#getSSLSocketFactory()}, it never builds one from an SSLContext or relaxed validation.
-     */
-    @SuppressWarnings("deprecation")
-    public static SSLSocketFactory userSocketFactory(SSLConfig sslConfig) {
-        // getSSLSocketFactory() only builds a factory for an SSLContext or relaxed validation, which replace a given one
-        return sslConfig.getSSLContext() == null && sslConfig.getRelaxedHTTPSValidationProtocol() == null ? sslConfig.getSSLSocketFactory() : null;
+        return HostnameVerifiers.hostnames(tls, hostnameVerifier);
     }
 
     /**

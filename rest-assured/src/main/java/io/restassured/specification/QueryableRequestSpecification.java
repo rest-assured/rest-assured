@@ -21,7 +21,6 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.http.Cookies;
 import io.restassured.http.Headers;
-import org.apache.http.client.HttpClient;
 
 import java.util.List;
 import java.util.Map;
@@ -169,14 +168,6 @@ public interface QueryableRequestSpecification {
      * @return The Rest Assured configurations
      */
     RestAssuredConfig getConfig();
-
-    /**
-     * @return The underlying http client. Only use this for advanced configuration which is not accessible from Rest Assured! By default an instance of {@link org.apache.http.impl.client.AbstractHttpClient} is used by REST Assured.
-     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0, and the HTTP client becomes internal to the
-     * module that provides it. Use the settings in {@link io.restassured.config.HttpClientConfig} instead.
-     */
-    @Deprecated
-    HttpClient getHttpClient();
 
     /**
      * @return The defined proxy specification or <code>null</code> if undefined.

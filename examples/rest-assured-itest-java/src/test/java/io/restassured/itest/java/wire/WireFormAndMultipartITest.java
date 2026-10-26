@@ -21,11 +21,9 @@ import io.restassured.config.MultiPartConfig;
 import io.restassured.config.MultipartMode;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.apache.http.entity.mime.HttpMultipartMode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
@@ -602,25 +600,6 @@ public class WireFormAndMultipartITest extends WireTest {
         assertThat(request.bodyAsString()).isEqualTo(multipart(
                 part(utf8("ä"), formData(utf8("näme"), utf8("fïle.txt")), "Content-Type: text/plain"),
                 part("value", formData(utf8("ö")), "Content-Type: text/plain")));
-    }
-
-    @ParameterizedTest
-    @EnumSource(MultipartMode.class)
-    @SuppressWarnings("deprecation")
-    public void
-    deprecated_http_multipart_mode_sends_the_same_bytes_as_the_multipart_mode(MultipartMode mode) throws IOException {
-        File file = writeFile("upload.txt", "file");
-        givenBoundaryAndMode(mode, multiPartConfig()).multiPart("näme", "fïle.txt", "ä".getBytes(UTF_8)).multiPart("doc", file).multiPart("text", "value")
-                .post(server.url("/multipart"));
-        RecordedRequest withMultipartMode = server.onlyRequest();
-        server.reset();
-
-        given().config(config().multiPartConfig(multiPartConfig().defaultBoundary(BOUNDARY)).httpClient(httpClientConfig().httpMultipartMode(HttpMultipartMode.valueOf(mode.name()))))
-                .multiPart("näme", "fïle.txt", "ä".getBytes(UTF_8)).multiPart("doc", file).multiPart("text", "value").post(server.url("/multipart"));
-        RecordedRequest withHttpMultipartMode = server.onlyRequest();
-
-        assertThat(withHttpMultipartMode.header("Content-Type")).isEqualTo(withMultipartMode.header("Content-Type"));
-        assertThat(withHttpMultipartMode.bodyAsString()).isEqualTo(withMultipartMode.bodyAsString());
     }
 
     // Multipart: Content-Length or chunked

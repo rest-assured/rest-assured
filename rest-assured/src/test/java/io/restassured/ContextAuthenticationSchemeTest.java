@@ -75,6 +75,19 @@ class ContextAuthenticationSchemeTest {
     }
 
     @Test
+    void plain_authentication_scheme_lambda_can_set_a_header_and_answer_a_basic_challenge() {
+        AuthenticationScheme scheme = context -> {
+            context.header("X-Api-Key", "secret");
+            context.basic("user", "pass");
+        };
+
+        RestAssured.authentication = scheme;
+
+        given().when().get(url("/headers")).then().body(equalTo("null secret"));
+        given(new RequestSpecBuilder().setAuth(scheme).build()).when().get(url("/challenge")).then().statusCode(200).body(equalTo("Basic dXNlcjpwYXNz"));
+    }
+
+    @Test
     void custom_scheme_set_on_a_request_spec_builder_is_used() {
         ContextAuthenticationScheme scheme = context -> context.header("X-Api-Key", "secret");
 

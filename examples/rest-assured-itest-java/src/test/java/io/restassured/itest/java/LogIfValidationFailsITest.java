@@ -22,7 +22,6 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
@@ -260,7 +259,7 @@ public class LogIfValidationFailsITest extends WithJetty {
               fail("Should throw AssertionError");
         } catch (AssertionError e) {
             // JDK differences table, header names and order
-            assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Request method:\tGET%n" +
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
                             "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
                             "Proxy:\t\t\t<none>%n" +
                             "Request params:\tfirstName=John%n" +
@@ -274,13 +273,13 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Multiparts:\t\t<none>%n" +
                             "Body:\t\t\t<none>%n%n" +
                             "HTTP/1.1 200 OK%n" +
-                            "Content-Type: application/json;charset=utf-8%n" +
-                            "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.58.v20250814)%n" +
+                            "content-length: 33%n" +
+                            "content-type: application/json;charset=utf-8%n" +
+                            "server: Jetty(9.4.58.v20250814)%n" +
                             "%n" +
                             "{\n" +
                             "    \"greeting\": \"Greetings John Doe\"\n" +
-                            "}%n"))));
+                            "}%n")));
         }
     }
 
@@ -303,7 +302,7 @@ public class LogIfValidationFailsITest extends WithJetty {
               fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // JDK differences table, header names and order
-            assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Request method:\tGET%n" +
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
                             "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
                             "Proxy:\t\t\t<none>%n" +
                             "Request params:\tfirstName=John%n" +
@@ -317,13 +316,13 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Multiparts:\t\t<none>%n" +
                             "Body:\t\t\t<none>%n%n" +
                             "HTTP/1.1 200 OK%n" +
-                            "Content-Type: application/json;charset=utf-8%n" +
-                            "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.58.v20250814)%n" +
+                            "content-length: 33%n" +
+                            "content-type: application/json;charset=utf-8%n" +
+                            "server: Jetty(9.4.58.v20250814)%n" +
                             "%n" +
                             "{\n" +
                             "    \"greeting\": \"Greetings John Doe\"\n" +
-                            "}%n"))));
+                            "}%n")));
         }
     }
 
@@ -346,12 +345,12 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             // JDK differences table, header names and order
-            assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Headers:\t\tAccept=*/*%n" +
+            assertThat(writer.toString(), equalTo(String.format("Headers:\t\tAccept=*/*%n" +
                             "\t\t\t\tContent-Type=application/json%n" +
                             "%n" +
-                            "Content-Type: application/json;charset=utf-8%n" +
-                            "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.58.v20250814)%n"))));
+                            "content-length: 33%n" +
+                            "content-type: application/json;charset=utf-8%n" +
+                            "server: Jetty(9.4.58.v20250814)%n")));
         }
     }
 
@@ -375,7 +374,7 @@ public class LogIfValidationFailsITest extends WithJetty {
               fail("Should throw AssertionError");
         } catch (AssertionError e) {
             // JDK differences table, header names and order
-            assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Request method:\tGET%n" +
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
                             "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
                             "Proxy:\t\t\t<none>%n" +
                             "Request params:\tfirstName=John%n" +
@@ -388,9 +387,9 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Cookies:\t\t<none>%n" +
                             "Multiparts:\t\t<none>%n" +
                             "Body:\t\t\t<none>%n" +
-                            "Content-Type: application/json;charset=utf-8%n" +
-                            "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.58.v20250814)%n"))));
+                            "content-length: 33%n" +
+                            "content-type: application/json;charset=utf-8%n" +
+                            "server: Jetty(9.4.58.v20250814)%n")));
         }
     }
 
@@ -418,14 +417,14 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             // JDK differences table, header names and order
-            assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Headers:\t\t" +
+            assertThat(writer.toString(), equalTo(String.format("Headers:\t\t" +
                             "Api-Key=1234%n" +
                             "\t\t\t\tAccept=*/*%n" +
                             "\t\t\t\tContent-Type=application/json%n" +
                             "%n" +
-                            "Content-Type: application/json;charset=utf-8%n" +
-                            "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.58.v20250814)%n"))));
+                            "content-length: 33%n" +
+                            "content-type: application/json;charset=utf-8%n" +
+                            "server: Jetty(9.4.58.v20250814)%n")));
         }
     }
 
@@ -482,13 +481,13 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             // JDK differences table, header names and order
-            assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("Headers:\t\tApi-Key=1234%n" +
+            assertThat(writer.toString(), equalTo(String.format("Headers:\t\tApi-Key=1234%n" +
                             "\t\t\t\tAccept=*/*%n" +
                             "\t\t\t\tContent-Type=application/json%n" +
                             "%n" +
-                            "Content-Type: application/json;charset=utf-8%n" +
-                            "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.58.v20250814)%n"))));
+                            "content-length: 33%n" +
+                            "content-type: application/json;charset=utf-8%n" +
+                            "server: Jetty(9.4.58.v20250814)%n")));
         }
     }
 

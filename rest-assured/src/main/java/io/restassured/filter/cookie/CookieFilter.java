@@ -29,10 +29,6 @@ import io.restassured.internal.http.cookie.StoredCookie;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
-import org.apache.http.HttpHost;
-import org.apache.http.cookie.ClientCookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.http.protocol.HttpContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -146,76 +142,6 @@ public class CookieFilter implements Filter {
     }
 
     /**
-     * @return The cookies this filter has stored, as an HttpClient 4 cookie store, which adds to and removes from them
-     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0. Use {@link #getCookies()} and
-     * {@link #addCookie(io.restassured.http.Cookie)} instead.
-     */
-    @Deprecated
-    public org.apache.http.client.CookieStore getCookieStore() {
-        return new org.apache.http.client.CookieStore() {
-            @Override
-            public void addCookie(org.apache.http.cookie.Cookie cookie) {
-                if (cookie != null) {
-                    cookieStore.add(toStoredCookie(cookie));
-                }
-            }
-
-            @Override
-            public List<org.apache.http.cookie.Cookie> getCookies() {
-                List<org.apache.http.cookie.Cookie> cookies = new ArrayList<>();
-                for (StoredCookie cookie : cookieStore.cookies()) {
-                    cookies.add(toClientCookie(cookie));
-                }
-                return cookies;
-            }
-
-            @Override
-            public boolean clearExpired(Date date) {
-                return date != null && cookieStore.clearExpired(date);
-            }
-
-            @Override
-            public void clear() {
-                cookieStore.clear();
-            }
-        };
-    }
-
-    private static BasicClientCookie toClientCookie(StoredCookie cookie) {
-        BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
-        clientCookie.setDomain(cookie.getDomain());
-        clientCookie.setPath(cookie.getPath());
-        clientCookie.setSecure(cookie.isSecure());
-        clientCookie.setComment(cookie.getComment());
-        clientCookie.setExpiryDate(cookie.getExpiryDate());
-        clientCookie.setVersion(cookie.getVersion());
-        if (cookie.hasDomainAttribute()) {
-            clientCookie.setAttribute(ClientCookie.DOMAIN_ATTR, cookie.getDomain());
-        }
-        if (cookie.isHttpOnly()) {
-            clientCookie.setAttribute("httponly", "");
-        }
-        return clientCookie;
-    }
-
-    private static StoredCookie toStoredCookie(org.apache.http.cookie.Cookie cookie) {
-        StoredCookie storedCookie = new StoredCookie(cookie.getName(), cookie.getValue());
-        ClientCookie clientCookie = cookie instanceof ClientCookie ? (ClientCookie) cookie : null;
-        if (clientCookie != null && clientCookie.containsAttribute(ClientCookie.DOMAIN_ATTR)) {
-            storedCookie.setDomainAttribute(cookie.getDomain());
-        } else {
-            storedCookie.setDomain(cookie.getDomain());
-        }
-        storedCookie.setPath(cookie.getPath());
-        storedCookie.setSecure(cookie.isSecure());
-        storedCookie.setComment(cookie.getComment());
-        storedCookie.setExpiryDate(cookie.getExpiryDate());
-        storedCookie.setVersion(cookie.getVersion());
-        storedCookie.setHttpOnly(clientCookie != null && clientCookie.containsAttribute("httponly"));
-        return storedCookie;
-    }
-
-    /**
      * @return A snapshot of the cookies this filter has stored. Expired cookies are left out.
      */
     public Cookies getCookies() {
@@ -280,32 +206,5 @@ public class CookieFilter implements Filter {
         storedCookie.setHttpOnly(cookie.isHttpOnly());
         cookieStore.add(storedCookie);
         return this;
-    }
-
-    /**
-     * @deprecated HttpClient 4 types are removed in REST Assured 7.0.0, where REST Assured itself knows the URI a
-     * response came from after redirects.
-     */
-    @Deprecated
-    public static URI extractEffectiveUriFromContext(HttpContext context) {
-        HttpHost targetHost = (HttpHost) context.getAttribute("http.target_host");
-        org.apache.http.cookie.CookieOrigin cookieOrigin = (org.apache.http.cookie.CookieOrigin) context.getAttribute("http.cookie-origin");
-
-        if (targetHost == null || cookieOrigin == null) {
-            throw new IllegalStateException("Missing target_host or cookie-origin in context");
-        }
-
-        String scheme = targetHost.getSchemeName();
-        String host = targetHost.getHostName();
-        int port = targetHost.getPort();
-
-        // From cookie-origin
-        String path = cookieOrigin.getPath();
-
-        try {
-            return new URI(scheme, null, host, port, path, null, null);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to build effective URI", e);
-        }
     }
 }

@@ -19,7 +19,6 @@ package io.restassured.itest.java.wire;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
-import io.restassured.itest.java.support.TestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -49,8 +48,8 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
- * How REST Assured encodes the request target, the body and its Content-Type, and the explicit headers. URI and body
- * encoding move from HttpClient 4 into REST Assured's core later, so these tests check the exact bytes.
+ * How REST Assured encodes the request target, the body and its Content-Type, and the explicit headers. REST Assured's
+ * core encodes the URI and the body, whichever client sends the request, so these tests check the exact bytes.
  */
 public class WireRequestEncodingITest extends WireTest {
 
@@ -889,20 +888,11 @@ public class WireRequestEncodingITest extends WireTest {
     header_that_the_jdk_client_restricts(String name) {
         Map<String, String> values = Map.of("Host", "example.test", "Connection", "close", "Upgrade", "example/1");
 
-        if (TestClient.isJdk()) {
-            // JDK differences table, restricted headers: the JDK client sends them only when the JVM allows it
-            assertThatThrownBy(() -> given().header(name, values.get(name)).get(server.url("/h")))
-                    .isInstanceOf(UnsupportedOperationException.class)
-                    .hasMessageContaining("-Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT));
-            assertThat(server.requests()).isEmpty();
-        } else {
-            given().header(name, values.get(name)).get(server.url("/h"));
-
-            // Jetty answers a request with an Upgrade header itself, so the request isn't recorded
-            if (!name.equals("Upgrade")) {
-                assertThat(server.onlyRequest().headers(name)).containsExactly(values.get(name));
-            }
-        }
+        // JDK differences table, restricted headers: the JDK client sends them only when the JVM allows it
+        assertThatThrownBy(() -> given().header(name, values.get(name)).get(server.url("/h")))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("-Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT));
+        assertThat(server.requests()).isEmpty();
     }
 
     @Test public void

@@ -48,23 +48,3 @@ jobs:
           distribution: 'zulu'
       - name: Verify json-path-jayway, the Spring modules and the integration tests with Maven
         run: mvn verify -B -Djayway.version=${{ matrix.jayway }} -pl modules/json-path-jayway,modules/spring-mock-mvc,modules/spring-web-test-client,examples/rest-assured-itest-java -am
-
-  jdk-client:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # HttpClient.close() exists from Java 21, so 17 and 21 take different paths
-        java: [17, 21]
-      fail-fast: false
-    name: Test on the JDK HTTP client, JDK ${{ matrix.java }}
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'zulu'
-      # Until http-client-jdk is the default, the system property makes the tests send their requests with it
-      - name: Verify the modules that send requests with Maven
-        run: mvn verify -B -Drestassured.http.client=jdk -pl rest-assured,examples/rest-assured-itest-java,examples/kotlin-example,examples/scala-example,examples/scala3-example,examples/jackson3-example,examples/spring-mvc-webapp,examples/spring7-mvc-webapp -am

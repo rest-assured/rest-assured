@@ -21,13 +21,11 @@ import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.SessionConfig;
-import io.restassured.filter.Filter;
 import io.restassured.http.ContentType;
 import io.restassured.internal.filter.RecordingServer;
 import io.restassured.internal.filter.RecordingServer.Reply;
 import io.restassured.internal.filter.RecordingServer.Request;
 import io.restassured.response.Response;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +38,6 @@ import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
@@ -454,20 +451,6 @@ class RequestSpecificationImplSendTest {
         Response response = given().get("/x");
 
         assertThat(response.time()).isGreaterThanOrEqualTo(0);
-    }
-
-    @Test
-    void a_http_client_that_is_not_an_abstract_http_client_fails_with_a_class_cast_exception() {
-        // Quirk: the "!client instanceof AbstractHttpClient" guard never fires, the client is cast instead
-        AtomicBoolean filterCalled = new AtomicBoolean();
-        Filter filter = (req, res, ctx) -> {
-            filterCalled.set(true);
-            return ctx.next(req, res);
-        };
-
-        assertThatThrownBy(() -> given().config(config().httpClient(httpClientConfig().httpClientFactory(() -> HttpClientBuilder.create().build())))
-                .filter(filter).get("/x")).isInstanceOf(ClassCastException.class);
-        assertThat(filterCalled).isFalse();
     }
 
     @Test

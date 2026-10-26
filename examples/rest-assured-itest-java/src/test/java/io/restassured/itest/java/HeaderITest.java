@@ -18,7 +18,6 @@ package io.restassured.itest.java;
 
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
-import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.WithJetty;
 import org.junit.jupiter.api.Test;
 
@@ -198,13 +197,13 @@ public class HeaderITest extends WithJetty {
                 expect().response().header("Not-Defined", "160").when().get("/lotto")
         )
                 .isInstanceOf(AssertionError.class)
-                .hasMessage(ResponseLog.normalize("""
+                .hasMessage("""
                         1 expectation failed.
                         Expected header "Not-Defined" was not "160", was "null". Headers are:
-                        Content-Type=application/json;charset=utf-8
-                        Content-Length=160
-                        Server=Jetty(9.4.58.v20250814)
-                        """));
+                        content-length=160
+                        content-type=application/json;charset=utf-8
+                        server=Jetty(9.4.58.v20250814)
+                        """);
     }
 
     @Test

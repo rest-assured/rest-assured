@@ -16,30 +16,16 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-import io.restassured.internal.http.HTTPBuilderAuthenticationContext;
-
 /**
- * An {@link AuthenticationScheme} that only implements {@link #authenticate(AuthenticationContext)}, so that it doesn't
- * depend on the HTTP client. For example:
- * <pre>
- * RestAssured.authentication = (ContextAuthenticationScheme) context -> context.header("X-Api-Key", "secret");
- * </pre>
- * In REST Assured 7.0.0, {@link #authenticate(AuthenticationContext)} is the method every {@link AuthenticationScheme}
- * implements, and this interface is deprecated.
+ * An {@link AuthenticationScheme} that only implements {@link #authenticate(AuthenticationContext)}. Since REST Assured
+ * 7.0.0 that's the only method of {@link AuthenticationScheme}, so this interface adds nothing.
+ *
+ * @deprecated Implement {@link AuthenticationScheme} instead.
  */
+@Deprecated
 @FunctionalInterface
 public interface ContextAuthenticationScheme extends AuthenticationScheme {
 
     @Override
     void authenticate(AuthenticationContext context);
-
-    /**
-     * Calls {@link #authenticate(AuthenticationContext)}.
-     */
-    @Override
-    @SuppressWarnings("deprecation")
-    default void authenticate(HTTPBuilder httpBuilder) {
-        authenticate(new HTTPBuilderAuthenticationContext(httpBuilder));
-    }
 }

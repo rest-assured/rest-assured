@@ -122,7 +122,7 @@ final class RequestDispatcher {
         }
     }
 
-    // A copy like the one HTTPBuilder made, since the order of a HashMap depends on how it was filled
+    // A copy, since the order of a HashMap depends on how it was filled
     private static Map<Object, Object> copyOf(Map<?, ?> headers) {
         Map<Object, Object> copy = new HashMap<>();
         for (Map.Entry<?, ?> header : headers.entrySet()) {

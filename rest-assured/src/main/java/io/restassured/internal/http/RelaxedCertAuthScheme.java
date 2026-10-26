@@ -24,8 +24,7 @@ import io.restassured.internal.http.client.ClientSettingsFactory;
 /**
  * Certificate authentication with relaxed HTTPS validation, which {@code RestAssured.certificate(certURL, password)}
  * takes from the SSL config of {@code RestAssured.config}: the client certificate of the key store is sent, and every
- * server certificate and host name is trusted. An SSLContext or SSLSocketFactory set on the scheme replaces relaxed
- * validation.
+ * server certificate and host name is trusted. An SSLContext set on the scheme replaces relaxed validation.
  */
 public class RelaxedCertAuthScheme extends CertAuthScheme {
     private final String relaxedProtocol;
@@ -34,7 +33,6 @@ public class RelaxedCertAuthScheme extends CertAuthScheme {
      * @param scheme          the scheme to copy
      * @param relaxedProtocol the protocol given to {@code SSLConfig.relaxedHTTPSValidation(..)}
      */
-    @SuppressWarnings("deprecation")
     public RelaxedCertAuthScheme(CertAuthScheme scheme, String relaxedProtocol) {
         this.relaxedProtocol = relaxedProtocol;
         setPathToKeyStore(scheme.getPathToKeyStore());
@@ -46,20 +44,15 @@ public class RelaxedCertAuthScheme extends CertAuthScheme {
         setTrustStoreType(scheme.getTrustStoreType());
         setTrustStore(scheme.getTrustStore());
         setPort(scheme.getPort());
-        setX509HostnameVerifier(scheme.getX509HostnameVerifier());
-        if (scheme.getSslContext() != null) {
-            setSslContext(scheme.getSslContext());
-        } else if (scheme.getSslSocketFactory() != null) {
-            setSslSocketFactory(scheme.getSslSocketFactory());
-        }
+        setHostnameVerifier(scheme.getHostnameVerifier());
+        setSslContext(scheme.getSslContext());
     }
 
     /**
-     * @return the protocol of relaxed validation, or {@code null} if an SSLContext or SSLSocketFactory replaces it
+     * @return the protocol of relaxed validation, or {@code null} if an SSLContext replaces it
      */
-    @SuppressWarnings("deprecation")
     public String getRelaxedProtocol() {
-        return getSslContext() == null && getSslSocketFactory() == null ? relaxedProtocol : null;
+        return getSslContext() == null ? relaxedProtocol : null;
     }
 
     /**

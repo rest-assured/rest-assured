@@ -16,8 +16,6 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.http.HTTPBuilder;
-
 /**
  * Used for form authentication, does nothing.
  */
@@ -26,10 +24,6 @@ public class FormAuthScheme implements AuthenticationScheme {
     private Object userName;
     private Object password;
     private FormAuthConfig config;
-
-    @Override
-    public void authenticate(HTTPBuilder httpBuilder) {
-    }
 
     @Override
     public void authenticate(AuthenticationContext context) {

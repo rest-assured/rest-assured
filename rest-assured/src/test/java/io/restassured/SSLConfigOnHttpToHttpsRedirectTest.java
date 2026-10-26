@@ -20,11 +20,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,13 +51,6 @@ class SSLConfigOnHttpToHttpsRedirectTest {
     // Self-signed certificate for localhost/127.0.0.1, not trusted by the JVM default trust store.
     private static final String SELF_SIGNED_KEYSTORE = "self_signed_localhost.p12";
     private static final String KEYSTORE_PASSWORD = "changeit";
-
-    private static final class TrustAllStrategy implements TrustStrategy {
-        @Override
-        public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-            return true;
-        }
-    }
 
     private HttpsServer httpsServer;
     private HttpServer httpServer;
@@ -144,21 +132,6 @@ class SSLConfigOnHttpToHttpsRedirectTest {
     }
 
     @Test
-    void https_scheme_registered_by_a_custom_http_client_factory_is_kept_for_http_requests() {
-        TestClient.assumeHttpClient4();
-        // The custom factory trusts the self-signed certificate. The SSLConfig is user configured (allowAllHostnames) but
-        // doesn't trust the certificate, so it must not replace the factory's https scheme for a request that starts as http.
-        given().
-                config(config().httpClient(httpClientConfig().httpClientFactory(SSLConfigOnHttpToHttpsRedirectTest::clientTrustingAllCertificates)).
-                        sslConfig(sslConfig().allowAllHostnames())).
-        when().
-                get(httpUrl("/start")).
-        then().
-                statusCode(200).
-                body(equalTo("secure"));
-    }
-
-    @Test
     void relaxed_https_validation_of_a_redirected_http_request_does_not_leak_into_later_requests_on_a_reused_http_client() {
         RestAssured.config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
 
@@ -221,17 +194,6 @@ class SSLConfigOnHttpToHttpsRedirectTest {
 
     private String httpsUrl(String path) {
         return "https://localhost:" + httpsServer.getAddress().getPort() + path;
-    }
-
-    private static HttpClient clientTrustingAllCertificates() {
-        DefaultHttpClient client = new DefaultHttpClient();
-        try {
-            SSLSocketFactory factory = new SSLSocketFactory(new TrustAllStrategy(), SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", 443, factory));
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-        return client;
     }
 
     private static SSLContext serverSslContext() throws Exception {

@@ -57,11 +57,8 @@ public class NoPathEngineOSGiITest {
                         /* Transitive dependencies needed in the Pax Exam container, without the optional ones */
                         mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
                         mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
-                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
 
-                        /* rest-assured and rest-assured-common, the bundles built by this build */
+                        /* rest-assured, rest-assured-common and http-client-jdk, the bundles built by this build */
                         restAssuredCoreBundles()
                 };
     }

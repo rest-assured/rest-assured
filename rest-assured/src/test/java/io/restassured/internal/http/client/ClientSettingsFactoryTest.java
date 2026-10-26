@@ -32,12 +32,17 @@ import io.restassured.config.HttpClientConfig;
 import io.restassured.config.SSLConfig;
 import io.restassured.internal.http.RelaxedCertAuthScheme;
 import io.restassured.specification.ProxySpecification;
+import org.codehaus.groovy.runtime.GStringImpl;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +115,8 @@ class ClientSettingsFactoryTest {
     }
 
     @Test
-    void ssl_context_and_socket_factory_replace_relaxed_validation() throws Exception {
+    void an_ssl_context_replaces_relaxed_validation() throws Exception {
         assertThat(ClientSettingsFactory.tlsSettings(sslConfig().relaxedHTTPSValidation().sslContext(SSLContext.getDefault())).relaxedProtocol()).isNull();
-        assertThat(sslConfig().relaxedHTTPSValidation().sslSocketFactory(org.apache.http.conn.ssl.SSLSocketFactory.getSocketFactory())
-                .getRelaxedHTTPSValidationProtocol()).isNull();
     }
 
     @Test
@@ -158,15 +161,6 @@ class ClientSettingsFactoryTest {
         assertThat(certificateTlsSettings(scheme).createSslContext()).isSameAs(sslContext);
         assertThat(ClientSettingsFactory.certificateTlsSettings(null, null, null, null, null, null, null, null, null, sslContext).createSslContext())
                 .isSameAs(sslContext);
-    }
-
-    @Test
-    void the_x509_hostname_verifier_of_a_jsse_verifier_is_the_same_instance_every_time() {
-        SSLConfig config = sslConfig().hostnameVerifier(CUSTOM_VERIFIER);
-
-        assertThat(config.getX509HostnameVerifier()).isSameAs(config.getX509HostnameVerifier()).isSameAs(config.port(8443).getX509HostnameVerifier());
-        assertThat(config.port(8443).getHostnameVerifier()).isSameAs(CUSTOM_VERIFIER);
-        assertThat(sslConfig().x509HostnameVerifier(config.getX509HostnameVerifier()).getHostnameVerifier()).isSameAs(CUSTOM_VERIFIER);
     }
 
     // Certificate authentication
@@ -274,6 +268,59 @@ class ClientSettingsFactoryTest {
                 Duration.ofSeconds(1), Duration.ofSeconds(2), List.of()));
         assertThat(ClientSettingsFactory.requestOptions(config, ntlm)).isEqualTo(new RequestOptions(Duration.ofSeconds(3), true, ntlm));
         assertThat(ClientSettingsFactory.requestOptions(HttpClientConfig.httpClientConfig(), null)).isEqualTo(RequestOptions.DEFAULT);
+    }
+
+    // Key material, as created from the paths, passwords and types of the SSL config and certificate authentication
+
+    @Test
+    void key_material_without_a_path_loads_nothing_but_checks_the_type() throws Exception {
+        assertThat(keyMaterial(null, PASSWORD).load()).isNull();
+        assertThat(keyMaterial("", PASSWORD).load()).isNull();
+        assertThat(catchThrowable(() -> ClientSettingsFactory.keyMaterial(null, PASSWORD, "not-a-key-store-type", null).load()))
+                .isExactlyInstanceOf(KeyStoreException.class);
+    }
+
+    @Test
+    void key_material_loads_from_the_class_path_with_or_without_a_leading_slash() throws Exception {
+        KeyStore keyStore = keyMaterial(SERVER_KEY_STORE, PASSWORD).load();
+
+        assertThat(keyStore.getType()).isEqualToIgnoringCase("PKCS12");
+        assertThat(keyStore.size()).isEqualTo(1);
+        assertThat(keyMaterial("/" + SERVER_KEY_STORE, PASSWORD).load().size()).isEqualTo(1);
+    }
+
+    @Test
+    void key_material_loads_from_a_file_or_a_file_path_that_isnt_in_the_class_path() throws Exception {
+        File file = new File(getClass().getClassLoader().getResource(SERVER_KEY_STORE).toURI());
+
+        assertThat(keyMaterial(file, PASSWORD).load().size()).isEqualTo(1);
+        assertThat(keyMaterial(file.getAbsolutePath(), PASSWORD).load().size()).isEqualTo(1);
+    }
+
+    @Test
+    void key_material_takes_a_groovy_gstring_path_as_a_string() throws Exception {
+        Object path = new GStringImpl(new Object[]{"self_signed_localhost"}, new String[]{"", ".p12"});
+
+        KeyMaterial keyMaterial = keyMaterial(path, PASSWORD);
+
+        assertThat(keyMaterial.path()).isEqualTo(SERVER_KEY_STORE);
+        assertThat(keyMaterial.load().size()).isEqualTo(1);
+    }
+
+    @Test
+    void key_material_rejects_a_path_that_is_neither_a_string_nor_a_file() {
+        assertThat(catchThrowable(() -> keyMaterial(Paths.get(SERVER_KEY_STORE), PASSWORD))).isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("The path to a key store or trust store must be a String or a java.io.File but was ");
+    }
+
+    @Test
+    void key_material_that_cant_be_loaded_throws_the_exception_of_the_key_store() {
+        assertThat(catchThrowable(() -> keyMaterial(new File("does-not-exist.p12"), PASSWORD).load())).isExactlyInstanceOf(FileNotFoundException.class);
+        assertThat(catchThrowable(() -> keyMaterial(SERVER_KEY_STORE, "wrong password").load())).isExactlyInstanceOf(IOException.class);
+    }
+
+    private static KeyMaterial keyMaterial(Object path, String password) {
+        return ClientSettingsFactory.keyMaterial(path, password, "PKCS12", null);
     }
 
     private static ClientSettings clientSettings(SSLConfig sslConfig) {
