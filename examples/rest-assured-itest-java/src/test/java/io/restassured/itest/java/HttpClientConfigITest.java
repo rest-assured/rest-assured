@@ -23,6 +23,7 @@ import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
@@ -101,6 +102,7 @@ public class HttpClientConfigITest extends WithJetty {
 
     @Test
     public void httpClientIsConfigurableFromAStaticHttpClientConfigWithOtherConfigurations() {
+        TestClient.assumeHttpClient4();
         // Given
         final MutableObject<HttpClient> client = new MutableObject<>();
         RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam("http.protocol.handle-redirects", true).and().setParam("http.protocol.max-redirects", 0).and().httpClientFactory(SystemDefaultHttpClient::new));

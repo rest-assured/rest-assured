@@ -16,6 +16,7 @@
 
 package io.restassured.internal.http.client;
 
+import io.restassured.TestClient;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertAuthScheme;
 import io.restassured.common.exception.ResponseTimeoutException;
@@ -148,6 +149,19 @@ class ChosenHttpClientTest {
     }
 
     @Test
+    void the_standard_reason_phrase_is_filled_in_when_the_client_gives_none() {
+        FakeHttpClients.response = request -> {
+            int status = Integer.parseInt(request.uri().getPath().substring(1));
+            String reasonPhrase = status == 202 ? "Taken" : null;
+            return new HttpResponse("HTTP/1.1", status, reasonPhrase, List.of(), 0, new ByteArrayInputStream(new byte[0]), null);
+        };
+
+        assertThat(with(APACHE5).get("http://localhost/201").statusLine()).isEqualTo("HTTP/1.1 201 Created");
+        assertThat(with(APACHE5).get("http://localhost/202").statusLine()).isEqualTo("HTTP/1.1 202 Taken");
+        assertThat(with(APACHE5).get("http://localhost/299").statusLine()).isEqualTo("HTTP/1.1 299 ");
+    }
+
+    @Test
     void an_authentication_scheme_that_only_knows_the_http_builder_fails() {
         assertThatThrownBy(() -> withAuthenticationScheme(new HttpBuilderOnlyAuthScheme()).get("http://localhost/path"))
                 .isExactlyInstanceOf(UnsupportedOperationException.class)
@@ -232,6 +246,7 @@ class ChosenHttpClientTest {
 
     @Test
     void a_customizer_fails_with_http_client_4() {
+        TestClient.assumeHttpClient4();
         assertThatThrownBy(() -> with(httpClientConfig().customizeClient(HttpClient.Builder.class, builder -> { })).get("http://localhost/path"))
                 .isExactlyInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("A customizer for java.net.http.HttpClient$Builder is configured, but REST Assured uses Apache HttpClient 4, "

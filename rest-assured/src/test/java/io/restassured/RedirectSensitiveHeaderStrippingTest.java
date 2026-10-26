@@ -57,7 +57,7 @@ class RedirectSensitiveHeaderStrippingTest {
             assertThat(leaked.authorization.get()).isNull();
             assertThat(leaked.cookie.get()).isNull();
             // Proxy-Authorization authenticates to the proxy, which does not change on a redirect, so it is preserved.
-            assertThat(leaked.proxyAuthorization.get()).isEqualTo("Basic proxy");
+            assertThat(leaked.proxyAuthorization.get()).isEqualTo(expectedProxyAuthorization());
         } finally {
             origin.stop(0);
             sink.stop(0);
@@ -114,7 +114,7 @@ class RedirectSensitiveHeaderStrippingTest {
 
             assertThat(received.authorization.get()).isEqualTo("Bearer secret");
             assertThat(received.cookie.get()).isEqualTo("session=cookie");
-            assertThat(received.proxyAuthorization.get()).isEqualTo("Basic proxy");
+            assertThat(received.proxyAuthorization.get()).isEqualTo(expectedProxyAuthorization());
         } finally {
             server.stop(0);
         }
@@ -138,11 +138,17 @@ class RedirectSensitiveHeaderStrippingTest {
 
             assertThat(leaked.authorization.get()).isEqualTo("Bearer secret");
             assertThat(leaked.cookie.get()).isEqualTo("session=cookie");
-            assertThat(leaked.proxyAuthorization.get()).isEqualTo("Basic proxy");
+            assertThat(leaked.proxyAuthorization.get()).isEqualTo(expectedProxyAuthorization());
         } finally {
             origin.stop(0);
             sink.stop(0);
         }
+    }
+
+    // JDK differences table, Proxy-Authorization: the JDK client sends the header only to a proxy, and these requests go
+    // to the servers directly
+    private static String expectedProxyAuthorization() {
+        return TestClient.isJdk() ? null : "Basic proxy";
     }
 
     private static HttpServer sinkServer(Headers captured) throws IOException {

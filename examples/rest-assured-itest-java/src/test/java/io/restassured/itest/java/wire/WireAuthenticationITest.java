@@ -21,6 +21,7 @@ import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.OAuthSignature;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RedirectConfig;
+import io.restassured.itest.java.support.TestClient;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.Mac;
@@ -605,6 +606,7 @@ public class WireAuthenticationITest extends WireTest {
 
     @Test public void
     an_oauth2_header_that_a_legacy_scheme_adds_is_not_sent_after_a_redirect_to_another_host() {
+        TestClient.assumeHttpClient4();
         server.respond("/redirect", Responder.redirect(302, server.url("127.0.0.1", "/target")));
         AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
 
@@ -620,6 +622,7 @@ public class WireAuthenticationITest extends WireTest {
 
     @Test public void
     an_oauth2_query_token_that_a_legacy_scheme_adds_is_not_sent_after_a_redirect_to_another_host() {
+        TestClient.assumeHttpClient4();
         server.respond("/redirect", Responder.redirect(302, server.url("127.0.0.1", "/target")));
         AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123", OAuthSignature.QUERY_STRING);
 
@@ -635,6 +638,7 @@ public class WireAuthenticationITest extends WireTest {
 
     @Test public void
     an_oauth2_header_that_a_legacy_scheme_adds_is_sent_after_a_redirect_to_the_same_host() {
+        TestClient.assumeHttpClient4();
         server.respond("/redirect", Responder.redirect(302, server.url("/target")));
         AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
 

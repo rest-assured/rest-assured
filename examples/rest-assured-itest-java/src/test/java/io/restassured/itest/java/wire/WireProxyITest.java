@@ -18,6 +18,7 @@ package io.restassured.itest.java.wire;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -283,6 +284,12 @@ public class WireProxyITest extends WireTest {
                 body(equalTo("authenticated"));
 
         List<RecordedRequest> requests = server.requests();
+        if (TestClient.isJdk()) {
+            // JDK differences table, not in the table: the JDK client logs in to the proxy after a 407 for each request
+            assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"), null, basicAuthorization("admin", "secret"));
+            assertThat(requests).extracting(r -> r.header("Authorization")).containsExactly(null, null, targetLogin, targetLogin);
+            return;
+        }
         assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"), basicAuthorization("admin", "secret"));
         assertThat(requests).extracting(r -> r.header("Authorization")).containsExactly(null, null, targetLogin);
     }
@@ -300,6 +307,12 @@ public class WireProxyITest extends WireTest {
                 statusCode(200);
 
         List<RecordedRequest> requests = server.requests();
+        if (TestClient.isJdk()) {
+            // JDK differences table, not in the table: the JDK client logs in to the proxy after a 407 for each request
+            assertThat(requests).extracting(RecordedRequest::target).containsExactly(TARGET, TARGET, "http://other.invalid/target", "http://other.invalid/target");
+            assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"), null, basicAuthorization("admin", "secret"));
+            return;
+        }
         assertThat(requests).extracting(RecordedRequest::target).containsExactly(TARGET, TARGET, "http://other.invalid/target");
         assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"), basicAuthorization("admin", "secret"));
     }
@@ -369,12 +382,18 @@ public class WireProxyITest extends WireTest {
     @Test public void
     https_proxy_system_properties_are_used_for_https_targets_through_connect() {
         // WireServer refuses the tunnel with a 405. Today's behavior: HttpClient 4 returns it as the response
-        withProxyProperties(Map.of("https.proxyHost", "localhost", "https.proxyPort", String.valueOf(server.port())), () ->
+        withProxyProperties(Map.of("https.proxyHost", "localhost", "https.proxyPort", String.valueOf(server.port())), () -> {
+            if (TestClient.isJdk()) {
+                // JDK differences table, not in the table: the JDK client throws an IOException for a refused tunnel
+                assertThatThrownBy(() -> given().get("https://target.invalid/path")).isInstanceOf(IOException.class).hasMessageContaining("405");
+            } else {
                 given().
                 when().
                         get("https://target.invalid/path").
                 then().
-                        statusCode(405));
+                        statusCode(405);
+            }
+        });
 
         assertThat(server.onlyRequest().requestLine()).isEqualTo("CONNECT target.invalid:443 HTTP/1.1");
     }

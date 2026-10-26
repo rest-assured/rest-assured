@@ -119,6 +119,7 @@ class HttpClientSettingsTest {
 
     @Test
     void the_redirect_strategy_of_a_client_factory_is_left_alone_since_rest_assured_follows_the_redirects_itself() {
+        TestClient.assumeHttpClient4();
         RedirectStrategy factoryStrategy = new LaxRedirectStrategy();
         HttpClientConfig httpClientConfig = httpClientConfig().httpClientFactory(() -> {
             DefaultHttpClient client = new DefaultHttpClient(new PoolingClientConnectionManager());
@@ -156,6 +157,9 @@ class HttpClientSettingsTest {
 
     @Test
     void expect_continue_header_is_sent_when_configured() {
+        // JDK differences table, Expect: 100-continue: the JDK client writes 100-Continue
+        String expect = TestClient.isJdk() ? "100-Continue" : "100-continue";
+
         given().
                 config(config().httpClient(httpClientConfig().expectContinue(true))).
                 body("data").
@@ -163,7 +167,7 @@ class HttpClientSettingsTest {
                 post(url("/echo")).
         then().
                 statusCode(200).
-                body(equalTo("POST body=data cookie=null expect=100-continue"));
+                body(equalTo("POST body=data cookie=null expect=" + expect));
     }
 
     @Test

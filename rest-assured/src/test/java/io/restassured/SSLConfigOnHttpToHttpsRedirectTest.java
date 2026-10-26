@@ -145,6 +145,7 @@ class SSLConfigOnHttpToHttpsRedirectTest {
 
     @Test
     void https_scheme_registered_by_a_custom_http_client_factory_is_kept_for_http_requests() {
+        TestClient.assumeHttpClient4();
         // The custom factory trusts the self-signed certificate. The SSLConfig is user configured (allowAllHostnames) but
         // doesn't trust the certificate, so it must not replace the factory's https scheme for a request that starts as http.
         given().
@@ -199,7 +200,7 @@ class SSLConfigOnHttpToHttpsRedirectTest {
                 when().
                         get(httpUrl("/start")))
                 .isInstanceOf(SSLException.class)
-                .hasMessageContaining("Failed to create the SSL socket factory from the configured SSL settings");
+                .hasMessageContaining(" from the configured SSL settings");
     }
 
     @Test

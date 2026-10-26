@@ -21,6 +21,7 @@ import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
@@ -47,6 +48,7 @@ import static io.restassured.config.SSLConfig.sslConfig;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -126,6 +128,7 @@ public class WireSslITest extends WireTest {
 
     @Test public void
     the_ssl_config_is_applied_with_an_authentication_scheme_that_only_implements_the_http_builder_method() {
+        TestClient.assumeHttpClient4();
         AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
 
         with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).
@@ -293,8 +296,15 @@ public class WireSslITest extends WireTest {
 
     @Test public void
     a_hostname_verifier_that_rejects_the_host_fails_with_ssl_peer_unverified_exception() {
-        assertThatThrownBy(() -> with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD).hostnameVerifier((host, session) -> false)).get(validUrl()))
-                .isExactlyInstanceOf(SSLPeerUnverifiedException.class);
+        Throwable thrown = catchThrowable(() -> with(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD).hostnameVerifier((host, session) -> false)).get(validUrl()));
+
+        if (TestClient.isJdk()) {
+            // JDK differences table, hostname checks: the JDK client reports the SSLPeerUnverifiedException as the
+            // cause of an SSLException
+            assertThat(thrown).isExactlyInstanceOf(SSLException.class).cause().isExactlyInstanceOf(SSLPeerUnverifiedException.class);
+        } else {
+            assertThat(thrown).isExactlyInstanceOf(SSLPeerUnverifiedException.class);
+        }
         assertThat(server.requests()).isEmpty();
     }
 
@@ -339,6 +349,13 @@ public class WireSslITest extends WireTest {
         RestAssuredConfig config = config().sslConfig(sslConfig().trustStore(VALID_TRUST_STORE, PASSWORD)).httpClient(httpClientConfig().reuseHttpClientInstance());
 
         String first = remotePortOfReadResponse(config, validUrl());
+        if (TestClient.isJdk()) {
+            // JDK differences table, connection reuse: the JDK client has one client, and so one pool of connections,
+            // for each set of SSL settings, so only a request with other settings is sure to get a new connection
+            String other = remotePortOfReadResponse(config.sslConfig(sslConfig().relaxedHTTPSValidation()), validUrl());
+            assertThat(other).isNotEqualTo(first);
+            return;
+        }
         String second = remotePortOfReadResponse(config, validUrl());
 
         assertThat(second).isNotEqualTo(first);

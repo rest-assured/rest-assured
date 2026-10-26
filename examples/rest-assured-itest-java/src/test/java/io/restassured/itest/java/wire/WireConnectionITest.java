@@ -21,6 +21,7 @@ import io.restassured.common.exception.ResponseTimeoutException;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.http.ResponseParseException;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
@@ -72,7 +73,11 @@ public class WireConnectionITest extends WireTest {
     private ExecutorService executor;
 
     @BeforeEach
-    void answerWithTheRemotePort() {
+    void answerWithTheRemotePort() throws Exception {
+        // JDK differences table, connection reuse: the shared JDK client keeps the connections of earlier tests in its
+        // pool, so each test gets a server of its own, on a new port
+        server.close();
+        server = startServer();
         releaseServer = new CountDownLatch(1);
         server.respond("/port", Responder.ok().withRemotePort());
         server.respond("/large", bodyOfSize(LARGE_BODY_SIZE).withRemotePort());
@@ -117,6 +122,12 @@ public class WireConnectionITest extends WireTest {
     @Test public void
     a_read_timeout_while_the_body_is_read_for_the_assertions_throws_response_timeout_exception() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)));
+        if (TestClient.isJdk()) {
+            // JDK differences table, read timeout: it covers only the wait for the headers
+            releaseServerAfter(Duration.ofMillis(600));
+            given().config(config).expect().body(equalTo("first part, rest")).when().get(server.url("/slow"));
+            return;
+        }
 
         assertThatThrownBy(() -> given().config(config).expect().body(equalTo("first part, rest")).when().get(server.url("/slow")))
                 .isExactlyInstanceOf(ResponseParseException.class)
@@ -128,6 +139,12 @@ public class WireConnectionITest extends WireTest {
     @Test public void
     a_read_timeout_while_the_body_is_read_after_the_request_throws_response_timeout_exception() {
         Response response = given().config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)))).get(server.url("/slow"));
+        if (TestClient.isJdk()) {
+            // JDK differences table, read timeout: it covers only the wait for the headers
+            releaseServerAfter(Duration.ofMillis(600));
+            assertThat(response.asString()).isEqualTo("first part, rest");
+            return;
+        }
 
         assertThatThrownBy(response::asString)
                 .isExactlyInstanceOf(ResponseTimeoutException.class)
@@ -143,14 +160,31 @@ public class WireConnectionITest extends WireTest {
         }
     }
 
+    @Test public void
+    on_the_jdk_client_a_read_timeout_also_covers_connecting() throws IOException {
+        // JDK differences table, read timeout: it covers connecting plus waiting for the headers, and is reported as a
+        // connect timeout when it fires before the connection is up
+        Assumptions.assumeTrue(TestClient.isJdk(), "HttpClient 4's read timeout doesn't cover connecting");
+        try (UnresponsiveServer unresponsive = UnresponsiveServer.start()) {
+            assertThatThrownBy(() -> given().config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)))).get("http://127.0.0.1:" + unresponsive.port() + "/"))
+                    .isExactlyInstanceOf(ConnectionTimeoutException.class)
+                    .satisfies(WireConnectionITest::isCausedByTheHttpClient);
+        }
+    }
+
     // ConnectionConfig
 
     @Test public void
     by_default_each_request_is_sent_on_a_new_connection() {
-        String first = given().get(server.url("/port")).header(REMOTE_PORT_HEADER);
-        String second = given().get(server.url("/port")).header(REMOTE_PORT_HEADER);
+        String first = remotePortOfReadResponse(config(), server.url("/port"));
+        String second = remotePortOfReadResponse(config(), server.url("/port"));
 
-        assertThat(second).isNotEqualTo(first);
+        if (TestClient.isJdk()) {
+            // JDK differences table, connection reuse: the JDK client is shared, and so are its connections
+            assertThat(second).isEqualTo(first);
+        } else {
+            assertThat(second).isNotEqualTo(first);
+        }
     }
 
     @Test public void
@@ -212,6 +246,12 @@ public class WireConnectionITest extends WireTest {
 
         Future<?> closing = closeInBackground(body);
 
+        if (TestClient.isJdk()) {
+            // JDK differences table, not in the table (W5): closing a partly read stream closes the connection
+            // instead of reading the rest
+            closing.get(SERVER_HOLD_SECONDS / 2, TimeUnit.SECONDS);
+            return;
+        }
         assertThatThrownBy(() -> closing.get(300, TimeUnit.MILLISECONDS)).isInstanceOf(TimeoutException.class);
         releaseServer.countDown();
         closing.get(SERVER_HOLD_SECONDS, TimeUnit.SECONDS);
@@ -239,7 +279,12 @@ public class WireConnectionITest extends WireTest {
 
         String next = remotePortOfReadResponse(config, server.url("/port"));
 
-        assertThat(next).isEqualTo(streamed.header(REMOTE_PORT_HEADER));
+        if (TestClient.isJdk()) {
+            // JDK differences table, not in the table (W5): closing a partly read stream closes the connection
+            assertThat(next).isNotEqualTo(streamed.header(REMOTE_PORT_HEADER));
+        } else {
+            assertThat(next).isEqualTo(streamed.header(REMOTE_PORT_HEADER));
+        }
     }
 
     @Test public void
@@ -267,6 +312,23 @@ public class WireConnectionITest extends WireTest {
         assertThat(server.requests()).hasSize(2);
     }
 
+    @Test @Timeout(60) public void
+    responses_that_are_never_read_dont_keep_their_connections_open_once_they_are_unreachable() throws InterruptedException {
+        for (int i = 1; i <= 500; i++) {
+            given().get(server.url("/unread"));
+            if (i % 50 == 0) {
+                System.gc();
+            }
+        }
+
+        // The connections of the unread bodies are closed once the garbage collector has found the responses
+        while (server.openConnections() > 20) {
+            System.gc();
+            Thread.sleep(100);
+        }
+        assertThat(server.requests()).hasSize(500);
+    }
+
     @Test public void
     with_a_reused_http_client_instance_the_request_after_a_response_that_is_never_read_is_sent_on_the_same_connection() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
@@ -274,14 +336,22 @@ public class WireConnectionITest extends WireTest {
 
         String next = remotePortOfReadResponse(config, server.url("/port"));
 
-        assertThat(next).isEqualTo(unread.header(REMOTE_PORT_HEADER));
+        if (TestClient.isJdk()) {
+            // JDK differences table, connection reuse: the unread body keeps its connection until the response is
+            // unreachable
+            assertThat(next).isNotEqualTo(unread.header(REMOTE_PORT_HEADER));
+        } else {
+            assertThat(next).isEqualTo(unread.header(REMOTE_PORT_HEADER));
+        }
         assertThat(server.requests()).hasSize(2);
     }
 
     @Test public void
     with_a_reused_http_client_instance_the_request_after_a_response_whose_status_is_checked_but_body_never_read_is_sent_on_the_same_connection() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
-        String first = given().config(config).get(server.url("/port")).then().statusCode(200).extract().header(REMOTE_PORT_HEADER);
+        Response checked = given().config(config).get(server.url("/port"));
+        String first = checked.then().statusCode(200).extract().header(REMOTE_PORT_HEADER);
+        awaitJdkConnectionReturned(checked);
 
         String next = remotePortOfReadResponse(config, server.url("/port"));
 
@@ -293,7 +363,9 @@ public class WireConnectionITest extends WireTest {
     with_a_reused_http_client_instance_the_request_after_an_empty_response_is_sent_on_the_same_connection() {
         server.respond("/empty", Responder.text(200, "").withRemotePort());
         RestAssuredConfig config = config().httpClient(httpClientConfig().reuseHttpClientInstance());
-        String first = given().config(config).get(server.url("/empty")).header(REMOTE_PORT_HEADER);
+        Response empty = given().config(config).get(server.url("/empty"));
+        String first = empty.header(REMOTE_PORT_HEADER);
+        awaitJdkConnectionReturned(empty);
 
         String next = remotePortOfReadResponse(config, server.url("/port"));
 
@@ -301,9 +373,26 @@ public class WireConnectionITest extends WireTest {
         assertThat(server.requests()).hasSize(2);
     }
 
+    // The JDK client puts a connection back in its pool on its own thread once it has the whole body, whether it's read
+    // or not, so a request sent right after may get a new connection. The end of the body comes after that, so reading
+    // the body waits for it.
+    private static void awaitJdkConnectionReturned(Response response) {
+        if (TestClient.isJdk()) {
+            response.asString();
+        }
+    }
+
     // By the exception of the HTTP client, which REST Assured wraps once
     private static void isCausedByTheHttpClient(Throwable timeout) {
         assertThat(timeout.getCause()).isInstanceOf(IOException.class).isNotInstanceOfAny(ConnectionTimeoutException.class, ResponseTimeoutException.class);
+    }
+
+    private void releaseServerAfter(Duration delay) {
+        executor.submit(() -> {
+            Thread.sleep(delay.toMillis());
+            releaseServer.countDown();
+            return null;
+        });
     }
 
     private Future<?> closeInBackground(InputStream body) {

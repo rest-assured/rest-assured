@@ -28,6 +28,8 @@ import io.restassured.internal.http.cookie.KeptCookies;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -97,6 +99,7 @@ public final class Exchange {
         HttpRequest hop = request;
         int redirectCount = 0;
         while (true) {
+            hop = withoutEmptyPathSegments(hop);
             boolean crossHost = redirectCount > 0 && !origin.isSameAs(Origin.of(hop.uri()));
             HttpResponse response = send(hop, crossHost);
             // A body that has been sent and can't be sent again isn't resent, so the 401 is the response
@@ -159,6 +162,43 @@ public final class Exchange {
             }
         }
         return response;
+    }
+
+    private static HttpRequest withoutEmptyPathSegments(HttpRequest hop) {
+        URI uri = withoutEmptyPathSegments(hop.uri());
+        return uri == hop.uri() ? hop : new HttpRequest(hop.method(), uri, hop.headers(), hop.body(), hop.options());
+    }
+
+    /**
+     * Removes the empty segments of the path but the last, such as {@code /x//y} to {@code /x/y}, as HttpClient 4 did
+     * before it sent a request, so that every client sends the same path. The rest of the URI is kept as it is.
+     */
+    static URI withoutEmptyPathSegments(URI uri) {
+        String path = uri.getRawPath();
+        if (uri.isOpaque() || path == null || !path.startsWith("/") || !path.contains("//")) {
+            return uri;
+        }
+        List<String> segments = new ArrayList<>(Arrays.asList(path.substring(1).split("/", -1)));
+        for (Iterator<String> it = segments.iterator(); it.hasNext(); ) {
+            if (it.next().isEmpty() && it.hasNext()) {
+                it.remove();
+            }
+        }
+        StringBuilder normalized = new StringBuilder();
+        if (uri.getScheme() != null) {
+            normalized.append(uri.getScheme()).append(':');
+        }
+        if (uri.getRawAuthority() != null) {
+            normalized.append("//").append(uri.getRawAuthority());
+        }
+        normalized.append('/').append(String.join("/", segments));
+        if (uri.getRawQuery() != null) {
+            normalized.append('?').append(uri.getRawQuery());
+        }
+        if (uri.getRawFragment() != null) {
+            normalized.append('#').append(uri.getRawFragment());
+        }
+        return URI.create(normalized.toString());
     }
 
     private static boolean hasHeader(List<HttpHeader> headers, String name) {

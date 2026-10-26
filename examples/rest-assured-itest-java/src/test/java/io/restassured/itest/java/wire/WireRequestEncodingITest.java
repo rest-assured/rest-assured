@@ -19,11 +19,13 @@ package io.restassured.itest.java.wire;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
+import io.restassured.itest.java.support.TestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -33,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -878,6 +881,28 @@ public class WireRequestEncodingITest extends WireTest {
         given().header("X-Int", 5).get(server.url("/h"));
 
         assertThat(server.onlyRequest().headers("X-Int")).containsExactly("5");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Host", "Connection", "Upgrade"})
+    public void
+    header_that_the_jdk_client_restricts(String name) {
+        Map<String, String> values = Map.of("Host", "example.test", "Connection", "close", "Upgrade", "example/1");
+
+        if (TestClient.isJdk()) {
+            // JDK differences table, restricted headers: the JDK client sends them only when the JVM allows it
+            assertThatThrownBy(() -> given().header(name, values.get(name)).get(server.url("/h")))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessageContaining("-Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT));
+            assertThat(server.requests()).isEmpty();
+        } else {
+            given().header(name, values.get(name)).get(server.url("/h"));
+
+            // Jetty answers a request with an Upgrade header itself, so the request isn't recorded
+            if (!name.equals("Upgrade")) {
+                assertThat(server.onlyRequest().headers(name)).containsExactly(values.get(name));
+            }
+        }
     }
 
     @Test public void
