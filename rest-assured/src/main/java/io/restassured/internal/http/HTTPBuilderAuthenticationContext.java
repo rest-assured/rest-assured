@@ -19,6 +19,7 @@ package io.restassured.internal.http;
 import io.restassured.authentication.AuthenticationContext;
 import io.restassured.authentication.OAuthSignature;
 import io.restassured.common.spi.http.TlsSettings;
+import io.restassured.internal.http.auth.CertificateAuthenticationContext;
 import io.restassured.internal.http.client.ClientSettingsFactory;
 
 import javax.net.ssl.HostnameVerifier;
@@ -29,7 +30,7 @@ import java.util.Map;
 /**
  * The {@link AuthenticationContext} of REST Assured 6.x, which applies everything to an {@link HTTPBuilder}.
  */
-public class HTTPBuilderAuthenticationContext implements AuthenticationContext {
+public class HTTPBuilderAuthenticationContext implements CertificateAuthenticationContext {
     private final HTTPBuilder httpBuilder;
 
     public HTTPBuilderAuthenticationContext(HTTPBuilder httpBuilder) {
@@ -85,12 +86,7 @@ public class HTTPBuilderAuthenticationContext implements AuthenticationContext {
                 trustStorePath, trustStorePassword, trustStoreType, trustStore, hostnameVerifier, sslContext), port, null);
     }
 
-    /**
-     * Use these TLS settings for https connections, which may have relaxed validation unlike those of
-     * {@link #certificate(Object, String, String, KeyStore, Object, String, String, KeyStore, int, HostnameVerifier, SSLContext)}.
-     *
-     * @param port The HTTPS port, or <code>-1</code> to use the port of the request
-     */
+    @Override
     public void certificate(TlsSettings tls, int port) {
         httpBuilder.getAuth().certificate(tls, port, null);
     }

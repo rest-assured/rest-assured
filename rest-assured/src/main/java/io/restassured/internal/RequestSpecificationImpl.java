@@ -21,7 +21,6 @@ import io.restassured.authentication.FormAuthScheme;
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.common.spi.http.HttpClientInstance;
 import io.restassured.common.spi.http.HttpRequest;
-import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.common.spi.http.RequestBody;
 import io.restassured.common.spi.http.RequestOptions;
 import io.restassured.config.ConnectionConfig;
@@ -31,7 +30,6 @@ import io.restassured.config.HttpClientConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.MultipartMode;
 import io.restassured.config.ObjectMapperConfig;
-import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
 import io.restassured.config.SessionConfig;
@@ -60,12 +58,22 @@ import io.restassured.internal.http.HTTPBuilder;
 import io.restassured.internal.http.HttpClient4Transport;
 import io.restassured.internal.http.RequestBodyEncoder;
 import io.restassured.internal.http.URIBuilder;
+import io.restassured.internal.http.auth.ChallengeHandler;
+import io.restassured.internal.http.auth.CoreAuthenticationContext;
 import io.restassured.internal.http.client.ClientSettingsFactory;
+import io.restassured.internal.http.client.HttpClientInstances;
+import io.restassured.internal.http.client.HttpClientParams;
 import io.restassured.internal.http.client.HttpClientProviders;
 import io.restassured.internal.http.client.HttpClientProviders.Selection;
 import io.restassured.internal.http.client.ProviderTransport;
 import io.restassured.internal.http.client.TransportExceptions;
 import io.restassured.internal.http.client.UnsupportedFeatures;
+import io.restassured.internal.http.cookie.CookieStore;
+import io.restassured.internal.http.cookie.KeptCookieSpec;
+import io.restassured.internal.http.cookie.KeptCookies;
+import io.restassured.internal.http.exchange.Exchange;
+import io.restassured.internal.http.exchange.Exchange.Exchanged;
+import io.restassured.internal.http.exchange.RedirectSettings;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
@@ -91,7 +99,6 @@ import io.restassured.specification.ResponseSpecification;
 import io.restassured.spi.AuthFilter;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -158,10 +165,6 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
-import static org.apache.http.client.params.ClientPNames.ALLOW_CIRCULAR_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.MAX_REDIRECTS;
-import static org.apache.http.client.params.ClientPNames.REJECT_RELATIVE_REDIRECT;
 
 /**
  * The request specification used by REST Assured (and, for logging, by the Spring modules).
@@ -202,6 +205,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     private Map<String, Object> formParameters = new LinkedHashMap<>();
     private Map<String, Object> namedPathParameters = new LinkedHashMap<>();
     private Map<String, Object> httpClientParams = new LinkedHashMap<>();
+    private RedirectSettings.Overrides redirects = new RedirectSettings.Overrides();
     private AuthenticationScheme authenticationScheme = new NoAuthScheme();
     private FilterableResponseSpecification responseSpecification;
     private Headers requestHeaders = new Headers(new ArrayList<>());
@@ -265,6 +269,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.formParameters = copyParameters(other.formParameters);
         this.namedPathParameters = copyParameters(other.namedPathParameters);
         this.httpClientParams = copyParameters(other.httpClientParams);
+        this.redirects = other.redirects.copy();
         this.authenticationScheme = other.authenticationScheme;
         this.requestHeaders = other.requestHeaders;
         this.cookies = other.cookies;
@@ -1295,7 +1300,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public RedirectSpecification redirects() {
-        return new RedirectSpecificationImpl(this, httpClientParams);
+        return new RedirectSpecificationImpl(this, redirects);
     }
 
     @Override
@@ -1596,10 +1601,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         RestAssuredConfig cfg = config != null ? config : new RestAssuredConfig();
         Selection client = HttpClientProviders.select(cfg.getHttpClientConfig());
         UnsupportedFeatures.verifyCustomizers(client, cfg.getHttpClientConfig().customizers());
+        String defaultUserAgent = HttpClientParams.validate(cfg.getHttpClientConfig());
         EncoderConfig encoderConfig = config == null ? new EncoderConfig() : config.getEncoderConfig();
-        // A client from a provider gets an unused HttpClient 4 client, which only shows what the authentication scheme asks for
-        AbstractHttpClient httpClient4 = client.isHttpClient4() ? (AbstractHttpClient) requestSpecification.getHttpClient()
-                : ProviderTransport.needsHttpClient4ToAuthenticate(authenticationScheme) ? new DefaultHttpClient() : null;
+        AbstractHttpClient httpClient4 = client.isHttpClient4() ? (AbstractHttpClient) requestSpecification.getHttpClient() : null;
         HTTPBuilder http = new HTTPBuilder(targetUri, urlEncodingEnabled, encoderConfig, config == null ? null : config.getDecoderConfig(),
                 config == null ? null : config.getOAuthConfig(), httpClient4);
         applyRestAssuredConfig(http);
@@ -1630,12 +1634,23 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
+        AuthenticationScheme legacyAuthenticationScheme = null;
+        CoreAuthenticationContext authentication = new CoreAuthenticationContext(headersOf(http), ((URIBuilder) http.getUri()).toURI(),
+                cfg.getOAuthConfig());
+        if (ProviderTransport.needsHttpBuilder(authenticationScheme)) {
+            if (!client.isHttpClient4()) {
+                throw ProviderTransport.cantAuthenticate(client, authenticationScheme);
+            }
+            legacyAuthenticationScheme = authenticationScheme;
+        } else {
+            authenticationScheme.authenticate(authentication);
+        }
         HttpClientInstance transport = client.isHttpClient4()
-                ? new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, authenticationScheme)
-                : ProviderTransport.create(client, http, cfg, proxySpecification, authenticationScheme);
+                ? new HttpClient4Transport(http, cfg, proxySpecification, httpClientParams, legacyAuthenticationScheme, authentication)
+                : ProviderTransport.create(client, cfg, proxySpecification, authenticationScheme, authentication);
         try {
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
-            RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), null);
+            RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), authentication.ntlm());
             HttpRequest request;
             if (mayHaveBody(method)) {
                 if (hasFormParams() && requestBody != null) {
@@ -1655,17 +1670,35 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 request = newRequest(http, method, targetPath, acceptContentType, encoderConfig, contentDecoding, options);
             }
 
-            HttpResponse response = transport.send(request);
+            Exchange exchange = new Exchange(transport, redirects.resolve(cfg.getRedirectConfig()),
+                    authentication.credentials() == null ? null : new ChallengeHandler(authentication.credentials()),
+                    authentication.oauthSigner(), keptCookies(cfg.getHttpClientConfig()), defaultUserAgent);
+            Exchanged exchanged = exchange.send(request);
+            restAssuredResponse.setEffectiveUri(exchanged.effectiveUri());
             if (transport instanceof HttpClient4Transport) {
                 restAssuredResponse.setApacheHttpContext(((HttpClient4Transport) transport).context());
             }
-            RequestDispatcher.receive(response, contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
+            RequestDispatcher.receive(exchanged.response(), contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
         } catch (IOException e) {
             throw TransportExceptions.translate(e);
         } finally {
             transport.close();
         }
         return restAssuredResponse;
+    }
+
+    /**
+     * @return The cookies that the responses of the request set, which are kept within its redirects and, with
+     * {@link HttpClientConfig#reuseHttpClientInstance()}, across the requests of that config, or <code>null</code> if
+     * the cookies of the responses aren't kept
+     */
+    private static KeptCookies keptCookies(HttpClientConfig httpClientConfig) {
+        if (!httpClientConfig.keepsResponseCookies()) {
+            return null;
+        }
+        CookieStore store = httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()
+                ? HttpClientInstances.global().cookieStore(httpClientConfig) : new CookieStore();
+        return new KeptCookies(store, new KeptCookieSpec(httpClientConfig.cookieDatePatterns()));
     }
 
     // A POST, or a PATCH with form params or multiparts, is sent URL encoded unless the request has a content type
@@ -1754,7 +1787,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     // The http client params, which HttpClient4Transport sets on the client, are collected in httpClientParams
     public void applyRestAssuredConfig(HTTPBuilder http) {
         if (restAssuredConfig != null) {
-            applyRedirectConfig(restAssuredConfig.getRedirectConfig());
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig());
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig());
             http.getEncoders().setObjectMapperConfig(restAssuredConfig.getObjectMapperConfig());
@@ -1776,13 +1808,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         for (Entry<String, ?> entry : new LinkedHashMap<String, Object>(httpClientConfig.params()).entrySet()) {
             httpClientParams.putIfAbsent(entry.getKey(), entry.getValue());
         }
-    }
-
-    public void applyRedirectConfig(RedirectConfig redirectConfig) {
-        httpClientParams.putIfAbsent(ALLOW_CIRCULAR_REDIRECTS, redirectConfig.allowsCircularRedirects());
-        httpClientParams.putIfAbsent(HANDLE_REDIRECTS, redirectConfig.followsRedirects());
-        httpClientParams.putIfAbsent(MAX_REDIRECTS, redirectConfig.maxRedirects());
-        httpClientParams.putIfAbsent(REJECT_RELATIVE_REDIRECT, redirectConfig.rejectRelativeRedirects());
     }
 
     public Object assembleBodyContent(String httpMethod) {

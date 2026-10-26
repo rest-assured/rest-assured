@@ -39,25 +39,23 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.*;
 
 public class HttpClientConfigITest extends WithJetty {
 
     @Test
-    public void doesntFollowRedirectsIfSpecifiedInTheHttpClientConfig() throws Exception {
+    public void anHttpClient4ParameterThatRestAssuredDoesntUseAnyMoreFailsTheRequest() {
         final List<Header> httpClientHeaders = new ArrayList<Header>();
         httpClientHeaders.add(new BasicHeader("header1", "value1"));
         httpClientHeaders.add(new BasicHeader("header2", "value2"));
         RestAssured.config = RestAssuredConfig.newConfig().httpClient(HttpClientConfig.httpClientConfig().setParam("http.default-headers", httpClientHeaders));
         try {
-            given().
-                    param("url", "/hello").
-            expect().
-                    statusCode(200).
-                    header("header1", "value1").
-                    header("header2", "value2").
-            when().
-                    get("/multiHeaderReflect");
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    () -> given().param("url", "/hello").get("/multiHeaderReflect"));
+
+            assertThat(thrown.getMessage(), startsWith("The Apache HttpClient 4 parameter \"http.default-headers\" of the HttpClientConfig "
+                    + "isn't used any more"));
         } finally {
             RestAssured.reset();
         }

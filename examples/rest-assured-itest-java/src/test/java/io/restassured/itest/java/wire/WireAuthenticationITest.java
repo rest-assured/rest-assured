@@ -17,12 +17,15 @@
 package io.restassured.itest.java.wire;
 
 import io.restassured.RestAssured;
+import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.OAuthSignature;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RedirectConfig;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayInputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -473,7 +476,7 @@ public class WireAuthenticationITest extends WireTest {
     }
 
     @Test public void
-    oauth_with_query_string_signature_puts_the_oauth_parameters_in_an_absolute_request_target() {
+    oauth_with_query_string_signature_puts_the_oauth_parameters_in_the_query() {
         given().
                 auth().oauth(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, TOKEN_SECRET, OAuthSignature.QUERY_STRING).
                 queryParam("q", "a").
@@ -484,8 +487,7 @@ public class WireAuthenticationITest extends WireTest {
 
         RecordedRequest request = server.onlyRequest();
         assertThat(request.hasHeader("Authorization")).isFalse();
-        // Today's behavior: the signer replaces the request URI after HttpClient made it relative, so the request line holds the absolute URI
-        assertThat(request.target()).startsWith(server.url("/oauth?"));
+        assertThat(request.target()).startsWith("/oauth?");
         Map<String, String> params = queryParams(request.target());
         assertThat(params).containsOnlyKeys("q", "oauth_consumer_key", "oauth_nonce", "oauth_signature", "oauth_signature_method", "oauth_timestamp", "oauth_token", "oauth_version");
         assertThat(params).containsEntry("q", "a").containsEntry("oauth_consumer_key", CONSUMER_KEY).containsEntry("oauth_token", ACCESS_TOKEN).
@@ -599,6 +601,53 @@ public class WireAuthenticationITest extends WireTest {
         assertThat(request.hasHeader("Authorization")).isFalse();
     }
 
+    // Authentication schemes that only implement the deprecated authenticate(HTTPBuilder)
+
+    @Test public void
+    an_oauth2_header_that_a_legacy_scheme_adds_is_not_sent_after_a_redirect_to_another_host() {
+        server.respond("/redirect", Responder.redirect(302, server.url("127.0.0.1", "/target")));
+        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
+
+        given().
+                spec(new RequestSpecBuilder().setAuth(legacy).build()).
+        when().
+                get(server.url("/redirect")).
+        then().
+                statusCode(200);
+
+        assertThat(server.requests()).extracting(r -> r.header("Authorization")).containsExactly("Bearer token-123", null);
+    }
+
+    @Test public void
+    an_oauth2_query_token_that_a_legacy_scheme_adds_is_not_sent_after_a_redirect_to_another_host() {
+        server.respond("/redirect", Responder.redirect(302, server.url("127.0.0.1", "/target")));
+        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123", OAuthSignature.QUERY_STRING);
+
+        given().
+                spec(new RequestSpecBuilder().setAuth(legacy).build()).
+        when().
+                get(server.url("/redirect")).
+        then().
+                statusCode(200);
+
+        assertThat(server.requests()).extracting(RecordedRequest::target).containsExactly("/redirect?access_token=token-123", "/target");
+    }
+
+    @Test public void
+    an_oauth2_header_that_a_legacy_scheme_adds_is_sent_after_a_redirect_to_the_same_host() {
+        server.respond("/redirect", Responder.redirect(302, server.url("/target")));
+        AuthenticationScheme legacy = http -> http.getAuth().oauth2("token-123");
+
+        given().
+                spec(new RequestSpecBuilder().setAuth(legacy).build()).
+        when().
+                get(server.url("/redirect")).
+        then().
+                statusCode(200);
+
+        assertThat(server.requests()).extracting(r -> r.header("Authorization")).containsExactly("Bearer token-123", "Bearer token-123");
+    }
+
     // No authentication
 
     @Test public void
@@ -657,6 +706,58 @@ public class WireAuthenticationITest extends WireTest {
     }
 
     // Unusable challenges
+
+    @Test public void
+    a_digest_challenge_without_a_nonce_is_returned_after_one_request() {
+        server.respond("/digest", Responder.text(401, "unauthorized").withHeader("WWW-Authenticate", "Digest realm=\"" + REALM + "\", qop=\"auth\""));
+
+        given().
+                auth().digest(USER, PASSWORD).
+        when().
+                get(server.url("/digest")).
+        then().
+                statusCode(401).
+                body(equalTo("unauthorized"));
+
+        assertThat(server.onlyRequest().hasHeader("Authorization")).isFalse();
+    }
+
+    @Test public void
+    a_binary_byte_array_body_is_sent_again_to_answer_a_challenge() {
+        server.respond("/basic", basicServer(USER, PASSWORD));
+        byte[] body = {0, 1, 2, (byte) 0xff};
+
+        given().
+                auth().basic(USER, PASSWORD).
+                contentType("application/octet-stream").
+                body(body).
+        when().
+                post(server.url("/basic")).
+        then().
+                statusCode(200);
+
+        List<RecordedRequest> requests = server.requests();
+        assertThat(requests).hasSize(2);
+        assertThat(requests.get(1).header("Authorization")).isEqualTo(BASIC_USER_PASS);
+        assertThat(requests.get(0).body()).isEqualTo(body);
+        assertThat(requests.get(1).body()).isEqualTo(body);
+    }
+
+    @Test public void
+    a_challenge_to_a_request_whose_body_cant_be_sent_again_is_returned_after_one_request() {
+        server.respond("/basic", basicServer(USER, PASSWORD));
+
+        given().
+                auth().basic(USER, PASSWORD).
+                contentType("application/octet-stream").
+                body(new ByteArrayInputStream("body".getBytes(UTF_8))).
+        when().
+                post(server.url("/basic")).
+        then().
+                statusCode(401);
+
+        assertThat(server.onlyRequest().bodyAsString()).isEqualTo("body");
+    }
 
     @Test public void
     a_401_without_a_challenge_is_returned_after_one_request() {

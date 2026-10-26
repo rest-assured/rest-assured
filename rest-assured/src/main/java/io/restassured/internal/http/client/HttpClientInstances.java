@@ -22,6 +22,7 @@ import io.restassured.common.spi.http.HttpClientInstance;
 import io.restassured.common.spi.http.HttpClientProvider;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.internal.http.cookie.CookieStore;
 import io.restassured.internal.support.VersionFiles;
 
 import java.util.Collections;
@@ -54,6 +55,7 @@ public final class HttpClientInstances {
     private final Map<Key, Shared> shared = new LinkedHashMap<>(MAX_SHARED, 0.75f, true);
     // The configs aren't equal to each other, so the instances are kept for each config object for as long as it's used
     private final Map<HttpClientConfig, Map<Key, HttpClientInstance>> reused = Collections.synchronizedMap(new WeakHashMap<>());
+    private final Map<HttpClientConfig, CookieStore> cookieStores = Collections.synchronizedMap(new WeakHashMap<>());
 
     HttpClientInstances() {
     }
@@ -63,6 +65,14 @@ public final class HttpClientInstances {
      */
     public static HttpClientInstances global() {
         return INSTANCE;
+    }
+
+    /**
+     * @return The cookie store of the config, which keeps the cookies of the responses of its requests as long as the
+     * config is used, as {@link HttpClientConfig#reuseHttpClientInstance()} keeps its client instances
+     */
+    public CookieStore cookieStore(HttpClientConfig httpClientConfig) {
+        return cookieStores.computeIfAbsent(httpClientConfig, config -> new CookieStore());
     }
 
     /**

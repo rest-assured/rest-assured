@@ -41,11 +41,7 @@ import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.client.utils.URIUtils;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -299,20 +295,14 @@ public class FormAuthFilter implements AuthFilter {
     }
 
     /**
-     * @return The URL of the response, after the redirects that the HTTP client followed, as recorded in the Apache HttpContext
-     * of the response, or <code>requestUri</code> if the response doesn't have one
+     * @return The URL of the response, after the redirects that REST Assured followed, or <code>requestUri</code> if
+     * the response doesn't know one
      */
     private static URI urlOf(Response response, String requestUri) {
         if (response instanceof RestAssuredResponseImpl) {
-            HttpContext context = ((RestAssuredResponseImpl) response).getApacheHttpContext();
-            if (context != null && context.getAttribute(ExecutionContext.HTTP_TARGET_HOST) instanceof HttpHost targetHost
-                    && context.getAttribute(ExecutionContext.HTTP_REQUEST) instanceof HttpRequest request) {
-                try {
-                    // The request line has the path and query of the URL, or the whole URL when sent through a proxy
-                    return URIUtils.resolve(toURI(targetHost.toURI()), request.getRequestLine().getUri());
-                } catch (Exception e) {
-                    // Fall back to the request URI
-                }
+            URI effectiveUri = ((RestAssuredResponseImpl) response).getEffectiveUri();
+            if (effectiveUri != null) {
+                return effectiveUri;
             }
         }
         return toURI(requestUri);

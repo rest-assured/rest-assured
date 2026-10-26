@@ -31,10 +31,11 @@ import org.apache.http.protocol.HttpCoreContext;
  * when a redirect crosses to a different target host, and HttpClient re-adds it per request from the configured
  * credentials, so stripping it would break authenticated-proxy setups without preventing any origin leak.
  * <p>
- * Apache HttpClient 4.5's request director copies the original request headers onto the redirected request after the
- * {@link org.apache.http.client.RedirectStrategy} runs, so the stripping has to happen on the outgoing request itself.
- * This interceptor runs for every request in the redirect chain and compares the current target host against the origin
- * host recorded on the first request in the same {@link HttpContext}. HttpClient 5.5 added equivalent behavior natively.
+ * REST Assured follows the redirects itself and strips these headers from what it sends, but a legacy authentication
+ * scheme, which implements the deprecated {@code AuthenticationScheme.authenticate(HTTPBuilder)}, may add a request
+ * interceptor to the HttpClient 4 client that sets them on every hop. So this interceptor runs after those, for every
+ * hop of the request, which REST Assured sends through the same {@link HttpContext}, and compares the current target
+ * host against the origin host recorded on the first hop.
  */
 public class CrossHostSensitiveHeaderStripper implements HttpRequestInterceptor {
 

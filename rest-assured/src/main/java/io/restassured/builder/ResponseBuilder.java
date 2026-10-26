@@ -62,6 +62,7 @@ public class ResponseBuilder {
             restAssuredResponse.setLogRepository(raResponse.getLogRepository());
             restAssuredResponse.setFilterContextProperties(raResponse.getFilterContextProperties());
             restAssuredResponse.setApacheHttpContext(raResponse.getApacheHttpContext());
+            restAssuredResponse.setEffectiveUri(raResponse.getEffectiveUri());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }

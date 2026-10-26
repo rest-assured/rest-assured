@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.restassured.internal;
 
+import io.restassured.config.RedirectConfig;
+import io.restassured.internal.http.exchange.RedirectSettings;
+import io.restassured.internal.http.exchange.RedirectSettings.Overrides;
 import io.restassured.specification.RedirectSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,44 +31,52 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RedirectSpecificationImplTest {
 
     @Test
-    void each_method_puts_its_http_client_param_and_returns_the_request_specification() {
+    void each_method_sets_its_override_and_returns_the_request_specification() {
         RequestSpecification spec = given();
-        Map<String, Object> params = new LinkedHashMap<>();
-        RedirectSpecification redirects = new RedirectSpecificationImpl(spec, params);
+        Overrides overrides = new Overrides();
+        RedirectSpecification redirects = new RedirectSpecificationImpl(spec, overrides);
 
         assertThat(redirects.max(3)).isSameAs(spec);
         assertThat(redirects.follow(false)).isSameAs(spec);
         assertThat(redirects.allowCircular(true)).isSameAs(spec);
         assertThat(redirects.rejectRelative(true)).isSameAs(spec);
 
-        assertThat(params).containsExactly(
-                Map.entry("http.protocol.max-redirects", 3),
-                Map.entry("http.protocol.handle-redirects", false),
-                Map.entry("http.protocol.allow-circular-redirects", true),
-                Map.entry("http.protocol.reject-relative-redirect", true));
+        assertThat(overrides.resolve(new RedirectConfig()))
+                .isEqualTo(new RedirectSettings(false, 3, true, true, false, true));
     }
 
     @Test
     void later_calls_replace_earlier_values() {
-        Map<String, Object> params = new LinkedHashMap<>();
-        RedirectSpecification redirects = new RedirectSpecificationImpl(given(), params);
+        Overrides overrides = new Overrides();
+        RedirectSpecification redirects = new RedirectSpecificationImpl(given(), overrides);
 
         redirects.max(3);
         redirects.max(5);
 
-        assertThat(params).containsExactly(Map.entry("http.protocol.max-redirects", 5));
+        assertThat(overrides.resolve(new RedirectConfig()).max()).isEqualTo(5);
     }
 
     @Test
-    void redirects_writes_to_the_http_client_params_of_the_request_specification() throws Exception {
+    void what_isnt_set_comes_from_the_redirect_config() {
+        Overrides overrides = new Overrides();
+        new RedirectSpecificationImpl(given(), overrides).max(5);
+
+        assertThat(overrides.resolve(new RedirectConfig().followRedirects(false).allowCircularRedirects(true)))
+                .isEqualTo(new RedirectSettings(false, 5, true, false, false, true));
+    }
+
+    @Test
+    void redirects_writes_to_the_redirect_overrides_of_the_request_specification() throws Exception {
         RequestSpecification spec = given();
 
         RequestSpecification returned = spec.redirects().max(2).redirects().follow(true);
 
         assertThat(returned).isSameAs(spec);
-        Field field = RequestSpecificationImpl.class.getDeclaredField("httpClientParams");
+        Field field = RequestSpecificationImpl.class.getDeclaredField("redirects");
         field.setAccessible(true);
-        @SuppressWarnings("unchecked") Map<String, Object> params = (Map<String, Object>) field.get(spec);
-        assertThat(params).containsEntry("http.protocol.max-redirects", 2).containsEntry("http.protocol.handle-redirects", true);
+        Overrides overrides = (Overrides) field.get(spec);
+        RedirectSettings settings = overrides.resolve(new RedirectConfig().followRedirects(false).maxRedirects(7));
+        assertThat(settings.max()).isEqualTo(2);
+        assertThat(settings.follow()).isTrue();
     }
 }

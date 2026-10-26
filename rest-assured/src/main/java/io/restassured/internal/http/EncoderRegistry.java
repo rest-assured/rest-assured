@@ -97,11 +97,10 @@ public class EncoderRegistry {
             // Sent with the file size, since we already know it at this time. Ref: Issue #988
             return RequestBody.file((File) data, contentTypeAsString);
         } else if (data instanceof byte[]) {
-            byte[] out = ((byte[]) data);
-            return RequestBody.stream(new ByteArrayInputStream(out), out.length, contentTypeAsString);
+            // Bytes, unlike a stream, can be sent again to answer a challenge or follow a 307 or 308
+            return RequestBody.bytes((byte[]) data, contentTypeAsString);
         } else if (data instanceof ByteArrayOutputStream) {
-            ByteArrayOutputStream out = ((ByteArrayOutputStream) data);
-            return RequestBody.stream(new ByteArrayInputStream(out.toByteArray()), out.size(), contentTypeAsString);
+            return RequestBody.bytes(((ByteArrayOutputStream) data).toByteArray(), contentTypeAsString);
         }
 
         throw new IllegalArgumentException(

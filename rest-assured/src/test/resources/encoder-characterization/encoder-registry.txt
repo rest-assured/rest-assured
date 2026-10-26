@@ -244,10 +244,10 @@ null -> EXCEPTION java.lang.NullPointerException
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
-byte[] -> STREAM | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+byte[] -> BYTES | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 ByteArrayInputStream -> STREAM | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 BufferedInputStream -> STREAM | application/octet-stream | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> STREAM | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | application/octet-stream | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 File -> FILE | application/octet-stream | 12 | file body.txt
 MissingFile -> FILE | application/octet-stream | 0 | file missing.txt
 StringReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.StringReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
@@ -266,10 +266,10 @@ null -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode n
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
-byte[] -> STREAM | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+byte[] -> BYTES | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 ByteArrayInputStream -> STREAM | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 BufferedInputStream -> STREAM | */* | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> STREAM | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | */* | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 File -> FILE | */* | 12 | file body.txt
 MissingFile -> FILE | */* | 0 | file missing.txt
 StringReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.StringReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
@@ -288,10 +288,10 @@ null -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode n
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."
-byte[] -> STREAM | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+byte[] -> BYTES | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 ByteArrayInputStream -> STREAM | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 BufferedInputStream -> STREAM | application/unknown | -1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
-ByteArrayOutputStream -> STREAM | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
+ByteArrayOutputStream -> BYTES | application/unknown | 12 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 File -> FILE | application/unknown | 12 | file body.txt
 MissingFile -> FILE | application/unknown | 0 | file missing.txt
 StringReader -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode java.io.StringReader@<hash> as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/unknown", ContentType.TEXT))). .."

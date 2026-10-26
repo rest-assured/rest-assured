@@ -61,10 +61,12 @@ class UnsupportedFeaturesTest {
         Selection byProperty = new Selection(new FakeHttpClients.Apache5(), How.SYSTEM_PROPERTY, "the system property restassured.http.client=apache5");
         Selection onTheClasspath = new Selection(new FakeHttpClients.Apache5(), How.CLASSPATH, null);
 
-        assertThat(UnsupportedFeatures.httpClient4Only(byConfig, "authenticate with DigestAuthScheme yet", "use preemptive basic authentication"))
+        assertThat(UnsupportedFeatures.httpClient4Only(byConfig, "use the HttpClient 4 SSLSocketFactory of certificate authentication",
+                "give certificate authentication an SSLContext"))
                 .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(APACHE5)) can't authenticate with DigestAuthScheme yet. "
-                        + "Remove httpClientConfig().client(..) to use Apache HttpClient 4, or use preemptive basic authentication.");
+                .hasMessage("Apache HttpClient 5 (chosen with httpClientConfig().client(APACHE5)) can't use the HttpClient 4 SSLSocketFactory of "
+                        + "certificate authentication. Remove httpClientConfig().client(..) to use Apache HttpClient 4, or give certificate "
+                        + "authentication an SSLContext.");
         assertThat(UnsupportedFeatures.httpClient4Only(byProperty, "do this", "do that"))
                 .hasMessage("Apache HttpClient 5 (chosen with the system property restassured.http.client=apache5) can't do this. "
                         + "Remove the system property restassured.http.client to use Apache HttpClient 4, or do that.");

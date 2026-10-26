@@ -16,10 +16,10 @@
 
 package io.restassured.internal.http.client;
 
+import io.restassured.authentication.AuthenticationContext;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertAuthScheme;
-import io.restassured.authentication.ExplicitNoAuthScheme;
-import io.restassured.authentication.NoAuthScheme;
+import io.restassured.authentication.ContextAuthenticationScheme;
 import io.restassured.common.spi.http.ClientSettings;
 import io.restassured.common.spi.http.HttpClientInstance;
 import io.restassured.common.spi.http.HttpRequest;
@@ -31,11 +31,10 @@ import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
 import io.restassured.internal.http.HTTPBuilder;
+import io.restassured.internal.http.auth.CoreAuthenticationContext;
 import io.restassured.internal.http.client.HttpClientInstances.Lease;
 import io.restassured.internal.http.client.HttpClientProviders.Selection;
 import io.restassured.specification.ProxySpecification;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.impl.client.AbstractHttpClient;
 
 import java.io.IOException;
 
@@ -61,60 +60,62 @@ public final class ProviderTransport implements HttpClientInstance {
     }
 
     /**
-     * @return Whether REST Assured needs an HttpClient 4 client in the {@link HTTPBuilder} to see what the
-     * authentication scheme asks for
+     * @return Whether the authentication scheme can only be applied through an {@link HTTPBuilder}, which only
+     * Apache HttpClient 4 has: a scheme that doesn't implement
+     * {@link AuthenticationScheme#authenticate(io.restassured.authentication.AuthenticationContext)}, and
+     * certificate authentication with the deprecated HttpClient 4 SSLSocketFactory
      */
-    public static boolean needsHttpClient4ToAuthenticate(AuthenticationScheme authenticationScheme) {
-        return !(authenticationScheme == null || authenticationScheme instanceof NoAuthScheme || authenticationScheme instanceof ExplicitNoAuthScheme
-                || authenticationScheme instanceof CertAuthScheme);
+    @SuppressWarnings("deprecation")
+    public static boolean needsHttpBuilder(AuthenticationScheme authenticationScheme) {
+        return onlyImplementsHttpBuilder(authenticationScheme)
+                || authenticationScheme instanceof CertAuthScheme && ((CertAuthScheme) authenticationScheme).getSslSocketFactory() != null;
     }
 
     /**
-     * Translates the config of the request into the settings of the client. It also authenticates the request with
-     * <code>authenticationScheme</code>, which may change the headers and the URI of <code>http</code>, so build the
-     * request afterwards.
-     *
-     * @param http The builder of the request, with an unused HttpClient 4 client if {@link #needsHttpClient4ToAuthenticate}
+     * @return The exception for an authentication scheme that {@link #needsHttpBuilder} while another client than
+     * HttpClient 4 sends the request
      */
-    public static ProviderTransport create(Selection selection, HTTPBuilder http, RestAssuredConfig config, ProxySpecification proxySpecification,
-                                           AuthenticationScheme authenticationScheme) {
+    public static UnsupportedOperationException cantAuthenticate(Selection selection, AuthenticationScheme authenticationScheme) {
+        if (onlyImplementsHttpBuilder(authenticationScheme)) {
+            return UnsupportedFeatures.httpClient4Only(selection, "authenticate with " + authenticationScheme.getClass().getName()
+                            + ", which only implements the deprecated authenticate(HTTPBuilder)",
+                    "implement " + ContextAuthenticationScheme.class.getName() + " instead");
+        }
+        return UnsupportedFeatures.httpClient4Only(selection, "use the HttpClient 4 SSLSocketFactory of certificate authentication",
+                "give certificate authentication an SSLContext");
+    }
+
+    // A scheme written for REST Assured 6.x, which only knows the HTTPBuilder of HttpClient 4
+    private static boolean onlyImplementsHttpBuilder(AuthenticationScheme authenticationScheme) {
+        try {
+            return authenticationScheme.getClass().getMethod("authenticate", AuthenticationContext.class)
+                    .getDeclaringClass() == AuthenticationScheme.class;
+        } catch (NoSuchMethodException e) {
+            return true;
+        }
+    }
+
+    /**
+     * Translates the config of the request into the settings of the client.
+     *
+     * @param authentication What the authentication scheme of the request asked for
+     */
+    public static ProviderTransport create(Selection selection, RestAssuredConfig config, ProxySpecification proxySpecification,
+                                           AuthenticationScheme authenticationScheme, CoreAuthenticationContext authentication) {
         HttpClientConfig httpClientConfig = config.getHttpClientConfig();
         if (!httpClientConfig.usesDefaultHttpClientFactory()) {
             throw UnsupportedFeatures.httpClient4Only(selection, "use the HttpClient 4 client of httpClientConfig().httpClientFactory(..)",
                     "customize the client with httpClientConfig().customizeClient(..)");
         }
         SSLConfig sslConfig = config.getSSLConfig();
-        TlsSettings certificate = null;
-        if (authenticationScheme instanceof CertAuthScheme) {
-            CertAuthScheme certAuthScheme = (CertAuthScheme) authenticationScheme;
-            if (certAuthScheme.getSslSocketFactory() != null) {
-                throw UnsupportedFeatures.httpClient4Only(selection, "use the HttpClient 4 SSLSocketFactory of certificate authentication",
-                        "give certificate authentication an SSLContext");
-            }
-            // The SSL config isn't used with certificate authentication, as with HttpClient 4
-            certificate = ClientSettingsFactory.certificateTlsSettings(certAuthScheme);
-        } else {
-            if (sslConfig.isUserConfigured() && ClientSettingsFactory.userSocketFactory(sslConfig) != null) {
-                throw UnsupportedFeatures.httpClient4Only(selection, "use the HttpClient 4 SSLSocketFactory of sslConfig().sslSocketFactory(..)",
-                        "use sslConfig().sslContext(..)");
-            }
-            if (needsHttpClient4ToAuthenticate(authenticationScheme)) {
-                authenticate(selection, http, authenticationScheme);
-            }
+        // The SSL config isn't used with certificate authentication, as with HttpClient 4
+        TlsSettings certificate = authentication.certificate();
+        if (certificate == null && sslConfig.isUserConfigured() && ClientSettingsFactory.userSocketFactory(sslConfig) != null) {
+            throw UnsupportedFeatures.httpClient4Only(selection, "use the HttpClient 4 SSLSocketFactory of sslConfig().sslSocketFactory(..)",
+                    "use sslConfig().sslContext(..)");
         }
         ClientSettings settings = ClientSettingsFactory.clientSettings(sslConfig, certificate, proxySpecification, httpClientConfig);
         return new ProviderTransport(selection, HttpClientInstances.global(), settings, httpClientConfig, config.getConnectionConfig());
-    }
-
-    // Until REST Assured answers challenges and signs OAuth requests itself, only schemes that set headers work
-    private static void authenticate(Selection selection, HTTPBuilder http, AuthenticationScheme authenticationScheme) {
-        AbstractHttpClient client = http.getClient();
-        int interceptors = client.getRequestInterceptorCount();
-        authenticationScheme.authenticate(http);
-        if (client.getRequestInterceptorCount() != interceptors || client.getCredentialsProvider().getCredentials(AuthScope.ANY) != null) {
-            throw UnsupportedFeatures.httpClient4Only(selection, "authenticate with " + authenticationScheme.getClass().getSimpleName() + " yet",
-                    "use preemptive basic authentication");
-        }
     }
 
     @Override

@@ -66,8 +66,8 @@ class RedirectSensitiveHeaderStrippingTest {
 
     @Test
     void stripsAuthInterceptorInjectedHeaderOnCrossHostRedirect() throws Exception {
-        // OAuth signs the request through an OAuthSigner request interceptor that sets Authorization. The stripper
-        // must run after it, otherwise the signer re-adds the header on the redirected request.
+        // OAuth signs every hop of a redirect, so the hop to another host mustn't get an Authorization header from
+        // the signature either.
         Headers leaked = new Headers();
         HttpServer sink = sinkServer(leaked);
         HttpServer origin = redirectingServer("http://127.0.0.1:" + sink.getAddress().getPort() + "/leak");

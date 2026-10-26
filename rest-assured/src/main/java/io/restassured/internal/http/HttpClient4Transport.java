@@ -21,10 +21,12 @@ import io.restassured.authentication.CertAuthScheme;
 import io.restassured.common.spi.http.HttpClientInstance;
 import io.restassured.common.spi.http.HttpHeader;
 import io.restassured.common.spi.http.HttpRequest;
+import io.restassured.common.spi.http.NtlmCredentials;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
+import io.restassured.internal.http.auth.CoreAuthenticationContext;
 import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.internal.proxy.RestAssuredProxySelector;
 import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner;
@@ -35,10 +37,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -69,8 +73,14 @@ import static io.restassured.internal.util.GroovyStringConversion.castToString;
  * <p>
  * It isn't an ordinary {@link HttpClientInstance}: core creates it for each request, and it isn't discovered or shared.
  * {@link #close()} doesn't close the client, it only puts back the https scheme and the connection reuse strategy of
- * the client, which the user may reuse. {@link #send(HttpRequest)} ignores {@link HttpRequest#options()}, since the
- * read timeout, expect-continue and NTLM are set on the client through its parameters and authentication.
+ * the client, which the user may reuse. {@link #send(HttpRequest)} only reads the NTLM credentials of
+ * {@link HttpRequest#options()}, since the read timeout and expect-continue are set on the client through its
+ * parameters.
+ * </p><p>
+ * The client only sends the requests: REST Assured follows the redirects, answers the challenges, keeps the cookies
+ * and signs the requests itself, so the client is configured not to. A legacy authentication scheme may still add a
+ * request interceptor to the client, which runs for every hop, so a {@link CrossHostSensitiveHeaderStripper} runs
+ * after it.
  * </p>
  */
 public class HttpClient4Transport implements HttpClientInstance {
@@ -85,18 +95,23 @@ public class HttpClient4Transport implements HttpClientInstance {
     private final SchemeRegistry schemeRegistry;
     private final Scheme originalHttpsScheme;
     private final ConnectionReuseStrategy originalReuseStrategy;
-    private HttpContext context;
+    // One context for every hop of the request, so that the proxy authentication state of the client is kept between them
+    private final HttpContextDecorator context = new HttpContextDecorator();
 
     /**
-     * Configures the client of <code>http</code> for the request: its proxy, its parameters, the SSL config and the
-     * redirect handling. It also authenticates the request with <code>authenticationScheme</code>, which may change the
-     * headers and the URI of <code>http</code>, so build the request afterwards.
+     * Configures the client of <code>http</code> for the request: its proxy, its parameters and the TLS settings. It
+     * also authenticates the request with <code>legacyAuthenticationScheme</code>, which may change the headers and
+     * the URI of <code>http</code>, so build the request afterwards.
      *
-     * @param config           the config of the request
-     * @param httpClientParams the parameters to set on the client
+     * @param config                     the config of the request
+     * @param httpClientParams           the parameters to set on the client
+     * @param legacyAuthenticationScheme a scheme that only implements the deprecated
+     *                                   {@link AuthenticationScheme#authenticate(HTTPBuilder)}, or <code>null</code>
+     * @param authentication             what the authentication scheme of the request asked for
      */
+    @SuppressWarnings("deprecation")
     public HttpClient4Transport(HTTPBuilder http, RestAssuredConfig config, ProxySpecification proxySpecification, Map<?, ?> httpClientParams,
-                                AuthenticationScheme authenticationScheme) {
+                                AuthenticationScheme legacyAuthenticationScheme, CoreAuthenticationContext authentication) {
         this.client = http.getClient();
         this.connectionConfig = config.getConnectionConfig();
         // Applying the SSL config or certificate authentication replaces the https scheme of the http client's scheme registry.
@@ -113,23 +128,33 @@ public class HttpClient4Transport implements HttpClientInstance {
         for (Map.Entry<?, ?> entry : httpClientParams.entrySet()) {
             params.setParameter(castToString(entry.getKey()), entry.getValue());
         }
+        // REST Assured follows the redirects and keeps the cookies of the responses itself
+        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
+        params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
         boolean configured = false;
         try {
-            if (shouldApplySSLConfig(http, config, authenticationScheme)) {
+            boolean certificateAuthentication = authentication.certificate() != null || legacyAuthenticationScheme instanceof CertAuthScheme;
+            if (!certificateAuthentication && shouldApplySSLConfig(http, config)) {
                 SSLConfig sslConfig = config.getSSLConfig();
                 http.getAuth().certificate(ClientSettingsFactory.tlsSettings(sslConfig), sslConfig.getPort(), ClientSettingsFactory.userSocketFactory(sslConfig));
             }
-
-            authenticationScheme.authenticate(http);
+            if (legacyAuthenticationScheme != null) {
+                legacyAuthenticationScheme.authenticate(http);
+            } else if (authentication.certificate() != null) {
+                http.getAuth().certificate(authentication.certificate(), authentication.certificatePort(), null);
+            }
 
             if (schemeRegistry.get("https") != originalHttpsScheme) {
                 client.setReuseStrategy(new NoSecureConnectionReuseStrategy(originalReuseStrategy));
             }
-
-            // Register the cross-host header stripper after authentication so it runs last in the interceptor chain.
+            // Registered after the legacy authentication scheme has added its interceptors, so that it runs after them
+            // and none of them adds Authorization again on a hop to another host. Removed first, so that a reused
+            // client doesn't get it twice.
+            client.removeRequestInterceptorByClass(CrossHostSensitiveHeaderStripper.class);
             RedirectConfig redirectConfig = config.getRedirectConfig() == null ? new RedirectConfig() : config.getRedirectConfig();
-            applyCrossHostRedirectHeaderStripping(redirectConfig);
-            applyRedirectStrategy(redirectConfig.followsRedirectsForAllMethods());
+            if (redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect()) {
+                client.addRequestInterceptor(new CrossHostSensitiveHeaderStripper());
+            }
             configured = true;
         } finally {
             if (!configured) {
@@ -155,10 +180,10 @@ public class HttpClient4Transport implements HttpClientInstance {
         }
     }
 
-    private static boolean shouldApplySSLConfig(HTTPBuilder http, RestAssuredConfig config, AuthenticationScheme authenticationScheme) {
+    private static boolean shouldApplySSLConfig(HTTPBuilder http, RestAssuredConfig config) {
         URI uri = ((URIBuilder) http.getUri()).toURI();
         if (uri == null) throw new IllegalStateException("a default URI must be set");
-        if (!config.getSSLConfig().isUserConfigured() || authenticationScheme instanceof CertAuthScheme) {
+        if (!config.getSSLConfig().isUserConfigured()) {
             return false;
         }
         if (uri.getScheme() != null && "https".equals(uri.getScheme().toLowerCase(Locale.ROOT))) {
@@ -169,26 +194,6 @@ public class HttpClient4Transport implements HttpClientInstance {
         // REST Assured's default http client factory since a custom factory may have registered its own https scheme that
         // must not be replaced for requests that don't start out as https.
         return config.getHttpClientConfig().usesDefaultHttpClientFactory();
-    }
-
-    private void applyCrossHostRedirectHeaderStripping(RedirectConfig redirectConfig) {
-        // Remove first so repeated configuration (e.g. a reused HttpClient instance) never stacks duplicates.
-        // Register last (after authentication schemes have added their interceptors) so that an auth interceptor
-        // such as the OAuth/OAuth2 signer cannot re-add Authorization after we have stripped it on a redirect.
-        client.removeRequestInterceptorByClass(CrossHostSensitiveHeaderStripper.class);
-        if (redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect()) {
-            client.addRequestInterceptor(new CrossHostSensitiveHeaderStripper());
-        }
-    }
-
-    private void applyRedirectStrategy(boolean followRedirectsForAllMethods) {
-        RedirectStrategy redirectStrategy = client.getRedirectStrategy();
-        if (followRedirectsForAllMethods && !(redirectStrategy instanceof AllMethodsRedirectStrategy)) {
-            client.setRedirectStrategy(new AllMethodsRedirectStrategy(redirectStrategy));
-        } else if (!followRedirectsForAllMethods && redirectStrategy instanceof AllMethodsRedirectStrategy) {
-            // A reused client gets back the strategy it had, for example one installed by an HttpClientFactory
-            client.setRedirectStrategy(((AllMethodsRedirectStrategy) redirectStrategy).getReplacedStrategy());
-        }
     }
 
     /**
@@ -206,6 +211,7 @@ public class HttpClient4Transport implements HttpClientInstance {
 
     @Override
     public io.restassured.common.spi.http.HttpResponse send(HttpRequest request) throws IOException {
+        applyNtlmCredentials(request.options().ntlm());
         HttpRequestBase httpRequest = HttpRequestFactory.createHttpRequest(request.uri(), request.method(), request.body() != null);
         for (HttpHeader header : request.headers()) {
             httpRequest.addHeader(header.name(), header.value());
@@ -216,9 +222,7 @@ public class HttpClient4Transport implements HttpClientInstance {
 
         HttpEntity unreadBody = UNREAD_BODIES.remove(client);
         if (unreadBody != null) EntityUtils.consumeQuietly(unreadBody);
-        HttpContextDecorator httpContext = new HttpContextDecorator();
-        org.apache.http.HttpResponse response = client.execute(httpRequest, httpContext);
-        context = httpContext.getDelegate();
+        org.apache.http.HttpResponse response = client.execute(httpRequest, context);
         HttpEntity entity = response.getEntity();
         if (entity != null && client.getConnectionManager() instanceof BasicClientConnectionManager) {
             UNREAD_BODIES.put(client, entity);
@@ -226,11 +230,21 @@ public class HttpClient4Transport implements HttpClientInstance {
         return toHttpResponse(response, entity == null ? null : entity.getContent(), this::closeIdleConnectionsIfConfigured);
     }
 
+    // NTLM is bound to the connection, so the client answers its challenges itself
+    private void applyNtlmCredentials(NtlmCredentials ntlm) {
+        if (ntlm == null) {
+            return;
+        }
+        CredentialsProvider credentials = client.getCredentialsProvider();
+        credentials.setCredentials(new AuthScope(ntlm.host(), ntlm.port()),
+                new NTCredentials(ntlm.userName(), ntlm.password(), ntlm.workstation(), ntlm.domain()));
+    }
+
     /**
      * @return The context of the last request, which knows the URI after redirects
      */
     public HttpContext context() {
-        return context;
+        return context.getDelegate();
     }
 
     // Closes idle connections to the server once REST Assured is done with the response

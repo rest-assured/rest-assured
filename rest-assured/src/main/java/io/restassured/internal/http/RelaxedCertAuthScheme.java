@@ -18,6 +18,7 @@ package io.restassured.internal.http;
 
 import io.restassured.authentication.AuthenticationContext;
 import io.restassured.authentication.CertAuthScheme;
+import io.restassured.internal.http.auth.CertificateAuthenticationContext;
 import io.restassured.internal.http.client.ClientSettingsFactory;
 
 /**
@@ -71,8 +72,8 @@ public class RelaxedCertAuthScheme extends CertAuthScheme {
     public void authenticate(AuthenticationContext context) {
         if (getRelaxedProtocol() == null) {
             super.authenticate(context);
-        } else if (context instanceof HTTPBuilderAuthenticationContext) {
-            ((HTTPBuilderAuthenticationContext) context).certificate(ClientSettingsFactory.certificateTlsSettings(this), getPort());
+        } else if (context instanceof CertificateAuthenticationContext) {
+            ((CertificateAuthenticationContext) context).certificate(ClientSettingsFactory.certificateTlsSettings(this), getPort());
         } else {
             throw new IllegalStateException("Certificate authentication with the relaxed HTTPS validation of RestAssured.config " +
                     "can't be applied to " + context.getClass().getName() + ".");

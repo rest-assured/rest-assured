@@ -4,7 +4,8 @@ Date: 2026-10-17
 
 ## Status
 
-Accepted, for 6.3.0 and 7.0.0. Amends ADR 0001. Amended 2026-10-23: `json-path-jayway` keeps json-smart.
+Accepted, for 6.3.0 and 7.0.0. Amends ADR 0001. Amended 2026-10-23: `json-path-jayway` keeps json-smart. Amended 2026-10-26: the HTTP client
+getters, `TooManyRedirectsException` and the redirect parameters (phase 7).
 
 ## Context
 
@@ -146,7 +147,7 @@ checked against the existing behavior in the PR that adds them, and any change c
 |---|---|
 | `http-client-jdk`, `http-client-apache5`, `json-path-jayway`, and `json-path-gpath`, `xml-path-gpath` as jars | Maven coordinates (ADR 0002) |
 | `HttpClientType` (`JDK`, `APACHE5`) | `io.restassured.config.HttpClientType` |
-| `HttpClientConfig.client(HttpClientType)`, `client(String)` and `client(Class<? extends ..>)`, bounded by the HTTP SPI's provider type | `io.restassured.config.HttpClientConfig` |
+| `HttpClientConfig.client(HttpClientType)`, `client(String)` and `client(Class<? extends ..>)`, bounded by the HTTP SPI's provider type, and the getters `client()` and `customizers()` (amended 2026-10-26) | `io.restassured.config.HttpClientConfig` |
 | `HttpClientConfig.customizeClient(Class<B> builderType, Consumer<B> customizer)` | same. No HttpClient 5 type in core or common |
 | The system property `restassured.http.client`, with the values `jdk` and `apache5` | |
 | `JsonPathEngine` (`GPATH`, `JAYWAY`) and `JsonConfig.pathEngine(JsonPathEngine)` | `io.restassured.config`. JSON only, so an XPath module later gets its own enum on `XmlConfig` |
@@ -154,7 +155,7 @@ checked against the existing behavior in the PR that adds them, and any change c
 | `JaywayPath.from(String)`, returning Jayway's `DocumentContext` configured like the module | `io.restassured.path.jayway.JaywayPath` |
 | `RestAssuredClient`, its builder, and `RestAssured.client()` | `io.restassured` |
 | `RestAssuredMockMvc.client(..)` and `RestAssuredWebTestClient.client(..)` | the existing classes |
-| `ConnectionTimeoutException`, `ResponseTimeoutException` (both extending `java.net.SocketTimeoutException`) and `TooManyRedirectsException` (an `IOException`) | `io.restassured.common.exception` |
+| `ConnectionTimeoutException`, `ResponseTimeoutException` (both extending `java.net.SocketTimeoutException`) and `TooManyRedirectsException` (a `java.net.ProtocolException`, amended 2026-10-26). Circular and rejected relative redirects throw a plain `ProtocolException` | `io.restassured.common.exception` |
 | The HTTP SPI package `io.restassured.common.spi.http`, and the internal path SPI package `io.restassured.internal.common.spi.path` | `rest-assured-common` (ADR 0002) |
 | The recipe `io.restassured.UpgradeToRestAssured7` | `rest-assured-openrewrite` |
 | The version files `META-INF/rest-assured/<artifact>.properties` | every participating artifact (ADR 0002) |
@@ -185,7 +186,7 @@ is a String, number, boolean or list of Strings, and any other key or value fail
 | `http.protocol.cookie-datepatterns` | `cookieDatePatterns(String...)` |
 | `http.useragent` | a `User-Agent` header on the request specification |
 | `http.protocol.expect-continue` | `expectContinue(boolean)` |
-| `http.protocol.handle-redirects`, `max-redirects`, `allow-circular-redirects`, `reject-relative-redirect` | `RedirectConfig`. The parameter wins, as today |
+| `http.protocol.handle-redirects`, `max-redirects`, `allow-circular-redirects`, `reject-relative-redirect` | `RedirectConfig`. `RedirectConfig` wins, as today, so the parameter has no effect, and a one-time warning names `RedirectConfig` (amended 2026-10-26) |
 
 `http.default-headers` and `http.default-proxy` hold HttpClient 4 values and aren't translated.
 
