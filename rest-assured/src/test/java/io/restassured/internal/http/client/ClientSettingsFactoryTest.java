@@ -65,7 +65,7 @@ class ClientSettingsFactoryTest {
     @Test
     void the_ssl_config_is_left_out_unless_the_user_configured_it() {
         assertThat(clientSettings(sslConfig()).tls()).isNull();
-        assertThat(clientSettings(sslConfig().port(8443)).tls()).isEqualTo(ClientSettingsFactory.tlsSettings(sslConfig()));
+        assertThat(clientSettings(sslConfig().strictHostnames()).tls()).isEqualTo(ClientSettingsFactory.tlsSettings(sslConfig()));
     }
 
     @Test

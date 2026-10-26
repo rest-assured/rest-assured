@@ -37,8 +37,6 @@ import java.util.Map;
  * needs.
  */
 public final class CoreAuthenticationContext implements CertificateAuthenticationContext {
-    private static final int PORT_OF_THE_REQUEST = -1;
-
     private final Map<Object, Object> headers;
     private final URI uri;
     private final OAuthConfig oauthConfig;
@@ -47,7 +45,6 @@ public final class CoreAuthenticationContext implements CertificateAuthenticatio
     private NtlmCredentials ntlm;
     private CoreOAuthSigner oauthSigner;
     private TlsSettings certificate;
-    private int certificatePort = PORT_OF_THE_REQUEST;
 
     /**
      * @param headers     the headers of the request, which {@link #header(String, String)} adds to
@@ -104,15 +101,14 @@ public final class CoreAuthenticationContext implements CertificateAuthenticatio
     @Override
     public void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
                             Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
-                            int port, HostnameVerifier hostnameVerifier, SSLContext sslContext) {
+                            HostnameVerifier hostnameVerifier, SSLContext sslContext) {
         certificate(ClientSettingsFactory.certificateTlsSettings(keyStorePath, keyStorePassword, keyStoreType, keyStore,
-                trustStorePath, trustStorePassword, trustStoreType, trustStore, hostnameVerifier, sslContext), port);
+                trustStorePath, trustStorePassword, trustStoreType, trustStore, hostnameVerifier, sslContext));
     }
 
     @Override
-    public void certificate(TlsSettings tls, int port) {
+    public void certificate(TlsSettings tls) {
         certificate = tls;
-        certificatePort = port;
     }
 
     /**
@@ -141,12 +137,5 @@ public final class CoreAuthenticationContext implements CertificateAuthenticatio
      */
     public TlsSettings certificate() {
         return certificate;
-    }
-
-    /**
-     * @return the port that certificate authentication is for, or {@code -1} for the port of the request
-     */
-    public int certificatePort() {
-        return certificatePort;
     }
 }

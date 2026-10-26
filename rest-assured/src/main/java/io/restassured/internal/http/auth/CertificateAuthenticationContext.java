@@ -29,8 +29,7 @@ public interface CertificateAuthenticationContext extends AuthenticationContext 
      * Use these TLS settings for https connections, which may have relaxed validation unlike those of
      * {@link #certificate}.
      *
-     * @param tls  the TLS settings
-     * @param port the HTTPS port, or <code>-1</code> to use the port of the request
+     * @param tls the TLS settings
      */
-    void certificate(TlsSettings tls, int port);
+    void certificate(TlsSettings tls);
 }

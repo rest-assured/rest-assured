@@ -30,10 +30,8 @@ import java.security.KeyStore;
  * </pre>
  */
 public class CertificateAuthSettings {
-    private static final int UNDEFINED_PORT = -1;
     private final String keystoreType;
     private final String trustStoreType;
-    private final int port;
     private final KeyStore trustStore;
     private final KeyStore keyStore;
     private final HostnameVerifier hostnameVerifier;
@@ -44,7 +42,6 @@ public class CertificateAuthSettings {
      * <ul>
      * <li>keystoreType = {@link java.security.KeyStore#getDefaultType()}</li>
      * <li>trustStoreType = {@link java.security.KeyStore#getDefaultType()}</li>
-     * <li>port = 443</li>
      * <li>trustStore = null</li>
      * <li>keyStore = null</li>
      * <li>strict host name verification (see {@link #strictHostnames()})</li>
@@ -54,25 +51,23 @@ public class CertificateAuthSettings {
      * @see #certAuthSettings()
      */
     public CertificateAuthSettings() {
-        this(KeyStore.getDefaultType(), KeyStore.getDefaultType(), UNDEFINED_PORT, null, null, HostnameVerifiers.STRICT, null);
+        this(KeyStore.getDefaultType(), KeyStore.getDefaultType(), null, null, HostnameVerifiers.STRICT, null);
     }
 
     /**
      * @param keystoreType         The certificate type, by default {@link java.security.KeyStore#getDefaultType()}.
      * @param trustStoreType       The trust store type, by default {@link java.security.KeyStore#getDefaultType()}.
-     * @param port                 The port, by default 443.
      * @param trustStore           The trust store, by default no provider is used (<code>null</code>).
      * @param hostnameVerifier     The HostnameVerifier to use
      * @param sslContext           The SSLContext to use
      */
-    private CertificateAuthSettings(String keystoreType, String trustStoreType, int port, KeyStore trustStore, KeyStore keyStore, HostnameVerifier hostnameVerifier,
+    private CertificateAuthSettings(String keystoreType, String trustStoreType, KeyStore trustStore, KeyStore keyStore, HostnameVerifier hostnameVerifier,
                                     SSLContext sslContext) {
         AssertParameter.notNull(keystoreType, "Certificate type");
         AssertParameter.notNull(trustStoreType, "Trust store type");
         this.keystoreType = keystoreType;
         this.keyStore = keyStore;
         this.trustStoreType = trustStoreType;
-        this.port = port;
         this.trustStore = trustStore;
         this.hostnameVerifier = hostnameVerifier;
         this.sslContext = sslContext;
@@ -84,10 +79,6 @@ public class CertificateAuthSettings {
 
     public String getTrustStoreType() {
         return trustStoreType;
-    }
-
-    public int getPort() {
-        return port;
     }
 
     public KeyStore getTrustStore() {
@@ -111,7 +102,7 @@ public class CertificateAuthSettings {
      * @return A new CertificateAuthSettings instance
      */
     public CertificateAuthSettings strictHostnames() {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, HostnameVerifiers.STRICT, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, HostnameVerifiers.STRICT, sslContext);
     }
 
     /**
@@ -120,7 +111,7 @@ public class CertificateAuthSettings {
      * @return A new CertificateAuthSettings instance
      */
     public CertificateAuthSettings allowAllHostnames() {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, HostnameVerifiers.ALLOW_ALL, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, HostnameVerifiers.ALLOW_ALL, sslContext);
     }
 
     /**
@@ -134,7 +125,7 @@ public class CertificateAuthSettings {
      */
     public CertificateAuthSettings hostnameVerifier(HostnameVerifier hostnameVerifier) {
         AssertParameter.notNull(hostnameVerifier, HostnameVerifier.class);
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, hostnameVerifier, sslContext);
     }
 
     /**
@@ -150,7 +141,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings keyStoreType(String keystoreType) {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, hostnameVerifier, sslContext);
     }
 
     /**
@@ -158,15 +149,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings trustStoreType(String trustStoreType) {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
-    }
-
-    /**
-     * @param port The port, by default 443.
-     * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
-     */
-    public CertificateAuthSettings port(int port) {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, hostnameVerifier, sslContext);
     }
 
     /**
@@ -174,7 +157,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings trustStore(KeyStore trustStore) {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, hostnameVerifier, sslContext);
     }
 
     /**
@@ -182,7 +165,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings keyStore(KeyStore keyStore) {
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, hostnameVerifier, sslContext);
     }
 
     /**
@@ -195,7 +178,7 @@ public class CertificateAuthSettings {
      */
     public CertificateAuthSettings sslContext(SSLContext sslContext) {
         AssertParameter.notNull(sslContext, SSLContext.class);
-        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, hostnameVerifier, sslContext);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, trustStore, keyStore, hostnameVerifier, sslContext);
     }
 
     /**

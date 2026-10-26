@@ -1356,8 +1356,7 @@ public class RestAssured {
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
         CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
-                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).hostnameVerifier(sslConfig.getHostnameVerifier()).
-                port(sslConfig.getPort());
+                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).hostnameVerifier(sslConfig.getHostnameVerifier());
         settings = sslConfig.getSSLContext() == null ? settings : settings.sslContext(sslConfig.getSSLContext());
         // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
         String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
@@ -1420,7 +1419,6 @@ public class RestAssured {
         scheme.setKeyStorePassword(keyStorePassword);
         scheme.setKeystoreType(certificateAuthSettings.getKeyStoreType());
         scheme.setKeyStore(certificateAuthSettings.getKeyStore());
-        scheme.setPort(certificateAuthSettings.getPort());
         scheme.setTrustStore(certificateAuthSettings.getTrustStore());
         scheme.setTrustStoreType(certificateAuthSettings.getTrustStoreType());
         scheme.setPathToTrustStore(trustStorePath);

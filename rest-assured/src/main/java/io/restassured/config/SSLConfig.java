@@ -83,7 +83,6 @@ import java.security.NoSuchAlgorithmException;
 public class SSLConfig implements Config {
 
     private static final String SSL = "SSL";
-    private static final int UNDEFINED_PORT = -1;
 
     private final Object pathToKeyStore;
     private final Object pathToTrustStore;
@@ -91,7 +90,6 @@ public class SSLConfig implements Config {
     private final String trustStorePassword;
     private final String keyStoreType;
     private final String trustStoreType;
-    private final int port;
     private final KeyStore trustStore;
     private final KeyStore keyStore;
     private final HostnameVerifier hostnameVerifier;
@@ -112,7 +110,7 @@ public class SSLConfig implements Config {
     public SSLConfig keyStore(String pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -126,7 +124,7 @@ public class SSLConfig implements Config {
     public SSLConfig keyStore(File pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -148,7 +146,7 @@ public class SSLConfig implements Config {
     public SSLConfig trustStore(String pathToTrustStore, String password) {
         Validate.notNull(pathToTrustStore, "Path to trust store on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -162,7 +160,7 @@ public class SSLConfig implements Config {
     public SSLConfig trustStore(File pathToTrustStore, String password) {
         Validate.notNull(pathToTrustStore, "Path to trust store on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -172,18 +170,17 @@ public class SSLConfig implements Config {
      * <li>No truststore</li>
      * <li>No password</li>
      * <li>{@link java.security.KeyStore#getDefaultType()}</li>
-     * <li>No explicit default port</li>
      * <li>No trust store</li>
      * <li>No SSLContext</li>
      * <li>Strict host name verification (see {@link #strictHostnames()})</li>
      * </ul>
      */
     public SSLConfig() {
-        this(null, null, null, null, KeyStore.getDefaultType(), KeyStore.getDefaultType(), UNDEFINED_PORT, null, null, HostnameVerifiers.STRICT, null, null, false);
+        this(null, null, null, null, KeyStore.getDefaultType(), KeyStore.getDefaultType(), null, null, HostnameVerifiers.STRICT, null, null, false);
     }
 
     private SSLConfig(Object pathToKeyStore, Object pathToTrustStore, String keyStorePassword, String trustStorePassword,
-                      String keyStoreType, String trustStoreType, int port, KeyStore keystore,
+                      String keyStoreType, String trustStoreType, KeyStore keystore,
                       KeyStore trustStore, HostnameVerifier hostnameVerifier, SSLContext sslContext, String relaxedProtocol,
                       boolean isUserConfigured) {
         AssertParameter.notNull(keyStoreType, "Certificate type");
@@ -194,7 +191,6 @@ public class SSLConfig implements Config {
         this.pathToTrustStore = pathToTrustStore;
         this.keyStoreType = keyStoreType;
         this.trustStoreType = trustStoreType;
-        this.port = port;
         this.trustStore = trustStore;
         this.keyStore = keystore;
         this.hostnameVerifier = hostnameVerifier;
@@ -210,7 +206,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig keystoreType(String keystoreType) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keystoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keystoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -220,18 +216,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig trustStoreType(String trustStoreType) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
-    }
-
-    /**
-     * The port for which REST Assured will apply the SSL configuration. This is advanced configuration and most of the time you do not need to specify a port since
-     * REST Assured will apply the configuration to the https port defined in the URI.
-     *
-     * @param port port.
-     * @return A new SSLConfig instance
-     */
-    public SSLConfig port(int port) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -241,7 +226,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig trustStore(KeyStore trustStore) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -251,7 +236,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig keyStore(KeyStore keyStore) {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -284,7 +269,7 @@ public class SSLConfig implements Config {
         } catch (NoSuchAlgorithmException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, null, protocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, null, protocol, true);
     }
 
     /**
@@ -297,7 +282,7 @@ public class SSLConfig implements Config {
      */
     public SSLConfig sslContext(SSLContext sslContext) {
         AssertParameter.notNull(sslContext, SSLContext.class);
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, null, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, null, true);
     }
 
     /**
@@ -312,7 +297,7 @@ public class SSLConfig implements Config {
      */
     public SSLConfig hostnameVerifier(HostnameVerifier hostnameVerifier) {
         AssertParameter.notNull(hostnameVerifier, HostnameVerifier.class);
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, hostnameVerifier, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -321,7 +306,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig strictHostnames() {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, HostnameVerifiers.STRICT, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, HostnameVerifiers.STRICT, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -330,7 +315,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig allowAllHostnames() {
-        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, HostnameVerifiers.ALLOW_ALL, sslContext, relaxedProtocol, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, keyStore, trustStore, HostnameVerifiers.ALLOW_ALL, sslContext, relaxedProtocol, true);
     }
 
     /**
@@ -407,13 +392,6 @@ public class SSLConfig implements Config {
      */
     public String getTrustStoreType() {
         return trustStoreType;
-    }
-
-    /**
-     * @return The port
-     */
-    public int getPort() {
-        return port;
     }
 
     /**

@@ -110,8 +110,7 @@ public interface AuthenticationContext {
     /**
      * Use a client certificate and trust store for the request. Each key store and trust store is given either as a
      * path (a file or class path resource) with its password and type, or as a loaded {@link KeyStore}. When the
-     * request isn't HTTPS, the certificate is used for HTTPS connections the request is redirected to, on the given
-     * port or 443.
+     * request isn't HTTPS, the certificate is used for HTTPS connections the request is redirected to.
      *
      * @param keyStorePath       The path to the key store, or <code>null</code>
      * @param keyStorePassword   The key store password
@@ -121,12 +120,11 @@ public interface AuthenticationContext {
      * @param trustStorePassword The trust store password
      * @param trustStoreType     The trust store type
      * @param trustStore         A loaded trust store, or <code>null</code>
-     * @param port               The HTTPS port, or <code>-1</code> to use the port of the request
      * @param hostnameVerifier   How host names are verified. With <code>null</code>, any host name is allowed for
      *                           the key store and trust store, and host names are verified strictly for an SSLContext
      * @param sslContext         An SSLContext to use instead of the key store and trust store, or <code>null</code>
      */
     void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
                      Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
-                     int port, HostnameVerifier hostnameVerifier, SSLContext sslContext);
+                     HostnameVerifier hostnameVerifier, SSLContext sslContext);
 }

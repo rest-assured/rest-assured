@@ -266,4 +266,27 @@ class UpgradeToRestAssured7Test implements RewriteTest {
                 )
         );
     }
+
+    @Test
+    void removes_the_ssl_port_settings() {
+        rewriteRun(
+                RecipeTestSupport::defaultsWithRestAssured6Configuration,
+                java(
+                        """
+                        import io.restassured.config.SSLConfig;
+
+                        class A {
+                            SSLConfig sslConfig = SSLConfig.sslConfig().port(8443).allowAllHostnames();
+                        }
+                        """,
+                        """
+                        import io.restassured.config.SSLConfig;
+
+                        class A {
+                            SSLConfig sslConfig = SSLConfig.sslConfig().allowAllHostnames();
+                        }
+                        """
+                )
+        );
+    }
 }

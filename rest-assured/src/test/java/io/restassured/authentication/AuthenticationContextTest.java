@@ -129,14 +129,13 @@ class AuthenticationContextTest {
         scheme.setPathToKeyStore("keystore.p12");
         scheme.setKeyStorePassword("password");
         scheme.setKeystoreType("PKCS12");
-        scheme.setPort(8443);
         scheme.setHostnameVerifier(hostnameVerifier);
         scheme.setSslContext(sslContext);
 
         scheme.authenticate(context);
 
         assertThat(context.calls).containsExactly("certificate[keystore.p12, password, PKCS12, null, null, null, " + KeyStore.getDefaultType()
-                + ", null, 8443, " + hostnameVerifier + ", " + sslContext + "]");
+                + ", null, " + hostnameVerifier + ", " + sslContext + "]");
     }
 
     private static class RecordingContext implements AuthenticationContext {
@@ -189,9 +188,9 @@ class AuthenticationContextTest {
         @Override
         public void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
                                 Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
-                                int port, HostnameVerifier hostnameVerifier, SSLContext sslContext) {
+                                HostnameVerifier hostnameVerifier, SSLContext sslContext) {
             record("certificate", keyStorePath, keyStorePassword, keyStoreType, keyStore, trustStorePath, trustStorePassword,
-                    trustStoreType, trustStore, port, hostnameVerifier, sslContext);
+                    trustStoreType, trustStore, hostnameVerifier, sslContext);
         }
     }
 }

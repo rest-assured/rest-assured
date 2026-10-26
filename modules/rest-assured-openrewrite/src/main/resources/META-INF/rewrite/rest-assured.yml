@@ -21,9 +21,11 @@ description: >-
   Upgrade to REST Assured ${project.version}. It migrates code from the APIs deprecated in REST Assured 6.3.0, changes
   json-path and xml-path to their new names, json-path-gpath and xml-path-gpath, upgrades the io.rest-assured
   dependencies of Maven and Gradle builds, and adds json-path-gpath (and xml-path-gpath) where the code uses paths,
-  since REST Assured 7 no longer includes a path engine.
+  since REST Assured 7 no longer includes a path engine. It also removes the SSL port settings, which REST Assured 7
+  no longer has.
 recipeList:
   - io.restassured.MigrateRestAssured6Deprecations
+  - io.restassured.RemoveSslPortSettings
   - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
       oldGroupId: io.rest-assured
       oldArtifactId: json-path
@@ -71,6 +73,24 @@ recipeList:
   - io.restassured.openrewrite.ReplaceHttpMultipartMode
   - io.restassured.openrewrite.ReplaceHttpClientParams
   - io.restassured.openrewrite.FindAuthenticationSchemesOverridingOnlyHttpBuilder
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.RemoveSslPortSettings
+displayName: Remove the SSL port settings
+description: >-
+  Remove the calls to `port(..)` on `SSLConfig` and `CertificateAuthSettings` and to `CertAuthScheme.setPort(..)`, and
+  the port argument of `AuthenticationContext.certificate(..)`, which REST Assured 7 removed. They never had an effect:
+  an https URL without a port always went to port 443.
+recipeList:
+  - org.openrewrite.java.RemoveMethodInvocations:
+      methodPattern: io.restassured.config.SSLConfig port(int)
+  - org.openrewrite.java.RemoveMethodInvocations:
+      methodPattern: io.restassured.authentication.CertificateAuthSettings port(int)
+  - org.openrewrite.java.RemoveMethodInvocations:
+      methodPattern: io.restassured.authentication.CertAuthScheme setPort(int)
+  - org.openrewrite.java.DeleteMethodArgument:
+      methodPattern: io.restassured.authentication.AuthenticationContext certificate(Object, String, String, java.security.KeyStore, Object, String, String, java.security.KeyStore, int, javax.net.ssl.HostnameVerifier, javax.net.ssl.SSLContext)
+      argumentIndex: 8
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.restassured.ChangeObjectMapperFactoryPackage

@@ -101,8 +101,9 @@ final class RecipeTestSupport {
     };
 
     /**
-     * REST Assured 6's configuration classes with the methods that take or return HttpClient 4 types, which 7.0
-     * removed, and the other methods the tests call, and PreemptiveBasicAuthScheme with its authenticate(HTTPBuilder).
+     * REST Assured 6's configuration classes with the methods that take or return HttpClient 4 types and the port
+     * settings, which 7.0 removed, and the other methods the tests call, PreemptiveBasicAuthScheme with its
+     * authenticate(HTTPBuilder) and AuthenticationContext with the port argument of certificate(..).
      * They replace the classes of REST Assured 7 when the sources are parsed, as REST Assured 6 is on the classpath of
      * a project that the recipes migrate.
      */
@@ -122,17 +123,29 @@ final class RecipeTestSupport {
             "    public static SSLConfig sslConfig() { return new SSLConfig(); }\n" +
             "    public SSLConfig x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) { return this; }\n" +
             "    public X509HostnameVerifier getX509HostnameVerifier() { return null; }\n" +
+            "    public SSLConfig port(int port) { return this; }\n" +
+            "    public SSLConfig allowAllHostnames() { return this; }\n" +
             "}",
             "package io.restassured.authentication;\n" +
             "import org.apache.http.conn.ssl.X509HostnameVerifier;\n" +
             "public class CertificateAuthSettings {\n" +
             "    public static CertificateAuthSettings certAuthSettings() { return new CertificateAuthSettings(); }\n" +
             "    public CertificateAuthSettings x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) { return this; }\n" +
+            "    public CertificateAuthSettings port(int port) { return this; }\n" +
+            "    public CertificateAuthSettings allowAllHostnames() { return this; }\n" +
             "}",
             "package io.restassured.authentication;\n" +
             "import org.apache.http.conn.ssl.X509HostnameVerifier;\n" +
             "public class CertAuthScheme {\n" +
             "    public void setX509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) { }\n" +
+            "    public void setPort(int port) { }\n" +
+            "    public void setKeyStorePassword(String keyStorePassword) { }\n" +
+            "}",
+            "package io.restassured.authentication;\n" +
+            "public interface AuthenticationContext {\n" +
+            "    void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, java.security.KeyStore keyStore,\n" +
+            "                     Object trustStorePath, String trustStorePassword, String trustStoreType, java.security.KeyStore trustStore,\n" +
+            "                     int port, javax.net.ssl.HostnameVerifier hostnameVerifier, javax.net.ssl.SSLContext sslContext);\n" +
             "}",
             "package io.restassured.authentication;\n" +
             "import io.restassured.internal.http.HTTPBuilder;\n" +
