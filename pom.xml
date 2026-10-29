@@ -63,6 +63,9 @@
         <groovy.range>[5.0,6.0)</groovy.range>
         <!-- The Jayway JsonPath version json-path-jayway is built with. It supports 2.8.0 and later, which it checks when it loads -->
         <jayway.version>2.10.0</jayway.version>
+        <!-- The Apache HttpClient 5 version http-client-apache5 is built with. It supports 5.2.1 and later, which it checks when
+             it loads. httpcore5 isn't managed, so that another version of httpclient5 brings its own httpcore5 -->
+        <httpclient5.version>5.6.5</httpclient5.version>
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>6.0.0</junit.version>
@@ -473,6 +476,11 @@
                 <groupId>com.jayway.jsonpath</groupId>
                 <artifactId>json-path</artifactId>
                 <version>${jayway.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

@@ -20,6 +20,7 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.http.Cookies;
+import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -383,16 +384,16 @@ public class SpecificationBuilderITest extends WithJetty {
                                          get("/{firstName}/{lastName}");
 
         // JDK differences table, header names and order
-        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
-                "content-length: 59%n" +
-                "content-type: application/json;charset=utf-8%n" +
-                "server: Jetty(9.4.58.v20250814)%n" +
+        assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +
                 "    \"lastName\": \"Doe\",\n" +
                 "    \"fullName\": \"John Doe\"\n" +
-                "}%n")));
+                "}%n"))));
     }
 
     @Test
@@ -411,16 +412,16 @@ public class SpecificationBuilderITest extends WithJetty {
                body("fullName", equalTo("John Doe"));
 
         // JDK differences table, header names and order
-        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
-                "content-length: 59%n" +
-                "content-type: application/json;charset=utf-8%n" +
-                "server: Jetty(9.4.58.v20250814)%n" +
+        assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.4.58.v20250814)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +
                 "    \"lastName\": \"Doe\",\n" +
                 "    \"fullName\": \"John Doe\"\n" +
-                "}%n")));
+                "}%n"))));
     }
 
     @Test

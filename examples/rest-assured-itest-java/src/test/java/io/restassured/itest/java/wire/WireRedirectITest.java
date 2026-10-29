@@ -17,6 +17,7 @@
 package io.restassured.itest.java.wire;
 
 import io.restassured.common.exception.TooManyRedirectsException;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -76,7 +77,7 @@ public class WireRedirectITest extends WireTest {
         RecordedRequest followUp = requests.get(1);
         assertThat(followUp.header("X-Custom")).isEqualTo("c");
         assertThat(followUp.hasHeader("Content-Type")).isFalse();
-        if (method.equals("HEAD") && Runtime.version().feature() < 18) {
+        if (TestClient.isJdk() && method.equals("HEAD") && Runtime.version().feature() < 18) {
             // JDK differences table, not in the table (W5): the JDK client sends HEAD with Content-Length: 0 on Java 17
             assertThat(followUp.header("Content-Length")).isEqualTo("0");
         } else {

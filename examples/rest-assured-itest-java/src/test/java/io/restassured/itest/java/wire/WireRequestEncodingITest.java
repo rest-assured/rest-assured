@@ -19,6 +19,7 @@ package io.restassured.itest.java.wire;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
+import io.restassured.itest.java.support.TestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -876,6 +877,15 @@ public class WireRequestEncodingITest extends WireTest {
     }
 
     @Test public void
+    uri_with_user_info_is_sent_without_it() {
+        given().get(server.url("user:secret@localhost", "/h"));
+
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.requestLine()).isEqualTo("GET /h HTTP/1.1");
+        assertThat(request.header("Host")).isEqualTo("localhost:" + server.port());
+    }
+
+    @Test public void
     non_string_header_value_is_sent_as_its_string_form() {
         given().header("X-Int", 5).get(server.url("/h"));
 
@@ -888,10 +898,30 @@ public class WireRequestEncodingITest extends WireTest {
     header_that_the_jdk_client_restricts(String name) {
         Map<String, String> values = Map.of("Host", "example.test", "Connection", "close", "Upgrade", "example/1");
 
-        // JDK differences table, restricted headers: the JDK client sends them only when the JVM allows it
-        assertThatThrownBy(() -> given().header(name, values.get(name)).get(server.url("/h")))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("-Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT));
+        if (TestClient.isJdk()) {
+            // JDK differences table, restricted headers: the JDK client sends them only when the JVM allows it
+            assertThatThrownBy(() -> given().header(name, values.get(name)).get(server.url("/h")))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessageContaining("-Djdk.httpclient.allowRestrictedHeaders=" + name.toLowerCase(Locale.ROOT));
+            assertThat(server.requests()).isEmpty();
+        } else {
+            given().header(name, values.get(name)).get(server.url("/h"));
+
+            // Jetty answers a request with an Upgrade header itself, so the request isn't recorded
+            if (!name.equals("Upgrade")) {
+                assertThat(server.onlyRequest().headers(name)).containsExactly(values.get(name));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Content-Length", "Transfer-Encoding", "content-length"})
+    public void
+    header_with_the_length_of_the_body_is_rejected_since_rest_assured_sends_it_itself(String name) {
+        assertThatThrownBy(() -> given().header(name, "4").body("body").post(server.url("/h")))
+                .isExactlyInstanceOf(UnsupportedOperationException.class)
+                .hasMessageStartingWith("REST Assured can't send a ")
+                .hasMessageContaining("Remove the header");
         assertThat(server.requests()).isEmpty();
     }
 

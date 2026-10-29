@@ -179,6 +179,39 @@ class HttpClientInstancesTest {
         assertThat(closed(first)).isFalse();
     }
 
+    @Test
+    void an_idle_time_above_0_closes_the_idle_connections_of_a_kept_client_once_it_is_released() {
+        ConnectionConfig closeIdleAfter = connectionConfig().closeIdleConnectionsAfterEachResponseAfter(30, TimeUnit.SECONDS);
+
+        Lease reused = instances.acquire(new FakeHttpClients.Apache5(), SETTINGS, httpClientConfig().reuseHttpClientInstance(), closeIdleAfter);
+        Lease shared = instances.acquire(new FakeHttpClients.Jdk(), SETTINGS, httpClientConfig(), closeIdleAfter);
+        assertThat(idleConnectionsClosed(reused)).isEmpty();
+        reused.release();
+        reused.release();
+        shared.release();
+
+        assertThat(idleConnectionsClosed(reused)).containsExactly(Duration.ofSeconds(30));
+        assertThat(closed(reused)).isFalse();
+        // The JDK client can't, which is logged once
+        assertThat(idleConnectionsClosed(shared)).containsExactly(Duration.ofSeconds(30));
+        assertThat(closed(shared)).isFalse();
+    }
+
+    @Test
+    void an_idle_time_above_0_closes_a_client_that_is_new_for_each_request_after_the_response() {
+        ConnectionConfig closeIdleAfter = connectionConfig().closeIdleConnectionsAfterEachResponseAfter(30, TimeUnit.SECONDS);
+
+        Lease lease = instances.acquire(new FakeHttpClients.Apache5(), SETTINGS, httpClientConfig(), closeIdleAfter);
+        lease.release();
+
+        assertThat(closed(lease)).isTrue();
+        assertThat(idleConnectionsClosed(lease)).isEmpty();
+    }
+
+    private static List<Duration> idleConnectionsClosed(Lease lease) {
+        return ((FakeClient) lease.instance()).idleConnectionsClosed;
+    }
+
     private Lease acquireAndRelease(FakeHttpClients.Jdk provider, int connectTimeoutSeconds) {
         Lease lease = instances.acquire(provider, settings(Duration.ofSeconds(connectTimeoutSeconds)), httpClientConfig(), DEFAULT_CONNECTIONS);
         lease.release();

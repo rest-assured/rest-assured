@@ -23,6 +23,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.session.SessionFilter;
+import io.restassured.itest.java.support.ResponseLog;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.jupiter.api.Test;
@@ -133,7 +134,7 @@ public class CsrfITest extends WithJetty {
                 statusCode(200);
 
         // JDK differences table, header names and order
-        assertThat(writer.toString(), startsWith(String.format("Request method:\tGET%n" +
+        assertThat(writer.toString(), startsWith(ResponseLog.normalize(String.format("Request method:\tGET%n" +
                         "Request URI:\thttp://localhost:8080/loginPageWithCsrf%n" +
                         "Proxy:\t\t\t<none>%n" +
                         "Request params:\t<none>%n" +
@@ -145,9 +146,9 @@ public class CsrfITest extends WithJetty {
                         "Multiparts:\t\t<none>%n" +
                         "Body:\t\t\t<none>%n" +
                         "HTTP/1.1 200 OK%n" +
-                        "content-length: 589%n" +
-                        "content-type: text/html;charset=utf-8%n" +
-                        "server: Jetty(9.4.58.v20250814)%n%n")));
+                        "Content-Type: text/html;charset=utf-8%n" +
+                        "Content-Length: 589%n" +
+                        "Server: Jetty(9.4.58.v20250814)%n%n"))));
     }
 
     @Test

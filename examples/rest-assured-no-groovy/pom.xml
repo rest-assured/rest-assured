@@ -30,7 +30,8 @@
     <build>
         <plugins>
             <!-- Fails the build if rest-assured brings Groovy (see the root pom), or Apache HttpClient 4 and the libraries
-                 it needed, which REST Assured 7.0 replaced with the JDK HTTP client -->
+                 it needed, which REST Assured 7.0 replaced with the JDK HTTP client, or Apache HttpClient 5, which only
+                 http-client-apache5 brings -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -50,8 +51,12 @@
                                         <exclude>commons-codec:*:*:*:runtime</exclude>
                                         <exclude>commons-logging:*:*:*:compile</exclude>
                                         <exclude>commons-logging:*:*:*:runtime</exclude>
+                                        <exclude>org.apache.httpcomponents.client5:*:*:*:compile</exclude>
+                                        <exclude>org.apache.httpcomponents.client5:*:*:*:runtime</exclude>
+                                        <exclude>org.apache.httpcomponents.core5:*:*:*:compile</exclude>
+                                        <exclude>org.apache.httpcomponents.core5:*:*:*:runtime</exclude>
                                     </excludes>
-                                    <message>Apache HttpClient 4, commons-codec and commons-logging must not be compile or runtime dependencies: REST Assured uses the JDK HTTP client.</message>
+                                    <message>Apache HttpClient 4 or 5, commons-codec and commons-logging must not be compile or runtime dependencies: REST Assured uses the JDK HTTP client unless http-client-apache5 is added.</message>
                                 </bannedDependencies>
                             </rules>
                         </configuration>

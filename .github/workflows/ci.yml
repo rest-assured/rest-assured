@@ -48,3 +48,17 @@ jobs:
           distribution: 'zulu'
       - name: Verify json-path-jayway, the Spring modules and the integration tests with Maven
         run: mvn verify -B -Djayway.version=${{ matrix.jayway }} -pl modules/json-path-jayway,modules/spring-mock-mvc,modules/spring-web-test-client,examples/rest-assured-itest-java -am
+
+  apache5:
+    runs-on: ubuntu-latest
+    name: Test Apache HttpClient 5, JDK 17
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu'
+      - name: Verify http-client-apache5 and the integration tests with Apache HttpClient 5 with Maven
+        run: mvn verify -B -Papache5 -pl modules/http-client-apache5,examples/rest-assured-itest-java -am

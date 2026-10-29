@@ -24,6 +24,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -31,7 +32,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -39,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.HashMap;
@@ -362,8 +366,16 @@ public class SSLITest {
         @Test
         public void relaxed_https_validation_throws_exception_without_keystore() {
             RestAssuredConfig sslConfig = RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation());
-            assertThatThrownBy(() -> RestAssured.given().config(sslConfig).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec()))
-                .isInstanceOf(javax.net.ssl.SSLException.class);
+            Throwable thrown = catchThrowable(() -> RestAssured.given().config(sslConfig).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec()));
+
+            if (TestClient.isJdk()) {
+                assertThat(thrown).isInstanceOf(javax.net.ssl.SSLException.class);
+            } else {
+                // With TLS 1.3, the server rejects the missing client certificate after the client has finished the
+                // handshake. Apache HttpClient 5 then writes the request on the blocking socket, and fails with the
+                // server's alert, or with a broken pipe or a reset when the server has already closed the connection.
+                assertThat(thrown).isInstanceOfAny(javax.net.ssl.SSLException.class, SocketException.class);
+            }
         }
 
         @Test

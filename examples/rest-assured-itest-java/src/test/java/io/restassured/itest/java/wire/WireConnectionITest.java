@@ -20,7 +20,10 @@ import io.restassured.common.exception.ConnectionTimeoutException;
 import io.restassured.common.exception.ResponseTimeoutException;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.internal.http.ResponseParseException;
+import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
+import org.apache.hc.client5.http.HttpHostConnectException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +46,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.ConnectionConfig.connectionConfig;
@@ -53,6 +57,7 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.hamcrest.Matchers.equalTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 /**
  * The exceptions for connections that fail or time out, {@link ConnectionConfig}, and what happens to the connection
@@ -100,15 +105,19 @@ public class WireConnectionITest extends WireTest {
         }
 
         assertThatThrownBy(() -> given().get("http://127.0.0.1:" + port + "/"))
-                .isExactlyInstanceOf(ConnectException.class);
+                // Apache HttpClient 5 throws its subclass, HttpHostConnectException
+                .isExactlyInstanceOf(TestClient.isJdk() ? ConnectException.class : HttpHostConnectException.class);
     }
 
     @Test public void
     a_host_that_cant_be_resolved_throws_unknown_host_exception() {
-        assertThatThrownBy(() -> given().get("http://unknown-host.invalid/path"))
-                .isExactlyInstanceOf(UnknownHostException.class)
-                .hasMessage("unknown-host.invalid")
-                .hasCauseExactlyInstanceOf(ConnectException.class);
+        Throwable thrown = catchThrowable(() -> given().get("http://unknown-host.invalid/path"));
+
+        assertThat(thrown).isExactlyInstanceOf(UnknownHostException.class).hasMessageStartingWith("unknown-host.invalid");
+        if (TestClient.isJdk()) {
+            // JDK differences table, unknown host: REST Assured turns the JDK client's ConnectException into it
+            assertThat(thrown).hasMessage("unknown-host.invalid").hasCauseExactlyInstanceOf(ConnectException.class);
+        }
     }
 
     @Test public void
@@ -126,21 +135,35 @@ public class WireConnectionITest extends WireTest {
     }
 
     @Test public void
-    the_read_timeout_doesnt_cover_reading_the_body_for_the_assertions() {
+    a_read_timeout_while_the_body_is_read_for_the_assertions_throws_response_timeout_exception_on_apache_http_client_5() {
         RestAssuredConfig config = config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)));
-        // JDK differences table, read timeout: it covers only the wait for the headers
-        releaseServerAfter(Duration.ofMillis(600));
+        if (TestClient.isJdk()) {
+            // JDK differences table, read timeout: it covers only the wait for the headers
+            releaseServerAfter(Duration.ofMillis(600));
+            given().config(config).expect().body(equalTo("first part, rest")).when().get(server.url("/slow"));
+            return;
+        }
 
-        given().config(config).expect().body(equalTo("first part, rest")).when().get(server.url("/slow"));
+        assertThatThrownBy(() -> given().config(config).expect().body(equalTo("first part, rest")).when().get(server.url("/slow")))
+                .isExactlyInstanceOf(ResponseParseException.class)
+                .cause()
+                .isExactlyInstanceOf(ResponseTimeoutException.class)
+                .satisfies(WireConnectionITest::isCausedByTheHttpClient);
     }
 
     @Test public void
-    the_read_timeout_doesnt_cover_reading_the_body_after_the_request() {
+    a_read_timeout_while_the_body_is_read_after_the_request_throws_response_timeout_exception_on_apache_http_client_5() {
         Response response = given().config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)))).get(server.url("/slow"));
-        // JDK differences table, read timeout: it covers only the wait for the headers
-        releaseServerAfter(Duration.ofMillis(600));
+        if (TestClient.isJdk()) {
+            // JDK differences table, read timeout: it covers only the wait for the headers
+            releaseServerAfter(Duration.ofMillis(600));
+            assertThat(response.asString()).isEqualTo("first part, rest");
+            return;
+        }
 
-        assertThat(response.asString()).isEqualTo("first part, rest");
+        assertThatThrownBy(response::asString)
+                .isExactlyInstanceOf(ResponseTimeoutException.class)
+                .satisfies(WireConnectionITest::isCausedByTheHttpClient);
     }
 
     @Test public void
@@ -153,25 +176,41 @@ public class WireConnectionITest extends WireTest {
     }
 
     @Test public void
-    a_read_timeout_also_covers_connecting() throws IOException {
-        // JDK differences table, read timeout: it covers connecting plus waiting for the headers, and is reported as a
-        // connect timeout when it fires before the connection is up
+    on_the_jdk_client_a_read_timeout_also_covers_connecting() throws Exception {
+        RestAssuredConfig config = config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)));
         try (UnresponsiveServer unresponsive = UnresponsiveServer.start()) {
-            assertThatThrownBy(() -> given().config(config().httpClient(httpClientConfig().readTimeout(Duration.ofMillis(300)))).get("http://127.0.0.1:" + unresponsive.port() + "/"))
-                    .isExactlyInstanceOf(ConnectionTimeoutException.class)
-                    .satisfies(WireConnectionITest::isCausedByTheHttpClient);
+            String url = "http://127.0.0.1:" + unresponsive.port() + "/";
+            if (TestClient.isJdk()) {
+                // JDK differences table, read timeout: it covers connecting plus waiting for the headers, and is reported
+                // as a connect timeout when it fires before the connection is up
+                assertThatThrownBy(() -> given().config(config).get(url))
+                        .isExactlyInstanceOf(ConnectionTimeoutException.class)
+                        .satisfies(WireConnectionITest::isCausedByTheHttpClient);
+                return;
+            }
+            // Apache HttpClient 5's read timeout doesn't cover connecting, so the request still waits for the connection
+            Future<?> request = executor.submit(() -> given().config(config).get(url));
+            assertThatThrownBy(() -> request.get(1, TimeUnit.SECONDS)).isInstanceOf(TimeoutException.class);
+            // Until the server is gone, which refuses the next attempt to connect
+            unresponsive.close();
+            assertThatThrownBy(() -> request.get(SERVER_HOLD_SECONDS * 6, TimeUnit.SECONDS)).cause().isInstanceOf(ConnectException.class);
         }
     }
 
     // ConnectionConfig
 
     @Test public void
-    by_default_the_next_request_is_sent_on_the_same_connection() {
+    by_default_the_next_request_is_sent_on_the_same_connection_on_the_jdk_client_and_on_a_new_one_on_apache_http_client_5() {
         String first = remotePortOfReadResponse(config(), server.url("/port"));
         String second = remotePortOfReadResponse(config(), server.url("/port"));
 
-        // JDK differences table, connection reuse: the JDK client is shared, and so are its connections
-        assertThat(second).isEqualTo(first);
+        if (TestClient.isJdk()) {
+            // JDK differences table, connection reuse: the JDK client is shared, and so are its connections
+            assertThat(second).isEqualTo(first);
+        } else {
+            // Apache HttpClient 5 gets a new client for each request, as HttpClient 4 did
+            assertThat(second).isNotEqualTo(first);
+        }
     }
 
     @Test public void

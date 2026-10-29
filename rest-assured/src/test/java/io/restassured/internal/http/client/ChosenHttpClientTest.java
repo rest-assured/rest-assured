@@ -29,6 +29,8 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -141,6 +143,34 @@ class ChosenHttpClientTest {
 
         assertThat(FakeHttpClients.sent).hasSize(2);
         assertThat(FakeHttpClients.sent.get(1).uri()).isEqualTo(URI.create("http://localhost/moved"));
+    }
+
+    @Test
+    void one_client_sends_the_redirect_and_the_answer_to_the_challenge_and_is_closed_after_the_last_response() {
+        FakeHttpClients.response = request -> {
+            if (request.uri().getPath().equals("/path")) {
+                return redirect("http://localhost:8080/moved");
+            }
+            return request.headers().stream().anyMatch(header -> header.name().equals("Authorization")) ? FakeHttpClients.ok("ok") : unauthorized();
+        };
+
+        with(APACHE5).auth().basic("user", "password").get("http://localhost/path").then().statusCode(200).body(equalTo("ok"));
+
+        assertThat(FakeHttpClients.sent).extracting(request -> request.uri().getPath()).containsExactly("/path", "/moved", "/moved");
+        assertThat(FakeHttpClients.created).singleElement().satisfies(client -> assertThat(client.closes).hasValue(1));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Content-Length", "transfer-encoding"})
+    void a_header_with_the_length_of_the_body_is_rejected_before_any_client_sees_it(String name) {
+        String standardName = name.equals("Content-Length") ? "Content-Length" : "Transfer-Encoding";
+        for (Class<? extends FakeHttpClients.FakeProvider> client : List.of(FakeHttpClients.Apache5.class, FakeHttpClients.Other.class)) {
+            assertThatThrownBy(() -> with(httpClientConfig().client(client)).header(name, "3").body("abc").post("http://localhost/path"))
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage("REST Assured can't send a " + standardName + " header that the request sets. Remove the header: REST Assured "
+                            + "sends the length of the body itself, as a Content-Length header, or chunked when the length is unknown.");
+        }
+        assertThat(FakeHttpClients.created).isEmpty();
     }
 
     @Test
