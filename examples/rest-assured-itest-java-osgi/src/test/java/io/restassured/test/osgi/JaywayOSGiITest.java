@@ -32,6 +32,7 @@ import static io.restassured.matcher.RestAssuredMatchers.equalToPath;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.jaywayBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredCoreBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.slf4jBundles;
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.spiflyBundles;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,7 +68,8 @@ public class JaywayOSGiITest {
 
                         /* rest-assured, rest-assured-common and json-path-jayway, the bundles built by this build, and Jayway */
                         restAssuredCoreBundles(),
-                        jaywayBundles()
+                        jaywayBundles(),
+                        slf4jBundles()
                 };
     }
 

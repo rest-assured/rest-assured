@@ -2,6 +2,7 @@ package io.restassured.test.osgi.options;
 
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.http.apache5.Apache5HttpClientProvider;
 import io.restassured.http.jdk.JdkHttpClientProvider;
 import io.restassured.path.jayway.JaywayPath;
 import io.restassured.path.json.JsonPath;
@@ -88,10 +89,9 @@ public class RestAssuredPaxExamOptions {
 
     /**
      * The JSONPath engine, json-path-jayway (see {@link #restAssuredBundles()}), with Jayway JsonPath 2.10.0 and what its
-     * bundle requires: json-smart, which needs accessors-smart and ASM, and slf4j-api 2, which needs an SLF4J provider
-     * bundle (slf4j-simple here) and an OSGi ServiceLoader Mediator such as SPI Fly. Add {@link #spiflyBundles()}, which
-     * brings ASM too. That holds for Jayway 2.9.0 and later. Jayway 2.8.0 imports slf4j-api 1.7 instead, which needs an
-     * SLF4J 1.7 binding bundle but no SPI Fly, and Jayway 3.0.0 also requires the Jackson 3 bundles
+     * bundle requires: json-smart, which needs accessors-smart and ASM, and slf4j-api 2 (add {@link #slf4jBundles()} and
+     * {@link #spiflyBundles()}). That holds for Jayway 2.9.0 and later. Jayway 2.8.0 imports slf4j-api 1.7 instead, which
+     * needs an SLF4J 1.7 binding bundle but no SPI Fly, and Jayway 3.0.0 also requires the Jackson 3 bundles
      * tools.jackson.core.jackson-core and tools.jackson.core.jackson-databind, and com.fasterxml.jackson.core.jackson-annotations
      * 2.x, which jackson-databind 3 imports.
      */
@@ -100,10 +100,39 @@ public class RestAssuredPaxExamOptions {
                 bundleContaining(JaywayPath.class),
                 mavenBundle("com.jayway.jsonpath", "json-path").versionAsInProject(),
                 mavenBundle("net.minidev", "json-smart").versionAsInProject(),
-                mavenBundle("net.minidev", "accessors-smart").versionAsInProject(),
-                // An SLF4J 2, as Jayway 2.9.0 and later import org.slf4j [2.0,3). This module's own slf4j-api is Pax Exam's 1.7.
+                mavenBundle("net.minidev", "accessors-smart").versionAsInProject());
+    }
+
+    /**
+     * The HTTP client module http-client-apache5, the bundle built by this build, with Apache HttpClient 5, HttpCore 5 and
+     * httpcore5-h2 in the versions of this module's pom. Their jars aren't bundles, so they're wrapped. They import each
+     * other and SLF4J (add {@link #slf4jBundles()} and {@link #spiflyBundles()}). What HttpClient 5 uses only when it's
+     * present, such as Conscrypt, Brotli, Commons Compress and zstd-jni, is imported optionally. httpcore5-h2 is needed
+     * even for HTTP/1.1, since the classic client loads some of its classes at each connect.
+     */
+    public static Option apache5Bundles() {
+        return new DefaultCompositeOption(
+                bundleContaining(Apache5HttpClientProvider.class),
+                wrappedHttpComponents("org.apache.httpcomponents.client5", "httpclient5"),
+                wrappedHttpComponents("org.apache.httpcomponents.core5", "httpcore5"),
+                wrappedHttpComponents("org.apache.httpcomponents.core5", "httpcore5-h2"));
+    }
+
+    /**
+     * slf4j-api 2 with slf4j-simple, its provider, which slf4j-api finds with ServiceLoader. Add {@link #spiflyBundles()},
+     * the OSGi ServiceLoader Mediator that makes that work. SLF4J 2, as Jayway 2.9.0 and later import org.slf4j [2.0,3).
+     * HttpClient 5 depends on SLF4J 1.7 but only uses LoggerFactory and Logger, which SLF4J 2 still has. This module's own
+     * slf4j-api is Pax Exam's 1.7, so the version is given here.
+     */
+    public static Option slf4jBundles() {
+        return new DefaultCompositeOption(
                 mavenBundle("org.slf4j", "slf4j-api").version(SLF4J_2),
                 mavenBundle("org.slf4j", "slf4j-simple").version(SLF4J_2));
+    }
+
+    private static Option wrappedHttpComponents(String groupId, String artifactId) {
+        return wrappedBundle(mavenBundle(groupId, artifactId).versionAsInProject())
+                .imports("org.apache.hc.*", "org.slf4j", "*;resolution:=optional");
     }
 
     private static Option bundleContaining(Class<?> type) {

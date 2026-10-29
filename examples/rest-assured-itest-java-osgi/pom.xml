@@ -62,6 +62,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <!-- With HttpClient 5, HttpCore 5 and httpcore5-h2, which Apache5OSGiITest installs wrapped -->
+            <groupId>io.rest-assured</groupId>
+            <artifactId>http-client-apache5</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -74,6 +81,14 @@
             <artifactId>pax-exam-junit4</artifactId>
             <scope>test</scope>
             <version>${pax-exam.version}</version>
+            <exclusions>
+                <!-- Tinybundles' bndlib 2.4.0 has the classes of the bndlib 6.1.0 that pax-url-wrap needs to wrap a jar with
+                     instructions (apache5Bundles()), and comes first on the classpath. Pax Exam builds its probe without bnd -->
+                <exclusion>
+                    <groupId>biz.aQute.bnd</groupId>
+                    <artifactId>bndlib</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
