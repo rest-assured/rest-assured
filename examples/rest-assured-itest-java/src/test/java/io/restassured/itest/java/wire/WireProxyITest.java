@@ -19,9 +19,11 @@ package io.restassured.itest.java.wire;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.itest.java.support.TestClient;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.junit.jupiter.api.Named;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,6 +35,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -50,6 +53,13 @@ import static org.hamcrest.Matchers.equalTo;
  */
 public class WireProxyITest extends WireTest {
     private static final String TARGET = "http://target.invalid/path";
+    private static final String HTTPS_TARGET = "https://target.invalid/path";
+    private static final String TUNNEL = "target.invalid:443";
+    private static final Responder REFUSED_TUNNEL = Responder.text(405, "tunnel refused");
+    // Unless the JVM property says otherwise, the JDK client doesn't log in to a proxy with Basic for a tunnel (its
+    // default, in net.properties, is Basic)
+    private static final boolean JDK_DISABLES_BASIC_FOR_TUNNELS = Stream.of(System.getProperty("jdk.http.auth.tunneling.disabledSchemes", "Basic").split(","))
+            .anyMatch(scheme -> scheme.trim().equalsIgnoreCase("Basic"));
     private static final String PROXY_LOGIN_CHALLENGE = "Basic realm=\"proxy\"";
     // The JDK's default proxy selector also falls back to proxyHost and socksProxyHost
     private static final List<String> PROXY_PROPERTIES = List.of("http.proxyHost", "http.proxyPort", "http.nonProxyHosts", "https.proxyHost", "https.proxyPort",
@@ -412,25 +422,47 @@ public class WireProxyITest extends WireTest {
 
     @Test public void
     https_proxy_system_properties_are_used_for_https_targets_through_connect() {
-        // WireServer refuses the tunnel with a 405
-        withProxyProperties(Map.of("https.proxyHost", "localhost", "https.proxyPort", String.valueOf(server.port())), () -> {
-            if (TestClient.isJdk()) {
-                // JDK differences table, not in the table: the JDK client throws an IOException for a refused tunnel
-                assertThatThrownBy(() -> given().get("https://target.invalid/path")).isInstanceOf(IOException.class).hasMessageContaining("405");
-            } else if (TestClient.isApache5Before(4)) {
-                // Apache HttpClient 5.2 and 5.3 throw a ClientProtocolException
-                assertThatThrownBy(() -> given().get("https://target.invalid/path")).isInstanceOf(ClientProtocolException.class).hasMessageContaining("405");
-            } else {
-                // Apache HttpClient 5.4 and later return it as the response, as HttpClient 4 did
-                given().
-                when().
-                        get("https://target.invalid/path").
-                then().
-                        statusCode(405);
-            }
-        });
+        withProxyProperties(Map.of("https.proxyHost", "localhost", "https.proxyPort", String.valueOf(server.port())), () ->
+                assertTheTunnelIsRefused(() -> given().get(HTTPS_TARGET)));
 
-        assertThat(server.onlyRequest().requestLine()).isEqualTo("CONNECT target.invalid:443 HTTP/1.1");
+        assertThat(server.onlyRequest().requestLine()).isEqualTo("CONNECT " + TUNNEL + " HTTP/1.1");
+    }
+
+    // Logging in to a proxy for an HTTPS tunnel
+
+    @Test @Tag(TestClient.APACHE5_ONLY) public void
+    basic_login_to_a_proxy_is_sent_for_an_https_tunnel_after_the_challenge() {
+        server.respond(TUNNEL, proxyRequiringLogin("admin", "secret", REFUSED_TUNNEL));
+        RequestSpecification request = given().proxy(host("localhost").withPort(server.port()).withAuth("admin", "secret"));
+
+        if (TestClient.isJdk() && JDK_DISABLES_BASIC_FOR_TUNNELS) {
+            assertThatThrownBy(() -> request.get(HTTPS_TARGET))
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage(TestClient.cantMessage("log in to a proxy with Basic authentication for an HTTPS request, since "
+                            + "jdk.http.auth.tunneling.disabledSchemes disables Basic for HTTPS tunnels")
+                            + ", or start the JVM with -Djdk.http.auth.tunneling.disabledSchemes= (an empty value).");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        assertTheTunnelIsRefused(() -> request.get(HTTPS_TARGET));
+
+        List<RecordedRequest> requests = server.requests();
+        assertThat(requests).extracting(RecordedRequest::requestLine).containsOnly("CONNECT " + TUNNEL + " HTTP/1.1");
+        assertThat(requests).extracting(r -> r.header("Proxy-Authorization")).containsExactly(null, basicAuthorization("admin", "secret"));
+    }
+
+    // A tunnel that the proxy refuses with a 405, which each client reports in its own way (proxy refuses the tunnel, in
+    // the differences table)
+    private static void assertTheTunnelIsRefused(Supplier<Response> request) {
+        if (TestClient.isJdk()) {
+            assertThatThrownBy(request::get).isInstanceOf(IOException.class).hasMessageContaining("405");
+        } else if (TestClient.isApache5Before(4)) {
+            // Apache HttpClient 5.2 and 5.3 throw a ClientProtocolException
+            assertThatThrownBy(request::get).isInstanceOf(ClientProtocolException.class).hasMessageContaining("405");
+        } else {
+            // Apache HttpClient 5.4 and later return it as the response, as HttpClient 4 did
+            request.get().then().statusCode(405);
+        }
     }
 
     private static Responder proxyRequiringLogin(String user, String password, Responder whenLoggedIn) {

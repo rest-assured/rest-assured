@@ -21,6 +21,8 @@ import io.restassured.http.Method;
 import io.restassured.itest.java.support.TestClient;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -37,7 +39,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
@@ -115,10 +116,9 @@ public class WireRequestMethodITest extends WireTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE", "QUERY", "PURGE"})
+    @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "QUERY", "PURGE"})
     public void
     every_method_sends_a_string_body_as_text_plain_iso_8859_1(String method) {
-        assumeFalse(isTraceOnApache5(method), "Apache HttpClient 5 can't send a body with TRACE, see trace_with_a_body_fails_on_apache_http_client_5");
         given().body("hello").request(method, server.url("/m")).then().statusCode(200);
 
         RecordedRequest request = server.onlyRequest();
@@ -130,10 +130,9 @@ public class WireRequestMethodITest extends WireTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE", "QUERY", "PURGE"})
+    @ValueSource(strings = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "QUERY", "PURGE"})
     public void
     every_method_sends_an_empty_string_body_with_content_type_and_content_length_zero(String method) {
-        assumeFalse(isTraceOnApache5(method), "Apache HttpClient 5 can't send a body with TRACE, see trace_with_a_body_fails_on_apache_http_client_5");
         given().body("").request(method, server.url("/m")).then().statusCode(200);
 
         RecordedRequest request = server.onlyRequest();
@@ -289,19 +288,59 @@ public class WireRequestMethodITest extends WireTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"hello", ""})
+    @Tag(TestClient.JDK_ONLY)
     public void
-    trace_with_a_body_fails_on_apache_http_client_5(String body) {
-        TestClient.assumeApache5();
+    trace_sends_a_string_body_as_text_plain_iso_8859_1(String body) {
+        if (TestClient.isApache5()) {
+            assertThatThrownBy(() -> given().body(body).request("TRACE", server.url("/m")))
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage(TestClient.cantMessage("send a body with a TRACE request") + ".");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        given().body(body).request("TRACE", server.url("/m")).then().statusCode(200);
 
-        assertThatThrownBy(() -> given().body(body).request("TRACE", server.url("/m")))
-                .isExactlyInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("Apache HttpClient 5")
-                .hasMessageContaining("can't send a body with a TRACE request");
-        assertThat(server.requests()).isEmpty();
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.method()).isEqualTo("TRACE");
+        assertThat(request.header("Content-Type")).isEqualTo(TEXT_PLAIN_ISO_8859_1);
+        assertThat(request.header("Content-Length")).isEqualTo(String.valueOf(body.length()));
+        assertThat(request.bodyAsString()).isEqualTo(body);
     }
 
-    private static boolean isTraceOnApache5(String method) {
-        return TestClient.isApache5() && method.equals("TRACE");
+    @ParameterizedTest
+    @ValueSource(strings = {"Authorization", "Cookie"})
+    public void
+    trace_sends_an_authorization_or_cookie_header(String name) {
+        if (TestClient.isApache5() && !TestClient.isApache5Before(4)) {
+            // Apache HttpClient 5.4 and later refuse it (TRACE with Authorization or Cookie, in the differences table)
+            assertThatThrownBy(() -> given().header(name, "a=b").request("TRACE", server.url("/m")))
+                    .isExactlyInstanceOf(ClientProtocolException.class)
+                    .hasRootCauseMessage("TRACE request MUST NOT contain a" + (name.equals("Authorization") ? "n " : " ") + name + " header.");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        given().header(name, "a=b").request("TRACE", server.url("/m")).then().statusCode(200);
+
+        assertThat(server.onlyRequest().headers(name)).containsExactly("a=b");
+    }
+
+    @Test public void
+    options_sends_a_body_without_a_content_type() {
+        if (TestClient.isApache5() && !TestClient.isApache5OnHttpCoreBefore(3)) {
+            // HttpCore 5.3 and later, which HttpClient 5.4 and later use, refuse it (OPTIONS body without Content-Type,
+            // in the differences table)
+            assertThatThrownBy(() -> given().noContentType().body("x").options(server.url("/m")))
+                    .isExactlyInstanceOf(ClientProtocolException.class)
+                    .hasRootCauseMessage("OPTIONS request must have Content-Type header");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        given().noContentType().body("x").options(server.url("/m")).then().statusCode(200);
+
+        RecordedRequest request = server.onlyRequest();
+        assertThat(request.hasHeader("Content-Type")).isFalse();
+        assertThat(request.header("Content-Length")).isEqualTo("1");
+        assertThat(request.bodyAsString()).isEqualTo("x");
     }
 
     private static void assertNoContentLength(RecordedRequest request) {

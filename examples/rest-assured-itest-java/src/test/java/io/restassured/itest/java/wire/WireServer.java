@@ -45,8 +45,8 @@ import static org.eclipse.jetty.http.HttpMethod.CONNECT;
 /**
  * A Jetty server that records every request it receives, so that tests can check what REST Assured sends on the wire,
  * whichever HTTP client sends it. Each path answers with the {@link Responder} registered for it, or with
- * {@code 200 ok} as {@code text/plain}. A {@code CONNECT} is recorded and refused with a 405, since the server doesn't
- * open tunnels.
+ * {@code 200 ok} as {@code text/plain}. A {@code CONNECT} is recorded and answered by the {@link Responder} registered
+ * for its target ({@code host:port}), or refused with a 405. The server doesn't open tunnels.
  * <p>
  * The server listens on all interfaces, so {@code localhost} and {@code 127.0.0.1} reach the same server as two
  * different hosts.
@@ -132,7 +132,8 @@ public final class WireServer implements AutoCloseable {
     }
 
     /**
-     * Answers requests to {@code path} (without the query) with {@code responder} instead of {@code 200 ok}.
+     * Answers requests to {@code path} (without the query) with {@code responder} instead of {@code 200 ok}, or a
+     * {@code CONNECT} to {@code path} ({@code host:port}) instead of refusing it.
      */
     public WireServer respond(String path, Responder responder) {
         responders.put(path, responder);
@@ -214,7 +215,7 @@ public final class WireServer implements AutoCloseable {
             requests.add(recorded);
 
             if (CONNECT.is(request.getMethod())) {
-                Responder.text(405, "WireServer doesn't open tunnels").respond(recorded, response);
+                responders.getOrDefault(recorded.target(), Responder.text(405, "WireServer doesn't open tunnels")).respond(recorded, response);
             } else {
                 responders.getOrDefault(request.getRequestURI(), Responder.ok()).respond(recorded, response);
             }

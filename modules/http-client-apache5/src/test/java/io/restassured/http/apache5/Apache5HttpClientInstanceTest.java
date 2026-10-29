@@ -229,6 +229,19 @@ class Apache5HttpClientInstanceTest {
     }
 
     @Test
+    void sends_content_length_zero_for_a_post_put_patch_or_query_without_a_body() throws IOException {
+        // As the JDK client and HttpClient 4 do. HttpClient 5.2 and 5.3 send no Content-Length without an entity.
+        for (String method : List.of("POST", "PUT", "PATCH", "QUERY", "GET")) {
+            send(request(method, server.uri("/"), null, new HttpHeader("Content-Type", "application/x-www-form-urlencoded")));
+        }
+
+        List<RawServer.Request> requests = server.requests();
+        assertThat(requests).extracting(request -> request.header("Content-Length")).containsExactly("0", "0", "0", "0", null);
+        assertThat(requests).extracting(request -> request.headers("Content-Type")).containsOnly(List.of("application/x-www-form-urlencoded"));
+        assertThat(requests).extracting(request -> request.header("Transfer-Encoding")).containsOnlyNulls();
+    }
+
+    @Test
     void a_content_type_header_wins_over_the_content_type_of_the_body() throws IOException {
         send(request("POST", server.uri("/"), RequestBody.bytes("hello".getBytes(), "text/plain"), new HttpHeader("content-type", "application/json")));
 

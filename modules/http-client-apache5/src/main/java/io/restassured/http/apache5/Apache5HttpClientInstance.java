@@ -83,6 +83,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -102,6 +103,8 @@ final class Apache5HttpClientInstance implements HttpClientInstance {
     // From HttpClient 5.4, which asks to upgrade a plain connection to TLS by default (RFC 2817), which HttpClient 4
     // and the JDK client don't. Called by reflection, since the module works with 5.2 and 5.3 too.
     private static final Method SET_PROTOCOL_UPGRADE_ENABLED = protocolUpgradeSetter();
+    // The methods that are sent with an empty body when the request has none
+    private static final Set<String> SENT_WITH_AN_EMPTY_BODY = Set.of("POST", "PUT", "PATCH", "QUERY");
 
     private final ClientSettings settings;
     private final PoolingHttpClientConnectionManager connections;
@@ -223,6 +226,10 @@ final class Apache5HttpClientInstance implements HttpClientInstance {
                     message.addHeader("Content-Type", body.getContentType());
                 }
                 message.setEntity(Entities.of(body));
+            } else if (SENT_WITH_AN_EMPTY_BODY.contains(method)) {
+                // So that every HttpClient 5 sends Content-Length: 0, as the JDK client and HttpClient 4 do. Without an
+                // entity, HttpClient 5.2 and 5.3 send none, and neither do 5.4 and 5.5 for a QUERY (HttpCore 5.3).
+                message.setEntity(Entities.empty());
             }
             HttpClientContext context = context(message, request.options());
             return toResponse(message, execute(message, context), body);

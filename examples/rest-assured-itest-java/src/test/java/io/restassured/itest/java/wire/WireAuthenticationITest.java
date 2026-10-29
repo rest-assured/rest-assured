@@ -19,6 +19,9 @@ package io.restassured.itest.java.wire;
 import io.restassured.RestAssured;
 import io.restassured.authentication.OAuthSignature;
 import io.restassured.config.RedirectConfig;
+import io.restassured.itest.java.support.TestClient;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.Mac;
@@ -26,6 +29,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -41,8 +46,11 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.RedirectConfig.redirectConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_16LE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 public class WireAuthenticationITest extends WireTest {
@@ -58,6 +66,10 @@ public class WireAuthenticationITest extends WireTest {
     private static final String CONSUMER_SECRET = "consumer-secret";
     private static final String ACCESS_TOKEN = "access-token";
     private static final String TOKEN_SECRET = "token-secret";
+    // The NTLMv1 NT response of PASSWORD to the challenge of ntlmChallenge(): the MD4 hash of the UTF-16LE password,
+    // padded to 21 bytes, as three DES keys that each encrypt the challenge (MS-NLMP 3.3.1). Computed without HttpClient,
+    // and that computation gives the NTLMv1 response of the example in MS-NLMP 4.2.2.
+    private static final String NT_RESPONSE = "e9f1a5ed64533073f2fd0b2fa096a44a882e9ce4dcdb1500";
 
     // Basic and digest challenges
 
@@ -599,6 +611,29 @@ public class WireAuthenticationITest extends WireTest {
         assertThat(request.hasHeader("Authorization")).isFalse();
     }
 
+    // NTLM
+
+    @Test @Tag(TestClient.APACHE5_ONLY) public void
+    ntlm_answers_the_challenge_with_a_negotiate_and_then_an_authenticate_message() {
+        server.respond("/ntlm", ntlmServer(NT_RESPONSE));
+        RequestSpecification request = given().auth().ntlm(USER, PASSWORD, "WORKSTATION", "DOMAIN");
+
+        if (TestClient.isJdk()) {
+            assertThatThrownBy(() -> request.get(server.url("/ntlm")))
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage(TestClient.cantMessage("authenticate with NTLM") + ".");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        request.get(server.url("/ntlm")).then().statusCode(200).body(equalTo("authenticated"));
+
+        List<RecordedRequest> requests = server.requests();
+        assertThat(requests).extracting(WireAuthenticationITest::ntlmMessageType).containsExactly(0, 1, 3);
+        assertThat(ntResponse(requests.get(2))).isEqualTo(NT_RESPONSE);
+        String authenticate = new String(ntlmMessage(requests.get(2)), UTF_16LE);
+        assertThat(authenticate).contains(USER, "DOMAIN");
+    }
+
     // No authentication
 
     @Test public void
@@ -756,6 +791,63 @@ public class WireAuthenticationITest extends WireTest {
                 Responder.text(401, "unauthorized").withHeader("WWW-Authenticate", BASIC_CHALLENGE).respond(request, response);
             }
         };
+    }
+
+    // Asks for NTLM, answers a negotiate message with a challenge, and an authenticate message with 200 when it has the
+    // expected NT response
+    private static Responder ntlmServer(String expectedNtResponse) {
+        return (request, response) -> {
+            int type = ntlmMessageType(request);
+            if (type == 1) {
+                Responder.text(401, "unauthorized").withHeader("WWW-Authenticate", "NTLM " + Base64.getEncoder().encodeToString(ntlmChallenge()))
+                        .respond(request, response);
+            } else if (type == 3 && expectedNtResponse.equals(ntResponse(request))) {
+                Responder.text(200, "authenticated").respond(request, response);
+            } else {
+                Responder.text(401, "unauthorized").withHeader("WWW-Authenticate", "NTLM").respond(request, response);
+            }
+        };
+    }
+
+    // The NTLM message in the Authorization header, or null
+    private static byte[] ntlmMessage(RecordedRequest request) {
+        String authorization = request.header("Authorization");
+        if (authorization == null || !authorization.startsWith("NTLM ")) {
+            return null;
+        }
+        return Base64.getDecoder().decode(authorization.substring("NTLM ".length()));
+    }
+
+    // The type of the NTLM message in the Authorization header, or 0
+    private static int ntlmMessageType(RecordedRequest request) {
+        byte[] message = ntlmMessage(request);
+        return message == null ? 0 : ByteBuffer.wrap(message, 8, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    }
+
+    // The NT response of the authenticate message in the Authorization header, in hex
+    private static String ntResponse(RecordedRequest request) {
+        ByteBuffer message = ByteBuffer.wrap(ntlmMessage(request)).order(ByteOrder.LITTLE_ENDIAN);
+        // The NtChallengeResponseFields: length, maximum length, offset
+        int length = message.getShort(20);
+        int offset = message.getInt(24);
+        return HexFormat.of().formatHex(message.array(), offset, offset + length);
+    }
+
+    // A challenge message with no target name or information, for NTLM with Unicode strings
+    private static byte[] ntlmChallenge() {
+        ByteBuffer message = ByteBuffer.allocate(48).order(ByteOrder.LITTLE_ENDIAN);
+        message.put("NTLMSSP\0".getBytes(US_ASCII));
+        message.putInt(2);
+        // Target name: length, maximum length, offset
+        message.putShort((short) 0).putShort((short) 0).putInt(48);
+        // Negotiate Unicode and NTLM
+        message.putInt(0x00000201);
+        // The server's challenge, and 8 reserved bytes
+        message.put(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+        message.put(new byte[8]);
+        // Target information: length, maximum length, offset
+        message.putShort((short) 0).putShort((short) 0).putInt(48);
+        return message.array();
     }
 
     private static Responder digestServer(String user, String password) {

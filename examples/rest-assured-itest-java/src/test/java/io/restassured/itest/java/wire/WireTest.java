@@ -38,6 +38,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * The tests describe what REST Assured sends today, so that replacing the HTTP client underneath doesn't change it
  * by accident. They only check what REST Assured decides, not what the HTTP client adds on its own (such as
  * {@code User-Agent} or {@code Connection}).
+ * <p>
+ * The tests run with the JDK client, and with Apache HttpClient 5 under the {@code apache5} profile. Where the clients
+ * send something differently, a test branches on {@link io.restassured.itest.java.support.TestClient}, also on the
+ * version of HttpClient 5 where that matters. A test of what only one client can do is tagged
+ * {@value io.restassured.itest.java.support.TestClient#APACHE5_ONLY} or
+ * {@value io.restassured.itest.java.support.TestClient#JDK_ONLY}, and on the other client expects the message that
+ * says it can't, with the fix that it names.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class WireTest {

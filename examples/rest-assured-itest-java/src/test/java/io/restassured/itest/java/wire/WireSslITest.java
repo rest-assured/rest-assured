@@ -27,6 +27,7 @@ import org.eclipse.jetty.server.HttpConnection;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
@@ -43,6 +44,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SSLConfig.sslConfig;
+import static io.restassured.specification.ProxySpecification.host;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -289,6 +291,26 @@ public class WireSslITest extends WireTest {
             assertThat(thrown).isExactlyInstanceOf(SSLPeerUnverifiedException.class);
         }
         assertThat(server.requests()).isEmpty();
+    }
+
+    // A proxy reached over TLS
+
+    @Test @Tag(TestClient.APACHE5_ONLY) public void
+    a_proxy_with_the_scheme_https_is_reached_over_tls_with_the_ssl_settings_of_the_request() {
+        RequestSpecification request = given().trustStore(VALID_TRUST_STORE, PASSWORD).proxy(host("localhost").withPort(server.httpsPort()).withScheme("https"));
+
+        if (TestClient.isJdk()) {
+            assertThatThrownBy(() -> request.get("http://target.invalid/path"))
+                    .isExactlyInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage(TestClient.cantMessage("connect to a proxy over TLS (a proxy with the scheme https)") + ".");
+            assertThat(server.requests()).isEmpty();
+            return;
+        }
+        request.get("http://target.invalid/path").then().statusCode(200);
+
+        RecordedRequest recorded = server.onlyRequest();
+        assertThat(recorded.localPort()).isEqualTo(server.httpsPort());
+        assertThat(recorded.headers("Host")).containsExactly("target.invalid");
     }
 
     // The request itself
