@@ -18,6 +18,7 @@
 package io.restassured.internal;
 
 import io.restassured.http.Method;
+import io.restassured.internal.client.ClientContext;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
 import io.restassured.specification.RequestSpecification;
@@ -45,13 +46,23 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 public class TestSpecificationImpl implements RequestSender {
     private final RequestSpecification requestSpecification;
     private final ResponseSpecification responseSpecification;
+    // The client that sends the request, or null for the one whose given() created the request specification
+    private final ClientContext clientContext;
 
     public TestSpecificationImpl(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+        this(requestSpecification, responseSpecification, null);
+    }
+
+    /**
+     * @param clientContext The client that sends the request, whatever client created the request specification
+     */
+    public TestSpecificationImpl(RequestSpecification requestSpecification, ResponseSpecification responseSpecification, ClientContext clientContext) {
         notNull(requestSpecification, "requestSpecification");
         notNull(responseSpecification, "responseSpecification");
 
         this.requestSpecification = requestSpecification;
         this.responseSpecification = responseSpecification;
+        this.clientContext = clientContext;
     }
 
     /**
@@ -67,7 +78,7 @@ public class TestSpecificationImpl implements RequestSender {
     // A copy of the request specification that sends with the response specification. Sending it copies both, as any
     // send does, and fails if they aren't REST Assured's own implementations.
     private RequestSpecification sender() {
-        return ((RequestSpecificationImpl) requestSpecification).pairedWith(responseSpecification);
+        return ((RequestSpecificationImpl) requestSpecification).pairedWith(responseSpecification, clientContext);
     }
 
     /**

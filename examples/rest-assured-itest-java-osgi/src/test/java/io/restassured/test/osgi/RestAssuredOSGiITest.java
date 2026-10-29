@@ -16,6 +16,7 @@
 
 package io.restassured.test.osgi;
 
+import io.restassured.RestAssuredClient;
 import io.restassured.http.jdk.JdkHttpClientProvider;
 import io.restassured.internal.http.client.HttpClientProviders;
 import org.junit.Test;
@@ -77,6 +78,13 @@ public class RestAssuredOSGiITest {
                 get("http://dummy").
                 then().
                 statusCode(200);
+    }
+
+    @Test(expected = UnknownHostException.class)
+    public void restAssuredClient() {
+        try (RestAssuredClient client = RestAssuredClient.builder().build()) {
+            client.get("http://dummy").then().statusCode(200);
+        }
     }
 
     @Test

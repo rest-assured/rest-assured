@@ -17,6 +17,7 @@
 package io.restassured.internal;
 
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -24,9 +25,9 @@ import io.restassured.response.ValidatableResponse;
 
 public class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<ValidatableResponse, Response> implements ValidatableResponse {
 
-    ValidatableResponseImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
-                            ExtractableResponse<Response> extractableResponse, LogRepository logRepository) {
-        super(rpr, config, response, extractableResponse, logRepository);
+    ValidatableResponseImpl(ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
+                            ExtractableResponse<Response> extractableResponse, LogRepository logRepository, ResponseDefaults responseDefaults) {
+        super(rpr, config, response, extractableResponse, logRepository, responseDefaults);
     }
 
     @Override

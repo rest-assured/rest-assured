@@ -46,6 +46,7 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.http.Method;
 import io.restassured.internal.MapCreator.CollisionStrategy;
+import io.restassured.internal.client.ClientContext;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.filter.CsrfFilter;
 import io.restassured.internal.filter.FilterContextImpl;
@@ -223,12 +224,25 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     private boolean addCsrfFilter;
 
+    // The client whose given() created this specification. Never merged.
+    private ClientContext clientContext;
+
     // Set on this specification, directly or by merging a specification that set them
     private final Set<MergeableValue> explicitlySetValues = EnumSet.noneOf(MergeableValue.class);
 
     public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
                                     ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter) {
+        this(baseURI, requestPort, basePath, defaultAuthScheme, filters, defaultSpec, urlEncode, restAssuredConfig, logRepository, proxySpecification,
+                allowContentType, addCsrfFilter, ClientContext.STATIC);
+    }
+
+    /**
+     * @param clientContext The client whose <code>given()</code> creates this specification
+     */
+    public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
+                                    RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
+                                    ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter, ClientContext clientContext) {
         notNull(baseURI, "baseURI");
         notNull(basePath, "basePath");
         notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -247,6 +261,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.proxySpecification = proxySpecification;
         this.allowContentType = allowContentType;
         this.addCsrfFilter = addCsrfFilter;
+        this.clientContext = notNull(clientContext, ClientContext.class);
         // The values given to the constructor, and those of the default specification, are defaults
         explicitlySetValues.clear();
     }
@@ -278,7 +293,25 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.logRepository = other.logRepository == null ? null : new LogRepository(other.logRepository);
         this.allowContentType = other.allowContentType;
         this.addCsrfFilter = other.addCsrfFilter;
+        this.clientContext = other.clientContext;
         this.explicitlySetValues.addAll(other.explicitlySetValues);
+    }
+
+    /**
+     * @return A copy of <code>specification</code> that can be changed without changing it, without its response
+     * specification, for a {@link io.restassured.RestAssuredClient} to hold
+     * @throws IllegalArgumentException If it isn't REST Assured's own implementation
+     */
+    public static RequestSpecificationImpl copyOf(RequestSpecification specification) {
+        return new RequestSpecificationImpl(asImpl(specification, "use"));
+    }
+
+    private static RequestSpecificationImpl asImpl(RequestSpecification specification, String action) {
+        if (!(specification instanceof RequestSpecificationImpl)) {
+            throw new IllegalArgumentException("Cannot " + action + " a request specification of type " + specification.getClass().getName()
+                    + ", it must be of type " + RequestSpecificationImpl.class.getName() + ".");
+        }
+        return (RequestSpecificationImpl) specification;
     }
 
     /**
@@ -308,12 +341,15 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     /**
-     * @return A copy of this specification that sends with <code>responseSpecification</code>, for
-     * {@link TestSpecificationImpl}
+     * @return A copy of this specification that sends with <code>responseSpecification</code>, and with the HTTP client
+     * instances of <code>clientContext</code> unless it's <code>null</code>, for {@link TestSpecificationImpl}
      */
-    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification) {
+    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification, ClientContext clientContext) {
         RequestSpecificationImpl request = new RequestSpecificationImpl(this);
         request.responseSpecification = (FilterableResponseSpecification) responseSpecification;
+        if (clientContext != null) {
+            request.clientContext = clientContext;
+        }
         return request;
     }
 
@@ -1299,11 +1335,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
-        if (requestSpecificationToMerge != null && !(requestSpecificationToMerge instanceof RequestSpecificationImpl)) {
-            throw new IllegalArgumentException("Cannot merge a request specification of type " + requestSpecificationToMerge.getClass().getName()
-                    + ", it must be of type " + RequestSpecificationImpl.class.getName() + ".");
-        }
-        SpecificationMerger.merge(this, (RequestSpecificationImpl) requestSpecificationToMerge);
+        SpecificationMerger.merge(this, requestSpecificationToMerge == null ? null : asImpl(requestSpecificationToMerge, "merge"));
         return this;
     }
 
@@ -1618,13 +1650,14 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig());
         restAssuredResponse.setConfig(cfg);
         restAssuredResponse.setFilterContextProperties(filterContextProperties);
+        restAssuredResponse.setResponseDefaults(clientContext.responseDefaults());
         responseSpecification.setRestAssuredResponse(restAssuredResponse);
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
         CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig());
         authenticate(authenticationScheme, authentication);
-        HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication);
+        HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication, clientContext.instances());
         try {
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
             RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), authentication.ntlm());
@@ -1649,7 +1682,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
             Exchange exchange = new Exchange(transport, redirects.resolve(cfg.getRedirectConfig()),
                     authentication.credentials() == null ? null : new ChallengeHandler(authentication.credentials()),
-                    authentication.oauthSigner(), keptCookies(cfg.getHttpClientConfig()), defaultUserAgent);
+                    authentication.oauthSigner(), keptCookies(cfg.getHttpClientConfig(), clientContext.instances()), defaultUserAgent);
             Exchanged exchanged = exchange.send(request);
             restAssuredResponse.setEffectiveUri(exchanged.effectiveUri());
             RequestDispatcher.receive(exchanged.response(), contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
@@ -1688,15 +1721,15 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     /**
      * @return The cookies that the responses of the request set, which are kept within its redirects and, with
-     * {@link HttpClientConfig#reuseHttpClientInstance()}, across the requests of that config, or <code>null</code> if
-     * the cookies of the responses aren't kept
+     * {@link HttpClientConfig#reuseHttpClientInstance()}, across the requests of that config that use the same
+     * instances, or <code>null</code> if the cookies of the responses aren't kept
      */
-    private static KeptCookies keptCookies(HttpClientConfig httpClientConfig) {
+    private static KeptCookies keptCookies(HttpClientConfig httpClientConfig, HttpClientInstances instances) {
         if (!httpClientConfig.keepsResponseCookies()) {
             return null;
         }
         CookieStore store = httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()
-                ? HttpClientInstances.global().cookieStore(httpClientConfig) : new CookieStore();
+                ? instances.cookieStore(httpClientConfig) : new CookieStore();
         return new KeptCookies(store, new KeptCookieSpec(httpClientConfig.cookieDatePatterns()));
     }
 
@@ -2217,6 +2250,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         ResponseSpecificationImpl responseSpecificationImpl = (ResponseSpecificationImpl) responseSpecification;
         FilterContextImpl ctx = newFilterContext(responseSpecificationImpl.getAssertionClosure(), filters.iterator(), new LinkedHashMap<>());
         Response response = ctx.next(this, responseSpecification);
+        // So that then() also validates a response that a filter built, such as with ResponseBuilder, with the client's defaults
+        if (response instanceof RestAssuredResponseOptionsImpl<?> built && built.getResponseDefaults() == null) {
+            built.setResponseDefaults(clientContext.responseDefaults());
+        }
         responseSpecificationImpl.getAssertionClosure().validate(response);
         return response;
     }

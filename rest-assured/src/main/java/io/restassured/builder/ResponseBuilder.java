@@ -59,6 +59,7 @@ public class ResponseBuilder {
             restAssuredResponse.setResponseCloser(raResponse.getResponseCloser());
             restAssuredResponse.setConfig(raResponse.getConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
+            restAssuredResponse.setResponseDefaults(raResponse.getResponseDefaults());
             restAssuredResponse.setLogRepository(raResponse.getLogRepository());
             restAssuredResponse.setFilterContextProperties(raResponse.getFilterContextProperties());
             restAssuredResponse.setEffectiveUri(raResponse.getEffectiveUri());

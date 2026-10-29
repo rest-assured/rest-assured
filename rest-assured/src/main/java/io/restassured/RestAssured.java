@@ -26,11 +26,12 @@ import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
+import io.restassured.internal.client.ClientContext;
+import io.restassured.internal.client.ClientDefaults;
 import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.http.RelaxedCertAuthScheme;
-import io.restassured.internal.log.LogRepository;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
@@ -375,6 +376,8 @@ public class RestAssured {
     private static final Object DEFAULTS_LOCK = new Object();
     // Never modified after it's assigned (registerParser assigns a modified copy). ResponseSpecBuilder reads it reflectively.
     private static volatile ResponseParserRegistrar RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
+    // The static API: a client that reads the static fields at each call, with the global HTTP client instances
+    private static final RestAssuredClient DEFAULT = new RestAssuredClient(RestAssured::staticDefaults, ClientContext.STATIC);
 
     public static final String DEFAULT_URI = "http://localhost";
     public static final String DEFAULT_BODY_ROOT_PATH = "";
@@ -603,7 +606,7 @@ public class RestAssured {
      * @return A response io.restassured.specification.
      */
     public static ResponseSpecification expect() {
-        return createTestSpecification().getResponseSpecification();
+        return DEFAULT.expect();
     }
 
     /**
@@ -689,7 +692,7 @@ public class RestAssured {
      * @return A request specification.
      */
     public static RequestSpecification given() {
-        return createTestSpecification().getRequestSpecification();
+        return DEFAULT.given();
     }
 
     /**
@@ -709,7 +712,7 @@ public class RestAssured {
      * @return A request sender interface that let's you call resources on the server
      */
     public static RequestSender when() {
-        return createTestSpecification().getRequestSpecification();
+        return DEFAULT.when();
     }
 
     /**
@@ -727,7 +730,7 @@ public class RestAssured {
      * @return A test io.restassured.specification.
      */
     public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        return new TestSpecificationImpl(requestSpecification, responseSpecification);
+        return DEFAULT.given(requestSpecification, responseSpecification);
     }
 
     /**
@@ -744,7 +747,7 @@ public class RestAssured {
      * @return A RequestSender
      */
     public static RequestSpecification given(RequestSpecification requestSpecification) {
-        return given().spec(requestSpecification);
+        return DEFAULT.given(requestSpecification);
     }
 
     /**
@@ -1587,20 +1590,27 @@ public class RestAssured {
         proxy = null;
     }
 
-    // Only reads the static defaults: given() is called from many threads at once when tests run in parallel
-    private static TestSpecificationImpl createTestSpecification() {
-        final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
-        final Parser defaultParserToUse = defaultParser;
-        if (defaultParserToUse != null) {
-            responseParserRegistrar.registerDefaultParser(defaultParserToUse);
-        }
-        LogRepository logRepository = new LogRepository();
-        RestAssuredConfig restAssuredConfig = config();
-        return TestSpecificationImpl.linked(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy, true, true),
-                new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)
-        );
+    /**
+     * Creates a client with the current values of the static fields, the filters and the registered parsers, the values
+     * that {@link #given()} starts from. Later changes to them don't reach the client. It has its own HTTP clients, and
+     * cookies kept with <code>httpClientConfig().reuseHttpClientInstance().keepResponseCookies(true)</code>, which it
+     * doesn't share with the static API. For example:
+     * <pre>
+     * RestAssuredClient admin = RestAssured.client().toBuilder().authentication(basic("admin", "secret")).build();
+     * </pre>
+     * A client holds no HTTP clients until it sends a request, so one that never sends needn't be closed.
+     *
+     * @return A new client
+     * @see RestAssuredClient
+     */
+    public static RestAssuredClient client() {
+        return new RestAssuredClient.Builder(staticDefaults()).build();
+    }
+
+    // Only reads the static fields: given() is called from many threads at once when tests run in parallel
+    private static ClientDefaults staticDefaults() {
+        return new ClientDefaults(baseURI, port, basePath, urlEncodingEnabled, authentication, configWithoutSessionId(), rootPath,
+                requestSpecification, responseSpecification, defaultParser, sessionId, proxy, filters, RESPONSE_PARSER_REGISTRAR);
     }
 
     private static RestAssuredConfig withSessionIdIfApplicable(RestAssuredConfig restAssuredConfig) {
