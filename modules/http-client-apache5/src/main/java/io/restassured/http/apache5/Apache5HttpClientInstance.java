@@ -98,6 +98,9 @@ final class Apache5HttpClientInstance implements HttpClientInstance {
     private static final AuthenticationStrategy NTLM_ONLY = Apache5HttpClientInstance::selectNtlm;
     // A connection taken from the pool is checked when it has been idle for this long, since nothing is retried
     private static final TimeValue VALIDATE_AFTER_INACTIVITY = TimeValue.ofSeconds(1);
+    // httpcore5 5.2 fails a request for a connection at once when another thread holds the pool's lock and the timeout
+    // is disabled, so without a connection request timeout the wait is limited to a year instead
+    private static final Timeout NO_CONNECTION_REQUEST_TIMEOUT = Timeout.ofDays(365);
     // What HttpClient 5 throws for a request whose connection manager has been shut down
     private static final String POOL_SHUT_DOWN = "Connection pool shut down";
     // From HttpClient 5.4, which asks to upgrade a plain connection to TLS by default (RFC 2817), which HttpClient 4
@@ -155,7 +158,7 @@ final class Apache5HttpClientInstance implements HttpClientInstance {
                 .build();
         defaultConfig = withoutProtocolUpgrade(RequestConfig.custom()
                 .setResponseTimeout(Timeout.DISABLED)
-                .setConnectionRequestTimeout(timeout(settings.connectionRequestTimeout()))
+                .setConnectionRequestTimeout(connectionRequestTimeout(settings.connectionRequestTimeout()))
                 .setRedirectsEnabled(false)
                 .setExpectContinueEnabled(false))
                 .build();
@@ -388,6 +391,11 @@ final class Apache5HttpClientInstance implements HttpClientInstance {
 
     private static Timeout timeout(Duration duration) {
         return duration == null || duration.isZero() || duration.isNegative() ? Timeout.DISABLED : Timeout.ofMilliseconds(duration.toMillis());
+    }
+
+    private static Timeout connectionRequestTimeout(Duration duration) {
+        Timeout timeout = timeout(duration);
+        return timeout == Timeout.DISABLED ? NO_CONNECTION_REQUEST_TIMEOUT : timeout;
     }
 
     private static char[] chars(String password) {
