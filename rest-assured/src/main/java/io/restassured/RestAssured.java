@@ -2070,6 +2070,11 @@ public class RestAssured {
         private SSLConfigCertAuthScheme(String certURL, String password) {
             this.certURL = AssertParameter.notNull(certURL, "Keystore path");
             this.password = AssertParameter.notNull(password, "Keystore password");
+            // The file is both the key store and the trust store, as in certificateFromKeyStoreFile(..)
+            setPathToKeyStore(certURL);
+            setKeyStorePassword(password);
+            setPathToTrustStore(certURL);
+            setTrustStorePassword(password);
         }
 
         @Override

@@ -18,6 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.BasePathController;
 import io.restassured.module.webtestclient.setup.GreetingController;
+import io.restassured.module.webtestclient.setup.MultiPartController;
 import io.restassured.module.webtestclient.setup.PostController;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -75,6 +77,16 @@ class WebTestClientSpecBuilderAndStaticSettingsTest {
             assertThat(request.headers().get("X")).containsExactly("1");
             assertThat(request.cookies().get("static")).containsExactly("1");
         });
+    }
+
+    @Test
+    void a_static_multipart_part_is_sent_once_with_a_specification_made_by_given() {
+        RestAssuredWebTestClient.webTestClient(WebTestClient.bindToController(new MultiPartController()).build());
+        RestAssuredWebTestClient.requestSpecification = new WebTestClientRequestSpecBuilder().addMultiPart("file", "file.txt", "content".getBytes(UTF_8)).build();
+
+        String parts = given().spec(RestAssuredWebTestClient.with().header("X", "1")).post("/multipart").then().statusCode(200).extract().asString();
+
+        assertThat(parts.lines()).singleElement().asString().startsWith("file | file.txt | ");
     }
 
     @Test

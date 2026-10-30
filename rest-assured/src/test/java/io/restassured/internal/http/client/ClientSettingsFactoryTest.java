@@ -202,6 +202,16 @@ class ClientSettingsFactoryTest {
     }
 
     @Test
+    void certificate_of_restassured_shows_the_file_and_password_as_key_store_and_trust_store() {
+        CertAuthScheme scheme = (CertAuthScheme) RestAssured.certificate(CLIENT_KEY_STORE, PASSWORD);
+
+        assertThat(scheme.getPathToKeyStore()).isEqualTo(CLIENT_KEY_STORE);
+        assertThat(scheme.getKeyStorePassword()).isEqualTo(PASSWORD);
+        assertThat(scheme.getPathToTrustStore()).isEqualTo(CLIENT_KEY_STORE);
+        assertThat(scheme.getTrustStorePassword()).isEqualTo(PASSWORD);
+    }
+
+    @Test
     void certificate_settings_replace_the_ssl_config() {
         TlsSettings certificate = certificateTlsSettings(RestAssured.certificate(SERVER_KEY_STORE, PASSWORD));
 

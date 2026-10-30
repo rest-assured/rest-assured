@@ -550,7 +550,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.params(that.getParams());
         this.attributes(that.getAttributes());
 
-        this.multiParts.addAll(that.getMultiParts());
+        this.multiParts.addAll(MergeHelper.sameNotIn(multiParts, that.getMultiParts()));
         this.resultHandlers.addAll(MergeHelper.sameNotIn(resultHandlers, that.getResultHandlers()));
         this.requestPostProcessors.addAll(MergeHelper.sameNotIn(requestPostProcessors, that.getRequestPostProcessors()));
 

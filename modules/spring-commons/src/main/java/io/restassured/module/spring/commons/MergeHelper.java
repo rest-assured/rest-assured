@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 /**
- * Merging a specification doesn't add a header or cookie that is already there with the same value, or a result handler
- * or post processor that is already there, again, as in REST Assured. So merging a specification made by
+ * Merging a specification doesn't add a header or cookie that is already there with the same value, or a multipart part,
+ * result handler or post processor that is already there, again, as in REST Assured. So merging a specification made by
  * <code>given()</code>, which contains the static ones already, doesn't add them twice.
  */
 public class MergeHelper {

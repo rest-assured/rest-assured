@@ -623,7 +623,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         queryParams(specificationToMerge.getQueryParams());
         params(specificationToMerge.getParams());
         attributes(specificationToMerge.getAttributes());
-        multiParts.addAll(specificationToMerge.getMultiParts());
+        multiParts.addAll(MergeHelper.sameNotIn(multiParts, specificationToMerge.getMultiParts()));
         RequestLoggingFilter otherRequestLoggingFilter = specificationToMerge.getRequestLoggingFilter();
         if (otherRequestLoggingFilter != null) {
             requestLoggingFilter = otherRequestLoggingFilter;

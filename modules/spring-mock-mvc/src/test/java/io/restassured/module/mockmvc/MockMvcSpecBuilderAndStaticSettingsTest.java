@@ -18,6 +18,7 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.BasePathController;
 import io.restassured.module.mockmvc.http.GreetingController;
+import io.restassured.module.mockmvc.http.MultipartController;
 import io.restassured.module.mockmvc.http.PostController;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
@@ -25,6 +26,7 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -33,6 +35,7 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -79,6 +82,17 @@ class MockMvcSpecBuilderAndStaticSettingsTest {
         assertThat(Collections.list(request.getHeaders("X-Static"))).containsExactly("1");
         assertThat(Collections.list(request.getHeaders("X"))).containsExactly("1");
         assertThat(request.getCookies()).hasSize(1);
+    }
+
+    @Test
+    void a_static_multipart_part_is_sent_once_with_a_specification_made_by_given() {
+        RestAssuredMockMvc.standaloneSetup(new MultipartController());
+        RestAssuredMockMvc.requestSpecification = new MockMvcRequestSpecBuilder().addMultiPart("file", "file.txt", "content".getBytes(UTF_8)).build();
+
+        MockMvcResponse response = given().spec(RestAssuredMockMvc.with().header("X", "1")).post("/files/{type}", "text");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(((MockMultipartHttpServletRequest) response.mvcResult().getRequest()).getFiles("file")).hasSize(1);
     }
 
     @Test
