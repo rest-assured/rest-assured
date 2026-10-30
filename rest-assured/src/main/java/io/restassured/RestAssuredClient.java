@@ -113,10 +113,10 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * </ul>
  * <h2>Static settings that still apply</h2>
  * A specification built with {@link io.restassured.builder.RequestSpecBuilder} or
- * {@link io.restassured.builder.ResponseSpecBuilder} contains static settings of <code>RestAssured</code> from when the
- * builder was created, such as the filters, the config, the request specification, the root path and the default
- * parser, which then apply to the requests of the client it's used with. The extra requests of form authentication and
- * CSRF are sent with the client bound to the thread, if there is one, and otherwise with the static settings.
+ * {@link io.restassured.builder.ResponseSpecBuilder} contains no static settings of <code>RestAssured</code>, so used
+ * with a client, for example with <code>given(client).spec(requestSpec)</code>, it gets the settings of the client. The
+ * extra requests of form authentication and CSRF are sent with the client bound to the thread, if there is one, and
+ * otherwise with the static settings.
  */
 public final class RestAssuredClient {
 
@@ -163,14 +163,9 @@ public final class RestAssuredClient {
         return Collections.unmodifiableList(defaults.get().filters());
     }
 
-    // Starts a request of RestAssured.given(), given(client), when() or expect()
+    // Starts a request of RestAssured.given(), given(client), when(), expect() or given(req, resp)
     TestSpecificationImpl testSpecification() {
         return defaults.get().testSpecification(responseDefaults);
-    }
-
-    // Sends the specifications of RestAssured.given(req, resp) as they are, with the then() defaults of this client
-    TestSpecificationImpl testSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        return new TestSpecificationImpl(requestSpecification, responseSpecification, responseDefaults);
     }
 
     /**

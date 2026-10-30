@@ -45,18 +45,21 @@ public class SpecificationMerger {
 
     /**
      * Merge this builder with settings from another specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * can overwrite data in the current specification. The following settings are overwritten when the supplied
+     * specification sets them, and otherwise kept:
      * <ul>
      *     <li>Content type</li>
-     *     <li>Root path</
+     *     <li>Root path</li>
      *     <li>Status code</li>
      *     <li>Status line</li>
      *     <li>Fallback parser</li>
      *     <li>Expected response time</li>
+     *     <li>Log detail</li>
      * </ul>
      * The following settings are merged:
      * <ul>
-     *     <li>Response body expectations</li>
+     *     <li>Response body expectations, which use the parsers of this specification, and its root path when the
+     *     supplied specification had none when they were defined</li>
      *     <li>Cookies</li>
      *     <li>Headers</li>
      *     <li>Response parser settings</li>
@@ -67,18 +70,39 @@ public class SpecificationMerger {
         notNull(thisOne, "Specification to merge");
         notNull(with, "Specification to merge with");
 
-        thisOne.setExpectedContentType(with.getExpectedContentType());
-        thisOne.getRpr().setDefaultParser(with.getRpr().getDefaultParser());
-        thisOne.getRpr().getAdditional().putAll(with.getRpr().getAdditional());
-        thisOne.setResponseLogDetail(with.getLogDetail());
-        thisOne.getBodyMatchers().add(with.getBodyMatchers());
-        thisOne.setBodyRootPath(with.getRootPath());
+        if (with.getExpectedContentType() != null) {
+            thisOne.setExpectedContentType(with.getExpectedContentType());
+        }
+        mergeParsers(thisOne.getRpr(), with.getRpr());
+        if (with.getLogDetail() != null) {
+            thisOne.setResponseLogDetail(with.getLogDetail());
+        }
+        thisOne.getBodyMatchers().add(with.getBodyMatchers(), thisOne.getRootPath(), thisOne.getRpr());
+        if (with.getRootPath() != null) {
+            thisOne.setBodyRootPath(with.getRootPath());
+        }
         thisOne.getCookieAssertions().addAll(with.getCookieAssertions());
-        thisOne.setExpectedStatusCode(with.getStatusCode());
-        thisOne.setExpectedStatusLine(with.getStatusLine());
-        thisOne.setExpectedResponseTime(with.getExpectedResponseTime());
+        if (with.getStatusCode() != null) {
+            thisOne.setExpectedStatusCode(with.getStatusCode());
+        }
+        if (with.getStatusLine() != null) {
+            thisOne.setExpectedStatusLine(with.getStatusLine());
+        }
+        if (with.getExpectedResponseTime() != null) {
+            thisOne.setExpectedResponseTime(with.getExpectedResponseTime());
+        }
         thisOne.getHeaderAssertions().addAll(with.getHeaderAssertions());
         thisOne.setSpecificationConfig(mergeConfig(thisOne.getSpecificationConfig(), with.getSpecificationConfig()));
+    }
+
+    /**
+     * Registers the parsers of <code>with</code> in <code>thisOne</code>, and its default parser if it has one.
+     */
+    static void mergeParsers(ResponseParserRegistrar thisOne, ResponseParserRegistrar with) {
+        if (with.getDefaultParser() != null) {
+            thisOne.setDefaultParser(with.getDefaultParser());
+        }
+        thisOne.getAdditional().putAll(with.getAdditional());
     }
 
     /**

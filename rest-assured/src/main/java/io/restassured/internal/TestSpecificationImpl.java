@@ -18,7 +18,6 @@
 package io.restassured.internal;
 
 import io.restassured.http.Method;
-import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
 import io.restassured.specification.RequestSpecification;
@@ -27,7 +26,6 @@ import io.restassured.specification.ResponseSpecification;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
@@ -47,26 +45,13 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 public class TestSpecificationImpl implements RequestSender {
     private final RequestSpecification requestSpecification;
     private final ResponseSpecification responseSpecification;
-    // The defaults of then() of the client that sends the request, or null for those of the client whose given()
-    // created the request specification
-    private final Supplier<ResponseDefaults> responseDefaults;
 
     public TestSpecificationImpl(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        this(requestSpecification, responseSpecification, null);
-    }
-
-    /**
-     * @param responseDefaults Gives the defaults of <code>then()</code> of the client that sends the request, whatever
-     *                         client created the request specification
-     */
-    public TestSpecificationImpl(RequestSpecification requestSpecification, ResponseSpecification responseSpecification,
-                                 Supplier<ResponseDefaults> responseDefaults) {
         notNull(requestSpecification, "requestSpecification");
         notNull(responseSpecification, "responseSpecification");
 
         this.requestSpecification = requestSpecification;
         this.responseSpecification = responseSpecification;
-        this.responseDefaults = responseDefaults;
     }
 
     /**
@@ -82,7 +67,7 @@ public class TestSpecificationImpl implements RequestSender {
     // A copy of the request specification that sends with the response specification. Sending it copies both, as any
     // send does, and fails if they aren't REST Assured's own implementations.
     private RequestSpecification sender() {
-        return ((RequestSpecificationImpl) requestSpecification).pairedWith(responseSpecification, responseDefaults);
+        return ((RequestSpecificationImpl) requestSpecification).pairedWith(responseSpecification);
     }
 
     /**

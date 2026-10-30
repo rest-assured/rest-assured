@@ -17,11 +17,17 @@
 package io.restassured.builder;
 
 import io.restassured.RestAssured;
+import io.restassured.authentication.NoAuthScheme;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.http.Header;
 import io.restassured.http.Method;
 import io.restassured.internal.RequestSpecificationImpl;
+import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.SpecificationQuerier;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Test;
 
@@ -94,26 +100,49 @@ public class RequestSpecBuilderTest {
     }
 
     @Test public void
-    request_spec_picks_up_filters_from_static_config() {
+    request_spec_does_not_pick_up_filters_from_static_config() {
         RestAssured.filters(new RequestLoggingFilter());
         try {
             RequestSpecBuilder builder = new RequestSpecBuilder();
             RequestSpecificationImpl spec = (RequestSpecificationImpl) builder.build();
-            assertThat(spec.getDefinedFilters()).hasSize(1);
+            assertThat(spec.getDefinedFilters()).isEmpty();
         } finally {
             RestAssured.reset();
         }
     }
 
     @Test public void
-    request_spec_picks_up_headers_from_static_request_spec() {
+    request_spec_does_not_pick_up_headers_from_static_request_spec() {
         RestAssured.requestSpecification = new RequestSpecBuilder()
                 .addHeader("hello", "world")
                 .build();
         try {
             RequestSpecBuilder builder = new RequestSpecBuilder();
             RequestSpecificationImpl spec = (RequestSpecificationImpl) builder.build();
-            assertThat(spec.getHeaders().getValue("hello")).isEqualTo("world");
+            assertThat(spec.getHeaders().hasHeaderWithName("hello")).isFalse();
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    specification_querier_shows_only_what_was_set_on_the_builder() {
+        RestAssured.baseURI = "http://static.example.org";
+        RestAssured.port = 1234;
+        RestAssured.basePath = "/static";
+        RestAssured.authentication = RestAssured.basic("user", "password");
+        RestAssured.config = RestAssuredConfig.config().sessionConfig(SessionConfig.sessionConfig().sessionIdName("STATIC"));
+        RestAssured.proxy(8888);
+        try {
+            QueryableRequestSpecification spec = SpecificationQuerier.query(new RequestSpecBuilder().addHeader("name", "value").build());
+
+            assertThat(spec.getBaseUri()).isEqualTo(RestAssured.DEFAULT_URI);
+            assertThat(spec.getPort()).isEqualTo(8080);
+            assertThat(spec.getBasePath()).isEqualTo(RestAssured.DEFAULT_PATH);
+            assertThat(spec.getAuthenticationScheme()).isInstanceOf(NoAuthScheme.class);
+            assertThat(spec.getConfig().isUserConfigured()).isFalse();
+            assertThat(spec.getProxySpecification()).isNull();
+            assertThat(spec.getHeaders().asList()).extracting(Header::getName).containsExactly("name");
         } finally {
             RestAssured.reset();
         }

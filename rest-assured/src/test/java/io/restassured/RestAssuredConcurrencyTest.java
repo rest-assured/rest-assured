@@ -179,10 +179,10 @@ class RestAssuredConcurrencyTest {
     }
 
     @Test
-    void response_spec_builder_uses_the_default_parser() {
+    void response_spec_builder_does_not_read_the_default_parser() {
         RestAssured.defaultParser = Parser.JSON;
 
-        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder().build()).getRpr().getDefaultParser()).isEqualTo(Parser.JSON);
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder().build()).getRpr().getDefaultParser()).isNull();
     }
 
     @Test

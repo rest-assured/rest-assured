@@ -517,4 +517,21 @@ public class SpecificationBuilderITest extends WithJetty {
             RestAssured.reset();
         }
     }
+
+    @Test
+    public void staticHeadersCookiesAndMultiPartsAreSentOnceWithABuiltSpecification() {
+        // Issue #1977
+        RestAssured.requestSpecification = new RequestSpecBuilder().addHeader("X-Static", "1").addCookie("static", "1").build();
+        RequestSpecification spec = new RequestSpecBuilder().addHeader("X-Spec", "1").build();
+        try {
+            assertThat(given(spec).get("/multiHeaderReflect").headers().getValues("X-Static"), contains("1"));
+            assertThat(given(spec, new ResponseSpecBuilder().build()).get("/multiHeaderReflect").headers().getValues("X-Static"), contains("1"));
+            assertThat(given(spec).get("/reflect").detailedCookies().getList("static"), hasSize(1));
+
+            RestAssured.requestSpecification = new RequestSpecBuilder().addMultiPart("other", "static").build();
+            assertThat(given(spec).post("/multipart/string").asString(), equalTo("static"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
 }

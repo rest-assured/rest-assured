@@ -179,7 +179,7 @@ class SpecificationMergerTest {
     }
 
     @Test
-    void values_that_the_merged_response_specification_does_not_define_are_overwritten_with_null() {
+    void values_that_the_merged_response_specification_does_not_define_are_kept() {
         ResponseSpecificationImpl merge = response(new ResponseSpecBuilder().expectContentType(ContentType.JSON).rootPath("root")
                 .expectStatusCode(200).expectStatusLine("line").expectResponseTime(lessThan(1L)).setDefaultParser(Parser.XML)
                 .log(LogDetail.ALL).registerParser("some/xml", Parser.XML).expectHeader("h", "v").expectCookie("c", "v")
@@ -187,18 +187,36 @@ class SpecificationMergerTest {
         ResponseSpecificationImpl with = response(new ResponseSpecBuilder());
         SpecificationMerger.merge(merge, with);
 
-        assertThat(merge.getExpectedContentType()).isNull();
-        assertThat(merge.getRootPath()).isEmpty();
-        assertThat(merge.getStatusCode()).isNull();
-        assertThat(merge.getStatusLine()).isNull();
-        assertThat(merge.getExpectedResponseTime()).isNull();
-        assertThat(merge.getRpr().getDefaultParser()).isNull();
-        assertThat(merge.getLogDetail()).isNull();
+        assertThat(merge.getExpectedContentType()).isEqualTo(ContentType.JSON);
+        assertThat(merge.getRootPath()).isEqualTo("root");
+        assertThat(merge.getStatusCode()).hasToString(equalTo(200).toString());
+        assertThat(merge.getStatusLine()).hasToString(equalTo("line").toString());
+        assertThat(merge.getExpectedResponseTime().getKey()).hasToString(lessThan(1L).toString());
+        assertThat(merge.getRpr().getDefaultParser()).isEqualTo(Parser.XML);
+        assertThat(merge.getLogDetail()).isEqualTo(LogDetail.ALL);
         // Merged values are kept
         assertThat(merge.getRpr().hasCustomParser("some/xml")).isTrue();
         assertThat(merge.hasHeaderAssertions()).isTrue();
         assertThat(merge.hasCookieAssertions()).isTrue();
         assertThat(merge.getBodyMatchers().size()).isEqualTo(1);
+    }
+
+    @Test
+    void body_expectations_defined_without_a_root_path_take_the_root_path_of_the_specification_they_are_merged_into() {
+        ResponseSpecificationImpl merge = response(new ResponseSpecBuilder().rootPath("root"));
+        SpecificationMerger.merge(merge, response(new ResponseSpecBuilder().expectBody("a", equalTo("b"))));
+
+        assertThat(merge.getBodyMatchers().firstPath()).isEqualTo("root.a");
+        assertThat(merge.getRootPath()).isEqualTo("root");
+    }
+
+    @Test
+    void body_expectations_defined_with_a_root_path_keep_it() {
+        ResponseSpecificationImpl merge = response(new ResponseSpecBuilder().rootPath("root"));
+        SpecificationMerger.merge(merge, response(new ResponseSpecBuilder().rootPath("other").expectBody("a", equalTo("b"))));
+
+        assertThat(merge.getBodyMatchers().firstPath()).isEqualTo("other.a");
+        assertThat(merge.getRootPath()).isEqualTo("other");
     }
 
     @Test
