@@ -31,6 +31,7 @@ import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.assertion.CookieMatcher;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.common.spi.path.DocumentType;
 import io.restassured.internal.common.spi.path.PathInput;
 import io.restassured.internal.common.spi.path.PathProvider;
@@ -109,6 +110,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     private DecoderConfig decoderConfig;
     private boolean hasExpectations;
     private RestAssuredConfig config;
+    // The defaults of then(), from the client that sent the request
+    private Supplier<ResponseDefaults> responseDefaults;
 
     void parseResponse(HttpResponse response, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         boolean readLater = !hasBodyAssertions && content instanceof InputStream;
@@ -243,6 +246,26 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public RestAssuredConfig getConfig() {
         return config;
+    }
+
+    public void setResponseDefaults(Supplier<ResponseDefaults> responseDefaults) {
+        this.responseDefaults = responseDefaults;
+    }
+
+    /**
+     * @return Gives the defaults of <code>then()</code>, or <code>null</code> for a response that REST Assured didn't
+     * send, such as one built with {@link io.restassured.builder.ResponseBuilder}
+     */
+    public Supplier<ResponseDefaults> getResponseDefaults() {
+        return responseDefaults;
+    }
+
+    /**
+     * @return The defaults of <code>then()</code> now, those of the static fields of {@link io.restassured.RestAssured}
+     * for a response that REST Assured didn't send
+     */
+    ResponseDefaults responseDefaults() {
+        return responseDefaults == null ? ResponseDefaults.ofStaticFields() : responseDefaults.get();
     }
 
     //    End setters and getters

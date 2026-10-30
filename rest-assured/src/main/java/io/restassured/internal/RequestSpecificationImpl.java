@@ -46,6 +46,7 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.http.Method;
 import io.restassured.internal.MapCreator.CollisionStrategy;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.filter.CsrfFilter;
 import io.restassured.internal.filter.FilterContextImpl;
@@ -128,6 +129,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
@@ -223,12 +225,26 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     private boolean addCsrfFilter;
 
+    // The defaults of then() of the client whose given() created this specification. Never merged.
+    private Supplier<ResponseDefaults> responseDefaults;
+
     // Set on this specification, directly or by merging a specification that set them
     private final Set<MergeableValue> explicitlySetValues = EnumSet.noneOf(MergeableValue.class);
 
     public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
                                     ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter) {
+        this(baseURI, requestPort, basePath, defaultAuthScheme, filters, defaultSpec, urlEncode, restAssuredConfig, logRepository, proxySpecification,
+                allowContentType, addCsrfFilter, ResponseDefaults::ofStaticFields);
+    }
+
+    /**
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the client whose <code>given()</code> creates
+     *                         this specification when it's called
+     */
+    public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
+                                    RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
+                                    ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter, Supplier<ResponseDefaults> responseDefaults) {
         notNull(baseURI, "baseURI");
         notNull(basePath, "basePath");
         notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -247,6 +263,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.proxySpecification = proxySpecification;
         this.allowContentType = allowContentType;
         this.addCsrfFilter = addCsrfFilter;
+        this.responseDefaults = notNull(responseDefaults, "responseDefaults");
         // The values given to the constructor, and those of the default specification, are defaults
         explicitlySetValues.clear();
     }
@@ -278,7 +295,25 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.logRepository = other.logRepository == null ? null : new LogRepository(other.logRepository);
         this.allowContentType = other.allowContentType;
         this.addCsrfFilter = other.addCsrfFilter;
+        this.responseDefaults = other.responseDefaults;
         this.explicitlySetValues.addAll(other.explicitlySetValues);
+    }
+
+    /**
+     * @return A copy of <code>specification</code> that can be changed without changing it, without its response
+     * specification, for a {@link io.restassured.RestAssuredClient} to hold
+     * @throws IllegalArgumentException If it isn't REST Assured's own implementation
+     */
+    public static RequestSpecificationImpl copyOf(RequestSpecification specification) {
+        return new RequestSpecificationImpl(asImpl(specification, "use"));
+    }
+
+    private static RequestSpecificationImpl asImpl(RequestSpecification specification, String action) {
+        if (!(specification instanceof RequestSpecificationImpl)) {
+            throw new IllegalArgumentException("Cannot " + action + " a request specification of type " + specification.getClass().getName()
+                    + ", it must be of type " + RequestSpecificationImpl.class.getName() + ".");
+        }
+        return (RequestSpecificationImpl) specification;
     }
 
     /**
@@ -308,12 +343,16 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     /**
-     * @return A copy of this specification that sends with <code>responseSpecification</code>, for
+     * @return A copy of this specification that sends with <code>responseSpecification</code>, and with the defaults of
+     * <code>then()</code> that <code>responseDefaults</code> gives unless it's <code>null</code>, for
      * {@link TestSpecificationImpl}
      */
-    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification) {
+    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification, Supplier<ResponseDefaults> responseDefaults) {
         RequestSpecificationImpl request = new RequestSpecificationImpl(this);
         request.responseSpecification = (FilterableResponseSpecification) responseSpecification;
+        if (responseDefaults != null) {
+            request.responseDefaults = responseDefaults;
+        }
         return request;
     }
 
@@ -1299,11 +1338,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
-        if (requestSpecificationToMerge != null && !(requestSpecificationToMerge instanceof RequestSpecificationImpl)) {
-            throw new IllegalArgumentException("Cannot merge a request specification of type " + requestSpecificationToMerge.getClass().getName()
-                    + ", it must be of type " + RequestSpecificationImpl.class.getName() + ".");
-        }
-        SpecificationMerger.merge(this, (RequestSpecificationImpl) requestSpecificationToMerge);
+        SpecificationMerger.merge(this, requestSpecificationToMerge == null ? null : asImpl(requestSpecificationToMerge, "merge"));
         return this;
     }
 
@@ -1618,6 +1653,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig());
         restAssuredResponse.setConfig(cfg);
         restAssuredResponse.setFilterContextProperties(filterContextProperties);
+        restAssuredResponse.setResponseDefaults(responseDefaults);
         responseSpecification.setRestAssuredResponse(restAssuredResponse);
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
@@ -2217,6 +2253,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         ResponseSpecificationImpl responseSpecificationImpl = (ResponseSpecificationImpl) responseSpecification;
         FilterContextImpl ctx = newFilterContext(responseSpecificationImpl.getAssertionClosure(), filters.iterator(), new LinkedHashMap<>());
         Response response = ctx.next(this, responseSpecification);
+        // So that then() also validates a response that a filter built, such as with ResponseBuilder, with the client's defaults
+        if (response instanceof RestAssuredResponseOptionsImpl<?> built && built.getResponseDefaults() == null) {
+            built.setResponseDefaults(responseDefaults);
+        }
         responseSpecificationImpl.getAssertionClosure().validate(response);
         return response;
     }

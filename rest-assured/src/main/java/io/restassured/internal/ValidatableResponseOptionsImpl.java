@@ -16,10 +16,10 @@
 
 package io.restassured.internal;
 
-import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.http.ContentType;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.print.ResponsePrinter;
@@ -49,11 +49,23 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     protected final Response response;
     private final RestAssuredConfig config;
 
+    /**
+     * Validates with {@link io.restassured.RestAssured#rootPath} and {@link io.restassured.RestAssured#responseSpecification}
+     */
     public ValidatableResponseOptionsImpl(ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
                                           ExtractableResponse<R> extractableResponse, LogRepository logRepository) {
+        this(rpr, config, response, extractableResponse, logRepository, ResponseDefaults.ofStaticFields());
+    }
+
+    /**
+     * @param responseDefaults The root path and default response specification to validate with
+     */
+    public ValidatableResponseOptionsImpl(ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
+                                          ExtractableResponse<R> extractableResponse, LogRepository logRepository, ResponseDefaults responseDefaults) {
         this.config = config == null ? RestAssuredConfig.config() : config;
         this.response = response;
-        responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, RestAssured.responseSpecification, rpr, this.config, response, logRepository);
+        responseSpec = new ResponseSpecificationImpl(responseDefaults.rootPath(), responseDefaults.responseSpecification(), rpr, this.config, response,
+                logRepository);
         this.extractableResponse = extractableResponse;
     }
 

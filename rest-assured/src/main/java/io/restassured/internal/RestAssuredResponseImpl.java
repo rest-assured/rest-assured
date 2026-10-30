@@ -22,6 +22,6 @@ public class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Resp
 
     @Override
     public ValidatableResponse then() {
-        return new ValidatableResponseImpl(getContentType(), getRpr(), getConfig(), this, this, getLogRepository());
+        return new ValidatableResponseImpl(getRpr(), getConfig(), this, this, getLogRepository(), responseDefaults());
     }
 }

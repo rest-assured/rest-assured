@@ -26,11 +26,12 @@ import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
+import io.restassured.internal.client.ClientDefaults;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.http.RelaxedCertAuthScheme;
-import io.restassured.internal.log.LogRepository;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
@@ -347,7 +348,8 @@ import static io.restassured.specification.ProxySpecification.host;
  * is safe, and each call takes a copy of the defaults.</li>
  * <li>Put values that differ between tests in the request specification instead, for example
  * <code>given().baseUri("http://localhost").port(8081)</code> or <code>given(spec)</code> with a specification made by a
- * {@link RequestSpecBuilder}.</li>
+ * {@link RequestSpecBuilder}, or bind a {@link RestAssuredClient} with settings of its own to the thread of each test
+ * with {@link #useClient(RestAssuredClient)}.</li>
  * <li>Don't execute the same request specification from several threads at once; start a new one with
  * {@link #given()} in each thread.</li>
  * <li>Filters added with {@link #filters(java.util.List)} are shared by all requests and must be thread safe.</li>
@@ -375,6 +377,11 @@ public class RestAssured {
     private static final Object DEFAULTS_LOCK = new Object();
     // Never modified after it's assigned (registerParser assigns a modified copy). ResponseSpecBuilder reads it reflectively.
     private static volatile ResponseParserRegistrar RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
+    // The static API: a client that reads the static fields at each call
+    private static final RestAssuredClient DEFAULT = new RestAssuredClient(RestAssured::staticDefaults, ResponseDefaults::ofStaticFields);
+    // The client of useClient(..). Not inheritable: a thread of a pool, such as a ForkJoinPool worker that JUnit runs
+    // tests on, would inherit the client of another test.
+    private static final ThreadLocal<RestAssuredClient> BOUND_CLIENT = new ThreadLocal<>();
 
     public static final String DEFAULT_URI = "http://localhost";
     public static final String DEFAULT_BODY_ROOT_PATH = "";
@@ -603,7 +610,7 @@ public class RestAssured {
      * @return A response io.restassured.specification.
      */
     public static ResponseSpecification expect() {
-        return createTestSpecification().getResponseSpecification();
+        return current().testSpecification().getResponseSpecification();
     }
 
     /**
@@ -689,7 +696,7 @@ public class RestAssured {
      * @return A request specification.
      */
     public static RequestSpecification given() {
-        return createTestSpecification().getRequestSpecification();
+        return current().testSpecification().getRequestSpecification();
     }
 
     /**
@@ -709,7 +716,7 @@ public class RestAssured {
      * @return A request sender interface that let's you call resources on the server
      */
     public static RequestSender when() {
-        return createTestSpecification().getRequestSpecification();
+        return current().testSpecification().getRequestSpecification();
     }
 
     /**
@@ -727,7 +734,7 @@ public class RestAssured {
      * @return A test io.restassured.specification.
      */
     public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        return new TestSpecificationImpl(requestSpecification, responseSpecification);
+        return current().testSpecification(requestSpecification, responseSpecification);
     }
 
     /**
@@ -745,6 +752,25 @@ public class RestAssured {
      */
     public static RequestSpecification given(RequestSpecification requestSpecification) {
         return given().spec(requestSpecification);
+    }
+
+    /**
+     * Starts a request with the defaults of <code>client</code> instead of the static settings, or of a client bound to
+     * the thread with {@link #useClient(RestAssuredClient)}. For example, to call a second service:
+     * <pre>
+     * RestAssuredClient orders = RestAssuredClient.builder().baseUri("http://orders").port(8081).build();
+     *
+     * given(orders).queryParam("status", "open").when().get("/orders").then().statusCode(200);
+     * </pre>
+     * Naming the client also works on another thread, for example in a condition that Awaitility polls on a thread of its
+     * own, where the client bound to the test's thread doesn't apply.
+     *
+     * @param client The client whose defaults, HTTP clients and cookies the request uses
+     * @return A request specification
+     * @see RestAssuredClient
+     */
+    public static RequestSpecification given(RestAssuredClient client) {
+        return AssertParameter.notNull(client, RestAssuredClient.class).testSpecification().getRequestSpecification();
     }
 
     /**
@@ -1567,8 +1593,11 @@ public class RestAssured {
      * {@link #urlEncodingEnabled}, {@link #config}, {@link #sessionId} and {@link #proxy} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #UNDEFINED_PORT},
      * <code>no authentication</code>, &lt;empty string&gt;, <code>null</code>, <code>null</code>,
      * &lt;empty list&gt;, <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>new RestAssuredConfig()</code>, <code>null</code> and <code>null</code>.
+     * It also unbinds the client that <code>useClient(..)</code> bound to the current thread, with {@link #resetClient()}.
+     * The static fields are reset for all threads, but the clients bound to other threads stay.
      */
     public static void reset() {
+        resetClient();
         baseURI = DEFAULT_URI;
         port = UNDEFINED_PORT;
         basePath = DEFAULT_PATH;
@@ -1587,20 +1616,74 @@ public class RestAssured {
         proxy = null;
     }
 
-    // Only reads the static defaults: given() is called from many threads at once when tests run in parallel
-    private static TestSpecificationImpl createTestSpecification() {
-        final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
-        final Parser defaultParserToUse = defaultParser;
-        if (defaultParserToUse != null) {
-            responseParserRegistrar.registerDefaultParser(defaultParserToUse);
-        }
-        LogRepository logRepository = new LogRepository();
-        RestAssuredConfig restAssuredConfig = config();
-        return TestSpecificationImpl.linked(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy, true, true),
-                new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)
-        );
+    /**
+     * Creates a client with the current values of the static fields, the filters and the registered parsers, the values
+     * that {@link #given()} starts from when no client is bound to the thread. Later changes to them don't reach the
+     * client. The client has the static config, so with <code>httpClientConfig().reuseHttpClientInstance()</code> its
+     * requests share the reused HTTP client, and with <code>keepResponseCookies(true)</code> the kept cookies, with those of
+     * the static API, as all copies of a config do. For example:
+     * <pre>
+     * RestAssuredClient admin = RestAssured.client().toBuilder().authentication(basic("admin", "secret")).build();
+     * </pre>
+     *
+     * @return A new client
+     * @see RestAssuredClient
+     */
+    public static RestAssuredClient client() {
+        return new RestAssuredClient.Builder(staticDefaults()).build();
+    }
+
+    /**
+     * Binds <code>client</code> to the current thread. While a client is bound, {@link #given()}, {@link #with()},
+     * {@link #when()}, {@link #expect()}, {@link #given(RequestSpecification)},
+     * {@link #given(RequestSpecification, ResponseSpecification)} and the static methods that send a request, such as
+     * {@link #get(String, Object...)}, use the client instead of the static settings on this thread, until
+     * {@link #resetClient()} or {@link #reset()} unbinds it. A client named with {@link #given(RestAssuredClient)} wins
+     * over the bound one.
+     * <p>
+     * The binding isn't inherited by other threads: a request on another thread, for example in a condition that
+     * Awaitility polls on its own thread, uses the static settings unless it names the client with
+     * {@link #given(RestAssuredClient)} (or Awaitility polls with <code>pollInSameThread()</code>). {@link #client()},
+     * {@link #config()}, {@link #filters()} and the other static fields and setters are the static settings, whether a
+     * client is bound or not.
+     * <p>
+     * For example, for tests that run in parallel and each use their own settings with the usual DSL:
+     * <pre>
+     * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port).build()); }
+     * &#64;AfterEach void resetRestAssured() { RestAssured.reset(); }
+     *
+     * &#64;Test void shows_open_orders() {
+     *     given().queryParam("status", "open").when().get("/orders").then().statusCode(200);
+     * }
+     * </pre>
+     * Unbind the client after each test, since the thread may run other tests later.
+     *
+     * @param client The client to use on the current thread. Use {@link #resetClient()} to unbind it.
+     * @see RestAssuredClient
+     */
+    public static void useClient(RestAssuredClient client) {
+        BOUND_CLIENT.set(AssertParameter.notNull(client, RestAssuredClient.class));
+    }
+
+    /**
+     * Unbinds the client that {@link #useClient(RestAssuredClient)} bound to the current thread, if there is one, so that
+     * the requests of this thread use the static settings again. The clients bound to other threads stay.
+     * {@link #reset()} does this too.
+     */
+    public static void resetClient() {
+        BOUND_CLIENT.remove();
+    }
+
+    // The client bound to the current thread, or else the default client of the static settings
+    private static RestAssuredClient current() {
+        RestAssuredClient bound = BOUND_CLIENT.get();
+        return bound == null ? DEFAULT : bound;
+    }
+
+    // Only reads the static fields: given() is called from many threads at once when tests run in parallel
+    private static ClientDefaults staticDefaults() {
+        return new ClientDefaults(baseURI, port, basePath, urlEncodingEnabled, authentication, configWithoutSessionId(), rootPath,
+                requestSpecification, responseSpecification, defaultParser, sessionId, proxy, filters, RESPONSE_PARSER_REGISTRAR);
     }
 
     private static RestAssuredConfig withSessionIdIfApplicable(RestAssuredConfig restAssuredConfig) {

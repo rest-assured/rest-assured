@@ -134,6 +134,23 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         this.onFailMessage = other.onFailMessage;
     }
 
+    /**
+     * @return A copy of <code>specification</code> that can be changed without changing it, for a
+     * {@link io.restassured.RestAssuredClient} to hold
+     * @throws IllegalArgumentException If it isn't REST Assured's own implementation
+     */
+    public static ResponseSpecificationImpl copyOf(ResponseSpecification specification) {
+        return new ResponseSpecificationImpl(asImpl(specification, "use"));
+    }
+
+    private static ResponseSpecificationImpl asImpl(ResponseSpecification specification, String action) {
+        if (!(specification instanceof ResponseSpecificationImpl)) {
+            throw new IllegalArgumentException("Cannot " + action + " a response specification of type " + specification.getClass().getName()
+                    + ", it must be of type " + ResponseSpecificationImpl.class.getName() + ".");
+        }
+        return (ResponseSpecificationImpl) specification;
+    }
+
     // A copy to validate with, keeping the request specification and the log repository, so that this specification doesn't change
     ResponseSpecificationImpl copyToValidate() {
         ResponseSpecificationImpl copy = new ResponseSpecificationImpl(this);
@@ -314,11 +331,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     }
 
     public ResponseSpecification spec(ResponseSpecification responseSpecificationToMerge) {
-        if (responseSpecificationToMerge != null && !(responseSpecificationToMerge instanceof ResponseSpecificationImpl)) {
-            throw new IllegalArgumentException("Cannot merge a response specification of type " + responseSpecificationToMerge.getClass().getName()
-                    + ", it must be of type " + ResponseSpecificationImpl.class.getName() + ".");
-        }
-        SpecificationMerger.merge(this, (ResponseSpecificationImpl) responseSpecificationToMerge);
+        SpecificationMerger.merge(this, responseSpecificationToMerge == null ? null : asImpl(responseSpecificationToMerge, "merge"));
         return this;
     }
 

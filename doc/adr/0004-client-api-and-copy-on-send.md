@@ -4,7 +4,8 @@ Date: 2026-10-17
 
 ## Status
 
-Accepted, for 7.0.0.
+Accepted, for 7.0.0. Amended 2026-10-30: a client is picked with `given(client)` or `useClient(client)`, has no DSL
+methods of its own, and is settings only, without HTTP clients or `close()`.
 
 ## Context
 
@@ -27,8 +28,18 @@ built response specification no longer gets the request linked into it.
 
 **A `RestAssuredClient` holds its own fixed defaults** and doesn't read the `RestAssured` static fields.
 `RestAssured.client()` creates one from their current values, and a builder creates one from scratch. A client holds
-what `createTestSpecification()` reads today, its own parser registry, its HTTP clients and cookie store, and is
-`AutoCloseable`. Its instance methods mirror the static ones where that makes sense.
+what `createTestSpecification()` reads today and its own parser registry. It's an immutable set of settings: it owns
+no HTTP clients or cookie store and isn't `AutoCloseable`, and its requests get their connections like those of the
+static API (ADR 0003).
+
+**A client is picked, not called.** Plain `given()` stays the way in, since that style is REST Assured's main
+strength, so a client has no `given()`, `when()`, `get(..)` or other DSL methods. `given(client)` names the client for
+one request. `useClient(client)` binds a client to the current thread, and `given()`, `when()`, `expect()`,
+`given(req, resp)` and the static send methods such as `get(..)` use it until `resetClient()` or `reset()` unbinds it.
+A client named in `given(client)` wins, then the bound client, then the static settings. `client()`, `config()`,
+`filters()` and the other static getters and setters stay about the static settings. The binding is a `ThreadLocal`
+that isn't inheritable, because a ForkJoinPool worker that JUnit runs tests on could inherit another test's client. A
+request on another thread, such as Awaitility's polling thread, uses the static settings unless it names the client.
 
 **The static API stays.** The static methods delegate to a default client that reads the static fields at each call, so
 their behavior doesn't change, and the fields aren't deprecated in 7.0.
@@ -37,7 +48,7 @@ their behavior doesn't change, and the fields aren't deprecated in 7.0.
 specification, and `RequestSpecBuilder` stops copying the static specification (#1977).
 
 **MockMvc and WebTestClient get `RestAssuredMockMvc.client(..)` and `RestAssuredWebTestClient.client(..)`** on the same
-pattern, and Kotlin and Scala get `client.Given { }` style extensions.
+pattern, and Kotlin and Scala get `Given(client) { }` style extensions.
 
 The API's shape is checked with the maintainer after the first `RestAssuredClient` PR.
 
