@@ -21,9 +21,12 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.common.spi.http.HttpHeader;
 import io.restassured.common.spi.http.HttpResponse;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SessionConfig;
 import io.restassured.http.Method;
 import io.restassured.internal.http.client.FakeHttpClients;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,12 +34,14 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.FutureTask;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
+import static io.restassured.config.SessionConfig.sessionConfig;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -87,11 +92,30 @@ class UseClientTest {
     }
 
     @Test
-    void given_with_a_request_and_a_response_specification_sends_them_with_the_bound_client() {
-        RestAssured.useClient(client);
+    void built_specifications_take_the_settings_of_the_bound_client_and_none_of_the_static_ones() {
+        List<String> used = new CopyOnWriteArrayList<>();
+        RestAssured.config = FAKE.sessionConfig(sessionConfig().sessionIdName("STATIC"));
+        RestAssured.filters((requestSpec, responseSpec, ctx) -> {
+            used.add("static filter");
+            return ctx.next(requestSpec, responseSpec);
+        });
+        RestAssured.requestSpecification = new RequestSpecBuilder().addHeader("X-Static", "1").build();
+        RequestSpecification request = new RequestSpecBuilder().build();
+        // The root path of the client
+        ResponseSpecification response = new ResponseSpecBuilder().expectBody("b", equalTo(1)).build();
+        RestAssured.useClient(client.toBuilder().filters((requestSpec, responseSpec, ctx) -> {
+            used.add(requestSpec.getConfig().getSessionConfig().sessionIdName());
+            return ctx.next(requestSpec, responseSpec);
+        }).build());
 
-        // The root path of the client: the specifications are sent as they are, with its HTTP clients and then()
-        given(new RequestSpecBuilder().build(), new ResponseSpecBuilder().build()).get("/path").then().body("b", equalTo(1));
+        given(request, response).get("/path");
+        given(request).get("/path").then().spec(response);
+
+        assertThat(used).containsExactly(SessionConfig.DEFAULT_SESSION_ID_NAME, SessionConfig.DEFAULT_SESSION_ID_NAME);
+        assertThat(FakeHttpClients.sent).allSatisfy(sent -> {
+            assertThat(sent.uri()).isEqualTo(BOUND);
+            assertThat(sent.headers()).noneMatch(header -> header.name().equals("X-Static"));
+        });
     }
 
     @Test

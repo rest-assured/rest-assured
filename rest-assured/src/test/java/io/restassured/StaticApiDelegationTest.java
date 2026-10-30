@@ -109,15 +109,18 @@ class StaticApiDelegationTest {
     }
 
     @Test
-    void given_with_a_request_and_a_response_specification_sends_them_as_they_are() {
-        RequestSpecification request = given().header("X-Request", "1");
+    void given_with_a_request_and_a_response_specification_merges_them_into_the_static_settings_when_it_is_called() {
+        RequestSpecification request = new RequestSpecBuilder().addHeader("X-Request", "1").build();
         RestAssured.requestSpecification = new RequestSpecBuilder().addHeader("X-Static", "1").build();
+        RestAssured.port = 1234;
         RequestSender sender = given(request, new ResponseSpecBuilder().expectStatusCode(200).build());
+        RestAssured.port = 5678;
 
         sender.get("/path");
 
-        assertThat(FakeHttpClients.sent.get(0).headers()).contains(new HttpHeader("X-Request", "1"))
-                .noneMatch(header -> header.name().equals("X-Static"));
+        assertThat(FakeHttpClients.sent.get(0).uri()).isEqualTo(URI.create("http://localhost:1234/path"));
+        assertThat(FakeHttpClients.sent.get(0).headers()).filteredOn(header -> header.name().startsWith("X-"))
+                .containsExactly(new HttpHeader("X-Static", "1"), new HttpHeader("X-Request", "1"));
     }
 
     private static HttpResponse json(String body) {

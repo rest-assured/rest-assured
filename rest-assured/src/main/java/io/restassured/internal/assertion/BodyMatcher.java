@@ -44,6 +44,19 @@ public class BodyMatcher {
     private Matcher matcher;
     private ResponseParserRegistrar rpr;
 
+    /**
+     * @return A copy that uses <code>rpr</code>, and <code>rootPath</code> if this expectation has no root path
+     */
+    BodyMatcher copy(String rootPath, ResponseParserRegistrar rpr) {
+        BodyMatcher copy = new BodyMatcher();
+        copy.key = key;
+        copy.rootPath = this.rootPath == null ? rootPath : this.rootPath;
+        copy.arguments = arguments;
+        copy.matcher = matcher;
+        copy.rpr = rpr;
+        return copy;
+    }
+
     public Map<String, Object> validate(Response response, Object contentParser, RestAssuredConfig config) {
         boolean success = true;
         String errorMessage = "";

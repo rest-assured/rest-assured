@@ -282,8 +282,9 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
 
         // The following is a work-around to enable logging of request and response if validation fails
         if (responseSpecification instanceof ResponseSpecificationImpl) {
-            // Validates with a copy, so that the specification doesn't change and can validate from many threads
-            ResponseSpecificationImpl impl = ((ResponseSpecificationImpl) responseSpecification).copyToValidate();
+            // Validates with a copy, so that the specification doesn't change and can validate from many threads. It
+            // takes the parsers and the root path of this response where it has none, as if it were merged.
+            ResponseSpecificationImpl impl = ((ResponseSpecificationImpl) responseSpecification).copyToValidate(responseSpec);
             responseSpecification = impl;
             impl.setConfig(config);
             // Includes the config set with ResponseSpecBuilder.setConfig(..)

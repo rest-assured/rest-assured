@@ -226,7 +226,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     private boolean addCsrfFilter;
 
     // The defaults of then() of the client whose given() created this specification. Never merged.
-    private Supplier<ResponseDefaults> responseDefaults;
+    private final Supplier<ResponseDefaults> responseDefaults;
 
     // Set on this specification, directly or by merging a specification that set them
     private final Set<MergeableValue> explicitlySetValues = EnumSet.noneOf(MergeableValue.class);
@@ -343,16 +343,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     /**
-     * @return A copy of this specification that sends with <code>responseSpecification</code>, and with the defaults of
-     * <code>then()</code> that <code>responseDefaults</code> gives unless it's <code>null</code>, for
+     * @return A copy of this specification that sends with <code>responseSpecification</code>, for
      * {@link TestSpecificationImpl}
      */
-    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification, Supplier<ResponseDefaults> responseDefaults) {
+    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification) {
         RequestSpecificationImpl request = new RequestSpecificationImpl(this);
         request.responseSpecification = (FilterableResponseSpecification) responseSpecification;
-        if (responseDefaults != null) {
-            request.responseDefaults = responseDefaults;
-        }
         return request;
     }
 

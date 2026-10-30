@@ -82,6 +82,8 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     // A String, a ContentType or a Matcher
     private Object contentType;
     private RestAssuredResponseImpl restAssuredResponse;
+    // Null until it's set, in a specification that ResponseSpecBuilder builds, so that the root path of the specification
+    // it's used with applies
     private String bodyRootPath;
     private ResponseParserRegistrar rpr;
     private RestAssuredConfig config;
@@ -101,12 +103,15 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         this(bodyRootPath, defaultSpec, rpr, config, null, logRepository);
     }
 
+    /**
+     * @param bodyRootPath The root path, or <code>null</code> for none set
+     */
     public ResponseSpecificationImpl(String bodyRootPath, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                                      RestAssuredConfig config, Response response, LogRepository logRepository) {
         Validate.notNull(config, "RestAssuredConfig cannot be null");
         this.config = config;
         this.response = response;
-        rootPath(bodyRootPath);
+        this.bodyRootPath = bodyRootPath;
         this.rpr = rpr;
         if (defaultSpec != null) {
             spec(defaultSpec);
@@ -156,6 +161,23 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         ResponseSpecificationImpl copy = new ResponseSpecificationImpl(this);
         copy.requestSpecification = requestSpecification;
         copy.logRepository = logRepository;
+        return copy;
+    }
+
+    /**
+     * A copy to validate with, as {@link #copyToValidate()}, that uses the parsers of <code>defaults</code> with the
+     * ones of this specification on top, and the root path of <code>defaults</code> where this specification has none,
+     * as merging this specification into <code>defaults</code> would
+     */
+    ResponseSpecificationImpl copyToValidate(ResponseSpecificationImpl defaults) {
+        ResponseSpecificationImpl copy = copyToValidate();
+        copy.rpr = defaults.rpr == null ? new ResponseParserRegistrar() : new ResponseParserRegistrar(defaults.rpr);
+        SpecificationMerger.mergeParsers(copy.rpr, rpr);
+        copy.bodyMatchers = new BodyMatcherGroup();
+        copy.bodyMatchers.add(bodyMatchers, defaults.bodyRootPath, copy.rpr);
+        if (copy.bodyRootPath == null) {
+            copy.bodyRootPath = defaults.bodyRootPath;
+        }
         return copy;
     }
 

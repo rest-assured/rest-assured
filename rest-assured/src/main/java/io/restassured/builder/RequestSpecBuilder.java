@@ -42,11 +42,16 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.DEFAULT_AUTH;
+import static io.restassured.RestAssured.DEFAULT_PATH;
+import static io.restassured.RestAssured.DEFAULT_URI;
+import static io.restassured.RestAssured.DEFAULT_URL_ENCODING_ENABLED;
+import static io.restassured.RestAssured.UNDEFINED_PORT;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
@@ -69,15 +74,25 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * when().
  *        get("/something");
  * </pre>
+ * <p>
+ * The builder doesn't read the static settings of {@link RestAssured}, such as {@link RestAssured#baseURI},
+ * {@link RestAssured#config}, {@link RestAssured#filters(List)} or {@link RestAssured#requestSpecification}. They apply
+ * when the specification is used, for example with <code>given().spec(requestSpec)</code>, so they're applied once, as they
+ * are at that time. With a {@link io.restassured.RestAssuredClient}, the settings of the client apply instead. To keep a
+ * value with the specification, set it on the builder, for example <code>setConfig(RestAssured.config())</code>.
+ * </p>
  */
 public class RequestSpecBuilder {
 
     private static final String SSL = "SSL";
     private RequestSpecificationImpl spec;
 
+    /**
+     * Starts from the values that {@link RestAssured#reset()} sets.
+     */
     public RequestSpecBuilder() {
-        this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(),
-                requestSpecification, urlEncodingEnabled, config, new LogRepository(), proxy, true, true).config(RestAssured.config());
+        this.spec = new RequestSpecificationImpl(DEFAULT_URI, UNDEFINED_PORT, DEFAULT_PATH, DEFAULT_AUTH, Collections.emptyList(), null,
+                DEFAULT_URL_ENCODING_ENABLED, new RestAssuredConfig(), new LogRepository(), null, true, true);
     }
 
     /**
@@ -1081,9 +1096,9 @@ public class RequestSpecBuilder {
      * The following settings are merged:
      * <ul>
      * <li>Parameters, query parameters, form parameters and path parameters (a parameter of the supplied specification replaces one with the same name)</li>
-     * <li>Multi-part form data parameters</li>
-     * <li>Cookies</li>
-     * <li>Headers (a Content-Type or Accept header of the supplied specification replaces the current one by default, see {@link io.restassured.config.HeaderConfig})</li>
+     * <li>Multi-part form data parameters (the same part isn't added again, but an equal part made separately is)</li>
+     * <li>Cookies (a cookie that is already present with the same value isn't added again)</li>
+     * <li>Headers (a header that is already present with the same value isn't added again, and a Content-Type or Accept header of the supplied specification replaces the current one by default, see {@link io.restassured.config.HeaderConfig})</li>
      * <li>Filters (a filter that is already present isn't added again, and an authentication filter replaces the current ones)</li>
      * </ul>
      *

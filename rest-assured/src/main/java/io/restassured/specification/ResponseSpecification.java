@@ -962,10 +962,11 @@ public interface ResponseSpecification {
      * This is useful when you want to reuse multiple different expectations in several tests.
      * <p/>
      * The specification passed to this method is merged with the current specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * can overwrite data in the current specification. The following settings are overwritten when the supplied specification sets them,
+     * and otherwise kept:
      * <ul>
      * <li>Content type</li>
-     * <li>Root path</
+     * <li>Root path</li>
      * <li>Status code</li>
      * <li>Status line</li>
      * </ul>

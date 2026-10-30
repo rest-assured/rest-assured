@@ -1,6 +1,7 @@
 package io.restassured.internal.assertion;
 
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.response.Response;
 
 import java.util.ArrayList;
@@ -12,6 +13,14 @@ public class BodyMatcherGroup {
 
     public void add(BodyMatcherGroup group) {
         bodyAssertions.addAll(group.bodyAssertions);
+    }
+
+    /**
+     * Adds copies of the expectations of <code>group</code> that use <code>rpr</code>, and <code>rootPath</code> when
+     * they were defined without a root path.
+     */
+    public void add(BodyMatcherGroup group, String rootPath, ResponseParserRegistrar rpr) {
+        group.bodyAssertions.forEach(bodyMatcher -> bodyAssertions.add(bodyMatcher.copy(rootPath, rpr)));
     }
 
     public void add(BodyMatcher bodyMatcher) {

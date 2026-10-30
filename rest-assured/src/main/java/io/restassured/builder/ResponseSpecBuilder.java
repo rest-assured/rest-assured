@@ -33,12 +33,10 @@ import io.restassured.specification.Argument;
 import io.restassured.specification.ResponseSpecification;
 import org.hamcrest.Matcher;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static io.restassured.RestAssured.rootPath;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
@@ -60,12 +58,23 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * when().
  *        get("/something");
  * </pre>
+ * <p>
+ * The builder doesn't read the static settings of {@link RestAssured}, such as {@link RestAssured#rootPath}, the
+ * registered parsers, {@link RestAssured#defaultParser} or {@link RestAssured#config}. Those of the request or response
+ * that the specification is used with apply, as they are at that time, and the ones set on the builder take precedence.
+ * For example, the body expectations of a builder without a root path use the root path of
+ * <code>RestAssured.rootPath</code>, of <code>expect().rootPath(..)</code> or of a
+ * {@link io.restassured.RestAssuredClient}.
+ * </p>
  */
 public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
+    /**
+     * Starts with no root path, parsers or default parser of its own.
+     */
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, null, getResponseParserRegistrar(), restAssuredConfig(), new LogRepository());
+        spec = new ResponseSpecificationImpl(null, null, new ResponseParserRegistrar(), new RestAssuredConfig(), new LogRepository());
     }
 
     /**
@@ -591,10 +600,11 @@ public class ResponseSpecBuilder {
 
     /**
      * Merge this builder with settings from another specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
+     * can overwrite data in the current specification. The following settings are overwritten when the supplied
+     * specification sets them, and otherwise kept:
      * <ul>
      * <li>Content type</li>
-     * <li>Root path</
+     * <li>Root path</li>
      * <li>Status code</li>
      * <li>Status line</li>
      * </ul>
@@ -696,30 +706,6 @@ public class ResponseSpecBuilder {
         return spec;
     }
 
-    private ResponseParserRegistrar getResponseParserRegistrar() {
-        ResponseParserRegistrar rpr;
-        Field registrarField = null;
-        try {
-            registrarField = RestAssured.class.getDeclaredField("RESPONSE_PARSER_REGISTRAR");
-            try {
-                registrarField.setAccessible(true);
-                rpr = (ResponseParserRegistrar) registrarField.get(RestAssured.class);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        } finally {
-            registrarField.setAccessible(false);
-        }
-        ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(rpr);
-        Parser defaultParser = RestAssured.defaultParser;
-        if (defaultParser != null) {
-            responseParserRegistrar.registerDefaultParser(defaultParser);
-        }
-        return responseParserRegistrar;
-    }
-
     /**
      * Set the configuration that this response specification validates with. Each configuration type that you have
      * configured in it, such as {@code jsonConfig().pathEngine(JsonPathEngine.JAYWAY)}, takes precedence over the one of
@@ -745,9 +731,5 @@ public class ResponseSpecBuilder {
     public ResponseSpecBuilder setConfig(RestAssuredConfig config) {
         ((ResponseSpecificationImpl) spec).setSpecificationConfig(config);
         return this;
-    }
-
-    private RestAssuredConfig restAssuredConfig() {
-        return RestAssured.config();
     }
 }

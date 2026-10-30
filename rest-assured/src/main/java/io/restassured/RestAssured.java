@@ -724,17 +724,25 @@ public class RestAssured {
      * You can then pass the response and request specifications to this method. E.g.
      * <p/>
      * <pre>
-     * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
-     * ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
+     * RequestSpecification requestSpecification = new RequestSpecBuilder().addParam("firstName", "John").addParam("lastName", "Doe").build();
+     * ResponseSpecification responseSpecification = new ResponseSpecBuilder().expectBody("greeting", equalTo("Greetings John Doe")).build();
      * given(requestSpecification, responseSpecification).get("/greet");
      * </pre>
      * <p/>
      * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
+     * <p/>
+     * It's the same as <code>given().spec(requestSpecification).expect().spec(responseSpecification)</code>: the two
+     * specifications are merged into the static settings, or those of the client bound to the thread with
+     * {@link #useClient(RestAssuredClient)}, as they are when this method is called. So {@link #responseSpecification}
+     * applies too.
      *
      * @return A test io.restassured.specification.
      */
     public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        return current().testSpecification(requestSpecification, responseSpecification);
+        TestSpecificationImpl testSpecification = current().testSpecification();
+        testSpecification.getRequestSpecification().spec(requestSpecification);
+        testSpecification.getResponseSpecification().spec(responseSpecification);
+        return testSpecification;
     }
 
     /**
