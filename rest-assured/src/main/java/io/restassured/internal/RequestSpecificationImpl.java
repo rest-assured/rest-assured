@@ -225,6 +225,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     private boolean addCsrfFilter;
 
+    // Starts a request with the defaults of the client whose given() created this specification. Never merged.
+    private final Supplier<RequestSpecification> newRequestOfClient;
+
     // The defaults of then() of the client whose given() created this specification. Never merged.
     private final Supplier<ResponseDefaults> responseDefaults;
 
@@ -235,16 +238,19 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
                                     ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter) {
         this(baseURI, requestPort, basePath, defaultAuthScheme, filters, defaultSpec, urlEncode, restAssuredConfig, logRepository, proxySpecification,
-                allowContentType, addCsrfFilter, ResponseDefaults::ofStaticFields);
+                allowContentType, addCsrfFilter, RestAssured::given, ResponseDefaults::ofStaticFields);
     }
 
     /**
-     * @param responseDefaults Gives the defaults of <code>then()</code> of the client whose <code>given()</code> creates
-     *                         this specification when it's called
+     * @param newRequestOfClient Starts a request with the defaults of the client whose <code>given()</code> creates this
+     *                           specification, see {@link #newRequestOfClient()}
+     * @param responseDefaults   Gives the defaults of <code>then()</code> of the client whose <code>given()</code> creates
+     *                           this specification when it's called
      */
     public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
-                                    ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter, Supplier<ResponseDefaults> responseDefaults) {
+                                    ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter,
+                                    Supplier<RequestSpecification> newRequestOfClient, Supplier<ResponseDefaults> responseDefaults) {
         notNull(baseURI, "baseURI");
         notNull(basePath, "basePath");
         notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -263,6 +269,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.proxySpecification = proxySpecification;
         this.allowContentType = allowContentType;
         this.addCsrfFilter = addCsrfFilter;
+        this.newRequestOfClient = notNull(newRequestOfClient, "newRequestOfClient");
         this.responseDefaults = notNull(responseDefaults, "responseDefaults");
         // The values given to the constructor, and those of the default specification, are defaults
         explicitlySetValues.clear();
@@ -295,6 +302,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.logRepository = other.logRepository == null ? null : new LogRepository(other.logRepository);
         this.allowContentType = other.allowContentType;
         this.addCsrfFilter = other.addCsrfFilter;
+        this.newRequestOfClient = other.newRequestOfClient;
         this.responseDefaults = other.responseDefaults;
         this.explicitlySetValues.addAll(other.explicitlySetValues);
     }
@@ -2822,11 +2830,23 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         explicitlySetValues.add(MergeableValue.AUTHENTICATION_SCHEME);
     }
 
-    // Accessors for SpecificationMerger and AuthenticationSpecificationImpl. The collections are the live ones.
+    /**
+     * @return A new request specification with the defaults of the client whose <code>given()</code> created this
+     * specification, or else {@link RestAssured#given()}. Form authentication and CSRF send their extra requests with it.
+     */
+    public RequestSpecification newRequestOfClient() {
+        return newRequestOfClient.get();
+    }
 
-    int getRequestPort() {
+    /**
+     * @return The port set on this specification or its defaults, or {@link RestAssured#UNDEFINED_PORT}. Unlike
+     * {@link #getPort()}, not the port of the URI that a request is sent to.
+     */
+    public int getRequestPort() {
         return port;
     }
+
+    // Accessors for SpecificationMerger and AuthenticationSpecificationImpl. The collections are the live ones.
 
     void setRequestPort(int port) {
         this.port = port;

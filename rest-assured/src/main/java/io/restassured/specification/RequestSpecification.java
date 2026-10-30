@@ -1214,7 +1214,9 @@ public interface RequestSpecification extends RequestSender {
      * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
      * be able to include in the csrf value which will slow down the tests.
      *
-     * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request.
+     * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request. A
+     *                      relative path is sent to the base URI, port and base path of the request, so for a request
+     *                      sent to a full URL, such as <code>post("http://localhost:8081/x")</code>, give a full URL here too.
      * @return The request specification
      * @see #csrf(String, String)
      */
@@ -1268,7 +1270,9 @@ public interface RequestSpecification extends RequestSender {
      * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
      * be able to include in the csrf value which will slow down the tests.
      *
-     * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request.
+     * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request. A
+     *                      relative path is sent to the base URI, port and base path of the request, so for a request
+     *                      sent to a full URL, such as <code>post("http://localhost:8081/x")</code>, give a full URL here too.
      * @param csrfFieldName The name of the input field that contains the CSRF token.
      * @return The request specification instance
      * @see #csrf(String)

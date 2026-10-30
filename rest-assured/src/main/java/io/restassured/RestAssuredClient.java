@@ -115,8 +115,8 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * A specification built with {@link io.restassured.builder.RequestSpecBuilder} or
  * {@link io.restassured.builder.ResponseSpecBuilder} contains no static settings of <code>RestAssured</code>, so used
  * with a client, for example with <code>given(client).spec(requestSpec)</code>, it gets the settings of the client. The
- * extra requests of form authentication and CSRF are sent with the client bound to the thread, if there is one, and
- * otherwise with the static settings.
+ * extra requests of form authentication and CSRF, such as the request for the login page or for the page with the CSRF
+ * token, get the settings of the client of the request too.
  */
 public final class RestAssuredClient {
 
@@ -165,7 +165,7 @@ public final class RestAssuredClient {
 
     // Starts a request of RestAssured.given(), given(client), when(), expect() or given(req, resp)
     TestSpecificationImpl testSpecification() {
-        return defaults.get().testSpecification(responseDefaults);
+        return defaults.get().testSpecification(() -> RestAssured.given(this), responseDefaults);
     }
 
     /**

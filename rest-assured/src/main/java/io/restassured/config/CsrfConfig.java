@@ -296,6 +296,8 @@ public class CsrfConfig implements Config {
 
     /*
      * Specify a path that is used to get the CSRF token. This token will be used automatically by REST Assured for subsequent calls to the API.
+     * A relative path is sent to the base URI, port and base path of the request, also with form authentication, so for a request sent to a
+     * full URL, such as post("http://localhost:8081/x"), specify a full URL here too.
      */
     public CsrfConfig csrfTokenPath(String csrfTokenPath) {
         return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);

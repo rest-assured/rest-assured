@@ -92,6 +92,31 @@ public class CsrfITest extends WithJetty {
     }
 
     @Test
+    void csrfTokenPageIsFetchedWithTheSslConfigOfTheRequest() {
+        given().
+                relaxedHTTPSValidation().
+                csrf("https://localhost:8443/loginPageWithCsrf").
+        when().
+                post("https://localhost:8443/loginPageWithCsrf").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    void csrfTokenPageIsFetchedFromTheBaseUriOfTheRequest() {
+        // A closed port
+        RestAssured.port = 1;
+
+        given().
+                baseUri("http://localhost:8080").
+                csrf("/loginPageWithCsrf").
+        when().
+                post("/loginPageWithCsrf").
+        then().
+                statusCode(200);
+    }
+
+    @Test
     void csrfAutoCsrfDetectionDefinedInRequestConfig() {
         given().
                 config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf").loggingEnabled(LogDetail.BODY))).
