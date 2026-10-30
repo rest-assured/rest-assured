@@ -46,7 +46,7 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.http.Method;
 import io.restassured.internal.MapCreator.CollisionStrategy;
-import io.restassured.internal.client.ClientContext;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.filter.CsrfFilter;
 import io.restassured.internal.filter.FilterContextImpl;
@@ -129,6 +129,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
@@ -224,8 +225,8 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     private boolean addCsrfFilter;
 
-    // The client whose given() created this specification. Never merged.
-    private ClientContext clientContext;
+    // The defaults of then() of the client whose given() created this specification. Never merged.
+    private Supplier<ResponseDefaults> responseDefaults;
 
     // Set on this specification, directly or by merging a specification that set them
     private final Set<MergeableValue> explicitlySetValues = EnumSet.noneOf(MergeableValue.class);
@@ -234,15 +235,16 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
                                     ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter) {
         this(baseURI, requestPort, basePath, defaultAuthScheme, filters, defaultSpec, urlEncode, restAssuredConfig, logRepository, proxySpecification,
-                allowContentType, addCsrfFilter, ClientContext.STATIC);
+                allowContentType, addCsrfFilter, ResponseDefaults::ofStaticFields);
     }
 
     /**
-     * @param clientContext The client whose <code>given()</code> creates this specification
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the client whose <code>given()</code> creates
+     *                         this specification when it's called
      */
     public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                                     RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
-                                    ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter, ClientContext clientContext) {
+                                    ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter, Supplier<ResponseDefaults> responseDefaults) {
         notNull(baseURI, "baseURI");
         notNull(basePath, "basePath");
         notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -261,7 +263,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.proxySpecification = proxySpecification;
         this.allowContentType = allowContentType;
         this.addCsrfFilter = addCsrfFilter;
-        this.clientContext = notNull(clientContext, ClientContext.class);
+        this.responseDefaults = notNull(responseDefaults, "responseDefaults");
         // The values given to the constructor, and those of the default specification, are defaults
         explicitlySetValues.clear();
     }
@@ -293,7 +295,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         this.logRepository = other.logRepository == null ? null : new LogRepository(other.logRepository);
         this.allowContentType = other.allowContentType;
         this.addCsrfFilter = other.addCsrfFilter;
-        this.clientContext = other.clientContext;
+        this.responseDefaults = other.responseDefaults;
         this.explicitlySetValues.addAll(other.explicitlySetValues);
     }
 
@@ -341,14 +343,15 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     /**
-     * @return A copy of this specification that sends with <code>responseSpecification</code>, and with the HTTP client
-     * instances of <code>clientContext</code> unless it's <code>null</code>, for {@link TestSpecificationImpl}
+     * @return A copy of this specification that sends with <code>responseSpecification</code>, and with the defaults of
+     * <code>then()</code> that <code>responseDefaults</code> gives unless it's <code>null</code>, for
+     * {@link TestSpecificationImpl}
      */
-    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification, ClientContext clientContext) {
+    RequestSpecificationImpl pairedWith(ResponseSpecification responseSpecification, Supplier<ResponseDefaults> responseDefaults) {
         RequestSpecificationImpl request = new RequestSpecificationImpl(this);
         request.responseSpecification = (FilterableResponseSpecification) responseSpecification;
-        if (clientContext != null) {
-            request.clientContext = clientContext;
+        if (responseDefaults != null) {
+            request.responseDefaults = responseDefaults;
         }
         return request;
     }
@@ -1650,14 +1653,14 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig());
         restAssuredResponse.setConfig(cfg);
         restAssuredResponse.setFilterContextProperties(filterContextProperties);
-        restAssuredResponse.setResponseDefaults(clientContext.responseDefaults());
+        restAssuredResponse.setResponseDefaults(responseDefaults);
         responseSpecification.setRestAssuredResponse(restAssuredResponse);
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
         CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig());
         authenticate(authenticationScheme, authentication);
-        HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication, clientContext.instances());
+        HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication);
         try {
             ContentDecoding contentDecoding = new ContentDecoding(cfg.getDecoderConfig());
             RequestOptions options = ClientSettingsFactory.requestOptions(cfg.getHttpClientConfig(), authentication.ntlm());
@@ -1682,7 +1685,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
             Exchange exchange = new Exchange(transport, redirects.resolve(cfg.getRedirectConfig()),
                     authentication.credentials() == null ? null : new ChallengeHandler(authentication.credentials()),
-                    authentication.oauthSigner(), keptCookies(cfg.getHttpClientConfig(), clientContext.instances()), defaultUserAgent);
+                    authentication.oauthSigner(), keptCookies(cfg.getHttpClientConfig()), defaultUserAgent);
             Exchanged exchanged = exchange.send(request);
             restAssuredResponse.setEffectiveUri(exchanged.effectiveUri());
             RequestDispatcher.receive(exchanged.response(), contentDecoding, responseSpecification.hasBodyAssertionsDefined(), hamcrestAssertionClosure);
@@ -1721,15 +1724,15 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     /**
      * @return The cookies that the responses of the request set, which are kept within its redirects and, with
-     * {@link HttpClientConfig#reuseHttpClientInstance()}, across the requests of that config that use the same
-     * instances, or <code>null</code> if the cookies of the responses aren't kept
+     * {@link HttpClientConfig#reuseHttpClientInstance()}, across the requests of that config, or <code>null</code> if
+     * the cookies of the responses aren't kept
      */
-    private static KeptCookies keptCookies(HttpClientConfig httpClientConfig, HttpClientInstances instances) {
+    private static KeptCookies keptCookies(HttpClientConfig httpClientConfig) {
         if (!httpClientConfig.keepsResponseCookies()) {
             return null;
         }
         CookieStore store = httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()
-                ? instances.cookieStore(httpClientConfig) : new CookieStore();
+                ? HttpClientInstances.global().cookieStore(httpClientConfig) : new CookieStore();
         return new KeptCookies(store, new KeptCookieSpec(httpClientConfig.cookieDatePatterns()));
     }
 
@@ -2252,7 +2255,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         Response response = ctx.next(this, responseSpecification);
         // So that then() also validates a response that a filter built, such as with ResponseBuilder, with the client's defaults
         if (response instanceof RestAssuredResponseOptionsImpl<?> built && built.getResponseDefaults() == null) {
-            built.setResponseDefaults(clientContext.responseDefaults());
+            built.setResponseDefaults(responseDefaults);
         }
         responseSpecificationImpl.getAssertionClosure().validate(response);
         return response;

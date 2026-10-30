@@ -359,6 +359,20 @@ class RestAssuredClientTest {
                 .setBody("{\"a\": {\"b\": 1}, \"c\": {\"b\": 2}}").build()).get("http://localhost/path").then().body("b", equalTo(1));
     }
 
+    // Connections
+
+    @Test
+    void a_client_sends_with_the_shared_http_client_of_the_static_api_for_the_same_settings() {
+        // Settings that no other test uses, so that the shared HTTP client is created here
+        RestAssuredConfig config = config().httpClient(httpClientConfig().client(FakeHttpClients.Other.class).connectTimeout(Duration.ofSeconds(123457)));
+
+        given().config(config).get("http://localhost/path");
+        given(RestAssuredClient.builder().config(config).build()).get("http://localhost/path");
+
+        assertThat(FakeHttpClients.created).hasSize(1);
+        assertThat(FakeHttpClients.sent).hasSize(2);
+    }
+
     // Getters and checks
 
     @Test

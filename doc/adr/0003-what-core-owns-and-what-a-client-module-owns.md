@@ -4,7 +4,7 @@ Date: 2026-10-17
 
 ## Status
 
-Accepted, for 7.0.0.
+Accepted, for 7.0.0. Amended 2026-10-30: a `RestAssuredClient` owns no client instances or cookie store.
 
 ## Context
 
@@ -57,8 +57,12 @@ JVM-wide properties.
 |---|---|---|
 | Static API, default | Taken from a shared cache, with connections reused. | A new client per request, as today, closed once the body is read or the `asInputStream()` stream is closed. |
 | `reuseHttpClientInstance()` | The same shared client. With `keepResponseCookies(true)`, response cookies are kept in a core-owned store held by that config. | One pooled client per `HttpClientConfig`, never closed, as today. Cookies as for JDK. |
-| `RestAssuredClient` | Owns its cached clients and cookie store, closed in `close()` on Java 21 and later. | Owns one pooled client per distinct setting, closed in `close()`. |
+| `RestAssuredClient` | As the static API, by the rows above. | As the static API, by the rows above. |
 | `ConnectionConfig.closeIdleConnectionsAfterEachResponse(..)` | The request gets its own unshared client, closed after the response on Java 21 and later. On Java 17 it is left to the garbage collector, with a one-time warning. | Closes the pool's idle connections after each response or stream close, as today. |
+
+**A `RestAssuredClient` owns no client instances or cookie store** and sends like the static API, so it has no
+`close()`. There is no lifecycle to leak or forget, the library has one rule for connections, Java 17's `HttpClient`
+can't be closed anyway, and an opt-in pooled client can be added later without breaking anyone.
 
 **Shared JDK clients are cached by value**, one per distinct TLS, proxy, HTTP version and connect timeout setting, at
 most 16, with the least recently used evicted and closed on Java 21 and later. `SSLConfig` records what was asked for

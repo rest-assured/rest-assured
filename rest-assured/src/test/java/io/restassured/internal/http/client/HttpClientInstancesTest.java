@@ -17,7 +17,6 @@
 package io.restassured.internal.http.client;
 
 import io.restassured.common.spi.http.ClientSettings;
-import io.restassured.common.spi.http.HttpClientProvider;
 import io.restassured.common.spi.http.HttpVersion;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.HttpClientConfig;
@@ -34,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import static io.restassured.config.ConnectionConfig.connectionConfig;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HttpClientInstancesTest {
     private static final ClientSettings SETTINGS = settings(null);
@@ -208,87 +206,6 @@ class HttpClientInstancesTest {
 
         assertThat(closed(lease)).isTrue();
         assertThat(idleConnectionsClosed(lease)).isEmpty();
-    }
-
-    // The instances of a RestAssuredClient
-
-    @Test
-    void owned_instances_keep_one_per_request_client_for_each_provider_and_settings_without_reuse() {
-        HttpClientInstances owned = HttpClientInstances.owned();
-        Lease first = owned.acquire(new FakeHttpClients.Apache5(), SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS);
-        first.release();
-        Lease second = owned.acquire(new FakeHttpClients.Apache5(), settings(null), httpClientConfig(), DEFAULT_CONNECTIONS);
-        Lease otherSettings = owned.acquire(new FakeHttpClients.Apache5(), settings(Duration.ofSeconds(1)), httpClientConfig(), DEFAULT_CONNECTIONS);
-        Lease otherProvider = owned.acquire(new FakeHttpClients.OkHttp(), SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS);
-
-        assertThat(second.instance()).isSameAs(first.instance());
-        assertThat(otherSettings.instance()).isNotSameAs(first.instance());
-        assertThat(otherProvider.instance()).isNotSameAs(first.instance());
-        assertThat(closed(first)).isFalse();
-    }
-
-    @Test
-    void closing_owned_instances_closes_each_once_now_or_after_its_last_lease() {
-        HttpClientInstances owned = HttpClientInstances.owned();
-        Lease idleShared = owned.acquire(new FakeHttpClients.Jdk(), SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS);
-        idleShared.release();
-        Lease usedShared = owned.acquire(new FakeHttpClients.Jdk(), settings(Duration.ofSeconds(1)), httpClientConfig(), DEFAULT_CONNECTIONS);
-        Lease usedKept = owned.acquire(new FakeHttpClients.Apache5(), SETTINGS, httpClientConfig().reuseHttpClientInstance(), DEFAULT_CONNECTIONS);
-        Lease usedTwice = owned.acquire(new FakeHttpClients.Apache5(), SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS);
-
-        owned.close();
-        owned.close();
-        assertThat(((FakeClient) idleShared.instance()).closes).hasValue(1);
-        assertThat(closed(usedShared)).isFalse();
-        assertThat(closed(usedKept)).isFalse();
-        usedShared.release();
-        usedKept.release();
-        assertThat(closed(usedKept)).isFalse();
-        usedTwice.release();
-
-        assertThat(FakeHttpClients.created).hasSize(3).allMatch(client -> client.closes.get() == 1);
-    }
-
-    @Test
-    void owned_instances_keep_up_to_16_per_request_clients_and_close_the_least_recently_used_one() {
-        HttpClientInstances owned = HttpClientInstances.owned();
-        FakeHttpClients.Apache5 provider = new FakeHttpClients.Apache5();
-        Lease first = owned.acquire(provider, settings(Duration.ofSeconds(1)), httpClientConfig(), DEFAULT_CONNECTIONS);
-        for (int i = 2; i <= HttpClientInstances.MAX_SHARED + 1; i++) {
-            owned.acquire(provider, settings(Duration.ofSeconds(i)), httpClientConfig(), DEFAULT_CONNECTIONS).release();
-        }
-
-        assertThat(closed(first)).isFalse();
-        first.release();
-
-        assertThat(((FakeClient) first.instance()).closes).hasValue(1);
-        assertThat(FakeHttpClients.created).hasSize(HttpClientInstances.MAX_SHARED + 1);
-    }
-
-    @Test
-    void closed_owned_instances_fail_to_acquire_and_give_no_cookie_store() {
-        HttpClientInstances owned = HttpClientInstances.owned();
-
-        owned.close();
-
-        for (HttpClientProvider provider : List.of(new FakeHttpClients.Jdk(), new FakeHttpClients.Apache5())) {
-            assertThatThrownBy(() -> owned.acquire(provider, SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS))
-                    .isExactlyInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
-        }
-        assertThatThrownBy(() -> owned.cookieStore(httpClientConfig().reuseHttpClientInstance()))
-                .isExactlyInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
-        assertThat(FakeHttpClients.created).isEmpty();
-    }
-
-    @Test
-    void the_global_instances_cant_be_closed() {
-        Lease lease = instances.acquire(new FakeHttpClients.Jdk(), SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS);
-
-        instances.close();
-        lease.release();
-
-        assertThat(closed(lease)).isFalse();
-        assertThat(instances.acquire(new FakeHttpClients.Jdk(), SETTINGS, httpClientConfig(), DEFAULT_CONNECTIONS).instance()).isSameAs(lease.instance());
     }
 
     private static List<Duration> idleConnectionsClosed(Lease lease) {

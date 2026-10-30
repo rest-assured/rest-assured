@@ -24,8 +24,6 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.Method;
 import io.restassured.internal.http.client.FakeHttpClients;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +63,6 @@ class UseClientTest {
 
     @AfterEach
     void reset() {
-        client.close();
         FakeHttpClients.reset();
         RestAssured.reset();
     }
@@ -98,22 +95,19 @@ class UseClientTest {
     }
 
     @Test
-    void reset_client_brings_back_the_static_settings_and_leaves_a_client_that_was_passed_in_open() {
+    void reset_client_brings_back_the_static_settings() {
         RestAssured.useClient(client);
         RestAssured.resetClient();
 
         given().get("/path").then().body("b", equalTo(2));
-        given(client).get("/path");
 
-        assertThat(FakeHttpClients.sent).extracting(sent -> sent.uri()).containsExactly(STATIC, BOUND);
+        assertThat(FakeHttpClients.sent.get(0).uri()).isEqualTo(STATIC);
     }
 
     @Test
     void a_client_must_be_given_to_bind_one() {
-        assertThatThrownBy(() -> RestAssured.useClient((RestAssuredClient) null))
+        assertThatThrownBy(() -> RestAssured.useClient(null))
                 .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("RestAssuredClient cannot be null");
-        assertThatThrownBy(() -> RestAssured.useClient((RestAssuredClient.Builder) null))
-                .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Builder cannot be null");
     }
 
     @Test
@@ -158,51 +152,13 @@ class UseClientTest {
     }
 
     @Test
-    void a_client_built_by_use_client_is_closed_when_it_is_unbound() {
-        List<Runnable> unbinds = List.of(RestAssured::resetClient, RestAssured::reset, () -> RestAssured.useClient(client),
-                () -> RestAssured.useClient(RestAssuredClient.builder().config(FAKE)));
-
-        for (Runnable unbind : unbinds) {
-            RestAssured.useClient(RestAssuredClient.builder().config(FAKE));
-            RequestSpecification fromOwned = given();
-            unbind.run();
-
-            assertThatThrownBy(() -> fromOwned.get("/path")).isExactlyInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
-        }
-        // Rebinding a client that was passed in leaves it open
-        RestAssured.useClient(client);
-        RestAssured.useClient(RestAssuredClient.builder().config(FAKE));
-        given(client).get("/path");
-
-        assertThat(FakeHttpClients.sent).extracting(sent -> sent.uri()).containsExactly(BOUND);
-    }
-
-    @Test
     void the_static_settings_are_read_and_copied_as_they_are_while_a_client_is_bound() {
         RestAssured.useClient(client);
 
         assertThat(RestAssured.config()).isSameAs(FAKE);
-        try (RestAssuredClient snapshot = RestAssured.client()) {
-            given(snapshot).get("/path");
-        }
+        given(RestAssured.client()).get("/path");
 
         assertThat(FakeHttpClients.sent.get(0).uri()).isEqualTo(STATIC);
-    }
-
-    @Test
-    void a_bound_client_that_is_closed_fails_each_request() {
-        client.close();
-        RestAssured.useClient(client);
-
-        List<ThrowingCallable> calls = List.of(RestAssured::given, RestAssured::with, RestAssured::when, RestAssured::expect,
-                () -> given(new RequestSpecBuilder().build()), () -> given(new RequestSpecBuilder().build(), new ResponseSpecBuilder().build()),
-                () -> RestAssured.get("/path"), () -> RestAssured.request("GET"));
-        for (ThrowingCallable call : calls) {
-            assertThatThrownBy(call).isExactlyInstanceOf(IllegalStateException.class)
-                    .hasMessage("The RestAssuredClient bound to this thread with RestAssured.useClient(..) is closed");
-        }
-        assertThatThrownBy(() -> given(client)).isExactlyInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
-        assertThat(FakeHttpClients.sent).isEmpty();
     }
 
     private static HttpResponse json(String body) {

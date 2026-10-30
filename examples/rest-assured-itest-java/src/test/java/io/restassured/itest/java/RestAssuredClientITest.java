@@ -50,16 +50,15 @@ public class RestAssuredClientITest extends WithJetty {
             filtersRun.add(request.getURI());
             return context.next(request, response);
         };
-        try (RestAssuredClient client = RestAssuredClient.builder().baseUri("http://127.0.0.1").port(8080).basePath("/secured")
+        RestAssuredClient client = RestAssuredClient.builder().baseUri("http://127.0.0.1").port(8080).basePath("/secured")
                 .authentication(basic("jetty", "jetty")).filters(recording)
-                .requestSpecification(new RequestSpecBuilder().addQueryParam("n", "1").build()).build()) {
-            // A closed port
-            RestAssured.port = 1;
-            RestAssured.basePath = "/wrong";
+                .requestSpecification(new RequestSpecBuilder().addQueryParam("n", "1").build()).build();
+        // A closed port
+        RestAssured.port = 1;
+        RestAssured.basePath = "/wrong";
 
-            given(client).get("/hello").then().statusCode(200);
-            given(client).basePath("").get("/requestUrl").then().body(equalTo("http://127.0.0.1:8080/requestUrl?n=1"));
-        }
+        given(client).get("/hello").then().statusCode(200);
+        given(client).basePath("").get("/requestUrl").then().body(equalTo("http://127.0.0.1:8080/requestUrl?n=1"));
 
         assertThat(filtersRun).containsExactly("http://127.0.0.1:8080/secured/hello?n=1", "http://127.0.0.1:8080/requestUrl?n=1");
         assertThatThrownBy(() -> get("/hello")).isInstanceOf(Exception.class);
@@ -67,44 +66,30 @@ public class RestAssuredClientITest extends WithJetty {
 
     @Test
     void then_validates_with_the_root_path_and_response_specification_of_the_client() {
-        try (RestAssuredClient rooted = RestAssuredClient.builder().rootPath("greeting").build();
-             RestAssuredClient expectingJohn = RestAssuredClient.builder()
-                     .responseSpecification(new ResponseSpecBuilder().expectBody("greeting.firstName", equalTo("John")).build()).build()) {
-            RestAssured.rootPath = "other";
-            RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(404).build();
+        RestAssuredClient rooted = RestAssuredClient.builder().rootPath("greeting").build();
+        RestAssuredClient expectingJohn = RestAssuredClient.builder()
+                .responseSpecification(new ResponseSpecBuilder().expectBody("greeting.firstName", equalTo("John")).build()).build();
+        RestAssured.rootPath = "other";
+        RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(404).build();
 
-            given(rooted).get("/greetJSON?firstName=John&lastName=Doe").then().body("firstName", equalTo("John")).body("lastName", equalTo("Doe"));
-            given(expectingJohn).get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
-            assertThatThrownBy(() -> given(expectingJohn).get("/greetJSON?firstName=Jane&lastName=Doe"))
-                    .isInstanceOf(AssertionError.class).hasMessageContaining("JSON path greeting.firstName doesn't match.");
-        }
+        given(rooted).get("/greetJSON?firstName=John&lastName=Doe").then().body("firstName", equalTo("John")).body("lastName", equalTo("Doe"));
+        given(expectingJohn).get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
+        assertThatThrownBy(() -> given(expectingJohn).get("/greetJSON?firstName=Jane&lastName=Doe"))
+                .isInstanceOf(AssertionError.class).hasMessageContaining("JSON path greeting.firstName doesn't match.");
     }
 
     @Test
-    void a_client_keeps_its_own_cookies_apart_from_those_of_the_static_api() {
+    void a_client_shares_the_cookies_kept_for_its_config_with_the_static_api() {
         RestAssuredConfig keepCookies = config().httpClient(httpClientConfig().reuseHttpClientInstance().keepResponseCookies(true));
         RestAssured.config = keepCookies;
-        try (RestAssuredClient snapshot = RestAssured.client();
-             RestAssuredClient built = RestAssuredClient.builder().config(keepCookies).build()) {
+        RestAssuredClient snapshot = RestAssured.client();
+        RestAssuredClient otherConfig = RestAssuredClient.builder()
+                .config(config().httpClient(httpClientConfig().reuseHttpClientInstance().keepResponseCookies(true))).build();
 
-            get("/setCookies");
-            assertThat(cookieNames(get("/cookie").asString())).containsExactlyInAnyOrder("key1", "key2", "key3");
-            assertThat(given(snapshot).get("/cookie").asString()).doesNotContain("key1");
-            given(snapshot).get("/setCookies");
-            assertThat(cookieNames(given(snapshot).get("/cookie").asString())).containsExactlyInAnyOrder("key1", "key2", "key3");
-            assertThat(given(built).get("/cookie").asString()).doesNotContain("key1");
-        }
-    }
+        get("/setCookies");
 
-    @Test
-    void a_closed_client_fails_and_leaves_the_static_api_alone() {
-        RestAssuredClient client = RestAssured.client();
-        given(client).get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
-
-        client.close();
-
-        assertThatThrownBy(() -> given(client).get("/greetJSON")).isInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
-        get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
+        assertThat(cookieNames(given(snapshot).get("/cookie").asString())).containsExactlyInAnyOrder("key1", "key2", "key3");
+        assertThat(given(otherConfig).get("/cookie").asString()).doesNotContain("key1");
     }
 
     private static List<String> cookieNames(String body) {

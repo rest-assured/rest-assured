@@ -63,14 +63,13 @@ public final class ProviderTransport implements HttpClientInstance {
      * Translates the config of the request into the settings of the client.
      *
      * @param authentication What the authentication scheme of the request asked for
-     * @param instances      The instances to take the client instance from
      */
     public static ProviderTransport create(Selection selection, RestAssuredConfig config, ProxySpecification proxySpecification,
-                                           CoreAuthenticationContext authentication, HttpClientInstances instances) {
+                                           CoreAuthenticationContext authentication) {
         HttpClientConfig httpClientConfig = config.getHttpClientConfig();
         // The SSL config isn't used with certificate authentication, as in REST Assured 6.x
         ClientSettings settings = ClientSettingsFactory.clientSettings(config.getSSLConfig(), authentication.certificate(), proxySpecification, httpClientConfig);
-        return new ProviderTransport(selection, instances, settings, httpClientConfig, config.getConnectionConfig());
+        return new ProviderTransport(selection, HttpClientInstances.global(), settings, httpClientConfig, config.getConnectionConfig());
     }
 
     @Override

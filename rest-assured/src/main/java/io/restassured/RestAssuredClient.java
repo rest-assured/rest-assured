@@ -27,10 +27,8 @@ import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.TestSpecificationImpl;
 import io.restassured.internal.UriValidator;
-import io.restassured.internal.client.ClientContext;
 import io.restassured.internal.client.ClientDefaults;
 import io.restassured.internal.client.ResponseDefaults;
-import io.restassured.internal.http.client.HttpClientInstances;
 import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.ProxySpecification;
@@ -72,20 +70,18 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * <pre>
  * given(orders).queryParam("status", "open").when().get("/orders").then().statusCode(200);
  * </pre></li>
- * <li>The client bound to the current thread with {@link RestAssured#useClient(RestAssuredClient.Builder)} or
- * {@link RestAssured#useClient(RestAssuredClient)}, for example for tests that run in parallel and each have their own
- * settings. <code>given()</code>, <code>when()</code>, <code>get(..)</code> and the other static methods that start or
- * send a request then use it, until {@link RestAssured#resetClient()} or {@link RestAssured#reset()} unbinds it:
+ * <li>The client bound to the current thread with {@link RestAssured#useClient(RestAssuredClient)}, for example for
+ * tests that run in parallel and each have their own settings. <code>given()</code>, <code>when()</code>,
+ * <code>get(..)</code> and the other static methods that start or send a request then use it, until
+ * {@link RestAssured#resetClient()} or {@link RestAssured#reset()} unbinds it:
  * <pre>
- * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port)); }
+ * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port).build()); }
  * &#64;AfterEach void resetRestAssured() { RestAssured.reset(); }
  *
  * &#64;Test void shows_an_order() {
  *     get("/orders/{id}", 42).then().body("id", equalTo(42));
  * }
- * </pre>
- * A client bound with <code>useClient(builder)</code> is closed when it's unbound. One bound with
- * <code>useClient(client)</code> stays open, since other threads may use it too.</li>
+ * </pre></li>
  * <li>The static settings of <code>RestAssured</code>, as without a client.</li>
  * </ol>
  * The binding is for the current thread only. A request on another thread, for example in a condition that Awaitility
@@ -97,36 +93,23 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * <pre>
  * RestAssuredClient admin = api.toBuilder().authentication(basic("admin", "secret")).build();
  * </pre>
- * <h2>Closing a client</h2>
- * A client owns the HTTP clients that send its requests, and the cookies it keeps with
- * <code>httpClientConfig().reuseHttpClientInstance().keepResponseCookies(true)</code>. With http-client-apache5, it keeps one
- * HTTP client, and so one connection pool, for each distinct setting across its requests. {@link #close()} releases them:
- * <pre>
- * try (RestAssuredClient client = RestAssured.client().toBuilder().port(8081).build()) {
- *     given(client).get("/health").then().statusCode(200);
- * }
- * </pre>
- * or with JUnit 5:
- * <pre>
- * static RestAssuredClient api;
- *
- * &#64;BeforeAll static void createClient() { api = RestAssuredClient.builder().port(8081).build(); }
- * &#64;AfterAll static void closeClient() { api.close(); }
- * </pre>
- * After <code>close()</code>, starting a request with the client, whether it's named or bound, and sending a
- * specification that it created before, throw an {@link IllegalStateException}. Requests in flight complete, and
- * responses already received stay readable. A client that is never closed leaves its HTTP clients to the garbage
- * collector.
+ * <h2>Connections</h2>
+ * A client is an immutable set of settings. It owns no HTTP clients or cookies, so there is nothing to close: its
+ * requests take their connections and HTTP clients by the same rules as those of the static API. For example, with
+ * http-client-apache5 each request gets a new HTTP client unless the config has
+ * <code>httpClientConfig().reuseHttpClientInstance()</code>, which keeps one pooled HTTP client, and with
+ * <code>keepResponseCookies(true)</code> the cookies, for that config and its copies. A client that has such a config
+ * from {@link RestAssured#client()} or the static config shares them with the static API.
  * <h2>Thread safety</h2>
  * <ul>
- * <li>A client can be used from many threads at once, including {@link #close()}.</li>
+ * <li>A client can be used from many threads at once.</li>
  * <li><code>given(client)</code> returns a new specification each time. Don't change one specification from several
  * threads at once. Sending one specification, or one built with {@link io.restassured.builder.RequestSpecBuilder}, from
  * many threads is safe.</li>
  * <li>The filters of the client, including those of its default request specification, are used by all its requests
  * and must be thread safe.</li>
- * <li>The cookies that a client keeps with <code>reuseHttpClientInstance().keepResponseCookies(true)</code> are shared by its
- * requests from all threads.</li>
+ * <li>The cookies kept with <code>reuseHttpClientInstance().keepResponseCookies(true)</code> are shared by the requests
+ * of that config from all threads.</li>
  * </ul>
  * <h2>Static settings that still apply</h2>
  * A specification built with {@link io.restassured.builder.RequestSpecBuilder} or
@@ -135,7 +118,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * parser, which then apply to the requests of the client it's used with. The extra requests of form authentication and
  * CSRF are sent with the client bound to the thread, if there is one, and otherwise with the static settings.
  */
-public final class RestAssuredClient implements AutoCloseable {
+public final class RestAssuredClient {
 
     static {
         // First, so that an older rest-assured-common gives a message instead of a NoClassDefFoundError
@@ -143,12 +126,12 @@ public final class RestAssuredClient implements AutoCloseable {
     }
 
     private final Supplier<ClientDefaults> defaults;
-    private final ClientContext context;
+    private final Supplier<ResponseDefaults> responseDefaults;
 
     // The default client of the static API reads the static fields at each call
-    RestAssuredClient(Supplier<ClientDefaults> defaults, ClientContext context) {
+    RestAssuredClient(Supplier<ClientDefaults> defaults, Supplier<ResponseDefaults> responseDefaults) {
         this.defaults = defaults;
-        this.context = context;
+        this.responseDefaults = responseDefaults;
     }
 
     /**
@@ -159,8 +142,7 @@ public final class RestAssuredClient implements AutoCloseable {
     }
 
     /**
-     * @return A builder with the values of this client. The client it builds is independent of this one, and isn't
-     * closed when this one is.
+     * @return A builder with the values of this client. The client it builds is independent of this one.
      */
     public Builder toBuilder() {
         return new Builder(defaults.get());
@@ -181,30 +163,14 @@ public final class RestAssuredClient implements AutoCloseable {
         return Collections.unmodifiableList(defaults.get().filters());
     }
 
-    /**
-     * Closes the HTTP clients of this client, now or, when a response still uses one, once the response is read or its
-     * stream closed, and drops the cookies it kept. Starting or sending a request with this client fails from then on.
-     * Only the first call counts.
-     */
-    @Override
-    public void close() {
-        context.instances().close();
-    }
-
     // Starts a request of RestAssured.given(), given(client), when() or expect()
     TestSpecificationImpl testSpecification() {
-        context.instances().throwIfClosed();
-        return defaults.get().testSpecification(context);
+        return defaults.get().testSpecification(responseDefaults);
     }
 
-    // Sends the specifications of RestAssured.given(req, resp) as they are, with the HTTP clients and then() of this client
+    // Sends the specifications of RestAssured.given(req, resp) as they are, with the then() defaults of this client
     TestSpecificationImpl testSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        context.instances().throwIfClosed();
-        return new TestSpecificationImpl(requestSpecification, responseSpecification, context);
-    }
-
-    boolean isClosed() {
-        return context.instances().isClosed();
+        return new TestSpecificationImpl(requestSpecification, responseSpecification, responseDefaults);
     }
 
     /**
@@ -559,7 +525,7 @@ public final class RestAssuredClient implements AutoCloseable {
                     requestSpecification, responseSpecification, defaultParser, sessionId, proxy, Collections.unmodifiableList(new ArrayList<>(filters)),
                     new ResponseParserRegistrar(parsers));
             ResponseDefaults responseDefaults = new ResponseDefaults(defaults.rootPath(), defaults.responseSpecification());
-            return new RestAssuredClient(() -> defaults, new ClientContext(HttpClientInstances.owned(), () -> responseDefaults));
+            return new RestAssuredClient(() -> defaults, () -> responseDefaults);
         }
     }
 }

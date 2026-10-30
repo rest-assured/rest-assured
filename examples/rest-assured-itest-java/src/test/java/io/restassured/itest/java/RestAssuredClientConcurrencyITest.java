@@ -25,7 +25,6 @@ import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -63,13 +62,6 @@ public class RestAssuredClientConcurrencyITest extends WithJetty {
         return context.next(request, response);
     };
 
-    private final List<RestAssuredClient> clients = new ArrayList<>();
-
-    @AfterEach
-    void closeClients() {
-        clients.forEach(RestAssuredClient::close);
-    }
-
     @Test
     void clients_with_different_base_uris_dont_see_each_other_or_the_static_fields() throws Throwable {
         RestAssuredClient[] api = {
@@ -96,7 +88,7 @@ public class RestAssuredClientConcurrencyITest extends WithJetty {
                 for (int t = 0; t < THREADS; t++) {
                     String baseUri = baseUris[t % 2];
                     futures.add(executor.submit(() -> {
-                        RestAssured.useClient(RestAssuredClient.builder().baseUri(baseUri).filters(NO_STATIC_HEADER));
+                        RestAssured.useClient(client(RestAssuredClient.builder().baseUri(baseUri)));
                         try {
                             for (int i = 0; i < REQUESTS / THREADS; i++) {
                                 String url = get("/requestUrl?n=" + i).asString();
@@ -158,10 +150,8 @@ public class RestAssuredClientConcurrencyITest extends WithJetty {
         });
     }
 
-    private RestAssuredClient client(RestAssuredClient.Builder builder) {
-        RestAssuredClient client = builder.filters(NO_STATIC_HEADER).build();
-        clients.add(client);
-        return client;
+    private static RestAssuredClient client(RestAssuredClient.Builder builder) {
+        return builder.filters(NO_STATIC_HEADER).build();
     }
 
     private static void whileTheStaticFieldsChange(Executable requests) throws Throwable {

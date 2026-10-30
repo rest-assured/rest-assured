@@ -30,6 +30,7 @@ import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The defaults that each <code>given()</code> of a client starts from, the values of the static fields of
@@ -45,9 +46,10 @@ public record ClientDefaults(String baseUri, int port, String basePath, boolean 
                              List<Filter> filters, ResponseParserRegistrar parsers) {
 
     /**
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the client
      * @return A new request and response specification, linked to each other, with these defaults
      */
-    public TestSpecificationImpl testSpecification(ClientContext context) {
+    public TestSpecificationImpl testSpecification(Supplier<ResponseDefaults> responseDefaults) {
         ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(parsers);
         if (defaultParser != null) {
             responseParserRegistrar.registerDefaultParser(defaultParser);
@@ -56,7 +58,7 @@ public record ClientDefaults(String baseUri, int port, String basePath, boolean 
         RestAssuredConfig restAssuredConfig = configWithSessionId();
         return TestSpecificationImpl.linked(
                 new RequestSpecificationImpl(baseUri, port, basePath, authentication, filters, requestSpecification, urlEncodingEnabled,
-                        restAssuredConfig, logRepository, proxy, true, true, context),
+                        restAssuredConfig, logRepository, proxy, true, true, responseDefaults),
                 new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository));
     }
 
