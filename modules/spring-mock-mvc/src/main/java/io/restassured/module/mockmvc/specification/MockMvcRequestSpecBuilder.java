@@ -18,10 +18,10 @@ package io.restassured.module.mockmvc.specification;
 
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Header;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -37,10 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
@@ -66,6 +64,15 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * {@link io.restassured.module.mockmvc.RestAssuredMockMvcClient} apply instead. To send the specification
  * on its own, for example with <code>requestSpec.get("/something")</code>, set the MockMvc instance on the builder, for
  * example with {@link #setMockMvc(MockMvc)}.
+ * </p>
+ * <p>
+ * The builder uses its own config, the default one unless {@link #setConfig(RestAssuredMockMvcConfig)} sets another,
+ * for what it computes while building: the body that {@link #setBody(Object)} serializes (ObjectMapperConfig and
+ * EncoderConfig), the session id name of {@link #setSessionId(String)} (SessionConfig), the update strategy of the
+ * parameters and attributes (ParamConfig), the default control name and file name of a multipart part (MultiPartConfig)
+ * and which headers overwrite each other (HeaderConfig). Merging the specification later doesn't redo them. To compute
+ * them with the static config, call <code>setConfig(RestAssuredMockMvc.config())</code> before those methods. The
+ * settings of {@link #log(LogDetail)} are taken from the config of the request when it's logged instead.
  * </p>
  */
 public class MockMvcRequestSpecBuilder {
@@ -808,19 +815,17 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
-     * Enabled logging with the specified log detail. Set a {@link LogConfig} to configure the print stream and pretty printing options.
+     * Enabled logging with the specified log detail. The print stream, pretty printing, URL encoding of the request URI and
+     * blacklisted headers are taken from the {@link LogConfig} of the request when it's logged, so the log config where
+     * the specification is used applies, for example that of {@link RestAssuredMockMvc#config},
+     * a {@link io.restassured.module.mockmvc.RestAssuredMockMvcClient} or <code>given().config(..)</code>.
      *
      * @param logDetail The log detail.
      * @return MockMvcRequestSpecBuilder
      */
     public MockMvcRequestSpecBuilder log(LogDetail logDetail) {
         notNull(logDetail, LogDetail.class);
-        LogConfig logConfig = spec.getRestAssuredMockMvcConfig().getLogConfig();
-        PrintStream printStream = logConfig.defaultStream();
-        boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
-        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        spec.setRequestLoggingFilter(new LogConfigRequestLoggingFilter(logDetail, null, null));
         return this;
     }
 

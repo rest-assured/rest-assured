@@ -968,7 +968,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         RequestLogSpecificationImpl logSpecification = new RequestLogSpecificationImpl();
         logSpecification.setRequestSpecification(this);
         logSpecification.setLogRepository(logRepository);
-        logSpecification.setBlacklistedHeaders(restAssuredConfig().getLogConfig().blacklistedHeaders());
         return logSpecification;
     }
 

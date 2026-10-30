@@ -615,7 +615,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         LogConfig logConfig = cfg.getLogConfig();
         if (sendRequestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             sendRequestLoggingFilter = MockMvcRequestLogSpecificationImpl.ifValidationFailsFilter(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
-                    logConfig.isPrettyPrintingEnabled(), logConfig, sendLogRepository);
+                    logConfig.isPrettyPrintingEnabled(), sendLogRepository);
         }
         MockMvc mockMvc = mockMvcFactory.build(cfg.getMockMvcConfig());
         return new MockMvcRequestSenderImpl(mockMvc, copyParameters(params), copyParameters(pathParams), copyParameters(queryParams),

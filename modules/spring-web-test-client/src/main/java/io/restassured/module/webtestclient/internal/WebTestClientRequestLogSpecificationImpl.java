@@ -15,23 +15,21 @@
  */
 package io.restassured.module.webtestclient.internal;
 
-import io.restassured.authentication.NoAuthScheme;
-import io.restassured.config.LogConfig;
-import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.internal.LogSpecificationImpl;
-import io.restassured.internal.RequestSpecificationImpl;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Collections;
-import java.util.Set;
 
-public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationImpl implements WebTestClientRequestLogSpecification {
+/**
+ * Sets a {@link LogConfigRequestLoggingFilter}, so what isn't given here is taken from the log config of the request when
+ * it's logged
+ */
+public class WebTestClientRequestLogSpecificationImpl implements WebTestClientRequestLogSpecification {
 
     private final WebTestClientRequestSpecificationImpl requestSpecification;
 
@@ -41,7 +39,7 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 
     @Override
     public WebTestClientRequestSpecification body() {
-        return body(shouldPrettyPrint(toRequestSpecification()));
+        return logWith(LogDetail.BODY);
     }
 
     @Override
@@ -51,7 +49,7 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 
     @Override
     public WebTestClientRequestSpecification all() {
-        return all(shouldPrettyPrint(toRequestSpecification()));
+        return logWith(LogDetail.ALL);
     }
 
     @Override
@@ -86,51 +84,36 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 
     @Override
     public WebTestClientRequestSpecification ifValidationFails(LogDetail logDetail) {
-        return ifValidationFails(logDetail, shouldPrettyPrint(toRequestSpecification()));
+        requestSpecification.setRequestLoggingFilter(ifValidationFailsFilter(logDetail, null, requestSpecification.getLogRepository()));
+        return requestSpecification;
     }
 
     @Override
     public WebTestClientRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
-        requestSpecification.setRequestLoggingFilter(ifValidationFailsFilter(logDetail, shouldPrettyPrint,
-                requestSpecification.getRestAssuredWebTestClientConfig().getLogConfig(), requestSpecification.getLogRepository()));
+        requestSpecification.setRequestLoggingFilter(ifValidationFailsFilter(logDetail, shouldPrettyPrint, requestSpecification.getLogRepository()));
         return requestSpecification;
     }
 
     /**
+     * @param shouldPrettyPrint <code>null</code> to take it from the log config of the request
      * @return A filter that logs the request to a stream of <code>logRepository</code>, which is printed if validation fails
      */
-    static RequestLoggingFilter ifValidationFailsFilter(LogDetail logDetail, boolean shouldPrettyPrint, LogConfig logConfig, LogRepository logRepository) {
+    static RequestLoggingFilter ifValidationFailsFilter(LogDetail logDetail, Boolean shouldPrettyPrint, LogRepository logRepository) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         logRepository.registerRequestLog(byteArrayOutputStream);
-        return new RequestLoggingFilter(logDetail, shouldPrettyPrint, new PrintStream(byteArrayOutputStream), logConfig.shouldUrlEncodeRequestUri(),
-                logConfig.blacklistedHeaders());
+        return new LogConfigRequestLoggingFilter(logDetail, shouldPrettyPrint, new PrintStream(byteArrayOutputStream));
     }
 
     public WebTestClientRequestSpecification params() {
         return logWith(LogDetail.PARAMS);
     }
 
-    private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
-        LogConfig logConfig = requestSpecification.getRestAssuredWebTestClientConfig().getLogConfig();
-        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
-        return requestSpecification;
-    }
-
     private WebTestClientRequestSpecification logWith(LogDetail logDetail) {
-        RequestSpecificationImpl reqSpec = toRequestSpecification();
-        return logWith(logDetail, shouldPrettyPrint(reqSpec));
+        return logWith(logDetail, null);
     }
 
-    private RequestSpecificationImpl toRequestSpecification() {
-        return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(),
-                Collections.<Filter>emptyList(), null, true,
-                requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository(), null, true, true
-        );
-    }
-
-    private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-        return logWith(logDetail, prettyPrintingEnabled, getPrintStream(toRequestSpecification()));
+    private WebTestClientRequestSpecification logWith(LogDetail logDetail, Boolean shouldPrettyPrint) {
+        requestSpecification.setRequestLoggingFilter(new LogConfigRequestLoggingFilter(logDetail, shouldPrettyPrint, null));
+        return requestSpecification;
     }
 }

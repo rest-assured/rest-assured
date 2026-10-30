@@ -16,6 +16,8 @@
 
 package io.restassured.module.mockmvc;
 
+import io.restassured.config.LogConfig;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.module.mockmvc.http.BasePathController;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.MultipartController;
@@ -31,10 +33,14 @@ import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.restassured.config.LogConfig.logConfig;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.config;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,6 +57,8 @@ class MockMvcSpecBuilderAndStaticSettingsTest {
         postProcessorRuns.incrementAndGet();
         return request;
     };
+    private final ByteArrayOutputStream log = new ByteArrayOutputStream();
+    private final LogConfig blacklistingSecret = logConfig().defaultStream(new PrintStream(log, true)).blacklistHeader("Secret");
 
     @AfterEach
     void reset() {
@@ -93,6 +101,37 @@ class MockMvcSpecBuilderAndStaticSettingsTest {
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(((MockMultipartHttpServletRequest) response.mvcResult().getRequest()).getFiles("file")).hasSize(1);
+    }
+
+    @Test
+    void a_built_specification_logs_with_the_static_log_config() {
+        RestAssuredMockMvc.standaloneSetup(new GreetingController());
+        RestAssuredMockMvc.config = config().logConfig(blacklistingSecret);
+        MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().log(LogDetail.HEADERS).build();
+
+        given().spec(specification).header("Secret", "password").get("/greeting");
+
+        assertThat(log.toString()).contains("Secret=[ BLACKLISTED ]").doesNotContain("password");
+    }
+
+    @Test
+    void a_built_specification_logs_with_the_log_config_of_the_client() {
+        RestAssuredMockMvcClient client = RestAssuredMockMvcClient.builder().standaloneSetup(new GreetingController())
+                .config(config().logConfig(blacklistingSecret)).build();
+        MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().log(LogDetail.HEADERS).build();
+
+        given(client).spec(specification).header("Secret", "password").get("/greeting");
+
+        assertThat(log.toString()).contains("Secret=[ BLACKLISTED ]").doesNotContain("password");
+    }
+
+    @Test
+    void log_takes_a_log_config_set_after_it() {
+        RestAssuredMockMvc.standaloneSetup(new GreetingController());
+
+        given().log().headers().config(config().logConfig(blacklistingSecret)).header("Secret", "password").get("/greeting");
+
+        assertThat(log.toString()).contains("Secret=[ BLACKLISTED ]").doesNotContain("password");
     }
 
     @Test

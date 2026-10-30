@@ -17,19 +17,21 @@
 package io.restassured.internal;
 
 import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.specification.RequestLogSpecification;
 import io.restassured.specification.RequestSpecification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Set;
 
-public class RequestLogSpecificationImpl extends LogSpecificationImpl implements RequestLogSpecification {
+/**
+ * Adds a {@link LogConfigRequestLoggingFilter}, so what isn't given here is taken from the log config of the request when
+ * it's logged
+ */
+public class RequestLogSpecificationImpl implements RequestLogSpecification {
     private RequestSpecification requestSpecification;
     private LogRepository logRepository;
-    private Set<String> blacklistedHeaders;
 
     @Override
     public RequestSpecification params() {
@@ -53,7 +55,7 @@ public class RequestLogSpecificationImpl extends LogSpecificationImpl implements
 
     @Override
     public RequestSpecification body() {
-        return body(shouldPrettyPrint(requestSpecification));
+        return logWith(LogDetail.BODY);
     }
 
     @Override
@@ -73,7 +75,7 @@ public class RequestLogSpecificationImpl extends LogSpecificationImpl implements
 
     @Override
     public RequestSpecification all() {
-        return all(shouldPrettyPrint(requestSpecification));
+        return logWith(LogDetail.ALL);
     }
 
     @Override
@@ -98,11 +100,15 @@ public class RequestLogSpecificationImpl extends LogSpecificationImpl implements
 
     @Override
     public RequestSpecification ifValidationFails(LogDetail logDetail) {
-        return ifValidationFails(logDetail, shouldPrettyPrint(requestSpecification));
+        return ifValidationFails(logDetail, null);
     }
 
     @Override
     public RequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+        return ifValidationFails(logDetail, Boolean.valueOf(shouldPrettyPrint));
+    }
+
+    private RequestSpecification ifValidationFails(LogDetail logDetail, Boolean shouldPrettyPrint) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         logRepository.registerRequestLog(baos);
@@ -125,24 +131,19 @@ public class RequestLogSpecificationImpl extends LogSpecificationImpl implements
         this.logRepository = logRepository;
     }
 
-    public Set<String> getBlacklistedHeaders() {
-        return blacklistedHeaders;
-    }
-
-    public void setBlacklistedHeaders(Set<String> blacklistedHeaders) {
-        this.blacklistedHeaders = blacklistedHeaders;
-    }
-
     private RequestSpecification logWith(LogDetail logDetail) {
-        return logWith(logDetail, shouldPrettyPrint(requestSpecification));
+        return logWith(logDetail, null);
     }
 
-    private RequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-        return logWith(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification));
+    private RequestSpecification logWith(LogDetail logDetail, Boolean shouldPrettyPrint) {
+        return logWith(logDetail, shouldPrettyPrint, null);
     }
 
-    private RequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
-        requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri(requestSpecification), blacklistedHeaders));
+    private RequestSpecification logWith(LogDetail logDetail, Boolean shouldPrettyPrint, PrintStream printStream) {
+        if (requestSpecification == null) {
+            throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.");
+        }
+        requestSpecification.filter(new LogConfigRequestLoggingFilter(logDetail, shouldPrettyPrint, printStream));
         return requestSpecification;
     }
 }

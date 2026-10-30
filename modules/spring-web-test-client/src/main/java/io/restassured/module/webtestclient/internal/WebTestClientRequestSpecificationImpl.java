@@ -661,7 +661,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         LogConfig logConfig = config.getLogConfig();
         if (sendRequestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             sendRequestLoggingFilter = WebTestClientRequestLogSpecificationImpl.ifValidationFailsFilter(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
-                    logConfig.isPrettyPrintingEnabled(), logConfig, sendLogRepository);
+                    logConfig.isPrettyPrintingEnabled(), sendLogRepository);
         }
         WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
         return new WebTestClientRequestSenderImpl(webTestClient, copyParameters(params), copyParameters(namedPathParams), copyParameters(queryParams),

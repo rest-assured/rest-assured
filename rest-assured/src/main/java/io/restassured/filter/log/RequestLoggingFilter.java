@@ -16,6 +16,7 @@
 
 package io.restassured.filter.log;
 
+import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
@@ -49,10 +50,10 @@ public class RequestLoggingFilter implements Filter {
 
     private static final boolean SHOW_URL_ENCODED_URI = true;
     private final LogDetail logDetail;
+    // The settings that are null are taken from the log config of the request when it logs
     private final PrintStream stream;
-    // null to pretty print as the log config of the request says
     private final Boolean shouldPrettyPrint;
-    private final boolean showUrlEncodedUri;
+    private final Boolean showUrlEncodedUri;
     private final Set<String> blacklistedHeaders;
     private final Set<LogDetail> logDetailSet = new HashSet<>();
 
@@ -89,7 +90,7 @@ public class RequestLoggingFilter implements Filter {
      * @param stream    The stream to log to.
      */
     public RequestLoggingFilter(LogDetail logDetail, PrintStream stream) {
-        this(null, logDetail, stream, SHOW_URL_ENCODED_URI, new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
+        this(null, logDetail, Validate.notNull(stream, "Print stream cannot be null"), SHOW_URL_ENCODED_URI, new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
     }
 
 
@@ -125,33 +126,49 @@ public class RequestLoggingFilter implements Filter {
      * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
      */
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri, Set<String> blacklistedHeaders) {
-        this(Boolean.valueOf(shouldPrettyPrint), logDetail, stream, showUrlEncodedUri, blacklistedHeaders);
+        this(Boolean.valueOf(shouldPrettyPrint), logDetail, Validate.notNull(stream, "Print stream cannot be null"), Boolean.valueOf(showUrlEncodedUri),
+                Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null"));
     }
 
-    private RequestLoggingFilter(Boolean shouldPrettyPrint, LogDetail logDetail, PrintStream stream, boolean showUrlEncodedUri, Set<String> blacklistedHeaders) {
-        Validate.notNull(stream, "Print stream cannot be null");
-        Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null");
+    /**
+     * Instantiate a logger that takes each setting that is <code>null</code> from the log config of the request when it
+     * logs ({@link RestAssuredConfig#getLogConfig()}), as the filter of <code>given().log()</code> does.
+     *
+     * @param shouldPrettyPrint  <code>true</code> if pretty-printing of the body should occur, or <code>null</code>
+     * @param logDetail          The log detail
+     * @param stream             The stream to log to, or <code>null</code>
+     * @param showUrlEncodedUri  Whether or not to show the request URI as url encoded, or <code>null</code>
+     * @param blacklistedHeaders The headers whose values aren't logged, or <code>null</code>
+     */
+    protected RequestLoggingFilter(Boolean shouldPrettyPrint, LogDetail logDetail, PrintStream stream, Boolean showUrlEncodedUri, Set<String> blacklistedHeaders) {
         Validate.notNull(logDetail, "Log details cannot be null");
         if (logDetail == STATUS) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a request.", STATUS, LogDetail.class.getSimpleName()));
         }
         this.stream = stream;
         this.logDetail = logDetail;
-        TreeSet<String> caseInsensitiveBlacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        caseInsensitiveBlacklistedHeaders.addAll(blacklistedHeaders);
-        this.blacklistedHeaders = caseInsensitiveBlacklistedHeaders;
+        if (blacklistedHeaders == null) {
+            this.blacklistedHeaders = null;
+        } else {
+            TreeSet<String> caseInsensitiveBlacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            caseInsensitiveBlacklistedHeaders.addAll(blacklistedHeaders);
+            this.blacklistedHeaders = caseInsensitiveBlacklistedHeaders;
+        }
         this.shouldPrettyPrint = shouldPrettyPrint;
         this.showUrlEncodedUri = showUrlEncodedUri;
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+        RestAssuredConfig config = requestSpec.getConfig();
+        LogConfig logConfig = config == null ? new LogConfig() : config.getLogConfig();
         String uri = requestSpec.getURI();
-        if (!showUrlEncodedUri) {
+        if (!(showUrlEncodedUri != null ? showUrlEncodedUri : logConfig.shouldUrlEncodeRequestUri())) {
             uri = UrlDecoder.urlDecode(uri, Charset.forName(requestSpec.getConfig().getEncoderConfig().defaultQueryParameterCharset()), true);
         }
 
-        RestAssuredConfig config = requestSpec.getConfig();
-        boolean prettyPrint = shouldPrettyPrint != null ? shouldPrettyPrint : config == null || config.getLogConfig().isPrettyPrintingEnabled();
+        boolean prettyPrint = shouldPrettyPrint != null ? shouldPrettyPrint : logConfig.isPrettyPrintingEnabled();
+        PrintStream stream = this.stream != null ? this.stream : logConfig.defaultStream() != null ? logConfig.defaultStream() : System.out;
+        Set<String> blacklistedHeaders = this.blacklistedHeaders != null ? this.blacklistedHeaders : logConfig.blacklistedHeaders();
         if (logDetailSet.isEmpty()) {
             RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, blacklistedHeaders, stream, prettyPrint);
         } else {

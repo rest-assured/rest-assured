@@ -16,6 +16,8 @@
 
 package io.restassured.module.webtestclient;
 
+import io.restassured.config.LogConfig;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.module.webtestclient.setup.BasePathController;
 import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.setup.MultiPartController;
@@ -28,10 +30,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static io.restassured.config.LogConfig.logConfig;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
+import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.config;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -46,6 +52,8 @@ class WebTestClientSpecBuilderAndStaticSettingsTest {
         requests.add(request);
         return next.exchange(request);
     };
+    private final ByteArrayOutputStream log = new ByteArrayOutputStream();
+    private final LogConfig blacklistingSecret = logConfig().defaultStream(new PrintStream(log, true)).blacklistHeader("Secret");
 
     @AfterEach
     void reset() {
@@ -87,6 +95,37 @@ class WebTestClientSpecBuilderAndStaticSettingsTest {
         String parts = given().spec(RestAssuredWebTestClient.with().header("X", "1")).post("/multipart").then().statusCode(200).extract().asString();
 
         assertThat(parts.lines()).singleElement().asString().startsWith("file | file.txt | ");
+    }
+
+    @Test
+    void a_built_specification_logs_with_the_static_log_config() {
+        RestAssuredWebTestClient.standaloneSetup(new GreetingController());
+        RestAssuredWebTestClient.config = config().logConfig(blacklistingSecret);
+        WebTestClientRequestSpecification specification = new WebTestClientRequestSpecBuilder().log(LogDetail.HEADERS).build();
+
+        given().spec(specification).header("Secret", "password").get("/greeting/{name}", "John");
+
+        assertThat(log.toString()).contains("Secret=[ BLACKLISTED ]").doesNotContain("password");
+    }
+
+    @Test
+    void a_built_specification_logs_with_the_log_config_of_the_client() {
+        RestAssuredWebTestClientClient client = RestAssuredWebTestClientClient.builder().standaloneSetup(new GreetingController())
+                .config(config().logConfig(blacklistingSecret)).build();
+        WebTestClientRequestSpecification specification = new WebTestClientRequestSpecBuilder().log(LogDetail.HEADERS).build();
+
+        given(client).spec(specification).header("Secret", "password").get("/greeting/{name}", "John");
+
+        assertThat(log.toString()).contains("Secret=[ BLACKLISTED ]").doesNotContain("password");
+    }
+
+    @Test
+    void log_takes_a_log_config_set_after_it() {
+        RestAssuredWebTestClient.standaloneSetup(new GreetingController());
+
+        given().log().headers().config(config().logConfig(blacklistingSecret)).header("Secret", "password").get("/greeting/{name}", "John");
+
+        assertThat(log.toString()).contains("Secret=[ BLACKLISTED ]").doesNotContain("password");
     }
 
     @Test
