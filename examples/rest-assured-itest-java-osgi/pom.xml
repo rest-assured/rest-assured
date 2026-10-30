@@ -63,6 +63,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- With jackson-core and jackson-annotations. Jayway JsonPath 3's bundle imports Jackson 3, so JaywayOSGiITest
+                 installs them -->
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <!-- With HttpClient 5, HttpCore 5 and httpcore5-h2, which Apache5OSGiITest installs wrapped -->
             <groupId>io.rest-assured</groupId>
             <artifactId>http-client-apache5</artifactId>

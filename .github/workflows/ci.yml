@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # json-path-jayway supports Jayway JsonPath 2.8.0 and later, and is built with 2.10.0
+        # json-path-jayway supports Jayway JsonPath 2.8.0 and later, and is built with 3.0.0
         jayway: [2.8.0, 2.9.0, 2.10.0, 3.0.0]
       fail-fast: false
     name: Test Jayway JsonPath ${{ matrix.jayway }}, JDK 17

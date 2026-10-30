@@ -62,7 +62,7 @@
         <groovy.version>5.0.8</groovy.version>
         <groovy.range>[5.0,6.0)</groovy.range>
         <!-- The Jayway JsonPath version json-path-jayway is built with. It supports 2.8.0 and later, which it checks when it loads -->
-        <jayway.version>2.10.0</jayway.version>
+        <jayway.version>3.0.0</jayway.version>
         <!-- The Apache HttpClient 5 version http-client-apache5 is built with. It supports 5.2.1 and later, which it checks when
              it loads. httpcore5 isn't managed, so that another version of httpclient5 brings its own httpcore5 -->
         <httpclient5.version>5.6.5</httpclient5.version>

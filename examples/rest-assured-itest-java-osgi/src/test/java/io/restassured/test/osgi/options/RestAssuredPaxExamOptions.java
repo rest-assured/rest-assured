@@ -93,19 +93,21 @@ public class RestAssuredPaxExamOptions {
     }
 
     /**
-     * The JSONPath engine, json-path-jayway (see {@link #restAssuredBundles()}), with Jayway JsonPath 2.10.0 and what its
-     * bundle requires: json-smart, which needs accessors-smart and ASM, and slf4j-api 2 (add {@link #slf4jBundles()} and
-     * {@link #spiflyBundles()}). That holds for Jayway 2.9.0 and later. Jayway 2.8.0 imports slf4j-api 1.7 instead, which
-     * needs an SLF4J 1.7 binding bundle but no SPI Fly, and Jayway 3.0.0 also requires the Jackson 3 bundles
-     * tools.jackson.core.jackson-core and tools.jackson.core.jackson-databind, and com.fasterxml.jackson.core.jackson-annotations
-     * 2.x, which jackson-databind 3 imports.
+     * The JSONPath engine, json-path-jayway (see {@link #restAssuredBundles()}), with Jayway JsonPath 3.0.0 and what its
+     * bundle requires: json-smart, which needs accessors-smart and ASM, slf4j-api 2 (add {@link #slf4jBundles()} and
+     * {@link #spiflyBundles()}), and Jackson 3's jackson-core and jackson-databind, with the Jackson 2 jackson-annotations
+     * that jackson-databind 3 imports. Jayway 2.9.0 and 2.10.0 don't need Jackson. Jayway 2.8.0 imports slf4j-api 1.7
+     * instead, which needs an SLF4J 1.7 binding bundle but no SPI Fly.
      */
     public static Option jaywayBundles() {
         return new DefaultCompositeOption(
                 bundleContaining(JaywayPath.class),
                 mavenBundle("com.jayway.jsonpath", "json-path").versionAsInProject(),
                 mavenBundle("net.minidev", "json-smart").versionAsInProject(),
-                mavenBundle("net.minidev", "accessors-smart").versionAsInProject());
+                mavenBundle("net.minidev", "accessors-smart").versionAsInProject(),
+                mavenBundle("tools.jackson.core", "jackson-core").versionAsInProject(),
+                mavenBundle("tools.jackson.core", "jackson-databind").versionAsInProject(),
+                mavenBundle("com.fasterxml.jackson.core", "jackson-annotations").versionAsInProject());
     }
 
     /**
