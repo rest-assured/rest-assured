@@ -63,10 +63,12 @@ class RestAssuredClientCloseTest {
     void a_client_keeps_one_per_request_client_for_each_setting_until_it_is_closed() {
         RestAssuredClient client = RestAssuredClient.builder().config(PER_REQUEST).build();
 
-        client.get(URL).asString();
-        client.get(URL).asString();
-        client.given(new RequestSpecBuilder().setConfig(PER_REQUEST).build(), new ResponseSpecBuilder().build()).get(URL).asString();
-        client.given().config(withConnectTimeout(PER_REQUEST, 1)).get(URL).asString();
+        given(client).get(URL).asString();
+        given(client).get(URL).asString();
+        RestAssured.useClient(client);
+        given(new RequestSpecBuilder().setConfig(PER_REQUEST).build(), new ResponseSpecBuilder().build()).get(URL).asString();
+        RestAssured.resetClient();
+        given(client).config(withConnectTimeout(PER_REQUEST, 1)).get(URL).asString();
 
         assertThat(FakeHttpClients.created).hasSize(2).noneMatch(created -> created.closed);
         client.close();
@@ -86,22 +88,22 @@ class RestAssuredClientCloseTest {
         RestAssuredClient first = RestAssuredClient.builder().config(SHARED).build();
         RestAssuredClient second = first.toBuilder().build();
 
-        first.get(URL).asString();
-        second.get(URL).asString();
+        given(first).get(URL).asString();
+        given(second).get(URL).asString();
         first.close();
 
         assertThat(FakeHttpClients.created).hasSize(2);
         assertThat(FakeHttpClients.created.get(0).closed).isTrue();
         assertThat(FakeHttpClients.created.get(1).closed).isFalse();
-        second.get(URL).asString();
+        given(second).get(URL).asString();
         assertThat(FakeHttpClients.created).hasSize(2);
     }
 
     @Test
     void an_instance_that_a_response_uses_is_closed_once_when_the_response_is_done() {
         RestAssuredClient client = RestAssuredClient.builder().config(SHARED).build();
-        Response unread = client.get(URL);
-        client.given().config(withConnectTimeout(SHARED, 1)).get(URL).asString();
+        Response unread = given(client).get(URL);
+        given(client).config(withConnectTimeout(SHARED, 1)).get(URL).asString();
         FakeClient used = FakeHttpClients.created.get(0);
         FakeClient unused = FakeHttpClients.created.get(1);
 
@@ -118,14 +120,14 @@ class RestAssuredClientCloseTest {
     @Test
     void after_close_starting_a_request_and_sending_a_specification_that_the_client_created_fail() {
         RestAssuredClient client = RestAssuredClient.builder().config(SHARED).build();
-        RequestSpecification created = client.given();
-        RequestSender pair = client.given(new RequestSpecBuilder().build(), new ResponseSpecBuilder().build());
+        RequestSpecification created = given(client);
+        RestAssured.useClient(client);
+        RequestSender pair = given(new RequestSpecBuilder().build(), new ResponseSpecBuilder().build());
+        RestAssured.resetClient();
 
         client.close();
 
-        List<ThrowingCallable> calls = List.of(client::given, client::with, client::when, client::expect,
-                () -> client.given(new RequestSpecBuilder().build()), () -> client.given(new RequestSpecBuilder().build(), new ResponseSpecBuilder().build()),
-                () -> client.get(URL), () -> client.request("GET"), () -> created.get(URL), () -> pair.get(URL));
+        List<ThrowingCallable> calls = List.of(() -> given(client), () -> created.get(URL), () -> pair.get(URL));
         for (ThrowingCallable call : calls) {
             assertThatThrownBy(call).isExactlyInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
         }
@@ -138,7 +140,7 @@ class RestAssuredClientCloseTest {
         client.close();
 
         RestAssuredClient copy = client.toBuilder().build();
-        copy.get("/path");
+        given(copy).get("/path");
 
         assertThat(client.config()).isSameAs(SHARED);
         assertThat(client.filters()).isEmpty();
@@ -148,7 +150,7 @@ class RestAssuredClientCloseTest {
     @Test
     void a_specification_merged_into_one_of_the_static_api_is_sent_with_the_static_api() {
         RestAssuredClient client = RestAssuredClient.builder().config(SHARED).build();
-        RequestSpecification fromClient = client.given().header("X-Client", "1");
+        RequestSpecification fromClient = given(client).header("X-Client", "1");
         client.close();
 
         given().spec(fromClient).get(URL);
@@ -163,7 +165,7 @@ class RestAssuredClientCloseTest {
         given().config(config).get(URL).asString();
         FakeClient global = FakeHttpClients.created.get(0);
         RestAssuredClient client = RestAssuredClient.builder().config(config).build();
-        client.get(URL).asString();
+        given(client).get(URL).asString();
 
         client.close();
         given().config(config).get(URL).asString();
@@ -177,8 +179,8 @@ class RestAssuredClientCloseTest {
     void closing_idle_connections_after_each_response_gives_each_request_its_own_instance() {
         RestAssuredClient client = RestAssuredClient.builder().config(PER_REQUEST.connectionConfig(connectionConfig().closeIdleConnectionsAfterEachResponse())).build();
 
-        client.get(URL).asString();
-        client.get(URL).asString();
+        given(client).get(URL).asString();
+        given(client).get(URL).asString();
 
         assertThat(FakeHttpClients.created).hasSize(2).allMatch(created -> created.closes.get() == 1);
     }
@@ -193,13 +195,13 @@ class RestAssuredClientCloseTest {
         RestAssuredClient client = RestAssuredClient.builder().config(keepCookies).build();
         RestAssuredClient other = client.toBuilder().build();
 
-        client.get("http://localhost/login");
+        given(client).get("http://localhost/login");
 
-        assertThat(client.get("http://localhost/cookies").asString()).isEqualTo("session=1");
-        assertThat(other.get("http://localhost/cookies").asString()).isEqualTo("none");
+        assertThat(given(client).get("http://localhost/cookies").asString()).isEqualTo("session=1");
+        assertThat(given(other).get("http://localhost/cookies").asString()).isEqualTo("none");
         assertThat(given().get("http://localhost/cookies").asString()).isEqualTo("none");
         given().get("http://localhost/login");
-        assertThat(RestAssured.client().get("http://localhost/cookies").asString()).isEqualTo("none");
+        assertThat(given(RestAssured.client()).get("http://localhost/cookies").asString()).isEqualTo("none");
         assertThat(given().get("http://localhost/cookies").asString()).isEqualTo("session=1");
     }
 

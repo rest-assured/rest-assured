@@ -83,7 +83,7 @@ public class RestAssuredOSGiITest {
     @Test(expected = UnknownHostException.class)
     public void restAssuredClient() {
         try (RestAssuredClient client = RestAssuredClient.builder().build()) {
-            client.get("http://dummy").then().statusCode(200);
+            given(client).get("http://dummy").then().statusCode(200);
         }
     }
 

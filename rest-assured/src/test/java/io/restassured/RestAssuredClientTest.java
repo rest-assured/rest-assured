@@ -52,6 +52,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.LogConfig.logConfig;
 import static io.restassured.config.RestAssuredConfig.config;
@@ -81,7 +82,7 @@ class RestAssuredClientTest {
     void the_builder_starts_from_the_values_that_reset_sets() {
         RestAssured.reset();
         RestAssuredClient client = RestAssuredClient.builder().build();
-        QueryableRequestSpecification fromClient = SpecificationQuerier.query(client.given());
+        QueryableRequestSpecification fromClient = SpecificationQuerier.query(given(client));
         QueryableRequestSpecification fromStatics = SpecificationQuerier.query(RestAssured.given());
 
         assertThat(fromClient.getBaseUri()).isEqualTo(fromStatics.getBaseUri()).isEqualTo("http://localhost");
@@ -100,7 +101,7 @@ class RestAssuredClientTest {
 
     @Test
     void a_request_without_settings_goes_to_localhost_on_port_8080() {
-        send(UnaryOperator.identity(), client -> client.get("/path"));
+        send(UnaryOperator.identity(), client -> given(client).get("/path"));
 
         assertThat(sent().uri()).isEqualTo(URI.create("http://localhost:8080/path"));
     }
@@ -109,21 +110,21 @@ class RestAssuredClientTest {
 
     @Test
     void base_uri_port_and_base_path() {
-        send(builder -> builder.baseUri("http://example.org").port(1234).basePath("/api"), client -> client.get("/path"));
+        send(builder -> builder.baseUri("http://example.org").port(1234).basePath("/api"), client -> given(client).get("/path"));
 
         assertThat(sent().uri()).isEqualTo(URI.create("http://example.org:1234/api/path"));
     }
 
     @Test
     void url_encoding() {
-        send(builder -> builder.urlEncodingEnabled(false), client -> client.given().queryParam("q", "a%20b").get("http://localhost/path"));
+        send(builder -> builder.urlEncodingEnabled(false), client -> given(client).queryParam("q", "a%20b").get("http://localhost/path"));
 
         assertThat(sent().uri().getRawQuery()).isEqualTo("q=a%20b");
     }
 
     @Test
     void authentication() {
-        send(builder -> builder.authentication(RestAssured.preemptive().basic("user", "password")), client -> client.get("http://localhost/path"));
+        send(builder -> builder.authentication(RestAssured.preemptive().basic("user", "password")), client -> given(client).get("http://localhost/path"));
 
         assertThat(header(sent(), "Authorization")).isEqualTo("Basic dXNlcjpwYXNzd29yZA==");
     }
@@ -133,7 +134,7 @@ class RestAssuredClientTest {
         RestAssuredConfig config = config().httpClient(httpClientConfig().client(FakeHttpClients.Other.class).readTimeout(Duration.ofSeconds(3)));
 
         RestAssuredClient client = RestAssuredClient.builder().config(config).build();
-        client.get("http://localhost/path");
+        given(client).get("http://localhost/path");
 
         assertThat(sent().options().readTimeout()).isEqualTo(Duration.ofSeconds(3));
         assertThat(client.config()).isSameAs(config);
@@ -144,15 +145,15 @@ class RestAssuredClientTest {
         FakeHttpClients.response = request -> json("{\"a\": {\"b\": 1}}");
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).rootPath("a").build();
 
-        client.get("http://localhost/path").then().body("b", equalTo(1));
-        client.expect().body("b", equalTo(1)).when().get("http://localhost/path");
+        given(client).get("http://localhost/path").then().body("b", equalTo(1));
+        given(client).expect().body("b", equalTo(1)).when().get("http://localhost/path");
     }
 
     @Test
     void request_specification() {
         RequestSpecification specification = new RequestSpecBuilder().addHeader("X-Default", "1").addQueryParam("q", "a").build();
 
-        send(builder -> builder.requestSpecification(specification), client -> client.get("http://localhost/path"));
+        send(builder -> builder.requestSpecification(specification), client -> given(client).get("http://localhost/path"));
 
         assertThat(header(sent(), "X-Default")).isEqualTo("1");
         assertThat(sent().uri().getQuery()).isEqualTo("q=a");
@@ -162,7 +163,7 @@ class RestAssuredClientTest {
     void response_specification() {
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).responseSpecification(new ResponseSpecBuilder().expectStatusCode(201).build()).build();
 
-        assertThatThrownBy(() -> client.get("http://localhost/path")).isInstanceOf(AssertionError.class).hasMessageContaining("Expected status code <201> but was <200>");
+        assertThatThrownBy(() -> given(client).get("http://localhost/path")).isInstanceOf(AssertionError.class).hasMessageContaining("Expected status code <201> but was <200>");
     }
 
     @Test
@@ -170,7 +171,7 @@ class RestAssuredClientTest {
         FakeHttpClients.response = request -> response("application/custom", "{\"a\": 1}");
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).defaultParser(Parser.JSON).build();
 
-        client.get("http://localhost/path").then().body("a", equalTo(1));
+        given(client).get("http://localhost/path").then().body("a", equalTo(1));
     }
 
     @Test
@@ -179,15 +180,15 @@ class RestAssuredClientTest {
         RestAssuredClient registered = RestAssuredClient.builder().config(FAKE).registerParser("application/custom", Parser.JSON).build();
         RestAssuredClient unregistered = registered.toBuilder().unregisterParser("application/custom").build();
 
-        registered.get("http://localhost/path").then().body("a", equalTo(1));
-        assertThatThrownBy(() -> unregistered.get("http://localhost/path").then().body("a", equalTo(1)))
+        given(registered).get("http://localhost/path").then().body("a", equalTo(1));
+        assertThatThrownBy(() -> given(unregistered).get("http://localhost/path").then().body("a", equalTo(1)))
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("content-type 'application/custom' is not supported out of the box");
     }
 
     @Test
     void session_id() {
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).sessionId("1234").build();
-        client.get("http://localhost/path");
+        given(client).get("http://localhost/path");
 
         assertThat(header(sent(), "Cookie")).isEqualTo("JSESSIONID=1234");
         assertThat(client.config().getSessionConfig().sessionIdValue()).isEqualTo("1234");
@@ -208,11 +209,11 @@ class RestAssuredClientTest {
     @Test
     void filters_run_in_the_order_they_were_added_and_replacing_them_drops_the_others() {
         send(builder -> builder.filters(recording("1")).filters(recording("2"), recording("3")).filters(List.of(recording("4"))),
-                client -> client.get("http://localhost/path"));
+                client -> given(client).get("http://localhost/path"));
         send(builder -> builder.filters(recording("5")).replaceFiltersWith(recording("6"), recording("7")),
-                client -> client.get("http://localhost/path"));
+                client -> given(client).get("http://localhost/path"));
         send(builder -> builder.filters(recording("8")).replaceFiltersWith(List.of(recording("9"))),
-                client -> client.get("http://localhost/path"));
+                client -> given(client).get("http://localhost/path"));
 
         assertThat(filtersRun).containsExactly("1", "2", "3", "4", "6", "7", "9");
     }
@@ -251,7 +252,7 @@ class RestAssuredClientTest {
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).requestSpecification(specification)
                 .enableLoggingOfRequestAndResponseIfValidationFails().build();
 
-        assertThatThrownBy(() -> client.get("http://localhost/path").then().statusCode(500)).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> given(client).get("http://localhost/path").then().statusCode(500)).isInstanceOf(AssertionError.class);
 
         assertThat(log.toString()).contains("Request method:\tGET");
         assertThat(client.config().getLogConfig().logDetailOfRequestAndResponseIfValidationFails()).isEqualTo(LogDetail.ALL);
@@ -270,7 +271,7 @@ class RestAssuredClientTest {
 
         requestSpecification.header("X-After", "1");
         responseSpecification.statusCode(500);
-        client.get("http://localhost/path");
+        given(client).get("http://localhost/path");
 
         assertThat(header(sent(), "X-Before")).isEqualTo("1");
         assertThat(header(sent(), "X-After")).isNull();
@@ -293,7 +294,7 @@ class RestAssuredClientTest {
         RestAssured.reset();
         RestAssured.baseURI = "http://other.example.org";
         FakeHttpClients.response = request -> response("application/custom", "{\"a\": 1}");
-        client.get("/path").then().body("a", equalTo(1));
+        given(client).get("/path").then().body("a", equalTo(1));
 
         assertThat(sent().uri()).isEqualTo(URI.create("http://example.org:1234/api/path"));
         assertThat(header(sent(), "X-Static")).isEqualTo("1");
@@ -312,9 +313,9 @@ class RestAssuredClientTest {
         RestAssuredClient second = builder.baseUri("http://second.example.org").filters(recording("second"))
                 .enableLoggingOfRequestAndResponseIfValidationFails().build();
         builder.baseUri("http://third.example.org");
-        first.get("/path");
+        given(first).get("/path");
         HttpRequest fromFirst = sent();
-        second.get("/path");
+        given(second).get("/path");
 
         assertThat(fromFirst.uri().getHost()).isEqualTo("first.example.org");
         assertThat(header(fromFirst, "X-Default")).isEqualTo("1");
@@ -334,13 +335,13 @@ class RestAssuredClientTest {
         RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(500).build();
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).rootPath("a").build();
 
-        client.get("http://localhost/path").then().body("b", equalTo(1));
+        given(client).get("http://localhost/path").then().body("b", equalTo(1));
     }
 
     @Test
     void then_validates_with_the_response_specification_of_the_client() {
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).responseSpecification(new ResponseSpecBuilder().expectStatusCode(200).build()).build();
-        Response response = client.get("http://localhost/path");
+        Response response = given(client).get("http://localhost/path");
 
         // A copy keeps the defaults of the client that sent the request
         Response created = new ResponseBuilder().clone(response).setStatusCode(201).build();
@@ -354,7 +355,7 @@ class RestAssuredClientTest {
         RestAssured.rootPath = "c";
         RestAssuredClient client = RestAssuredClient.builder().config(FAKE).rootPath("a").build();
 
-        client.given().filter((request, response, context) -> new ResponseBuilder().setStatusCode(200).setContentType(ContentType.JSON)
+        given(client).filter((request, response, context) -> new ResponseBuilder().setStatusCode(200).setContentType(ContentType.JSON)
                 .setBody("{\"a\": {\"b\": 1}, \"c\": {\"b\": 2}}").build()).get("http://localhost/path").then().body("b", equalTo(1));
     }
 
@@ -389,7 +390,7 @@ class RestAssuredClientTest {
 
     // The settings of the HTTP client that sent the request
     private ClientSettings clientSettings(UnaryOperator<RestAssuredClient.Builder> settings) {
-        send(settings, client -> client.get("http://localhost/path"));
+        send(settings, client -> given(client).get("http://localhost/path"));
         return FakeHttpClients.created.get(FakeHttpClients.created.size() - 1).settings;
     }
 

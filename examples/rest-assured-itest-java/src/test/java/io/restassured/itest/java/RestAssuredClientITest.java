@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.restassured.RestAssured.basic;
+import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.get;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
@@ -56,8 +57,8 @@ public class RestAssuredClientITest extends WithJetty {
             RestAssured.port = 1;
             RestAssured.basePath = "/wrong";
 
-            client.get("/hello").then().statusCode(200);
-            client.given().basePath("").get("/requestUrl").then().body(equalTo("http://127.0.0.1:8080/requestUrl?n=1"));
+            given(client).get("/hello").then().statusCode(200);
+            given(client).basePath("").get("/requestUrl").then().body(equalTo("http://127.0.0.1:8080/requestUrl?n=1"));
         }
 
         assertThat(filtersRun).containsExactly("http://127.0.0.1:8080/secured/hello?n=1", "http://127.0.0.1:8080/requestUrl?n=1");
@@ -72,9 +73,9 @@ public class RestAssuredClientITest extends WithJetty {
             RestAssured.rootPath = "other";
             RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(404).build();
 
-            rooted.get("/greetJSON?firstName=John&lastName=Doe").then().body("firstName", equalTo("John")).body("lastName", equalTo("Doe"));
-            expectingJohn.get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
-            assertThatThrownBy(() -> expectingJohn.get("/greetJSON?firstName=Jane&lastName=Doe"))
+            given(rooted).get("/greetJSON?firstName=John&lastName=Doe").then().body("firstName", equalTo("John")).body("lastName", equalTo("Doe"));
+            given(expectingJohn).get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
+            assertThatThrownBy(() -> given(expectingJohn).get("/greetJSON?firstName=Jane&lastName=Doe"))
                     .isInstanceOf(AssertionError.class).hasMessageContaining("JSON path greeting.firstName doesn't match.");
         }
     }
@@ -88,21 +89,21 @@ public class RestAssuredClientITest extends WithJetty {
 
             get("/setCookies");
             assertThat(cookieNames(get("/cookie").asString())).containsExactlyInAnyOrder("key1", "key2", "key3");
-            assertThat(snapshot.get("/cookie").asString()).doesNotContain("key1");
-            snapshot.get("/setCookies");
-            assertThat(cookieNames(snapshot.get("/cookie").asString())).containsExactlyInAnyOrder("key1", "key2", "key3");
-            assertThat(built.get("/cookie").asString()).doesNotContain("key1");
+            assertThat(given(snapshot).get("/cookie").asString()).doesNotContain("key1");
+            given(snapshot).get("/setCookies");
+            assertThat(cookieNames(given(snapshot).get("/cookie").asString())).containsExactlyInAnyOrder("key1", "key2", "key3");
+            assertThat(given(built).get("/cookie").asString()).doesNotContain("key1");
         }
     }
 
     @Test
     void a_closed_client_fails_and_leaves_the_static_api_alone() {
         RestAssuredClient client = RestAssured.client();
-        client.get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
+        given(client).get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
 
         client.close();
 
-        assertThatThrownBy(() -> client.get("/greetJSON")).isInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
+        assertThatThrownBy(() -> given(client).get("/greetJSON")).isInstanceOf(IllegalStateException.class).hasMessage("This RestAssuredClient is closed");
         get("/greetJSON?firstName=John&lastName=Doe").then().statusCode(200);
     }
 

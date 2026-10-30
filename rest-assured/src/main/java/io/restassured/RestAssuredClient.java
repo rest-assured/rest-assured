@@ -22,7 +22,6 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SSLConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.http.Method;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -34,29 +33,26 @@ import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.http.client.HttpClientInstances;
 import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.parsing.Parser;
-import io.restassured.response.Response;
 import io.restassured.specification.ProxySpecification;
-import io.restassured.specification.RequestSender;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.Validate;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
- * Sends requests like the static API of {@link RestAssured}, with defaults of its own. A client never reads the static
- * fields of <code>RestAssured</code>, so tests that run in parallel can each use their own base URI, port, config,
- * filters and specifications.
+ * Defaults of its own for the requests of {@link RestAssured}: a base URI, port, config, filters, specifications and so
+ * on. A client never reads the static fields of <code>RestAssured</code>, so tests that run in parallel can each use
+ * their own settings. A client sends nothing by itself. Requests start with {@link RestAssured#given()} as usual, and
+ * it picks the client that they use.
  * <h2>Creating a client</h2>
  * <pre>
  * RestAssuredClient api = RestAssuredClient.builder()
@@ -68,14 +64,33 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * The {@link Builder} starts from the values that {@link RestAssured#reset()} sets. It has a method for each static
  * field and static setter of <code>RestAssured</code> except <code>reset()</code>, without a <code>set</code> prefix.
  * {@link RestAssured#client()} creates a client from the current values of the static fields instead.
- * <h2>Sending requests</h2>
- * A client has the methods of <code>RestAssured</code> that start a request, and works like them:
+ * <h2>Using a client</h2>
+ * A request uses the first of these that applies:
+ * <ol>
+ * <li>A client named in {@link RestAssured#given(RestAssuredClient)}, for example for a second service, or for a request
+ * on another thread:
  * <pre>
- * api.given().queryParam("status", "open").when().get("/orders").then().statusCode(200);
- * api.get("/orders/{id}", 42).then().body("id", equalTo(42));
+ * given(orders).queryParam("status", "open").when().get("/orders").then().statusCode(200);
+ * </pre></li>
+ * <li>The client bound to the current thread with {@link RestAssured#useClient(RestAssuredClient.Builder)} or
+ * {@link RestAssured#useClient(RestAssuredClient)}, for example for tests that run in parallel and each have their own
+ * settings. <code>given()</code>, <code>when()</code>, <code>get(..)</code> and the other static methods that start or
+ * send a request then use it, until {@link RestAssured#resetClient()} or {@link RestAssured#reset()} unbinds it:
+ * <pre>
+ * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port)); }
+ * &#64;AfterEach void resetRestAssured() { RestAssured.reset(); }
+ *
+ * &#64;Test void shows_an_order() {
+ *     get("/orders/{id}", 42).then().body("id", equalTo(42));
+ * }
  * </pre>
- * The authentication schemes, such as {@link RestAssured#basic(String, String)}, and {@link RestAssured#withArgs(Object, Object...)}
- * stay static on <code>RestAssured</code>.
+ * A client bound with <code>useClient(builder)</code> is closed when it's unbound. One bound with
+ * <code>useClient(client)</code> stays open, since other threads may use it too.</li>
+ * <li>The static settings of <code>RestAssured</code>, as without a client.</li>
+ * </ol>
+ * The binding is for the current thread only. A request on another thread, for example in a condition that Awaitility
+ * polls on its own thread by default, uses the static settings unless it names the client with
+ * <code>given(client)</code> (or Awaitility polls with <code>pollInSameThread()</code>).
  * <h2>Changing a client</h2>
  * A client can't be changed once it's built. {@link #toBuilder()} gives a builder with its values, which builds a new,
  * independent client:
@@ -88,7 +103,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * HTTP client, and so one connection pool, for each distinct setting across its requests. {@link #close()} releases them:
  * <pre>
  * try (RestAssuredClient client = RestAssured.client().toBuilder().port(8081).build()) {
- *     client.get("/health").then().statusCode(200);
+ *     given(client).get("/health").then().statusCode(200);
  * }
  * </pre>
  * or with JUnit 5:
@@ -98,15 +113,16 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * &#64;BeforeAll static void createClient() { api = RestAssuredClient.builder().port(8081).build(); }
  * &#64;AfterAll static void closeClient() { api.close(); }
  * </pre>
- * After <code>close()</code>, the methods that start a request, and sending a specification that the client created
- * before, throw an {@link IllegalStateException}. Requests in flight complete, and responses already received stay
- * readable. A client that is never closed leaves its HTTP clients to the garbage collector.
+ * After <code>close()</code>, starting a request with the client, whether it's named or bound, and sending a
+ * specification that it created before, throw an {@link IllegalStateException}. Requests in flight complete, and
+ * responses already received stay readable. A client that is never closed leaves its HTTP clients to the garbage
+ * collector.
  * <h2>Thread safety</h2>
  * <ul>
  * <li>A client can be used from many threads at once, including {@link #close()}.</li>
- * <li>{@link #given()} returns a new specification each time. Don't change one specification from several threads at
- * once. Sending one specification, or one built with {@link io.restassured.builder.RequestSpecBuilder}, from many
- * threads is safe.</li>
+ * <li><code>given(client)</code> returns a new specification each time. Don't change one specification from several
+ * threads at once. Sending one specification, or one built with {@link io.restassured.builder.RequestSpecBuilder}, from
+ * many threads is safe.</li>
  * <li>The filters of the client, including those of its default request specification, are used by all its requests
  * and must be thread safe.</li>
  * <li>The cookies that a client keeps with <code>reuseHttpClientInstance().keepResponseCookies(true)</code> are shared by its
@@ -116,8 +132,8 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * A specification built with {@link io.restassured.builder.RequestSpecBuilder} or
  * {@link io.restassured.builder.ResponseSpecBuilder} contains static settings of <code>RestAssured</code> from when the
  * builder was created, such as the filters, the config, the request specification, the root path and the default
- * parser, which then apply to the requests of the client it's used with. The extra requests of form authentication and CSRF are sent with the
- * static settings.
+ * parser, which then apply to the requests of the client it's used with. The extra requests of form authentication and
+ * CSRF are sent with the client bound to the thread, if there is one, and otherwise with the static settings.
  */
 public final class RestAssuredClient implements AutoCloseable {
 
@@ -151,393 +167,6 @@ public final class RestAssuredClient implements AutoCloseable {
     }
 
     /**
-     * Starts a request, like {@link RestAssured#given()}. Each call returns a new specification.
-     *
-     * @return A request specification with the defaults of this client
-     */
-    public RequestSpecification given() {
-        return testSpecification().getRequestSpecification();
-    }
-
-    /**
-     * Starts a request, like {@link RestAssured#with()}, the same as {@link #given()}.
-     *
-     * @return A request specification with the defaults of this client
-     */
-    public RequestSpecification with() {
-        return given();
-    }
-
-    /**
-     * Starts a request without parameters, headers and the like, like {@link RestAssured#when()}.
-     *
-     * @return A request sender with the defaults of this client
-     */
-    public RequestSender when() {
-        return testSpecification().getRequestSpecification();
-    }
-
-    /**
-     * Starts a request with the response expectations, like {@link RestAssured#expect()}.
-     *
-     * @return A response specification with the defaults of this client
-     */
-    public ResponseSpecification expect() {
-        return testSpecification().getResponseSpecification();
-    }
-
-    /**
-     * Starts a request with a request specification, like {@link RestAssured#given(RequestSpecification)}: the same as
-     * <code>given().spec(requestSpecification)</code>.
-     *
-     * @return A request specification with the defaults of this client, merged with <code>requestSpecification</code>
-     */
-    public RequestSpecification given(RequestSpecification requestSpecification) {
-        return given().spec(requestSpecification);
-    }
-
-    /**
-     * Sends with a request and a response specification as they are, like
-     * {@link RestAssured#given(RequestSpecification, ResponseSpecification)}: the defaults of this client don't apply,
-     * only its HTTP clients and the defaults of <code>then()</code> do.
-     *
-     * @return A request sender
-     */
-    public RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-        throwIfClosed();
-        return new TestSpecificationImpl(requestSpecification, responseSpecification, context);
-    }
-
-    /**
-     * Sends a GET request, like {@link RestAssured#get(String, Object...)}.
-     */
-    public Response get(String path, Object... pathParams) {
-        return given().get(path, pathParams);
-    }
-
-    /**
-     * Sends a GET request, like {@link RestAssured#get(String, Map)}.
-     */
-    public Response get(String path, Map<String, ?> pathParams) {
-        return given().get(path, pathParams);
-    }
-
-    /**
-     * Sends a POST request, like {@link RestAssured#post(String, Object...)}.
-     */
-    public Response post(String path, Object... pathParams) {
-        return given().post(path, pathParams);
-    }
-
-    /**
-     * Sends a POST request, like {@link RestAssured#post(String, Map)}.
-     */
-    public Response post(String path, Map<String, ?> pathParams) {
-        return given().post(path, pathParams);
-    }
-
-    /**
-     * Sends a PUT request, like {@link RestAssured#put(String, Object...)}.
-     */
-    public Response put(String path, Object... pathParams) {
-        return given().put(path, pathParams);
-    }
-
-    /**
-     * Sends a DELETE request, like {@link RestAssured#delete(String, Object...)}.
-     */
-    public Response delete(String path, Object... pathParams) {
-        return given().delete(path, pathParams);
-    }
-
-    /**
-     * Sends a DELETE request, like {@link RestAssured#delete(String, Map)}.
-     */
-    public Response delete(String path, Map<String, ?> pathParams) {
-        return given().delete(path, pathParams);
-    }
-
-    /**
-     * Sends a HEAD request, like {@link RestAssured#head(String, Object...)}.
-     */
-    public Response head(String path, Object... pathParams) {
-        return given().head(path, pathParams);
-    }
-
-    /**
-     * Sends a HEAD request, like {@link RestAssured#head(String, Map)}.
-     */
-    public Response head(String path, Map<String, ?> pathParams) {
-        return given().head(path, pathParams);
-    }
-
-    /**
-     * Sends a PATCH request, like {@link RestAssured#patch(String, Object...)}.
-     */
-    public Response patch(String path, Object... pathParams) {
-        return given().patch(path, pathParams);
-    }
-
-    /**
-     * Sends a PATCH request, like {@link RestAssured#patch(String, Map)}.
-     */
-    public Response patch(String path, Map<String, ?> pathParams) {
-        return given().patch(path, pathParams);
-    }
-
-    /**
-     * Sends an OPTIONS request, like {@link RestAssured#options(String, Object...)}.
-     */
-    public Response options(String path, Object... pathParams) {
-        return given().options(path, pathParams);
-    }
-
-    /**
-     * Sends an OPTIONS request, like {@link RestAssured#options(String, Map)}.
-     */
-    public Response options(String path, Map<String, ?> pathParams) {
-        return given().options(path, pathParams);
-    }
-
-    /**
-     * Sends a QUERY request, like {@link RestAssured#query(String, Object...)}.
-     */
-    public Response query(String path, Object... pathParams) {
-        return given().query(path, pathParams);
-    }
-
-    /**
-     * Sends a QUERY request, like {@link RestAssured#query(String, Map)}.
-     */
-    public Response query(String path, Map<String, ?> pathParams) {
-        return given().query(path, pathParams);
-    }
-
-    /**
-     * Sends a GET request, like {@link RestAssured#get(URI)}.
-     */
-    public Response get(URI uri) {
-        return given().get(uri);
-    }
-
-    /**
-     * Sends a POST request, like {@link RestAssured#post(URI)}.
-     */
-    public Response post(URI uri) {
-        return given().post(uri);
-    }
-
-    /**
-     * Sends a PUT request, like {@link RestAssured#put(URI)}.
-     */
-    public Response put(URI uri) {
-        return given().put(uri);
-    }
-
-    /**
-     * Sends a DELETE request, like {@link RestAssured#delete(URI)}.
-     */
-    public Response delete(URI uri) {
-        return given().delete(uri);
-    }
-
-    /**
-     * Sends a HEAD request, like {@link RestAssured#head(URI)}.
-     */
-    public Response head(URI uri) {
-        return given().head(uri);
-    }
-
-    /**
-     * Sends a PATCH request, like {@link RestAssured#patch(URI)}.
-     */
-    public Response patch(URI uri) {
-        return given().patch(uri);
-    }
-
-    /**
-     * Sends an OPTIONS request, like {@link RestAssured#options(URI)}.
-     */
-    public Response options(URI uri) {
-        return given().options(uri);
-    }
-
-    /**
-     * Sends a QUERY request, like {@link RestAssured#query(URI)}.
-     */
-    public Response query(URI uri) {
-        return given().query(uri);
-    }
-
-    /**
-     * Sends a GET request, like {@link RestAssured#get(URL)}.
-     */
-    public Response get(URL url) {
-        return given().get(url);
-    }
-
-    /**
-     * Sends a POST request, like {@link RestAssured#post(URL)}.
-     */
-    public Response post(URL url) {
-        return given().post(url);
-    }
-
-    /**
-     * Sends a PUT request, like {@link RestAssured#put(URL)}.
-     */
-    public Response put(URL url) {
-        return given().put(url);
-    }
-
-    /**
-     * Sends a DELETE request, like {@link RestAssured#delete(URL)}.
-     */
-    public Response delete(URL url) {
-        return given().delete(url);
-    }
-
-    /**
-     * Sends a HEAD request, like {@link RestAssured#head(URL)}.
-     */
-    public Response head(URL url) {
-        return given().head(url);
-    }
-
-    /**
-     * Sends a PATCH request, like {@link RestAssured#patch(URL)}.
-     */
-    public Response patch(URL url) {
-        return given().patch(url);
-    }
-
-    /**
-     * Sends an OPTIONS request, like {@link RestAssured#options(URL)}.
-     */
-    public Response options(URL url) {
-        return given().options(url);
-    }
-
-    /**
-     * Sends a QUERY request, like {@link RestAssured#query(URL)}.
-     */
-    public Response query(URL url) {
-        return given().query(url);
-    }
-
-    /**
-     * Sends a GET request to the base URI, like {@link RestAssured#get()}.
-     */
-    public Response get() {
-        return given().get();
-    }
-
-    /**
-     * Sends a POST request to the base URI, like {@link RestAssured#post()}.
-     */
-    public Response post() {
-        return given().post();
-    }
-
-    /**
-     * Sends a PUT request to the base URI, like {@link RestAssured#put()}.
-     */
-    public Response put() {
-        return given().put();
-    }
-
-    /**
-     * Sends a DELETE request to the base URI, like {@link RestAssured#delete()}.
-     */
-    public Response delete() {
-        return given().delete();
-    }
-
-    /**
-     * Sends a HEAD request to the base URI, like {@link RestAssured#head()}.
-     */
-    public Response head() {
-        return given().head();
-    }
-
-    /**
-     * Sends a PATCH request to the base URI, like {@link RestAssured#patch()}.
-     */
-    public Response patch() {
-        return given().patch();
-    }
-
-    /**
-     * Sends an OPTIONS request to the base URI, like {@link RestAssured#options()}.
-     */
-    public Response options() {
-        return given().options();
-    }
-
-    /**
-     * Sends a QUERY request to the base URI, like {@link RestAssured#query()}.
-     */
-    public Response query() {
-        return given().query();
-    }
-
-    /**
-     * Sends a request to the base URI, like {@link RestAssured#request(Method)}.
-     */
-    public Response request(Method method) {
-        return given().request(method);
-    }
-
-    /**
-     * Sends a request to the base URI, like {@link RestAssured#request(String)}.
-     */
-    public Response request(String method) {
-        return given().request(method);
-    }
-
-    /**
-     * Sends a request, like {@link RestAssured#request(Method, String, Object...)}.
-     */
-    public Response request(Method method, String path, Object... pathParams) {
-        return given().request(method, path, pathParams);
-    }
-
-    /**
-     * Sends a request, like {@link RestAssured#request(String, String, Object...)}.
-     */
-    public Response request(String method, String path, Object... pathParams) {
-        return given().request(method, path, pathParams);
-    }
-
-    /**
-     * Sends a request, like {@link RestAssured#request(Method, URI)}.
-     */
-    public Response request(Method method, URI uri) {
-        return given().request(method, uri);
-    }
-
-    /**
-     * Sends a request, like {@link RestAssured#request(Method, URL)}.
-     */
-    public Response request(Method method, URL url) {
-        return given().request(method, url);
-    }
-
-    /**
-     * Sends a request, like {@link RestAssured#request(String, URI)}.
-     */
-    public Response request(String method, URI uri) {
-        return given().request(method, uri);
-    }
-
-    /**
-     * Sends a request, like {@link RestAssured#request(String, URL)}.
-     */
-    public Response request(String method, URL url) {
-        return given().request(method, url);
-    }
-
-    /**
      * @return The config of this client, with its session id as session id value if it has one, like
      * {@link RestAssured#config()}
      */
@@ -562,13 +191,20 @@ public final class RestAssuredClient implements AutoCloseable {
         context.instances().close();
     }
 
-    private TestSpecificationImpl testSpecification() {
-        throwIfClosed();
+    // Starts a request of RestAssured.given(), given(client), when() or expect()
+    TestSpecificationImpl testSpecification() {
+        context.instances().throwIfClosed();
         return defaults.get().testSpecification(context);
     }
 
-    private void throwIfClosed() {
+    // Sends the specifications of RestAssured.given(req, resp) as they are, with the HTTP clients and then() of this client
+    TestSpecificationImpl testSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
         context.instances().throwIfClosed();
+        return new TestSpecificationImpl(requestSpecification, responseSpecification, context);
+    }
+
+    boolean isClosed() {
+        return context.instances().isClosed();
     }
 
     /**

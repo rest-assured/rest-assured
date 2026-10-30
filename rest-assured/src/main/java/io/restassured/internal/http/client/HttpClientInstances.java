@@ -225,6 +225,13 @@ public final class HttpClientInstances {
     }
 
     /**
+     * @return Whether {@link #close()} was called
+     */
+    public boolean isClosed() {
+        return closed;
+    }
+
+    /**
      * Closes owned instances: {@link #acquire} fails from now on, the instances that no response uses are closed now and
      * the others once the last response that uses them is done, and the kept cookies are dropped. Only the first call
      * counts. The {@link #global()} instances aren't closed.
