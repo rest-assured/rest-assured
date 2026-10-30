@@ -67,7 +67,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * {@link RestAssuredWebTestClient#reset()} unbinds it:
  * <pre>
  * &#64;BeforeEach void useOwnWebTestClient() { RestAssuredWebTestClient.useClient(RestAssuredWebTestClientClient.builder().webTestClient(webTestClient).build()); }
- * &#64;AfterEach void resetRestAssured() { RestAssuredWebTestClient.reset(); }
+ * &#64;AfterEach void unbindClient() { RestAssuredWebTestClient.resetClient(); }
  *
  * &#64;Test void greets() {
  *     get("/greeting").then().body("content", equalTo("Hello, World!"));
@@ -90,7 +90,9 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * <ul>
  * <li>A client can be used from many threads at once.</li>
  * <li><code>given(client)</code> returns a new specification each time. Don't change one specification from several
- * threads at once.</li>
+ * threads at once. Sending one specification, or one built with
+ * {@link io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder}, from many threads is
+ * safe.</li>
  * </ul>
  * A specification built with
  * {@link io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder} contains no static settings

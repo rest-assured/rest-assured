@@ -136,6 +136,15 @@ class RestAssuredMockMvcClientTest {
         assertThatThrownBy(() -> client.postProcessors().add(recordingPostProcessor())).isInstanceOf(UnsupportedOperationException.class);
     }
 
+    @Test
+    void the_builder_rejects_null_authentication() {
+        assertThatThrownBy(() -> RestAssuredMockMvcClient.builder().authentication(null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("MockMvcAuthenticationScheme cannot be null");
+        // The static settings have none by default
+        assertThat(given(RestAssuredMockMvc.client().toBuilder().standaloneSetup(new GreetingController()).build()).get("/greeting")
+                .mvcResult().getRequest().getUserPrincipal()).isNull();
+    }
+
     // Changes that don't reach a client
 
     @Test

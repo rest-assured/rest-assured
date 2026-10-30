@@ -76,7 +76,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * {@link RestAssured#resetClient()} or {@link RestAssured#reset()} unbinds it:
  * <pre>
  * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port).build()); }
- * &#64;AfterEach void resetRestAssured() { RestAssured.reset(); }
+ * &#64;AfterEach void unbindClient() { RestAssured.resetClient(); }
  *
  * &#64;Test void shows_an_order() {
  *     get("/orders/{id}", 42).then().body("id", equalTo(42));

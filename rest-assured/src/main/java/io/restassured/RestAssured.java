@@ -341,19 +341,31 @@ import static io.restassured.specification.ProxySpecification.host;
  * <h2>Thread safety</h2>
  * <p>
  * The static fields and methods of this class (such as {@link #baseURI}, {@link #port}, {@link #config},
- * {@link #filters(java.util.List)} and {@link #registerParser(String, Parser)}) are global defaults shared by all threads.
+ * {@link #filters(java.util.List)} and {@link #registerParser(String, Parser)}) are settings shared by all threads.
  * When tests run in parallel:
  * <ul>
- * <li>Set the static defaults once, before the tests start running in parallel (for example in a <code>@BeforeAll</code>
+ * <li>Set the static settings once, before the tests start running in parallel (for example in a <code>@BeforeAll</code>
  * method), and don't change them while requests are being made. Calling {@link #given()} from many threads at once
- * is safe, and each call takes a copy of the defaults.</li>
- * <li>Put values that differ between tests in the request specification instead, for example
- * <code>given().baseUri("http://localhost").port(8081)</code> or <code>given(spec)</code> with a specification made by a
- * {@link RequestSpecBuilder}, or bind a {@link RestAssuredClient} with settings of its own to the thread of each test
- * with {@link #useClient(RestAssuredClient)}.</li>
- * <li>Don't execute the same request specification from several threads at once; start a new one with
- * {@link #given()} in each thread.</li>
- * <li>Filters added with {@link #filters(java.util.List)} are shared by all requests and must be thread safe.</li>
+ * is safe, and each call takes a copy of the settings.</li>
+ * <li>When tests that run in parallel need different settings, bind a {@link RestAssuredClient} with the settings of
+ * each test to its thread with {@link #useClient(RestAssuredClient)} in a <code>@BeforeEach</code> method, and call
+ * {@link #resetClient()} in an <code>@AfterEach</code> method. The tests then use <code>given()</code> as usual:
+ * <pre>
+ * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port).build()); }
+ * &#64;AfterEach void unbindClient() { RestAssured.resetClient(); }
+ * </pre>
+ * {@link #reset()} unbinds the client too, but it also resets the static settings for all threads, which tests that run
+ * at the same time may use.</li>
+ * <li>To use a client for one request, name it with {@link #given(RestAssuredClient)}, for example to call a second
+ * service. A value for one request can also be set on the request, for example <code>given().port(8081)</code>.</li>
+ * <li>A client bound with <code>useClient(..)</code> is used by the requests of the thread that bound it only. A request
+ * on another thread, for example in a condition that Awaitility polls on a thread of its own, uses the static settings
+ * unless it names the client with <code>given(client)</code>, or Awaitility polls with <code>pollInSameThread()</code>.</li>
+ * <li>A client can't be changed once it's built, so it's safe to share one between threads and tests.</li>
+ * <li>A request specification can be sent from many threads at once, but don't change one from several threads at
+ * once; start a new one with {@link #given()} in each thread.</li>
+ * <li>Filters added with {@link #filters(java.util.List)}, and the filters of a client, are used by all their requests
+ * and must be thread safe.</li>
  * </ul>
  * <p>
  * In order to use REST assured effectively it's recommended to statically import
@@ -774,7 +786,7 @@ public class RestAssured {
      * Naming the client also works on another thread, for example in a condition that Awaitility polls on a thread of its
      * own, where the client bound to the test's thread doesn't apply.
      *
-     * @param client The client whose defaults, HTTP clients and cookies the request uses
+     * @param client The client whose defaults the request uses
      * @return A request specification
      * @see RestAssuredClient
      */
@@ -1653,13 +1665,15 @@ public class RestAssured {
      * For example, for tests that run in parallel and each use their own settings with the usual DSL:
      * <pre>
      * &#64;BeforeEach void useOwnPort() { RestAssured.useClient(RestAssuredClient.builder().port(port).build()); }
-     * &#64;AfterEach void resetRestAssured() { RestAssured.reset(); }
+     * &#64;AfterEach void unbindClient() { RestAssured.resetClient(); }
      *
      * &#64;Test void shows_open_orders() {
      *     given().queryParam("status", "open").when().get("/orders").then().statusCode(200);
      * }
      * </pre>
-     * Unbind the client after each test, since the thread may run other tests later.
+     * Unbind the client with {@link #resetClient()} after each test, since the thread may run other tests later.
+     * {@link #reset()} unbinds it too, but it also resets the static settings for all threads, which tests that run at
+     * the same time may use.
      *
      * @param client The client to use on the current thread. Use {@link #resetClient()} to unbind it.
      * @see RestAssuredClient
