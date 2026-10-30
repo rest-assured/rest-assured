@@ -93,13 +93,15 @@ class SSLContextAndHostnameVerifierTest {
     }
 
     @Test
-    void static_certificate_authentication_keeps_ssl_context_of_static_ssl_config() throws Exception {
-        SSLContext sslContext = clientSslContextTrustingTheServer();
-        RestAssured.config = config().sslConfig(sslConfig().sslContext(sslContext));
+    void static_certificate_authentication_takes_the_ssl_config_of_the_request_when_it_is_sent() throws Exception {
+        RestAssured.authentication = RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD);
+        SSLConfig rejectingSslConfig = sslConfig().sslContext(clientSslContextTrustingTheServer()).hostnameVerifier(REJECT_ALL);
 
-        CertAuthScheme certificate = (CertAuthScheme) RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD);
-
-        assertThat(certificate.getSslContext()).isSameAs(sslContext);
+        assertThatThrownBy(() -> given().config(config().sslConfig(rejectingSslConfig)).get(httpsUrl()))
+                .satisfies(SSLContextAndHostnameVerifierTest::hostNameRejection);
+        RestAssuredClient client = RestAssuredClient.builder().authentication(RestAssured.certificate(SELF_SIGNED_KEYSTORE, KEYSTORE_PASSWORD))
+                .config(config().sslConfig(rejectingSslConfig)).build();
+        assertThatThrownBy(() -> given(client).get(httpsUrl())).satisfies(SSLContextAndHostnameVerifierTest::hostNameRejection);
     }
 
     @Test

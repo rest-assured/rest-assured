@@ -1662,7 +1662,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
-        CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig());
+        CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig(), cfg.getSSLConfig());
         authenticate(authenticationScheme, authentication);
         HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication);
         try {

@@ -31,7 +31,8 @@ import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
-import io.restassured.internal.http.RelaxedCertAuthScheme;
+import io.restassured.internal.http.auth.CertificateAuthenticationContext;
+import io.restassured.internal.http.client.ClientSettingsFactory;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
@@ -1374,7 +1375,9 @@ public class RestAssured {
      * the certificates in it.
      * </p>
      * <p>
-     * Uses SSL settings defined in {@link SSLConfig}. A key store or trust store set there with
+     * Uses the SSL settings of the {@link SSLConfig} of the request, as they are when the request is sent: that of
+     * <code>given().config(..)</code> if the request has one, else that of the client of the request (see
+     * {@link RestAssuredClient}), else that of {@link #config}. A key store or trust store set there with
      * {@link SSLConfig#keyStore(java.security.KeyStore)} or {@link SSLConfig#trustStore(java.security.KeyStore)} is used
      * instead of the file for that purpose. The keys of such a key store are read with the key store password of the
      * {@link SSLConfig} ({@link SSLConfig#keyStore(String)}) if there is one, and otherwise with <code>password</code>.
@@ -1388,15 +1391,7 @@ public class RestAssured {
      * @return The request io.restassured.specification
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
-        SSLConfig sslConfig = config().getSSLConfig();
-        CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
-                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).hostnameVerifier(sslConfig.getHostnameVerifier());
-        settings = sslConfig.getSSLContext() == null ? settings : settings.sslContext(sslConfig.getSSLContext());
-        // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
-        String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
-        AuthenticationScheme scheme = certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
-        String relaxedProtocol = sslConfig.getRelaxedHTTPSValidationProtocol();
-        return relaxedProtocol == null ? scheme : new RelaxedCertAuthScheme((CertAuthScheme) scheme, relaxedProtocol);
+        return new SSLConfigCertAuthScheme(certURL, password);
     }
 
     /**
@@ -2065,5 +2060,41 @@ public class RestAssured {
     private static RestAssuredConfig configWithoutSessionId() {
         RestAssuredConfig currentConfig = config;
         return currentConfig == null ? new RestAssuredConfig() : currentConfig;
+    }
+
+    // The scheme of certificate(certURL, password), which takes the SSL settings of the request's config when it's sent
+    private static final class SSLConfigCertAuthScheme extends CertAuthScheme {
+        private final String certURL;
+        private final String password;
+
+        private SSLConfigCertAuthScheme(String certURL, String password) {
+            this.certURL = AssertParameter.notNull(certURL, "Keystore path");
+            this.password = AssertParameter.notNull(password, "Keystore password");
+        }
+
+        @Override
+        public void authenticate(AuthenticationContext context) {
+            if (context instanceof CertificateAuthenticationContext certificateContext) {
+                SSLConfig sslConfig = certificateContext.sslConfig();
+                certificateContext.certificate(ClientSettingsFactory.certificateTlsSettings(scheme(sslConfig), sslConfig.getRelaxedHTTPSValidationProtocol()));
+                return;
+            }
+            // A context that isn't REST Assured's own has no request, so it gets the SSL settings of RestAssured.config
+            SSLConfig sslConfig = config().getSSLConfig();
+            if (sslConfig.getRelaxedHTTPSValidationProtocol() != null) {
+                throw new IllegalStateException("Certificate authentication with the relaxed HTTPS validation of RestAssured.config " +
+                        "can't be applied to " + context.getClass().getName() + ".");
+            }
+            scheme(sslConfig).authenticate(context);
+        }
+
+        private CertAuthScheme scheme(SSLConfig sslConfig) {
+            CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
+                    keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).hostnameVerifier(sslConfig.getHostnameVerifier());
+            settings = sslConfig.getSSLContext() == null ? settings : settings.sslContext(sslConfig.getSSLContext());
+            // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
+            String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
+            return (CertAuthScheme) certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
+        }
     }
 }
