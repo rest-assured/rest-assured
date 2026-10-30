@@ -48,6 +48,14 @@ public class RestAssuredBundleManifestTest {
     }
 
     @Test
+    public void hamcrest_2_2_and_3_x_are_imported() throws Exception {
+        assertThat(clauses(header(RestAssured.class, "Import-Package")))
+                .filteredOn(clause -> clause.startsWith("org.hamcrest"))
+                .isNotEmpty()
+                .allSatisfy(clause -> assertThat(clause).contains("version=\"[2.2,4)\""));
+    }
+
+    @Test
     public void the_optional_http_client_module_is_a_dynamic_import_and_no_http_client_module_is_exported() throws Exception {
         assertThat(clauses(header(RestAssured.class, "DynamicImport-Package"))).contains("io.restassured.http.apache5").doesNotContain("io.restassured.http.jdk");
         assertThat(clauses(header(RestAssured.class, "Export-Package"))).noneMatch(clause -> clause.startsWith("io.restassured.http.jdk") || clause.startsWith("io.restassured.http.apache5"));
