@@ -30,10 +30,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<junit-bom.version>6.0.1</junit-bom.version>
-		<logback.version>1.5.38</logback.version>
-		<spring.version>7.0.9</spring.version>
-		<spring.security.version>6.5.11</spring.security.version>
+		<logback.version>1.6.6</logback.version>
+		<spring.version>7.0.10</spring.version>
+		<spring.security.version>7.1.2</spring.security.version>
 		<jetty.version>11.0.26</jetty.version>
 
 		<duplicate-finder-maven-plugin.phase>none</duplicate-finder-maven-plugin.phase>
@@ -44,7 +43,7 @@
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
-				<version>${junit-bom.version}</version>
+				<version>${junit.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -60,10 +59,6 @@
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.4</version>
 			</plugin>
 		</plugins>
 	</build>

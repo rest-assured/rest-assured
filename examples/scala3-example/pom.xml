@@ -29,8 +29,7 @@
     <description>Scala 3 example of using REST Assured</description>
 
     <properties>
-        <compiler-plugin.version>3.13.0</compiler-plugin.version>
-        <scala-maven-plugin.version>4.9.2</scala-maven-plugin.version>
+        <scala-maven-plugin.version>4.10.0</scala-maven-plugin.version>
     </properties>
 
     <build>
@@ -38,7 +37,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg>

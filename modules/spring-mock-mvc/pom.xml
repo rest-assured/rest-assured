@@ -28,8 +28,8 @@
     <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>7.0.9</spring.version>
-        <spring.security.version>6.5.11</spring.security.version>
+        <spring.version>7.0.10</spring.version>
+        <spring.security.version>7.1.2</spring.security.version>
         <java.version>17</java.version>
     </properties>
 
@@ -127,19 +127,18 @@
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-reflect</artifactId>
-            <version>1.5.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.restdocs</groupId>
             <artifactId>spring-restdocs-mockmvc</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
-            <version>1.5.0</version>
+            <version>1.5.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
