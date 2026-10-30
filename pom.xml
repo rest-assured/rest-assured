@@ -82,7 +82,7 @@
         <!-- The Scala 3 version scala-extensions is built with: the Scala 3.3 LTS, so that it works with every newer Scala 3.
              CI also tests scala-extensions with the latest Scala 3 (the scala job) -->
         <scala3.version>3.3.9</scala3.version>
-        <assertj-core.version>3.27.4</assertj-core.version>
+        <assertj-core.version>3.27.7</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.7.2-jre</guava.version>
         <dokka.version>2.1.0</dokka.version>
