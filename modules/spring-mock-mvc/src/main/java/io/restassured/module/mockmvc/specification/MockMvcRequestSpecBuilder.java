@@ -61,7 +61,9 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * {@link RestAssuredMockMvc#basePath}, {@link RestAssuredMockMvc#config},
  * {@link RestAssuredMockMvc#resultHandlers(ResultHandler, ResultHandler...)} or
  * {@link RestAssuredMockMvc#requestSpecification}. They apply when the specification is used, for example with
- * <code>given().spec(requestSpec)</code>, so they're applied once, as they are at that time. To send the specification
+ * <code>given().spec(requestSpec)</code>, so they're applied once, as they are at that time. With a client, for example
+ * <code>given(client).spec(requestSpec)</code>, the settings of the
+ * {@link io.restassured.module.mockmvc.RestAssuredMockMvcClient} apply instead. To send the specification
  * on its own, for example with <code>requestSpec.get("/something")</code>, set the MockMvc instance on the builder, for
  * example with {@link #setMockMvc(MockMvc)}.
  * </p>

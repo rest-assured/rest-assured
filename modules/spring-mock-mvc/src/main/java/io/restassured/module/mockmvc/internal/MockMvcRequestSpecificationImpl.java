@@ -22,6 +22,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.support.ParameterUpdater;
@@ -45,8 +46,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -56,6 +55,7 @@ import java.net.URI;
 import java.net.URL;
 import java.security.Principal;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static io.restassured.internal.RequestSpecificationImpl.copyParameters;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -114,11 +114,28 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final Map<String, Object> sessionAttributes = new LinkedHashMap<>();
 
+    private final Supplier<ResponseDefaults> responseDefaults;
 
+    /**
+     * A specification whose responses validate with {@link io.restassured.RestAssured#rootPath} and
+     * {@link io.restassured.RestAssured#responseSpecification} at <code>then()</code>
+     */
     public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
                                            List<RequestPostProcessor> requestPostProcessors, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
+        this(mockMvcFactory, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication,
+                ResponseDefaults::ofStaticFields);
+    }
+
+    /**
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the responses
+     */
+    public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
+                                           List<RequestPostProcessor> requestPostProcessors, String basePath,
+                                           MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
+                                           MockMvcAuthenticationScheme authentication, Supplier<ResponseDefaults> responseDefaults) {
+        this.responseDefaults = responseDefaults;
         this.logRepository = new LogRepository();
         this.mockMvcFactory = mockMvcFactory == null ? new MockMvcFactory() : mockMvcFactory;
         this.basePath = basePath;
@@ -158,13 +175,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
-        DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);
-        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
-            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
-                builder.apply(mockMvcConfigurer);
-            }
-        }
-        return changeMockMvcFactoryTo(new MockMvcFactory(builder));
+        return changeMockMvcFactoryTo(MockMvcFactory.webAppContextSetup(context, mockMvcConfigurers));
     }
 
     public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
@@ -610,7 +621,14 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return new MockMvcRequestSenderImpl(mockMvc, copyParameters(params), copyParameters(pathParams), copyParameters(queryParams),
                 copyParameters(formParams), copyParameters(attributes), cfg, requestBody, requestHeaders, cookies, copyParameters(sessionAttributes),
                 new ArrayList<>(multiParts), sendRequestLoggingFilter, new ArrayList<>(resultHandlers), new ArrayList<>(requestPostProcessors), interceptor,
-                basePath, responseSpecification, authentication, sendLogRepository);
+                basePath, responseSpecification, authentication, sendLogRepository, responseDefaults);
+    }
+
+    /**
+     * @return A copy of <code>specification</code> with what {@link #spec(MockMvcRequestSpecification)} takes from it
+     */
+    public static MockMvcRequestSpecificationImpl copyOf(MockMvcRequestSpecification specification) {
+        return new MockMvcRequestSpecificationImpl(null, null, null, null, null, specification, null, null);
     }
 
     private String serializeIfNeeded(Object object) {

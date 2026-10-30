@@ -22,7 +22,8 @@ public interface WebTestClientFactory {
 
 	String NOT_CONFIGURED = "You haven't configured a WebTestClient instance. You can do this statically\n\nRestAssuredWebTestClient.webTestClient(..)\n" +
 			"RestAssuredWebTestClient.standaloneSetup(..);\nRestAssuredWebTestClient.webAppContextSetup(..);\n\nor using the DSL:\n\n" +
-			"given().\n\t\twebTestClient(..). ..\n\nor, for a specification built by WebTestClientRequestSpecBuilder that is sent on its own, " +
+			"given().\n\t\twebTestClient(..). ..\n\nor on a client:\n\nRestAssuredWebTestClientClient.builder().\n\t\twebTestClient(..). ..\n\n" +
+			"or, for a specification built by WebTestClientRequestSpecBuilder that is sent on its own, " +
 			"on the builder:\n\nnew WebTestClientRequestSpecBuilder().\n\t\tsetWebTestClient(..). ..\n";
 
 	/**

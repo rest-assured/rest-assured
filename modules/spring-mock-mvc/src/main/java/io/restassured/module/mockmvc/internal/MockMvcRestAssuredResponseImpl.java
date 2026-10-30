@@ -39,7 +39,8 @@ public class MockMvcRestAssuredResponseImpl extends RestAssuredResponseOptionsIm
     }
 
     public ValidatableMockMvcResponse then() {
-        ValidatableMockMvcResponseImpl response = new ValidatableMockMvcResponseImpl(resultActions, getContentType(), getRpr(), getConfig(), this, this, logRepository);
+        ValidatableMockMvcResponseImpl response = new ValidatableMockMvcResponseImpl(resultActions, getRpr(), getConfig(), this, this, logRepository,
+                responseDefaults());
         LogConfig logConfig = getConfig().getLogConfig();
         if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             response.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());

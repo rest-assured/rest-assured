@@ -28,6 +28,7 @@ import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.filter.FilterContextImpl;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
@@ -65,6 +66,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -102,6 +104,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	private final String basePath;
 	private final ResponseSpecification responseSpecification;
 	private final LogRepository logRepository;
+	private final Supplier<ResponseDefaults> responseDefaults;
 	private Headers headers;
 	private final RequestLoggingFilter requestLoggingFilter;
 	private Consumer<EntityExchangeResult<byte[]>> consumer;
@@ -193,7 +196,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			RequestLoggingFilter requestLoggingFilter,
 			String basePath,
 			ResponseSpecification responseSpecification,
-			LogRepository logRepository
+			LogRepository logRepository,
+			Supplier<ResponseDefaults> responseDefaults
 	) {
 		this.webTestClient = webTestClient;
 		this.params = params;
@@ -209,6 +213,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		this.basePath = basePath;
 		this.responseSpecification = responseSpecification;
 		this.logRepository = logRepository;
+		this.responseDefaults = responseDefaults;
 		this.requestLoggingFilter = requestLoggingFilter;
 	}
 
@@ -523,6 +528,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			result = responseSpec.returnResult(byte[].class);
 			restAssuredResponse = new ExchangeResultConverter().toRestAssuredResponse(result, responseSpec, responseTime,
 					logRepository, config, consumer, getRpr());
+			restAssuredResponse.setResponseDefaults(responseDefaults);
 			if (responseSpecification != null) {
 				responseSpecification.validate(ResponseConverter.toStandardResponse(restAssuredResponse));
 			}

@@ -24,6 +24,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartInternal;
@@ -62,6 +63,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static io.restassured.internal.MapCreator.CollisionStrategy.OVERWRITE;
 import static io.restassured.internal.RequestSpecificationImpl.copyParameters;
@@ -91,13 +93,31 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     private List<MultiPartInternal> multiParts = new ArrayList<>();
     private Cookies cookies = new Cookies();
     private AsyncConfig asyncConfig;
+    private final Supplier<ResponseDefaults> responseDefaults;
 
 
+    /**
+     * A specification whose responses validate with {@link io.restassured.RestAssured#rootPath} and
+     * {@link io.restassured.RestAssured#responseSpecification} at <code>then()</code>
+     */
     public WebTestClientRequestSpecificationImpl(WebTestClientFactory webTestClientFactory,
                                                  RestAssuredWebTestClientConfig config,
                                                  String basePath,
                                                  WebTestClientRequestSpecification requestSpecification,
                                                  ResponseSpecification responseSpecification) {
+        this(webTestClientFactory, config, basePath, requestSpecification, responseSpecification, ResponseDefaults::ofStaticFields);
+    }
+
+    /**
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the responses
+     */
+    public WebTestClientRequestSpecificationImpl(WebTestClientFactory webTestClientFactory,
+                                                 RestAssuredWebTestClientConfig config,
+                                                 String basePath,
+                                                 WebTestClientRequestSpecification requestSpecification,
+                                                 ResponseSpecification responseSpecification,
+                                                 Supplier<ResponseDefaults> responseDefaults) {
+        this.responseDefaults = responseDefaults;
         this.logRepository = new LogRepository();
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
@@ -646,7 +666,14 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
         return new WebTestClientRequestSenderImpl(webTestClient, copyParameters(params), copyParameters(namedPathParams), copyParameters(queryParams),
                 copyParameters(formParams), copyParameters(attributes), config, requestBody, requestHeaders, cookies, new ArrayList<>(multiParts),
-                sendRequestLoggingFilter, basePath, responseSpecification, sendLogRepository);
+                sendRequestLoggingFilter, basePath, responseSpecification, sendLogRepository, responseDefaults);
+    }
+
+    /**
+     * @return A copy of <code>specification</code> with what {@link #spec(WebTestClientRequestSpecification)} takes from it
+     */
+    public static WebTestClientRequestSpecificationImpl copyOf(WebTestClientRequestSpecification specification) {
+        return new WebTestClientRequestSpecificationImpl(null, null, null, specification, null);
     }
 
     @Override

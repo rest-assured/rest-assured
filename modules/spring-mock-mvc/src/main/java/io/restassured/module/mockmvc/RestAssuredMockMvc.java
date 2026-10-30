@@ -21,7 +21,9 @@ import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.internal.MockMvcClientDefaults;
 import io.restassured.module.mockmvc.internal.MockMvcFactory;
 import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import io.restassured.module.mockmvc.internal.StandaloneMockMvcFactory;
@@ -32,8 +34,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -63,7 +63,8 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * defaults.</li>
  * <li>Put values that differ between tests in the request specification instead, for example
  * <code>given().mockMvc(mockMvc)</code> or <code>given().spec(spec)</code> with a specification made by a
- * {@link MockMvcRequestSpecBuilder}.</li>
+ * {@link MockMvcRequestSpecBuilder}, or bind a {@link RestAssuredMockMvcClient} with settings of its own to the thread
+ * of each test with {@link #useClient(RestAssuredMockMvcClient)}.</li>
  * <li>Don't execute the same request specification from several threads at once; start a new one with
  * {@link #given()} in each thread.</li>
  * <li>Result handlers and request post processors added here are shared by all requests and must be thread safe.</li>
@@ -122,6 +123,13 @@ public class RestAssuredMockMvc {
 
     private static volatile MockMvcFactory mockMvcFactory = null;
 
+    // The static API: a client that reads the static fields at each call
+    private static final RestAssuredMockMvcClient DEFAULT = new RestAssuredMockMvcClient(RestAssuredMockMvc::staticDefaults,
+            ResponseDefaults::ofStaticFields);
+    // The client of useClient(..). Not inheritable: a thread of a pool, such as a ForkJoinPool worker that JUnit runs
+    // tests on, would inherit the client of another test.
+    private static final ThreadLocal<RestAssuredMockMvcClient> BOUND_CLIENT = new ThreadLocal<>();
+
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
      * Default value is <code>/</code>.
@@ -158,7 +166,24 @@ public class RestAssuredMockMvc {
      * @return A {@link MockMvcRequestSpecification}.
      */
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvcFactory, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication);
+        return current().given();
+    }
+
+    /**
+     * Starts a request with the defaults of <code>client</code> instead of the static settings, or of a client bound to
+     * the thread with {@link #useClient(RestAssuredMockMvcClient)}. For example:
+     * <pre>
+     * RestAssuredMockMvcClient api = RestAssuredMockMvcClient.builder().mockMvc(mockMvc).basePath("/api").build();
+     *
+     * given(api).param("name", "John").when().get("/greeting").then().statusCode(200);
+     * </pre>
+     *
+     * @param client The client whose defaults the request uses
+     * @return A {@link MockMvcRequestSpecification}.
+     * @see RestAssuredMockMvcClient
+     */
+    public static MockMvcRequestSpecification given(RestAssuredMockMvcClient client) {
+        return notNull(client, RestAssuredMockMvcClient.class).given();
     }
 
     /**
@@ -259,13 +284,7 @@ public class RestAssuredMockMvc {
      * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
      */
     public static void webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
-        DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);  // To avoid compile-time errors
-        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
-            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
-                builder.apply(mockMvcConfigurer);
-            }
-        }
-        mockMvcFactory = new MockMvcFactory(builder);
+        mockMvcFactory = MockMvcFactory.webAppContextSetup(context, mockMvcConfigurers);
     }
 
     /**
@@ -320,9 +339,12 @@ public class RestAssuredMockMvc {
     }
 
     /**
-     * Reset all static configurations to their default values.
+     * Reset all static configurations to their default values. It also unbinds the client that <code>useClient(..)</code>
+     * bound to the current thread, with {@link #resetClient()}. The static fields are reset for all threads, but the
+     * clients bound to other threads stay.
      */
     public static void reset() {
+        resetClient();
         mockMvcFactory = null;
         config = null;
         basePath = "/";
@@ -331,6 +353,71 @@ public class RestAssuredMockMvc {
         responseSpecification = null;
         requestSpecification = null;
         authentication = null;
+    }
+
+    /**
+     * Creates a client with the current values of the static fields, the result handlers and the post processors, the
+     * values that {@link #given()} starts from when no client is bound to the thread. Later changes to them don't reach
+     * the client. For example:
+     * <pre>
+     * RestAssuredMockMvcClient admin = RestAssuredMockMvc.client().toBuilder().authentication(principal(admin)).build();
+     * </pre>
+     *
+     * @return A new client
+     * @see RestAssuredMockMvcClient
+     */
+    public static RestAssuredMockMvcClient client() {
+        return new RestAssuredMockMvcClient.Builder(staticDefaults()).build();
+    }
+
+    /**
+     * Binds <code>client</code> to the current thread. While a client is bound, {@link #given()}, {@link #with()},
+     * {@link #when()} and the static methods that send a request, such as {@link #get(String, Object...)}, use the client
+     * instead of the static settings on this thread, until {@link #resetClient()} or {@link #reset()} unbinds it. A client
+     * named with {@link #given(RestAssuredMockMvcClient)} wins over the bound one.
+     * <p>
+     * The binding isn't inherited by other threads: a request on another thread uses the static settings unless it names
+     * the client with {@link #given(RestAssuredMockMvcClient)}. {@link #client()}, {@link #config()},
+     * {@link #resultHandlers()}, {@link #postProcessors()} and the other static fields and setters are the static
+     * settings, whether a client is bound or not.
+     * <p>
+     * For example, for tests that run in parallel and each use their own MockMvc instance with the usual DSL:
+     * <pre>
+     * &#64;BeforeEach void useOwnMockMvc() { RestAssuredMockMvc.useClient(RestAssuredMockMvcClient.builder().mockMvc(mockMvc).build()); }
+     * &#64;AfterEach void resetRestAssured() { RestAssuredMockMvc.reset(); }
+     *
+     * &#64;Test void greets() {
+     *     given().param("name", "John").when().get("/greeting").then().body("content", equalTo("Hello, John!"));
+     * }
+     * </pre>
+     * Unbind the client after each test, since the thread may run other tests later.
+     *
+     * @param client The client to use on the current thread. Use {@link #resetClient()} to unbind it.
+     * @see RestAssuredMockMvcClient
+     */
+    public static void useClient(RestAssuredMockMvcClient client) {
+        BOUND_CLIENT.set(notNull(client, RestAssuredMockMvcClient.class));
+    }
+
+    /**
+     * Unbinds the client that {@link #useClient(RestAssuredMockMvcClient)} bound to the current thread, if there is one,
+     * so that the requests of this thread use the static settings again. The clients bound to other threads stay.
+     * {@link #reset()} does this too.
+     */
+    public static void resetClient() {
+        BOUND_CLIENT.remove();
+    }
+
+    // The client bound to the current thread, or else the default client of the static settings
+    private static RestAssuredMockMvcClient current() {
+        RestAssuredMockMvcClient bound = BOUND_CLIENT.get();
+        return bound == null ? DEFAULT : bound;
+    }
+
+    // Only reads the static fields: given() is called from many threads at once when tests run in parallel
+    private static MockMvcClientDefaults staticDefaults() {
+        return new MockMvcClientDefaults(mockMvcFactory, config, resultHandlers, requestPostProcessors, basePath, requestSpecification,
+                responseSpecification, authentication);
     }
 
     /**

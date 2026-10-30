@@ -19,6 +19,7 @@ import io.restassured.internal.support.CommonVersionCheck;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.internal.*;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static io.restassured.config.LogConfig.logConfig;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * The Spring Web Test Client module's equivalent of {@link io.restassured.RestAssured}. This is the starting point of the DSL.
@@ -51,7 +53,9 @@ import static io.restassured.config.LogConfig.logConfig;
  * defaults.</li>
  * <li>Put values that differ between tests in the request specification instead, for example
  * <code>given().webTestClient(webTestClient)</code> or <code>given().spec(spec)</code> with a specification made by a
- * {@link io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder}.</li>
+ * {@link io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder}, or bind a
+ * {@link RestAssuredWebTestClientClient} with settings of its own to the thread of each test with
+ * {@link #useClient(RestAssuredWebTestClientClient)}.</li>
  * <li>Don't execute the same request specification from several threads at once; start a new one with
  * {@link #given()} in each thread.</li>
  * </ul>
@@ -101,6 +105,13 @@ public class RestAssuredWebTestClient {
 
     private static volatile WebTestClientFactory webTestClientFactory = null;
 
+    // The static API: a client that reads the static fields at each call
+    private static final RestAssuredWebTestClientClient DEFAULT = new RestAssuredWebTestClientClient(RestAssuredWebTestClient::staticDefaults,
+            ResponseDefaults::ofStaticFields);
+    // The client of useClient(..). Not inheritable: a thread of a pool, such as a ForkJoinPool worker that JUnit runs
+    // tests on, would inherit the client of another test.
+    private static final ThreadLocal<RestAssuredWebTestClientClient> BOUND_CLIENT = new ThreadLocal<>();
+
     /**
      * Set a {@link WebTestClient} instance that REST Assured will use when making requests unless overwritten
      * by a {@link WebTestClientRequestSpecification}.
@@ -128,8 +139,24 @@ public class RestAssuredWebTestClient {
      * @return a {@link WebTestClientRequestSpecification}.
      */
     public static WebTestClientRequestSpecification given() {
-        return new WebTestClientRequestSpecificationImpl(webTestClientFactory, config, basePath, requestSpecification,
-                responseSpecification);
+        return current().given();
+    }
+
+    /**
+     * Starts a request with the defaults of <code>client</code> instead of the static settings, or of a client bound to
+     * the thread with {@link #useClient(RestAssuredWebTestClientClient)}. For example:
+     * <pre>
+     * RestAssuredWebTestClientClient api = RestAssuredWebTestClientClient.builder().webTestClient(webTestClient).basePath("/api").build();
+     *
+     * given(api).queryParam("name", "John").when().get("/greeting").then().statusCode(200);
+     * </pre>
+     *
+     * @param client The client whose defaults the request uses
+     * @return a {@link WebTestClientRequestSpecification}.
+     * @see RestAssuredWebTestClientClient
+     */
+    public static WebTestClientRequestSpecification given(RestAssuredWebTestClientClient client) {
+        return notNull(client, RestAssuredWebTestClientClient.class).given();
     }
 
     /**
@@ -221,14 +248,79 @@ public class RestAssuredWebTestClient {
     }
 
     /**
-     * Reset all static configurations to their default values.
+     * Reset all static configurations to their default values. It also unbinds the client that <code>useClient(..)</code>
+     * bound to the current thread, with {@link #resetClient()}. The static fields are reset for all threads, but the
+     * clients bound to other threads stay.
      */
     public static void reset() {
+        resetClient();
         webTestClientFactory = null;
         config = null;
         basePath = "/";
         responseSpecification = null;
         requestSpecification = null;
+    }
+
+    /**
+     * Creates a client with the current values of the static fields, the values that {@link #given()} starts from when no
+     * client is bound to the thread. Later changes to them don't reach the client. For example:
+     * <pre>
+     * RestAssuredWebTestClientClient other = RestAssuredWebTestClient.client().toBuilder().basePath("/other").build();
+     * </pre>
+     *
+     * @return A new client
+     * @see RestAssuredWebTestClientClient
+     */
+    public static RestAssuredWebTestClientClient client() {
+        return new RestAssuredWebTestClientClient.Builder(staticDefaults()).build();
+    }
+
+    /**
+     * Binds <code>client</code> to the current thread. While a client is bound, {@link #given()}, {@link #with()} and the
+     * static methods that send a request, such as {@link #get(String, Object...)}, use the client instead of the static
+     * settings on this thread, until {@link #resetClient()} or {@link #reset()} unbinds it. A client named with
+     * {@link #given(RestAssuredWebTestClientClient)} wins over the bound one.
+     * <p>
+     * The binding isn't inherited by other threads: a request on another thread uses the static settings unless it names
+     * the client with {@link #given(RestAssuredWebTestClientClient)}. {@link #client()}, {@link #config()} and the other
+     * static fields and setters are the static settings, whether a client is bound or not.
+     * <p>
+     * For example, for tests that run in parallel and each use their own WebTestClient instance with the usual DSL:
+     * <pre>
+     * &#64;BeforeEach void useOwnWebTestClient() { RestAssuredWebTestClient.useClient(RestAssuredWebTestClientClient.builder().webTestClient(webTestClient).build()); }
+     * &#64;AfterEach void resetRestAssured() { RestAssuredWebTestClient.reset(); }
+     *
+     * &#64;Test void greets() {
+     *     given().queryParam("name", "John").when().get("/greeting").then().body("content", equalTo("Hello, John!"));
+     * }
+     * </pre>
+     * Unbind the client after each test, since the thread may run other tests later.
+     *
+     * @param client The client to use on the current thread. Use {@link #resetClient()} to unbind it.
+     * @see RestAssuredWebTestClientClient
+     */
+    public static void useClient(RestAssuredWebTestClientClient client) {
+        BOUND_CLIENT.set(notNull(client, RestAssuredWebTestClientClient.class));
+    }
+
+    /**
+     * Unbinds the client that {@link #useClient(RestAssuredWebTestClientClient)} bound to the current thread, if there
+     * is one, so that the requests of this thread use the static settings again. The clients bound to other threads
+     * stay. {@link #reset()} does this too.
+     */
+    public static void resetClient() {
+        BOUND_CLIENT.remove();
+    }
+
+    // The client bound to the current thread, or else the default client of the static settings
+    private static RestAssuredWebTestClientClient current() {
+        RestAssuredWebTestClientClient bound = BOUND_CLIENT.get();
+        return bound == null ? DEFAULT : bound;
+    }
+
+    // Only reads the static fields: given() is called from many threads at once when tests run in parallel
+    private static WebTestClientClientDefaults staticDefaults() {
+        return new WebTestClientClientDefaults(webTestClientFactory, config, basePath, requestSpecification, responseSpecification);
     }
 
     /**

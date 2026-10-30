@@ -264,7 +264,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
      * @return The defaults of <code>then()</code> now, those of the static fields of {@link io.restassured.RestAssured}
      * for a response that REST Assured didn't send
      */
-    ResponseDefaults responseDefaults() {
+    protected ResponseDefaults responseDefaults() {
         return responseDefaults == null ? ResponseDefaults.ofStaticFields() : responseDefaults.get();
     }
 

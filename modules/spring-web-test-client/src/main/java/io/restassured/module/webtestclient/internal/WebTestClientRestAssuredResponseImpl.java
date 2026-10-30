@@ -36,7 +36,7 @@ public class WebTestClientRestAssuredResponseImpl extends RestAssuredResponseOpt
 	@Override
 	public ValidatableWebTestClientResponse then() {
 		ValidatableWebTestClientResponse response = new ValidatableWebTestClientResponseImpl(
-				responseSpec, getRpr(), getConfig(), this, this, logRepository);
+				responseSpec, getRpr(), getConfig(), this, this, logRepository, responseDefaults());
 		LogConfig logConfig = getConfig().getLogConfig();
 		if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
 			response.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
