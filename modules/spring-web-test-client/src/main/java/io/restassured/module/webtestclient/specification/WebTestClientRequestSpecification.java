@@ -906,8 +906,8 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	 * <ul>
 	 * <li>Parameters</li>
 	 * <li>Attributes</li>
-	 * <li>Cookies</li>
-	 * <li>Headers</li>
+	 * <li>Cookies (a cookie that is already present with the same value isn't added again)</li>
+	 * <li>Headers (a header that is already present with the same value isn't added again)</li>
 	 * </ul>
 	 * <p/>
 	 *

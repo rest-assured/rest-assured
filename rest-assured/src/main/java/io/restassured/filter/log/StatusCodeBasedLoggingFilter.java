@@ -33,14 +33,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.restassured.RestAssured.config;
-
 class StatusCodeBasedLoggingFilter implements Filter {
 
     private final PrintStream stream;
     private final Matcher<?> matcher;
     private final LogDetail logDetail;
-    private final boolean shouldPrettyPrint;
+    // null to pretty print as the log config of the request says
+    private final Boolean shouldPrettyPrint;
     private final Set<String> blacklistedHeaders;
 
     /**
@@ -70,7 +69,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher   The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher) {
-        this(logDetail, isPrettyPrintingEnabled(), stream, matcher);
+        this(null, logDetail, stream, matcher, Collections.emptySet());
     }
 
     /**
@@ -95,6 +94,10 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
+        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, blacklistedHeaders);
+    }
+
+    private StatusCodeBasedLoggingFilter(Boolean prettyPrint, LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
@@ -113,7 +116,9 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
-            ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint, blacklistedHeaders);
+            RestAssuredConfig config = requestSpec.getConfig();
+            boolean prettyPrint = shouldPrettyPrint != null ? shouldPrettyPrint : config == null || config.getLogConfig().isPrettyPrintingEnabled();
+            ResponsePrinter.print(response, response, stream, logDetail, prettyPrint, blacklistedHeaders);
             final byte[] responseBody;
             if (logDetail == LogDetail.BODY || logDetail == LogDetail.ALL) {
                 responseBody = response.asByteArray();
@@ -140,11 +145,6 @@ class StatusCodeBasedLoggingFilter implements Filter {
             return build;
         }
         return response;
-    }
-
-    private static boolean isPrettyPrintingEnabled() {
-        RestAssuredConfig currentConfig = config;
-        return currentConfig == null || currentConfig.getLogConfig().isPrettyPrintingEnabled();
     }
 
     private void throwIAE(LogDetail params) {

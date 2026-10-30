@@ -18,6 +18,7 @@ package io.restassured.internal.http.auth;
 
 import io.restassured.authentication.AuthenticationContext;
 import io.restassured.common.spi.http.TlsSettings;
+import io.restassured.config.SSLConfig;
 
 /**
  * An {@link AuthenticationContext} that takes the TLS settings of certificate authentication as they are, which
@@ -32,4 +33,10 @@ public interface CertificateAuthenticationContext extends AuthenticationContext 
      * @param tls the TLS settings
      */
     void certificate(TlsSettings tls);
+
+    /**
+     * @return the SSL config of the request, which {@code RestAssured.certificate(certURL, password)} takes its settings
+     * from
+     */
+    SSLConfig sslConfig();
 }

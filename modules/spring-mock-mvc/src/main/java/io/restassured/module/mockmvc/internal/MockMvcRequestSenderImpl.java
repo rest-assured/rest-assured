@@ -26,6 +26,7 @@ import io.restassured.http.*;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.filter.FilterContextImpl;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.support.PathSupport;
@@ -76,6 +77,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,21 +123,22 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private final LogRepository logRepository;
     private final boolean isAsyncRequest;
     private final Map<String, Object> sessionAttributes;
+    private final Supplier<ResponseDefaults> responseDefaults;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> namedPathParams, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies, Map<String, Object> sessionAttributes,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication, LogRepository logRepository) {
+                             Object authentication, LogRepository logRepository, Supplier<ResponseDefaults> responseDefaults) {
         this(mockMvc, params, namedPathParams, queryParams, formParams, attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
-                basePath, responseSpecification, authentication, logRepository, false);
+                basePath, responseSpecification, authentication, logRepository, responseDefaults, false);
     }
 
     private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> namedPathParams, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                                      RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies, Map<String, Object> sessionAttributes,
                                      List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                                      List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                                     Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
+                                     Object authentication, LogRepository logRepository, Supplier<ResponseDefaults> responseDefaults, boolean isAsyncRequest) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.namedPathParams = namedPathParams;
@@ -156,6 +159,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         this.responseSpecification = responseSpecification;
         this.authentication = authentication;
         this.logRepository = logRepository;
+        this.responseDefaults = responseDefaults;
         this.isAsyncRequest = isAsyncRequest;
     }
 
@@ -258,6 +262,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             MvcResult mvcResult = getMvcResult(perform, isAsyncRequest);
             response = mvcResult.getResponse();
             restAssuredResponse = new MockMvcRestAssuredResponseImpl(perform, logRepository);
+            restAssuredResponse.setResponseDefaults(responseDefaults);
             restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
             restAssuredResponse.setDecoderConfig(config.getDecoderConfig());
             restAssuredResponse.setContent(response.getContentAsByteArray());
@@ -886,7 +891,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         RestAssuredMockMvcConfig newConfig = config.asyncConfig(new AsyncConfig(duration, timeUnit));
         return new MockMvcRequestSenderImpl(mockMvc, params, namedPathParams, queryParams, formParams,
                 attributes, newConfig, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
-                basePath, responseSpecification, authentication, logRepository, isAsyncRequest);
+                basePath, responseSpecification, authentication, logRepository, responseDefaults, isAsyncRequest);
     }
 
     public MockMvcRequestAsyncConfigurer timeout(long durationInMs) {
@@ -900,7 +905,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     public MockMvcRequestAsyncConfigurer async() {
         return new MockMvcRequestSenderImpl(mockMvc, params, namedPathParams, queryParams, formParams,
                 attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
-                basePath, responseSpecification, authentication, logRepository, true);
+                basePath, responseSpecification, authentication, logRepository, responseDefaults, true);
     }
 
     private HttpMethod toValidHttpMethod(String method) {

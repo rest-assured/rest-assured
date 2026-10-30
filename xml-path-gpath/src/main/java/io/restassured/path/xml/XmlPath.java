@@ -124,6 +124,12 @@ import static io.restassured.path.xml.XmlPath.CompatibilityMode.XML;
  * </pre>
  */
 public class XmlPath {
+    /**
+     * The config of each XmlPath that has none of its own, shared by all threads. It's a standalone setting, never a
+     * setting of a request: the <code>xmlPath()</code> of a response, and its body expectations, use the config of the
+     * request instead, and a <code>RestAssuredClient</code> doesn't change it. To use another config for one XmlPath,
+     * use {@link #using(XmlPathConfig)}, for example <code>XmlPath.from(xml).using(xmlPathConfig)</code>.
+     */
     public static volatile XmlPathConfig config = null;
 
     private final CompatibilityMode mode;

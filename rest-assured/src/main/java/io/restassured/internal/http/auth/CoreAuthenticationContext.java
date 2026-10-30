@@ -21,6 +21,7 @@ import io.restassured.authentication.OAuthSignature;
 import io.restassured.common.spi.http.NtlmCredentials;
 import io.restassured.common.spi.http.TlsSettings;
 import io.restassured.config.OAuthConfig;
+import io.restassured.config.SSLConfig;
 import io.restassured.internal.http.Origin;
 import io.restassured.internal.http.client.ClientSettingsFactory;
 
@@ -40,6 +41,7 @@ public final class CoreAuthenticationContext implements CertificateAuthenticatio
     private final Map<Object, Object> headers;
     private final URI uri;
     private final OAuthConfig oauthConfig;
+    private final SSLConfig sslConfig;
 
     private Credentials credentials;
     private NtlmCredentials ntlm;
@@ -50,11 +52,13 @@ public final class CoreAuthenticationContext implements CertificateAuthenticatio
      * @param headers     the headers of the request, which {@link #header(String, String)} adds to
      * @param uri         the URI of the request, which the credentials are for
      * @param oauthConfig the OAuth config of the request
+     * @param sslConfig   the SSL config of the request
      */
-    public CoreAuthenticationContext(Map<Object, Object> headers, URI uri, OAuthConfig oauthConfig) {
+    public CoreAuthenticationContext(Map<Object, Object> headers, URI uri, OAuthConfig oauthConfig, SSLConfig sslConfig) {
         this.headers = headers;
         this.uri = uri;
         this.oauthConfig = oauthConfig == null ? new OAuthConfig() : oauthConfig;
+        this.sslConfig = sslConfig == null ? new SSLConfig() : sslConfig;
     }
 
     @Override
@@ -109,6 +113,11 @@ public final class CoreAuthenticationContext implements CertificateAuthenticatio
     @Override
     public void certificate(TlsSettings tls) {
         certificate = tls;
+    }
+
+    @Override
+    public SSLConfig sslConfig() {
+        return sslConfig;
     }
 
     /**

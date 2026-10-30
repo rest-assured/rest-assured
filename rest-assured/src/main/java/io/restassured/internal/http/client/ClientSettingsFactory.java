@@ -28,7 +28,6 @@ import io.restassured.common.spi.http.TlsSettings;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.SSLConfig;
 import io.restassured.internal.http.HostnameVerifiers;
-import io.restassured.internal.http.RelaxedCertAuthScheme;
 import io.restassured.internal.util.GroovyTypes;
 import io.restassured.specification.ProxySpecification;
 
@@ -90,16 +89,13 @@ public final class ClientSettingsFactory {
     }
 
     /**
-     * @return what the certificate authentication scheme asks for, with relaxed validation for a {@link RelaxedCertAuthScheme}
+     * @param relaxedProtocol the protocol of relaxed HTTPS validation, or {@code null} for none
+     * @return what the certificate authentication scheme asks for, with relaxed validation if there is a protocol for it
      */
-    public static TlsSettings certificateTlsSettings(CertAuthScheme scheme) {
-        TlsSettings.Builder tls = certificateTls(scheme.getPathToKeyStore(), scheme.getKeyStorePassword(), scheme.getKeystoreType(), scheme.getKeyStore(),
+    public static TlsSettings certificateTlsSettings(CertAuthScheme scheme, String relaxedProtocol) {
+        return certificateTls(scheme.getPathToKeyStore(), scheme.getKeyStorePassword(), scheme.getKeystoreType(), scheme.getKeyStore(),
                 scheme.getPathToTrustStore(), scheme.getTrustStorePassword(), scheme.getTrustStoreType(), scheme.getTrustStore(),
-                scheme.getHostnameVerifier(), scheme.getSslContext());
-        if (scheme instanceof RelaxedCertAuthScheme) {
-            tls.relaxedProtocol(((RelaxedCertAuthScheme) scheme).getRelaxedProtocol());
-        }
-        return tls.build();
+                scheme.getHostnameVerifier(), scheme.getSslContext()).relaxedProtocol(relaxedProtocol).build();
     }
 
     private static TlsSettings.Builder certificateTls(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,

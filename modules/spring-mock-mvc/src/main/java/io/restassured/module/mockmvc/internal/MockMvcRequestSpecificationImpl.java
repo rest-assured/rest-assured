@@ -22,6 +22,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.support.ParameterUpdater;
@@ -34,6 +35,7 @@ import io.restassured.module.mockmvc.specification.*;
 import io.restassured.module.spring.commons.BodyHelper;
 import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.MergeHelper;
 import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
@@ -44,8 +46,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -55,7 +55,9 @@ import java.net.URI;
 import java.net.URL;
 import java.security.Principal;
 import java.util.*;
+import java.util.function.Supplier;
 
+import static io.restassured.internal.RequestSpecificationImpl.copyParameters;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
@@ -112,11 +114,28 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final Map<String, Object> sessionAttributes = new LinkedHashMap<>();
 
+    private final Supplier<ResponseDefaults> responseDefaults;
 
+    /**
+     * A specification whose responses validate with {@link io.restassured.RestAssured#rootPath} and
+     * {@link io.restassured.RestAssured#responseSpecification} at <code>then()</code>
+     */
     public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
                                            List<RequestPostProcessor> requestPostProcessors, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
+        this(mockMvcFactory, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication,
+                ResponseDefaults::ofStaticFields);
+    }
+
+    /**
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the responses
+     */
+    public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
+                                           List<RequestPostProcessor> requestPostProcessors, String basePath,
+                                           MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
+                                           MockMvcAuthenticationScheme authentication, Supplier<ResponseDefaults> responseDefaults) {
+        this.responseDefaults = responseDefaults;
         this.logRepository = new LogRepository();
         this.mockMvcFactory = mockMvcFactory == null ? new MockMvcFactory() : mockMvcFactory;
         this.basePath = basePath;
@@ -156,13 +175,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
-        DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);
-        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
-            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
-                builder.apply(mockMvcConfigurer);
-            }
-        }
-        return changeMockMvcFactoryTo(new MockMvcFactory(builder));
+        return changeMockMvcFactoryTo(MockMvcFactory.webAppContextSetup(context, mockMvcConfigurers));
     }
 
     public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
@@ -518,9 +531,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.changeMockMvcFactoryTo(otherMockMvcFactory);
         }
 
-        this.cookies(that.getCookies());
+        // A header, cookie, result handler or post processor that is already present isn't added again, so merging a
+        // specification made by given(), which contains the static ones already, doesn't add them twice
+        this.cookies(MergeHelper.cookiesNotIn(cookies, that.getCookies()));
 
-        this.headers(that.getRequestHeaders());
+        this.headers(MergeHelper.headersNotIn(requestHeaders, that.getRequestHeaders(), cfg.getHeaderConfig()));
 
         mergeConfig(this, that);
 
@@ -535,9 +550,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.params(that.getParams());
         this.attributes(that.getAttributes());
 
-        this.multiParts.addAll(that.getMultiParts());
-        this.resultHandlers.addAll(that.getResultHandlers());
-        this.requestPostProcessors.addAll(that.getRequestPostProcessors());
+        this.multiParts.addAll(MergeHelper.sameNotIn(multiParts, that.getMultiParts()));
+        this.resultHandlers.addAll(MergeHelper.sameNotIn(resultHandlers, that.getResultHandlers()));
+        this.requestPostProcessors.addAll(MergeHelper.sameNotIn(requestPostProcessors, that.getRequestPostProcessors()));
 
         RequestLoggingFilter otherRequestLoggingFilter = that.getRequestLoggingFilter();
         if (otherRequestLoggingFilter != null) {
@@ -593,14 +608,27 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestAsyncSender when() {
+        // Sending doesn't change this specification, so it can be sent again, and from many threads: each send gets its
+        // own logs, and copies of the parameters and lists
+        LogRepository sendLogRepository = new LogRepository(logRepository);
+        RequestLoggingFilter sendRequestLoggingFilter = requestLoggingFilter;
         LogConfig logConfig = cfg.getLogConfig();
-        if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-            log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
+        if (sendRequestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            sendRequestLoggingFilter = MockMvcRequestLogSpecificationImpl.ifValidationFailsFilter(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
+                    logConfig.isPrettyPrintingEnabled(), sendLogRepository);
         }
         MockMvc mockMvc = mockMvcFactory.build(cfg.getMockMvcConfig());
-        return new MockMvcRequestSenderImpl(mockMvc, params, pathParams, queryParams, formParams, attributes, cfg, requestBody,
-                requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor, basePath, responseSpecification, authentication,
-                logRepository);
+        return new MockMvcRequestSenderImpl(mockMvc, copyParameters(params), copyParameters(pathParams), copyParameters(queryParams),
+                copyParameters(formParams), copyParameters(attributes), cfg, requestBody, requestHeaders, cookies, copyParameters(sessionAttributes),
+                new ArrayList<>(multiParts), sendRequestLoggingFilter, new ArrayList<>(resultHandlers), new ArrayList<>(requestPostProcessors), interceptor,
+                basePath, responseSpecification, authentication, sendLogRepository, responseDefaults);
+    }
+
+    /**
+     * @return A copy of <code>specification</code> with what {@link #spec(MockMvcRequestSpecification)} takes from it
+     */
+    public static MockMvcRequestSpecificationImpl copyOf(MockMvcRequestSpecification specification) {
+        return new MockMvcRequestSpecificationImpl(null, null, null, null, null, specification, null, null);
     }
 
     private String serializeIfNeeded(Object object) {

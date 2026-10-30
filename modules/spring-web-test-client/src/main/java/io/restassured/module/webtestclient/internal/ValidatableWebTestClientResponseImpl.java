@@ -18,6 +18,7 @@ package io.restassured.module.webtestclient.internal;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ValidatableResponseOptionsImpl;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.module.webtestclient.response.ValidatableWebTestClientResponse;
@@ -38,8 +39,9 @@ public class ValidatableWebTestClientResponseImpl extends ValidatableResponseOpt
                                                 RestAssuredConfig config,
                                                 WebTestClientResponse response,
                                                 ExtractableResponse<WebTestClientResponse> extractableResponse,
-                                                LogRepository logRepository) {
-        super(responseParserRegistrar, config, toStandardResponse(response), extractableResponse, logRepository);
+                                                LogRepository logRepository,
+                                                ResponseDefaults responseDefaults) {
+        super(responseParserRegistrar, config, toStandardResponse(response), extractableResponse, logRepository, responseDefaults);
 		AssertParameter.notNull(responseSpec, WebTestClient.ResponseSpec.class);
 		this.response = response;
 	}

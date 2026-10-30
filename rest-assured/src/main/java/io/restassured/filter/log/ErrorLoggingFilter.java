@@ -23,7 +23,9 @@ import java.io.PrintStream;
 import static org.hamcrest.Matchers.*;
 
 /**
- * A filter that'll print the response body if an error occurred (status code is between 400 and 500).
+ * A filter that'll print the response body if an error occurred (status code is between 400 and 500). It pretty prints
+ * the body if the log config of the request has pretty printing enabled
+ * ({@link io.restassured.config.LogConfig#isPrettyPrintingEnabled()}), which it is by default.
  */
 public class ErrorLoggingFilter extends StatusCodeBasedLoggingFilter {
 

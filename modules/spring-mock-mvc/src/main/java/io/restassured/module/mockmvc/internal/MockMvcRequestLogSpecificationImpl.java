@@ -15,22 +15,22 @@
  */
 package io.restassured.module.mockmvc.internal;
 
-import io.restassured.authentication.NoAuthScheme;
-import io.restassured.config.LogConfig;
-import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.internal.LogSpecificationImpl;
-import io.restassured.internal.RequestSpecificationImpl;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
+import io.restassured.internal.log.LogRepository;
 import io.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Collections;
-import java.util.Set;
 
-public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl implements MockMvcRequestLogSpecification {
+/**
+ * Sets a {@link LogConfigRequestLoggingFilter}, so what isn't given here is taken from the log config of the request when
+ * it's logged
+ */
+public class MockMvcRequestLogSpecificationImpl implements MockMvcRequestLogSpecification {
+
     private MockMvcRequestSpecificationImpl requestSpecification;
 
     public MockMvcRequestLogSpecificationImpl(MockMvcRequestSpecificationImpl requestSpecification) {
@@ -46,7 +46,7 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
     }
 
     public MockMvcRequestSpecification body() {
-        return body(shouldPrettyPrint(toRequestSpecification()));
+        return logWith(LogDetail.BODY);
     }
 
     public MockMvcRequestSpecification body(boolean shouldPrettyPrint) {
@@ -62,7 +62,7 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
     }
 
     public MockMvcRequestSpecification all() {
-        return all(shouldPrettyPrint(toRequestSpecification()));
+        return logWith(LogDetail.ALL);
     }
 
     public MockMvcRequestSpecification everything() {
@@ -82,34 +82,31 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
     }
 
     public MockMvcRequestSpecification ifValidationFails(LogDetail logDetail) {
-        return ifValidationFails(logDetail, shouldPrettyPrint(toRequestSpecification()));
-    }
-
-    public MockMvcRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        requestSpecification.getLogRepository().registerRequestLog(baos);
-        return logWith(logDetail, shouldPrettyPrint, ps);
-    }
-
-    private MockMvcRequestSpecification logWith(LogDetail logDetail) {
-        RequestSpecificationImpl reqSpec = toRequestSpecification();
-        return logWith(logDetail, shouldPrettyPrint(reqSpec));
-    }
-
-    private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-        return logWith(logDetail, prettyPrintingEnabled, getPrintStream(toRequestSpecification()));
-    }
-
-    private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
-        LogConfig logConfig = requestSpecification.getRestAssuredMockMvcConfig().getLogConfig();
-        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        requestSpecification.setRequestLoggingFilter(ifValidationFailsFilter(logDetail, null, requestSpecification.getLogRepository()));
         return requestSpecification;
     }
 
-    private RequestSpecificationImpl toRequestSpecification() {
-        return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(), Collections.<Filter>emptyList(), null, true, requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository(), null, true, true);
+    public MockMvcRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+        requestSpecification.setRequestLoggingFilter(ifValidationFailsFilter(logDetail, shouldPrettyPrint, requestSpecification.getLogRepository()));
+        return requestSpecification;
+    }
+
+    /**
+     * @param shouldPrettyPrint <code>null</code> to take it from the log config of the request
+     * @return A filter that logs the request to a stream of <code>logRepository</code>, which is printed if validation fails
+     */
+    static RequestLoggingFilter ifValidationFailsFilter(LogDetail logDetail, Boolean shouldPrettyPrint, LogRepository logRepository) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        logRepository.registerRequestLog(baos);
+        return new LogConfigRequestLoggingFilter(logDetail, shouldPrettyPrint, new PrintStream(baos));
+    }
+
+    private MockMvcRequestSpecification logWith(LogDetail logDetail) {
+        return logWith(logDetail, null);
+    }
+
+    private MockMvcRequestSpecification logWith(LogDetail logDetail, Boolean shouldPrettyPrint) {
+        requestSpecification.setRequestLoggingFilter(new LogConfigRequestLoggingFilter(logDetail, shouldPrettyPrint, null));
+        return requestSpecification;
     }
 }

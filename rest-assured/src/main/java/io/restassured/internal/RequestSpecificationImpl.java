@@ -327,7 +327,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     /**
      * @return A copy of the parameters, with the values that are lists copied too, since {@link ParameterUpdater} adds to them
      */
-    static Map<String, Object> copyParameters(Map<String, ?> parameters) {
+    public static Map<String, Object> copyParameters(Map<String, ?> parameters) {
         Map<String, Object> copy = new LinkedHashMap<>();
         parameters.forEach((name, value) -> copy.put(name, value instanceof Collection ? new ArrayList<>((Collection<?>) value) : value));
         return copy;
@@ -968,7 +968,6 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         RequestLogSpecificationImpl logSpecification = new RequestLogSpecificationImpl();
         logSpecification.setRequestSpecification(this);
         logSpecification.setLogRepository(logRepository);
-        logSpecification.setBlacklistedHeaders(restAssuredConfig().getLogConfig().blacklistedHeaders());
         return logSpecification;
     }
 
@@ -1662,7 +1661,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         Object acceptContentType = hamcrestAssertionClosure.getResponseContentType();
 
         // Authenticates the request, so the request is built afterwards
-        CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig());
+        CoreAuthenticationContext authentication = new CoreAuthenticationContext(template.headers(), template.baseUri(), cfg.getOAuthConfig(), cfg.getSSLConfig());
         authenticate(authenticationScheme, authentication);
         HttpClientInstance transport = ProviderTransport.create(client, cfg, proxySpecification, authentication);
         try {

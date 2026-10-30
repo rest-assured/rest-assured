@@ -24,6 +24,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartInternal;
@@ -33,6 +34,7 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.spring.commons.BodyHelper;
 import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.MergeHelper;
 import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
@@ -61,8 +63,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static io.restassured.internal.MapCreator.CollisionStrategy.OVERWRITE;
+import static io.restassured.internal.RequestSpecificationImpl.copyParameters;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.multipart.MultiPartInternal.OCTET_STREAM;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -89,13 +93,31 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     private List<MultiPartInternal> multiParts = new ArrayList<>();
     private Cookies cookies = new Cookies();
     private AsyncConfig asyncConfig;
+    private final Supplier<ResponseDefaults> responseDefaults;
 
 
+    /**
+     * A specification whose responses validate with {@link io.restassured.RestAssured#rootPath} and
+     * {@link io.restassured.RestAssured#responseSpecification} at <code>then()</code>
+     */
     public WebTestClientRequestSpecificationImpl(WebTestClientFactory webTestClientFactory,
                                                  RestAssuredWebTestClientConfig config,
                                                  String basePath,
                                                  WebTestClientRequestSpecification requestSpecification,
                                                  ResponseSpecification responseSpecification) {
+        this(webTestClientFactory, config, basePath, requestSpecification, responseSpecification, ResponseDefaults::ofStaticFields);
+    }
+
+    /**
+     * @param responseDefaults Gives the defaults of <code>then()</code> of the responses
+     */
+    public WebTestClientRequestSpecificationImpl(WebTestClientFactory webTestClientFactory,
+                                                 RestAssuredWebTestClientConfig config,
+                                                 String basePath,
+                                                 WebTestClientRequestSpecification requestSpecification,
+                                                 ResponseSpecification responseSpecification,
+                                                 Supplier<ResponseDefaults> responseDefaults) {
+        this.responseDefaults = responseDefaults;
         this.logRepository = new LogRepository();
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
@@ -591,15 +613,17 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         if (otherWebTestClientFactory != null && otherWebTestClientFactory.isAssigned()) {
             webTestClientFactory = otherWebTestClientFactory;
         }
-        cookies(specificationToMerge.getCookies());
-        headers(specificationToMerge.getRequestHeaders());
+        // A header or cookie that is already present with the same value isn't added again, so merging a specification
+        // made by given(), which contains the static ones already, doesn't add them twice
+        cookies(MergeHelper.cookiesNotIn(cookies, specificationToMerge.getCookies()));
+        headers(MergeHelper.headersNotIn(requestHeaders, specificationToMerge.getRequestHeaders(), config.getHeaderConfig()));
         mergeConfig(this, specificationToMerge);
         formParams(specificationToMerge.getFormParams());
         pathParams(specificationToMerge.getPathParams());
         queryParams(specificationToMerge.getQueryParams());
         params(specificationToMerge.getParams());
         attributes(specificationToMerge.getAttributes());
-        multiParts.addAll(specificationToMerge.getMultiParts());
+        multiParts.addAll(MergeHelper.sameNotIn(multiParts, specificationToMerge.getMultiParts()));
         RequestLoggingFilter otherRequestLoggingFilter = specificationToMerge.getRequestLoggingFilter();
         if (otherRequestLoggingFilter != null) {
             requestLoggingFilter = otherRequestLoggingFilter;
@@ -630,15 +654,26 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
     @Override
     public WebTestClientRequestSender when() {
+        // Sending doesn't change this specification, so it can be sent again, and from many threads: each send gets its
+        // own logs, and copies of the parameters and lists
+        LogRepository sendLogRepository = new LogRepository(logRepository);
+        RequestLoggingFilter sendRequestLoggingFilter = requestLoggingFilter;
         LogConfig logConfig = config.getLogConfig();
-        if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-            log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
-                    logConfig.isPrettyPrintingEnabled());
+        if (sendRequestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            sendRequestLoggingFilter = WebTestClientRequestLogSpecificationImpl.ifValidationFailsFilter(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
+                    logConfig.isPrettyPrintingEnabled(), sendLogRepository);
         }
         WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
-        return new WebTestClientRequestSenderImpl(webTestClient, params, namedPathParams, queryParams, formParams, attributes, config, requestBody,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, basePath,
-                responseSpecification, logRepository);
+        return new WebTestClientRequestSenderImpl(webTestClient, copyParameters(params), copyParameters(namedPathParams), copyParameters(queryParams),
+                copyParameters(formParams), copyParameters(attributes), config, requestBody, requestHeaders, cookies, new ArrayList<>(multiParts),
+                sendRequestLoggingFilter, basePath, responseSpecification, sendLogRepository, responseDefaults);
+    }
+
+    /**
+     * @return A copy of <code>specification</code> with what {@link #spec(WebTestClientRequestSpecification)} takes from it
+     */
+    public static WebTestClientRequestSpecificationImpl copyOf(WebTestClientRequestSpecification specification) {
+        return new WebTestClientRequestSpecificationImpl(null, null, null, specification, null);
     }
 
     @Override

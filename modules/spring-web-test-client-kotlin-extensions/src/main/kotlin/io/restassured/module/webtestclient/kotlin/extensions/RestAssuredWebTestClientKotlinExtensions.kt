@@ -3,6 +3,7 @@
 package io.restassured.module.webtestclient.kotlin.extensions
 
 import io.restassured.internal.ResponseSpecificationImpl
+import io.restassured.module.webtestclient.RestAssuredWebTestClientClient
 import io.restassured.module.webtestclient.RestAssuredWebTestClient.given
 import io.restassured.module.webtestclient.internal.ValidatableWebTestClientResponseImpl
 import io.restassured.module.webtestclient.response.ValidatableWebTestClientResponse
@@ -18,6 +19,17 @@ import io.restassured.response.ExtractableResponse
  */
 fun Given(block: WebTestClientRequestSpecification.() -> WebTestClientRequestSpecification): WebTestClientRequestSpecification =
         given().run(block)
+
+/**
+ * A wrapper around [given] with a client, that starts building the request part of the test with the defaults of
+ * [client] instead of the static settings.
+ * @see io.restassured.module.webtestclient.RestAssuredWebTestClient.given
+ */
+fun Given(
+        client: RestAssuredWebTestClientClient,
+        block: WebTestClientRequestSpecification.() -> WebTestClientRequestSpecification
+): WebTestClientRequestSpecification =
+        given(client).run(block)
 
 /**
  * A wrapper around [ WebTestClientRequestSpecification.`when` ] that configures how the request is dispatched.

@@ -20,6 +20,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.RequestLogSpecification;
@@ -30,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 import static io.restassured.RestAssured.given;
@@ -43,14 +43,13 @@ class RequestLogSpecificationImplTest {
     private final LogConfig logConfig = LogConfig.logConfig().defaultStream(stream);
 
     @Test
-    void log_creates_a_request_log_specification_with_the_request_specification_log_repository_and_blacklisted_headers() {
-        RequestSpecification spec = given().config(RestAssuredConfig.config().logConfig(LogConfig.logConfig().blacklistHeader("Secret")));
+    void log_creates_a_request_log_specification_with_the_request_specification_and_log_repository() {
+        RequestSpecification spec = given();
 
         RequestLogSpecificationImpl log = (RequestLogSpecificationImpl) spec.log();
 
         assertThat(log.getRequestSpecification()).isSameAs(spec);
         assertThat(log.getLogRepository()).isNotNull();
-        assertThat(log.getBlacklistedHeaders()).containsExactly("Secret");
     }
 
     @Test
@@ -58,61 +57,33 @@ class RequestLogSpecificationImplTest {
         RequestLogSpecificationImpl log = new RequestLogSpecificationImpl();
         RequestSpecification spec = given();
         LogRepository logRepository = new LogRepository();
-        Set<String> blacklistedHeaders = Set.of("a");
 
         log.setRequestSpecification(spec);
         log.setLogRepository(logRepository);
-        log.setBlacklistedHeaders(blacklistedHeaders);
 
         assertThat(log.getRequestSpecification()).isSameAs(spec);
         assertThat(log.getLogRepository()).isSameAs(logRepository);
-        assertThat(log.getBlacklistedHeaders()).isSameAs(blacklistedHeaders);
     }
 
     @Test
-    void each_method_adds_a_request_logging_filter_with_its_log_detail_and_the_configured_pretty_printing() {
-        assertLogs(RequestLogSpecification::params, LogDetail.PARAMS, true);
-        assertLogs(RequestLogSpecification::parameters, LogDetail.PARAMS, true);
-        assertLogs(RequestLogSpecification::uri, LogDetail.URI, true);
-        assertLogs(RequestLogSpecification::method, LogDetail.METHOD, true);
-        assertLogs(RequestLogSpecification::body, LogDetail.BODY, true);
-        assertLogs(RequestLogSpecification::all, LogDetail.ALL, true);
-        assertLogs(RequestLogSpecification::everything, LogDetail.ALL, true);
-        assertLogs(RequestLogSpecification::headers, LogDetail.HEADERS, true);
-        assertLogs(RequestLogSpecification::cookies, LogDetail.COOKIES, true);
-    }
-
-    @Test
-    void pretty_printing_can_be_disabled_in_the_config() {
-        LogConfig notPretty = logConfig.enablePrettyPrinting(false);
-
-        assertLogs(notPretty, RequestLogSpecification::body, LogDetail.BODY, false);
-        assertLogs(notPretty, RequestLogSpecification::all, LogDetail.ALL, false);
-        assertLogs(notPretty, RequestLogSpecification::uri, LogDetail.URI, false);
+    void each_method_adds_a_request_logging_filter_with_its_log_detail_that_takes_the_rest_from_the_log_config_when_it_logs() {
+        assertLogs(RequestLogSpecification::params, LogDetail.PARAMS, null);
+        assertLogs(RequestLogSpecification::parameters, LogDetail.PARAMS, null);
+        assertLogs(RequestLogSpecification::uri, LogDetail.URI, null);
+        assertLogs(RequestLogSpecification::method, LogDetail.METHOD, null);
+        assertLogs(RequestLogSpecification::body, LogDetail.BODY, null);
+        assertLogs(RequestLogSpecification::all, LogDetail.ALL, null);
+        assertLogs(RequestLogSpecification::everything, LogDetail.ALL, null);
+        assertLogs(RequestLogSpecification::headers, LogDetail.HEADERS, null);
+        assertLogs(RequestLogSpecification::cookies, LogDetail.COOKIES, null);
     }
 
     @Test
     void pretty_printing_can_be_given_explicitly() {
-        LogConfig prettyByDefault = logConfig;
-        LogConfig notPrettyByDefault = logConfig.enablePrettyPrinting(false);
-
-        assertLogs(prettyByDefault, log -> log.body(false), LogDetail.BODY, false);
-        assertLogs(notPrettyByDefault, log -> log.body(true), LogDetail.BODY, true);
-        assertLogs(prettyByDefault, log -> log.all(false), LogDetail.ALL, false);
-        assertLogs(notPrettyByDefault, log -> log.everything(true), LogDetail.ALL, true);
-    }
-
-    @Test
-    void the_filter_uses_the_url_encoding_and_blacklisted_headers_of_the_config() {
-        LogConfig config = logConfig.urlEncodeRequestUri(false).blacklistHeader("Secret");
-        FilterableRequestSpecification spec = (FilterableRequestSpecification) given().config(RestAssuredConfig.config().logConfig(config));
-
-        spec.log().uri();
-
-        RequestLoggingFilter filter = lastLoggingFilter(spec);
-        assertThat(field(filter, "showUrlEncodedUri")).isEqualTo(false);
-        assertThat(field(filter, "blacklistedHeaders")).isEqualTo(Set.of("Secret"));
-        assertThat(field(filter, "stream")).isSameAs(stream);
+        assertLogs(log -> log.body(false), LogDetail.BODY, false);
+        assertLogs(log -> log.body(true), LogDetail.BODY, true);
+        assertLogs(log -> log.all(false), LogDetail.ALL, false);
+        assertLogs(log -> log.everything(true), LogDetail.ALL, true);
     }
 
     @Test
@@ -125,7 +96,7 @@ class RequestLogSpecificationImplTest {
         assertThat(returned).isSameAs(spec);
         RequestLoggingFilter filter = lastLoggingFilter(spec);
         assertThat(field(filter, "logDetail")).isEqualTo(LogDetail.ALL);
-        assertThat(field(filter, "shouldPrettyPrint")).isEqualTo(true);
+        assertThat(field(filter, "shouldPrettyPrint")).isNull();
         PrintStream filterStream = (PrintStream) field(filter, "stream");
         assertThat(filterStream).isNotSameAs(stream);
         filterStream.print("logged");
@@ -143,7 +114,7 @@ class RequestLogSpecificationImplTest {
         RequestLoggingFilter second = lastLoggingFilter(spec);
 
         assertThat(field(first, "logDetail")).isEqualTo(LogDetail.HEADERS);
-        assertThat(field(first, "shouldPrettyPrint")).isEqualTo(false);
+        assertThat(field(first, "shouldPrettyPrint")).isNull();
         assertThat(field(second, "logDetail")).isEqualTo(LogDetail.BODY);
         assertThat(field(second, "shouldPrettyPrint")).isEqualTo(true);
     }
@@ -165,11 +136,7 @@ class RequestLogSpecificationImplTest {
                 .hasMessage("Cannot configure logging since request specification is not defined. You may be misusing the API.");
     }
 
-    private void assertLogs(Function<RequestLogSpecification, RequestSpecification> method, LogDetail logDetail, boolean prettyPrint) {
-        assertLogs(logConfig, method, logDetail, prettyPrint);
-    }
-
-    private void assertLogs(LogConfig logConfig, Function<RequestLogSpecification, RequestSpecification> method, LogDetail logDetail, boolean prettyPrint) {
+    private void assertLogs(Function<RequestLogSpecification, RequestSpecification> method, LogDetail logDetail, Boolean prettyPrint) {
         FilterableRequestSpecification spec = (FilterableRequestSpecification) given().config(RestAssuredConfig.config().logConfig(logConfig));
         int filtersBefore = spec.getDefinedFilters().size();
 
@@ -180,21 +147,21 @@ class RequestLogSpecificationImplTest {
         RequestLoggingFilter filter = lastLoggingFilter(spec);
         assertThat(field(filter, "logDetail")).as("log detail").isEqualTo(logDetail);
         assertThat(field(filter, "shouldPrettyPrint")).as("pretty print").isEqualTo(prettyPrint);
-        assertThat(field(filter, "stream")).isSameAs(stream);
-        assertThat(field(filter, "showUrlEncodedUri")).isEqualTo(true);
-        assertThat(field(filter, "blacklistedHeaders")).isEqualTo(logConfig.blacklistedHeaders());
+        assertThat(field(filter, "stream")).isNull();
+        assertThat(field(filter, "showUrlEncodedUri")).isNull();
+        assertThat(field(filter, "blacklistedHeaders")).isNull();
     }
 
     private static RequestLoggingFilter lastLoggingFilter(FilterableRequestSpecification spec) {
         List<Filter> filters = spec.getDefinedFilters();
         Filter filter = filters.get(filters.size() - 1);
-        assertThat(filter).isExactlyInstanceOf(RequestLoggingFilter.class);
+        assertThat(filter).isExactlyInstanceOf(LogConfigRequestLoggingFilter.class);
         return (RequestLoggingFilter) filter;
     }
 
-    private static Object field(Object object, String name) {
+    private static Object field(RequestLoggingFilter object, String name) {
         try {
-            Field field = object.getClass().getDeclaredField(name);
+            Field field = RequestLoggingFilter.class.getDeclaredField(name);
             field.setAccessible(true);
             return field.get(object);
         } catch (ReflectiveOperationException e) {

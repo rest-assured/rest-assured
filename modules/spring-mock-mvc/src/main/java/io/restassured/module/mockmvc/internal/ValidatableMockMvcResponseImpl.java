@@ -19,6 +19,7 @@ package io.restassured.module.mockmvc.internal;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ValidatableResponseOptionsImpl;
+import io.restassured.internal.client.ResponseDefaults;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.util.SafeExceptionRethrower;
@@ -35,9 +36,9 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
     private final ResultActions resultActions;
     private final MockMvcResponse mockMvcResponse;
 
-    public ValidatableMockMvcResponseImpl(ResultActions resultActions, String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config,
-                                          MockMvcResponse response, ExtractableResponse<MockMvcResponse> extractableResponse, LogRepository logRepository) {
-        super(rpr, config, ResponseConverter.toStandardResponse(response), extractableResponse, logRepository);
+    public ValidatableMockMvcResponseImpl(ResultActions resultActions, ResponseParserRegistrar rpr, RestAssuredConfig config, MockMvcResponse response,
+                                          ExtractableResponse<MockMvcResponse> extractableResponse, LogRepository logRepository, ResponseDefaults responseDefaults) {
+        super(rpr, config, ResponseConverter.toStandardResponse(response), extractableResponse, logRepository, responseDefaults);
         this.mockMvcResponse = response;
         AssertParameter.notNull(resultActions, ResultActions.class);
         this.resultActions = resultActions;

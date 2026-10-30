@@ -1190,7 +1190,7 @@ class RequestSpecificationImplTest {
         given().config(config().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.HEADERS))).filter(capture).disableCsrf().get("/x");
 
         assertThat(capture.filters).extracting(f -> f.getClass().getSimpleName())
-                .containsExactly("Capture", "RequestLoggingFilter", "ResponseLoggingFilter", "TimingFilter", "SendRequestFilter");
+                .containsExactly("Capture", "LogConfigRequestLoggingFilter", "ResponseLoggingFilter", "TimingFilter", "SendRequestFilter");
     }
 
     @Test

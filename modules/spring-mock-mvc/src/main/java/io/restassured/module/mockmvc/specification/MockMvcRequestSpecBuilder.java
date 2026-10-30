@@ -18,16 +18,15 @@ package io.restassured.module.mockmvc.specification;
 
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Header;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
-import io.restassured.module.mockmvc.internal.MockMvcFactory;
 import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
@@ -38,11 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
@@ -58,15 +54,37 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * then().
  *         body("x.y.z", equalTo("something")).
  * </pre>
+ * <p>
+ * The builder doesn't read the static settings of {@link RestAssuredMockMvc}, such as the MockMvc instance,
+ * {@link RestAssuredMockMvc#basePath}, {@link RestAssuredMockMvc#config},
+ * {@link RestAssuredMockMvc#resultHandlers(ResultHandler, ResultHandler...)} or
+ * {@link RestAssuredMockMvc#requestSpecification}. They apply when the specification is used, for example with
+ * <code>given().spec(requestSpec)</code>, so they're applied once, as they are at that time. With a client, for example
+ * <code>given(client).spec(requestSpec)</code>, the settings of the
+ * {@link io.restassured.module.mockmvc.RestAssuredMockMvcClient} apply instead. To send the specification
+ * on its own, for example with <code>requestSpec.get("/something")</code>, set the MockMvc instance on the builder, for
+ * example with {@link #setMockMvc(MockMvc)}.
+ * </p>
+ * <p>
+ * The builder uses its own config, the default one unless {@link #setConfig(RestAssuredMockMvcConfig)} sets another,
+ * for what it computes while building: the body that {@link #setBody(Object)} serializes (ObjectMapperConfig and
+ * EncoderConfig), the session id name of {@link #setSessionId(String)} (SessionConfig), the update strategy of the
+ * parameters and attributes (ParamConfig), the default control name and file name of a multipart part (MultiPartConfig)
+ * and which headers overwrite each other (HeaderConfig). Merging the specification later doesn't redo them. To compute
+ * them with the static config, call <code>setConfig(RestAssuredMockMvc.config())</code> before those methods. The
+ * settings of {@link #log(LogDetail)} are taken from the config of the request when it's logged instead.
+ * </p>
  */
 public class MockMvcRequestSpecBuilder {
 
     private MockMvcRequestSpecificationImpl spec;
 
+    /**
+     * Starts with no MockMvc instance, base path, result handlers, post processors or authentication of its own, and a
+     * config with nothing configured.
+     */
     public MockMvcRequestSpecBuilder() {
-        this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(getConfiguredMockMvcFactory(), RestAssuredMockMvc.config,
-                RestAssuredMockMvc.resultHandlers(), RestAssuredMockMvc.postProcessors(), RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification,
-                RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).config(RestAssuredMockMvc.config);
+        this.spec = new MockMvcRequestSpecificationImpl(null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -667,8 +685,9 @@ public class MockMvcRequestSpecBuilder {
      * The following settings are merged:
      * <ul>
      * <li>Parameters</li>
-     * <li>Cookies</li>
-     * <li>Headers</li>
+     * <li>Cookies (a cookie that is already present with the same value isn't added again)</li>
+     * <li>Headers (a header that is already present with the same value isn't added again)</li>
+     * <li>Result handlers and post processors (one that is already present isn't added again)</li>
      * </ul>
      *
      * @param specification The specification to add
@@ -796,19 +815,17 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
-     * Enabled logging with the specified log detail. Set a {@link LogConfig} to configure the print stream and pretty printing options.
+     * Enabled logging with the specified log detail. The print stream, pretty printing, URL encoding of the request URI and
+     * blacklisted headers are taken from the {@link LogConfig} of the request when it's logged, so the log config where
+     * the specification is used applies, for example that of {@link RestAssuredMockMvc#config},
+     * a {@link io.restassured.module.mockmvc.RestAssuredMockMvcClient} or <code>given().config(..)</code>.
      *
      * @param logDetail The log detail.
      * @return MockMvcRequestSpecBuilder
      */
     public MockMvcRequestSpecBuilder log(LogDetail logDetail) {
         notNull(logDetail, LogDetail.class);
-        LogConfig logConfig = spec.getRestAssuredMockMvcConfig().getLogConfig();
-        PrintStream printStream = logConfig.defaultStream();
-        boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
-        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        spec.setRequestLoggingFilter(new LogConfigRequestLoggingFilter(logDetail, null, null));
         return this;
     }
 
@@ -819,17 +836,5 @@ public class MockMvcRequestSpecBuilder {
      */
     public MockMvcRequestSpecBuilder and() {
         return this;
-    }
-
-    private static MockMvcFactory getConfiguredMockMvcFactory() {
-        try {
-            Field mockMvcFactory = RestAssuredMockMvc.class.getDeclaredField("mockMvcFactory");
-            mockMvcFactory.setAccessible(true);
-            Object instance = mockMvcFactory.get(RestAssuredMockMvc.class);
-            mockMvcFactory.setAccessible(false);
-            return (MockMvcFactory) instance;
-        } catch (Exception e) {
-            throw new RuntimeException("Internal error: Cannot find mockMvcFactory field in " + RestAssuredMockMvc.class.getName());
-        }
     }
 }

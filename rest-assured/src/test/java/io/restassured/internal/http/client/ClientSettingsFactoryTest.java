@@ -18,6 +18,7 @@ package io.restassured.internal.http.client;
 
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationContext;
+import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertAuthScheme;
 import io.restassured.authentication.CertificateAuthSettings;
 import io.restassured.common.spi.http.ClientSettings;
@@ -30,7 +31,7 @@ import io.restassured.common.spi.http.RequestOptions;
 import io.restassured.common.spi.http.TlsSettings;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.SSLConfig;
-import io.restassured.internal.http.RelaxedCertAuthScheme;
+import io.restassured.internal.http.auth.CoreAuthenticationContext;
 import io.restassured.specification.ProxySpecification;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.junit.jupiter.api.Test;
@@ -40,10 +41,12 @@ import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -52,7 +55,10 @@ import static io.restassured.authentication.CertificateAuthSettings.certAuthSett
 import static io.restassured.config.SSLConfig.sslConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class ClientSettingsFactoryTest {
     private static final String CLIENT_KEY_STORE = "client_certificate_auth.p12";
@@ -166,42 +172,43 @@ class ClientSettingsFactoryTest {
     // Certificate authentication
 
     @Test
-    void certificate_of_restassured_keeps_the_relaxed_validation_of_the_static_ssl_config() {
-        RestAssured.config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation("TLS"));
-        try {
-            // The key store isn't read yet, so a wrong password doesn't fail here
-            Object scheme = RestAssured.certificate(CLIENT_KEY_STORE, "wrong");
+    void certificate_of_restassured_takes_the_relaxed_validation_of_the_ssl_config_of_the_request() {
+        // The key store isn't read yet, so a wrong password doesn't fail here
+        AuthenticationScheme scheme = RestAssured.certificate(CLIENT_KEY_STORE, "wrong");
 
-            assertThat(scheme).isInstanceOf(RelaxedCertAuthScheme.class);
-            TlsSettings tls = certificateTlsSettings(scheme);
-            assertThat(tls.relaxedProtocol()).isEqualTo("TLS");
-            assertThat(tls.sslContext()).isNull();
-            assertThat(tls.keyStore().path()).isEqualTo(CLIENT_KEY_STORE);
-            assertThat(catchThrowable(tls::createSslContext)).isInstanceOf(IOException.class);
+        TlsSettings tls = certificateTlsSettings(scheme, sslConfig().relaxedHTTPSValidation("TLS"));
+
+        assertThat(tls.relaxedProtocol()).isEqualTo("TLS");
+        assertThat(tls.sslContext()).isNull();
+        assertThat(tls.keyStore().path()).isEqualTo(CLIENT_KEY_STORE);
+        assertThat(catchThrowable(tls::createSslContext)).isInstanceOf(IOException.class);
+        assertThat(certificateTlsSettings(scheme).relaxedProtocol()).isNull();
+    }
+
+    @Test
+    void certificate_of_restassured_takes_the_ssl_config_of_restassured_in_an_authentication_context_of_its_own() {
+        AuthenticationScheme scheme = RestAssured.certificate(CLIENT_KEY_STORE, PASSWORD);
+        AuthenticationContext context = mock(AuthenticationContext.class);
+        try {
+            scheme.authenticate(context);
+            verify(context).certificate(eq(CLIENT_KEY_STORE), eq(PASSWORD), any(), any(), eq(CLIENT_KEY_STORE), eq(PASSWORD), any(), any(), any(), any());
+
+            RestAssured.config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation());
+            assertThat(catchThrowable(() -> scheme.authenticate(context))).isInstanceOf(IllegalStateException.class).hasMessageStartingWith(
+                    "Certificate authentication with the relaxed HTTPS validation of RestAssured.config can't be applied to ");
         } finally {
             RestAssured.reset();
         }
     }
 
     @Test
-    void relaxed_certificate_scheme_can_only_be_applied_to_rest_assureds_own_authentication_context() {
-        CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setPathToKeyStore(CLIENT_KEY_STORE);
-        RelaxedCertAuthScheme relaxed = new RelaxedCertAuthScheme(scheme, "SSL");
+    void certificate_of_restassured_shows_the_file_and_password_as_key_store_and_trust_store() {
+        CertAuthScheme scheme = (CertAuthScheme) RestAssured.certificate(CLIENT_KEY_STORE, PASSWORD);
 
-        Throwable thrown = catchThrowable(() -> relaxed.authenticate(mock(AuthenticationContext.class)));
-
-        assertThat(thrown).isInstanceOf(IllegalStateException.class).hasMessageStartingWith(
-                "Certificate authentication with the relaxed HTTPS validation of RestAssured.config can't be applied to ");
-    }
-
-    @Test
-    void an_ssl_context_set_on_the_relaxed_certificate_scheme_replaces_relaxed_validation() throws Exception {
-        RelaxedCertAuthScheme relaxed = new RelaxedCertAuthScheme(new CertAuthScheme(), "SSL");
-        relaxed.setSslContext(SSLContext.getDefault());
-
-        assertThat(relaxed.getRelaxedProtocol()).isNull();
-        assertThat(certificateTlsSettings(relaxed).relaxedProtocol()).isNull();
+        assertThat(scheme.getPathToKeyStore()).isEqualTo(CLIENT_KEY_STORE);
+        assertThat(scheme.getKeyStorePassword()).isEqualTo(PASSWORD);
+        assertThat(scheme.getPathToTrustStore()).isEqualTo(CLIENT_KEY_STORE);
+        assertThat(scheme.getTrustStorePassword()).isEqualTo(PASSWORD);
     }
 
     @Test
@@ -327,7 +334,14 @@ class ClientSettingsFactoryTest {
         return ClientSettingsFactory.clientSettings(sslConfig, null, null, HttpClientConfig.httpClientConfig());
     }
 
-    private static TlsSettings certificateTlsSettings(Object scheme) {
-        return ClientSettingsFactory.certificateTlsSettings((CertAuthScheme) scheme);
+    private static TlsSettings certificateTlsSettings(AuthenticationScheme scheme) {
+        return certificateTlsSettings(scheme, sslConfig());
+    }
+
+    // The TLS settings that the scheme asks for in a request with this SSL config
+    private static TlsSettings certificateTlsSettings(AuthenticationScheme scheme, SSLConfig sslConfig) {
+        CoreAuthenticationContext context = new CoreAuthenticationContext(new HashMap<>(), URI.create("https://localhost"), null, sslConfig);
+        scheme.authenticate(context);
+        return context.certificate();
     }
 }

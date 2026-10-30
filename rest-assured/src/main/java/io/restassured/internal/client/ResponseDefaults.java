@@ -28,6 +28,12 @@ import io.restassured.specification.ResponseSpecification;
 public record ResponseDefaults(String rootPath, ResponseSpecification responseSpecification) {
 
     /**
+     * No root path and no response specification, for the responses of a client of the Spring modules, which doesn't
+     * read the static fields of {@link RestAssured}
+     */
+    public static final ResponseDefaults NONE = new ResponseDefaults(RestAssured.DEFAULT_BODY_ROOT_PATH, null);
+
+    /**
      * @return {@link RestAssured#rootPath} and {@link RestAssured#responseSpecification} as they are now
      */
     public static ResponseDefaults ofStaticFields() {

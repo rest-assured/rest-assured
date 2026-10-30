@@ -17,6 +17,7 @@
 package io.restassured.module.kotlin.extensions
 
 import io.restassured.RestAssured
+import io.restassured.RestAssuredClient
 import io.restassured.builder.ResponseBuilder
 import io.restassured.filter.Filter
 import io.restassured.http.ContentType.JSON
@@ -142,6 +143,22 @@ class RestAssuredKotlinExtensionsTest {
         }
 
         assertThat(message).isEqualTo("Hello World")
+    }
+
+    @Test
+    fun `a client named in Given is used instead of the static settings`() {
+        val client = RestAssuredClient.builder().port(7001).filters(Filter { requestSpec, _, _ ->
+            ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello ${requestSpec.port}"}""").build()
+        }).build()
+
+        Given(client) {
+            header("Header", "Header")
+        } When {
+            get("/the/path")
+        } Then {
+            statusCode(200)
+            body("message", equalTo("Hello 7001"))
+        }
     }
 
     @Test

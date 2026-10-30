@@ -84,7 +84,10 @@ import java.util.Locale;
 public class JsonSchemaValidator extends TypeSafeMatcher<String> {
 
     /**
-     * Default json schema factory instance
+     * The settings of each matcher that has none of its own, shared by all threads. It's a standalone setting, never a
+     * setting of a request: neither the config of a request nor a <code>RestAssuredClient</code> changes it. To use
+     * other settings for one matcher, use {@link #using(JsonSchemaValidatorSettings)}, for example
+     * <code>matchesJsonSchemaInClasspath("products-schema.json").using(settings().with().checkedValidation(false))</code>.
      */
     public static volatile JsonSchemaValidatorSettings settings;
 

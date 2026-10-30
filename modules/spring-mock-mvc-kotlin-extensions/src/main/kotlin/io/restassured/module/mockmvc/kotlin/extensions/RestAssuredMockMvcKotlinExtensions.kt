@@ -3,6 +3,7 @@
 package io.restassured.module.mockmvc.kotlin.extensions
 
 import io.restassured.internal.ResponseSpecificationImpl
+import io.restassured.module.mockmvc.RestAssuredMockMvcClient
 import io.restassured.module.mockmvc.RestAssuredMockMvc.`when`
 import io.restassured.module.mockmvc.RestAssuredMockMvc.given
 import io.restassured.module.mockmvc.internal.MockMvcRestAssuredResponseImpl
@@ -20,6 +21,17 @@ import io.restassured.response.ExtractableResponse
  */
 fun Given(block: MockMvcRequestSpecification.() -> MockMvcRequestSpecification): MockMvcRequestSpecification =
     given().run(block)
+
+/**
+ * A wrapper around [given] with a client, that starts building the request part of the test with the defaults of
+ * [client] instead of the static settings.
+ * @see io.restassured.module.mockmvc.RestAssuredMockMvc.given
+ */
+fun Given(
+    client: RestAssuredMockMvcClient,
+    block: MockMvcRequestSpecification.() -> MockMvcRequestSpecification
+): MockMvcRequestSpecification =
+    given(client).run(block)
 
 /**
  * A wrapper around [ MockMvcRequestSpecification.when ] that configures how the request is dispatched.

@@ -23,12 +23,12 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.SpecificationMerger;
+import io.restassured.internal.log.LogConfigRequestLoggingFilter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
@@ -38,14 +38,12 @@ import io.restassured.specification.RequestSpecification;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static io.restassured.RestAssured.DEFAULT_AUTH;
 import static io.restassured.RestAssured.DEFAULT_PATH;
@@ -80,6 +78,15 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * when the specification is used, for example with <code>given().spec(requestSpec)</code>, so they're applied once, as they
  * are at that time. With a {@link io.restassured.RestAssuredClient}, the settings of the client apply instead. To keep a
  * value with the specification, set it on the builder, for example <code>setConfig(RestAssured.config())</code>.
+ * </p>
+ * <p>
+ * The builder uses its own config, the default one unless {@link #setConfig(RestAssuredConfig)} sets another, for what
+ * it computes while building: the body that {@link #setBody(Object)} serializes (ObjectMapperConfig and EncoderConfig),
+ * the session id name of {@link #setSessionId(String)} (SessionConfig), the update strategy of the parameters
+ * (ParamConfig), the default control name and file name of a multipart part (MultiPartConfig) and which headers
+ * overwrite each other (HeaderConfig). Merging the specification later doesn't redo them. To compute them with the
+ * static config, call <code>setConfig(RestAssured.config())</code> before those methods. The settings of {@link
+ * #log(LogDetail)} are taken from the config of the request when it's logged instead.
  * </p>
  */
 public class RequestSpecBuilder {
@@ -1200,26 +1207,17 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Enabled logging with the specified log detail. Set a {@link LogConfig} to configure the print stream and pretty printing options.
+     * Enabled logging with the specified log detail. The print stream, pretty printing, URL encoding of the request URI and
+     * blacklisted headers are taken from the {@link LogConfig} of the request when it's logged, so the log config where
+     * the specification is used applies, for example that of {@link RestAssured#config},
+     * a {@link io.restassured.RestAssuredClient} or <code>given().config(..)</code>.
      *
      * @param logDetail The log detail.
      * @return RequestSpecBuilder
      */
     public RequestSpecBuilder log(LogDetail logDetail) {
         notNull(logDetail, LogDetail.class);
-        RestAssuredConfig restAssuredConfig = spec.getConfig();
-        LogConfig logConfig;
-        if (restAssuredConfig == null) {
-            logConfig = new RestAssuredConfig().getLogConfig();
-        } else {
-            logConfig = restAssuredConfig.getLogConfig();
-        }
-        PrintStream printStream = logConfig.defaultStream();
-        boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
-        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-
-        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        spec.filter(new LogConfigRequestLoggingFilter(logDetail, null, null));
         return this;
     }
 
