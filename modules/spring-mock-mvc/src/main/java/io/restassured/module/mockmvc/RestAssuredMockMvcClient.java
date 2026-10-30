@@ -143,14 +143,14 @@ public final class RestAssuredMockMvcClient {
      * @return The result handlers of this client (read-only)
      */
     public List<ResultHandler> resultHandlers() {
-        return Collections.unmodifiableList(defaults.get().resultHandlers());
+        return defaults.get().resultHandlers();
     }
 
     /**
      * @return The request post processors of this client (read-only)
      */
     public List<RequestPostProcessor> postProcessors() {
-        return Collections.unmodifiableList(defaults.get().requestPostProcessors());
+        return defaults.get().requestPostProcessors();
     }
 
     // Starts a request of RestAssuredMockMvc.given(), given(client) and the static methods that send a request
