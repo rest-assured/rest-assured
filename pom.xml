@@ -66,26 +66,26 @@
         <!-- The Apache HttpClient 5 version http-client-apache5 is built with. It supports 5.2.1 and later, which it checks when
              it loads. httpcore5 isn't managed, so that another version of httpclient5 brings its own httpcore5 -->
         <httpclient5.version>5.6.5</httpclient5.version>
-        <gmavenplus.version>4.2.1</gmavenplus.version>
+        <gmavenplus.version>5.1.0</gmavenplus.version>
         <hamcrest.version>3.0</hamcrest.version>
-        <junit.version>6.0.0</junit.version>
-        <byte-buddy.version>1.18.15</byte-buddy.version>
-        <jackson2.version>2.22.3</jackson2.version>
-        <jackson3.version>3.2.3</jackson3.version>
+        <junit.version>6.1.3</junit.version>
+        <byte-buddy.version>1.18.16</byte-buddy.version>
+        <jackson2.version>2.22.4</jackson2.version>
+        <jackson3.version>3.2.4</jackson3.version>
         <johnzon.version>2.2.0</johnzon.version>
         <yasson.version>3.0.5</yasson.version>
         <parsson.version>1.1.9</parsson.version>
         <jakarta.json.version>2.1.3</jakarta.json.version>
-        <maven-javadoc.version>3.5.0</maven-javadoc.version>
-        <surefire.version>3.5.4</surefire.version>
+        <maven-javadoc.version>3.12.0</maven-javadoc.version>
+        <surefire.version>3.6.1</surefire.version>
         <kotlin.version>2.2.21</kotlin.version>
         <!-- The Scala 3 version scala-extensions is built with: the Scala 3.3 LTS, so that it works with every newer Scala 3.
              CI also tests scala-extensions with the latest Scala 3 (the scala job) -->
         <scala3.version>3.3.9</scala3.version>
-        <assertj-core.version>3.27.4</assertj-core.version>
+        <assertj-core.version>3.27.7</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.7.2-jre</guava.version>
-        <dokka.version>2.1.0</dokka.version>
+        <dokka.version>2.2.0</dokka.version>
 		
 		<duplicate-finder-maven-plugin.phase>package</duplicate-finder-maven-plugin.phase>
 	</properties>
@@ -118,30 +118,14 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>1.15</version>
-                    <configuration>
-                        <signature>
-                            <groupId>org.codehaus.mojo.signature</groupId>
-                            <artifactId>java16</artifactId>
-                            <version>1.0</version>
-                        </signature>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>check-java-version-compatibility</id>
-                            <phase>test</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>5.1.4</version>
+                    <version>6.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
@@ -179,7 +163,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.3.0</version>
+                    <version>2.0.1</version>
                     <executions>
                         <execution>
                             <id>duplicate-check</id>
@@ -247,7 +231,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.3</version>
                     <executions>
                         <execution>
                             <id>ban-groovy</id>
@@ -276,7 +260,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>17</release>
                     <encoding>UTF-8</encoding>
@@ -333,7 +317,7 @@
                 <!-- See docs here https://central.sonatype.org/publish/publish-portal-maven -->
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.9.0</version>
+                <version>0.12.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
@@ -358,7 +342,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.3.1</version>
                 <configuration>
                     <goals>clean verify</goals> <!-- Avoids triggering 'deploy' -->
                 </configuration>
@@ -403,7 +387,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -441,12 +425,12 @@
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>3.0.1</version>
+                <version>4.0.5</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>3.0.2</version>
+                <version>4.0.9</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -512,7 +496,7 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.14.0</version>
+                <version>2.15.0</version>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
@@ -553,12 +537,12 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>mockwebserver3-junit5</artifactId>
-                <version>5.3.2</version>
+                <version>5.5.1</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>26.0.2-1</version>
+                <version>26.1.0</version>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>

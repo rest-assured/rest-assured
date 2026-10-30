@@ -60,7 +60,11 @@
                         	io.restassured.common.*, 
                         	io.restassured.internal.common.*
                         </Export-Package>
-                        <Import-Package>*</Import-Package>
+                        <!-- Jakarta XML Binding 4 has the same API as 3, so both are accepted -->
+                        <Import-Package>
+                            jakarta.xml.bind.*;resolution:=optional;version="[3.0,5)",
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

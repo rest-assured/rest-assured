@@ -17,6 +17,8 @@
 package io.restassured.test.osgi;
 
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
+import io.restassured.path.xml.XmlPath;
 import org.junit.Test;
 
 import java.io.File;
@@ -56,6 +58,16 @@ public class RestAssuredBundleManifestTest {
     }
 
     @Test
+    public void jakarta_xml_binding_3_and_4_are_optional_imports() throws Exception {
+        for (Class<?> type : List.of(RestAssured.class, TypeRef.class, XmlPath.class)) {
+            assertThat(clauses(header(type, "Import-Package")))
+                    .filteredOn(clause -> clause.startsWith("jakarta.xml.bind"))
+                    .isNotEmpty()
+                    .allSatisfy(clause -> assertThat(clause).contains("version=\"[3.0,5)\"").contains("resolution:=optional"));
+        }
+    }
+
+    @Test
     public void the_optional_http_client_module_is_a_dynamic_import_and_no_http_client_module_is_exported() throws Exception {
         assertThat(clauses(header(RestAssured.class, "DynamicImport-Package"))).contains("io.restassured.http.apache5").doesNotContain("io.restassured.http.jdk");
         assertThat(clauses(header(RestAssured.class, "Export-Package"))).noneMatch(clause -> clause.startsWith("io.restassured.http.jdk") || clause.startsWith("io.restassured.http.apache5"));
@@ -65,7 +77,7 @@ public class RestAssuredBundleManifestTest {
     public void the_service_loader_requirements_are_optional() throws Exception {
         assertThat(clauses(header(RestAssured.class, "Require-Capability"))).contains(
                 "osgi.extender;filter:=\"(osgi.extender=osgi.serviceloader.processor)\";resolution:=optional",
-                "osgi.serviceloader;filter:=\"(osgi.serviceloader=io.restassured.common.spi.http.HttpClientProvider)\";cardinality:=multiple;resolution:=optional");
+                "osgi.serviceloader;cardinality:=multiple;filter:=\"(osgi.serviceloader=io.restassured.common.spi.http.HttpClientProvider)\";resolution:=optional");
     }
 
     // A header of the bundle jar that holds the class

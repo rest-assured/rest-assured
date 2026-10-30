@@ -29,7 +29,7 @@
     <description>Scalatra service example that's used for integration testing rest-assured</description>
 
     <properties>
-        <scala.version>2.12.18</scala.version>
+        <scala.version>2.12.21</scala.version>
         <scalatra.scala.version>2.12</scalatra.scala.version>
         <scalatra.version>2.5.4</scalatra.version>
     </properties>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>net.liftweb</groupId>
             <artifactId>lift-json_${scalatra.scala.version}</artifactId>
-            <version>3.4.3</version>
+            <version>3.5.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -89,7 +89,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.19.0</version>
         </dependency>
     </dependencies>
 </project>

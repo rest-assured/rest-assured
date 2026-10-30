@@ -68,7 +68,8 @@
                              version up to the next minor, since REST Assured's modules must have the same minor version. TagSoup is only needed for HTML. The HTTP
                              client modules are found by class name in the same way: http-client-jdk, the default, is
                              required, and http-client-apache5 is optional. Hamcrest 3.0 has the same API as 2.2, so
-                             both are accepted. -->
+                             both are accepted. Jakarta XML Binding 3 and 4 are accepted
+                             for the same reason. -->
                         <Import-Package>
                             io.restassured.path.json.*;resolution:=optional,
                             io.restassured.path.xml.*;resolution:=optional,
@@ -79,6 +80,7 @@
                             io.restassured.http.apache5;resolution:=optional;version="${range;[==,=+);${version_cleanup;${project.version}}}",
                             org.ccil.cowan.tagsoup;resolution:=optional,
                             org.hamcrest.*;version="[2.2,4)",
+                            jakarta.xml.bind.*;resolution:=optional;version="[3.0,5)",
                             *
                         </Import-Package>
                         <!-- Finds a path engine that is installed after rest-assured was resolved -->
@@ -255,7 +257,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.20.0</version>
+            <version>5.24.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
