@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.restassured.RestAssured.basic;
+import static io.restassured.authentication.FormAuthConfig.formAuthConfig;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.get;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
@@ -62,6 +63,28 @@ public class RestAssuredClientITest extends WithJetty {
 
         assertThat(filtersRun).containsExactly("http://127.0.0.1:8080/secured/hello?n=1", "http://127.0.0.1:8080/requestUrl?n=1");
         assertThatThrownBy(() -> get("/hello")).isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void form_authentication_and_csrf_send_their_extra_requests_with_the_client() {
+        List<String> sent = new CopyOnWriteArrayList<>();
+        Filter recording = (request, response, context) -> {
+            sent.add(request.getMethod() + " " + request.getURI());
+            return context.next(request, response);
+        };
+        RestAssuredClient client = RestAssuredClient.builder().baseUri("http://127.0.0.1").port(8080).filters(recording).build();
+        // A closed port
+        RestAssured.port = 1;
+
+        given(client).auth().form("John", "Doe", formAuthConfig()).get("/formAuth").then().body(equalTo("OK"));
+        given(client).csrf("/formAuthCsrf").auth().form("John", "Doe", formAuthConfig()).get("/formAuthCsrf").then().body(equalTo("OK"));
+        given(client).csrf("/loginPageWithCsrf").post("/loginPageWithCsrf").then().statusCode(200);
+
+        assertThat(sent).containsExactly(
+                "GET http://127.0.0.1:8080/formAuth", "POST http://127.0.0.1:8080/j_spring_security_check", "GET http://127.0.0.1:8080/formAuth",
+                "GET http://127.0.0.1:8080/formAuthCsrf", "POST http://127.0.0.1:8080/j_spring_security_check_with_csrf", "GET http://127.0.0.1:8080/formAuthCsrf",
+                // The CSRF filter runs after the filters of the request
+                "POST http://127.0.0.1:8080/loginPageWithCsrf", "GET http://127.0.0.1:8080/loginPageWithCsrf");
     }
 
     @Test

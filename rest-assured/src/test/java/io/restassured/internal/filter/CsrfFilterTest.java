@@ -17,6 +17,8 @@
 package io.restassured.internal.filter;
 
 import io.restassured.RestAssured;
+import io.restassured.RestAssuredClient;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.cookie.CookieFilter;
@@ -24,6 +26,7 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.internal.filter.RecordingServer.Reply;
 import io.restassured.internal.filter.RecordingServer.Request;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -155,6 +158,55 @@ class CsrfFilterTest {
     }
 
     @Test
+    void fetches_token_page_with_the_defaults_of_the_client_bound_to_the_thread() {
+        RestAssured.requestSpecification = withHeader("static");
+        RestAssured.useClient(clientWithHeader("bound"));
+
+        given().csrf("/csrf-page").when().post("/resource").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /csrf-page", "POST /resource");
+        assertThat(server.requests).extracting(r -> r.header("X-Defaults")).containsOnly("bound");
+    }
+
+    @Test
+    void fetches_token_page_with_the_defaults_of_the_client_named_in_given() {
+        RestAssured.requestSpecification = withHeader("static");
+        RestAssured.useClient(clientWithHeader("bound"));
+
+        given(clientWithHeader("named")).csrf("/csrf-page").when().post("/resource").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /csrf-page", "POST /resource");
+        assertThat(server.requests).extracting(r -> r.header("X-Defaults")).containsOnly("named");
+    }
+
+    @Test
+    void fetches_token_page_through_the_proxy_of_the_request() throws IOException {
+        try (RecordingServer proxy = new RecordingServer()) {
+            proxy.route("GET /csrf-page", r -> Reply.html(FORM_PAGE));
+            proxy.route("POST /resource", r -> Reply.text("done"));
+
+            given().proxy("127.0.0.1", proxy.port()).csrf("/csrf-page").when().post("/resource").then().statusCode(200);
+
+            assertThat(proxy.requestLines()).containsExactly("GET /csrf-page", "POST /resource");
+            assertThat(server.requestLines()).isEmpty();
+        }
+    }
+
+    @Test
+    void fetches_token_page_from_the_base_uri_of_the_request() throws IOException {
+        try (RecordingServer other = new RecordingServer()) {
+            RestAssured.port = other.port();
+            server.route("GET /api/csrf-page", r -> Reply.html(FORM_PAGE));
+            server.route("POST /api/resource", r -> Reply.text("done"));
+
+            given().baseUri("http://127.0.0.1:" + server.port() + "/api").csrf("/csrf-page").when().post("/resource").then().statusCode(200);
+
+            assertThat(server.requestLines()).containsExactly("GET /api/csrf-page", "POST /api/resource");
+            assertThat(other.requests).isEmpty();
+        }
+    }
+
+    @Test
     void filter_used_directly_with_disabled_csrf_config_passes_request_through() {
         CsrfFilter filter = new CsrfFilter();
         CsrfConfig csrfConfig = new CsrfConfig();
@@ -196,6 +248,14 @@ class CsrfFilterTest {
         String log = out.toString(StandardCharsets.UTF_8);
         assertThat(log).startsWith(String.format("Request method:\tGET%nRequest URI:\thttp://127.0.0.1:%d/csrf-page%n", server.port()));
         assertThat(log).contains("HTTP/1.1 200 OK").contains("value=\"tok\"");
+    }
+
+    private RestAssuredClient clientWithHeader(String value) {
+        return RestAssuredClient.builder().baseUri("http://127.0.0.1").port(server.port()).requestSpecification(withHeader(value)).build();
+    }
+
+    private static RequestSpecification withHeader(String value) {
+        return new RequestSpecBuilder().addHeader("X-Defaults", value).build();
     }
 
     private static LogConfig logTo(ByteArrayOutputStream out) {

@@ -46,10 +46,12 @@ public record ClientDefaults(String baseUri, int port, String basePath, boolean 
                              List<Filter> filters, ResponseParserRegistrar parsers) {
 
     /**
+     * @param newRequest       Starts a request with the defaults of the client, for the extra requests of form
+     *                         authentication and CSRF
      * @param responseDefaults Gives the defaults of <code>then()</code> of the client
      * @return A new request and response specification, linked to each other, with these defaults
      */
-    public TestSpecificationImpl testSpecification(Supplier<ResponseDefaults> responseDefaults) {
+    public TestSpecificationImpl testSpecification(Supplier<RequestSpecification> newRequest, Supplier<ResponseDefaults> responseDefaults) {
         ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(parsers);
         if (defaultParser != null) {
             responseParserRegistrar.registerDefaultParser(defaultParser);
@@ -58,7 +60,7 @@ public record ClientDefaults(String baseUri, int port, String basePath, boolean 
         RestAssuredConfig restAssuredConfig = configWithSessionId();
         return TestSpecificationImpl.linked(
                 new RequestSpecificationImpl(baseUri, port, basePath, authentication, filters, requestSpecification, urlEncodingEnabled,
-                        restAssuredConfig, logRepository, proxy, true, true, responseDefaults),
+                        restAssuredConfig, logRepository, proxy, true, true, newRequest, responseDefaults),
                 new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository));
     }
 

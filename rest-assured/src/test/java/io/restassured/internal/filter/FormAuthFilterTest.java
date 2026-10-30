@@ -17,13 +17,16 @@
 package io.restassured.internal.filter;
 
 import io.restassured.RestAssured;
+import io.restassured.RestAssuredClient;
 import io.restassured.authentication.FormAuthConfig;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.internal.filter.RecordingServer.Reply;
 import io.restassured.internal.filter.RecordingServer.Request;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -611,6 +614,43 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void fetches_csrf_page_from_the_base_uri_of_the_request() throws IOException {
+        try (RecordingServer other = new RecordingServer()) {
+            RestAssured.port = other.port();
+            server.route("GET /api/csrf-page", r -> Reply.html(loginPage("login", "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/>")));
+            server.route("POST /api/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+            server.route("GET /api/secured", securedOr(r -> Reply.text("denied")));
+
+            given().baseUri("http://127.0.0.1:" + server.port() + "/api").csrf("/csrf-page").auth().form("John", "Doe").
+                    when().get("/secured").then().statusCode(200);
+
+            assertThat(server.requestLines()).containsExactly("GET /api/csrf-page", "POST /api/login", "GET /api/secured");
+            assertThat(other.requests).isEmpty();
+        }
+    }
+
+    @Test
+    void sends_extra_requests_with_the_defaults_of_the_client_bound_to_the_thread() {
+        RestAssured.requestSpecification = withHeader("static");
+        RestAssured.useClient(clientWithHeader("bound"));
+
+        sendFormAuthRequestsWith(RestAssured::given);
+
+        assertThat(server.requests).flatExtracting(FormAuthFilterTest::defaultsHeaders).containsOnly("bound");
+    }
+
+    @Test
+    void sends_extra_requests_with_the_defaults_of_the_client_named_in_given() {
+        RestAssured.requestSpecification = withHeader("static");
+        RestAssured.useClient(clientWithHeader("bound"));
+        RestAssuredClient named = clientWithHeader("named");
+
+        sendFormAuthRequestsWith(() -> given(named));
+
+        assertThat(server.requests).flatExtracting(FormAuthFilterTest::defaultsHeaders).containsOnly("named");
+    }
+
+    @Test
     void fetches_login_page_for_a_request_with_unnamed_path_parameters() {
         server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("/login", "")).withCookie("PAGE=p1")));
 
@@ -768,6 +808,34 @@ class FormAuthFilterTest {
         String encodedPath = "/secured/" + URLEncoder.encode(id, UTF_8).replace("+", "%20");
         assertThat(server.requests.get(0).rawPath()).isEqualTo(encodedPath);
         assertThat(server.requests.get(2).rawPath()).isEqualTo(encodedPath);
+    }
+
+    // Fetches the login page, the page with the CSRF token, and a login page that a 302 leads to
+    private void sendFormAuthRequestsWith(Supplier<RequestSpecification> given) {
+        server.route("GET /csrf-page", r -> Reply.html(loginPage("login", "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/>")));
+        server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/login-page"));
+        server.route("GET /login-page", r -> Reply.html(loginPage("login", "")));
+
+        given.get().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+        given.get().csrf("/csrf-page").auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+        given.get().auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured",
+                "GET /csrf-page", "POST /login", "GET /secured",
+                "POST /secured-post", "GET /login-page", "POST /login", "POST /secured-post");
+    }
+
+    // The request for the login page merges the original request into a new one, so it has the default header twice
+    private static List<String> defaultsHeaders(Request request) {
+        return List.of(request.header("X-Defaults").split(","));
+    }
+
+    private RestAssuredClient clientWithHeader(String value) {
+        return RestAssuredClient.builder().baseUri("http://127.0.0.1").port(server.port()).requestSpecification(withHeader(value)).build();
+    }
+
+    private static RequestSpecification withHeader(String value) {
+        return new RequestSpecBuilder().addHeader("X-Defaults", value).build();
     }
 
     private static Function<Request, Reply> securedOr(Function<Request, Reply> loginPage) {

@@ -31,7 +31,6 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.RequestSpecification;
 
-import static io.restassured.RestAssured.given;
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
 
 public class CsrfFilter implements Filter {
@@ -43,7 +42,7 @@ public class CsrfFilter implements Filter {
         if (csrfConfig.isCsrfEnabled()) {
             // CSRF token doesn't need to be sent for GET/HEAD requests.
             if (!requestSpec.getMethod().equalsIgnoreCase("GET") && !requestSpec.getMethod().equalsIgnoreCase("HEAD")) {
-                RequestSpecification requestSpecification = given().auth().none().disableCsrf().cookies(requestSpec.getCookies());
+                RequestSpecification requestSpecification = FormAuthFilter.requestWithSettingsOf(requestSpec).cookies(requestSpec.getCookies());
                 if (csrfConfig.isLoggingEnabled()) {
                     LogConfig logConfig = csrfConfig.getLogConfig();
                     LogDetail logDetail = csrfConfig.getLogDetail();

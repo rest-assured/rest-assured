@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static io.restassured.RestAssured.given;
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -93,7 +92,8 @@ public class FormAuthFilter implements AuthFilter {
             } else {
                 // Send to the path of the request, with its path parameters, and not to the request URI (as ctx.send(..) does),
                 // which already has the path parameters applied and is URL encoded
-                loginPageResponse = given().spec(requestSpec).auth().none().request(requestSpec.getMethod(), ((RequestSpecificationImpl) requestSpec).getPath());
+                RequestSpecificationImpl request = (RequestSpecificationImpl) requestSpec;
+                loginPageResponse = request.newRequestOfClient().spec(requestSpec).auth().none().request(requestSpec.getMethod(), request.getPath());
                 loginPageUri = urlOf(loginPageResponse, requestSpec.getURI());
                 cookiesFromLoginPage = loginPageResponse.cookies();
                 if (loginPageResponse.statusCode() == 302) {
@@ -204,12 +204,15 @@ public class FormAuthFilter implements AuthFilter {
     }
 
     /**
-     * @return A request that is sent like the original request (with its config, so with its SSL settings and timeouts, and
-     * through its proxy) but carries nothing of it: no authentication, CSRF handling, filters, headers, parameters or body.
+     * @return A request with the defaults of the client that sends the original request, which is sent like the original
+     * request (with its config, so with its SSL settings and timeouts, through its proxy, and to its base URI, port and
+     * base path) but carries nothing of it: no authentication, CSRF handling, filters, headers, parameters or body.
      * Unlike {@code given().spec(requestSpec)}, which copies all of those too.
      */
-    private static RequestSpecification requestWithSettingsOf(FilterableRequestSpecification requestSpec) {
-        RequestSpecification spec = given().auth().none().disableCsrf();
+    static RequestSpecification requestWithSettingsOf(FilterableRequestSpecification requestSpec) {
+        RequestSpecificationImpl request = (RequestSpecificationImpl) requestSpec;
+        RequestSpecification spec = request.newRequestOfClient().auth().none().disableCsrf()
+                .baseUri(request.getBaseUri()).port(request.getRequestPort()).basePath(request.getBasePath());
         RestAssuredConfig config = requestSpec.getConfig();
         if (config != null) {
             spec.config(config);
