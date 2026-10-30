@@ -20,6 +20,7 @@ package io.restassured.module.kotlin.extensions
 
 import io.restassured.RestAssured.`when`
 import io.restassured.RestAssured.given
+import io.restassured.RestAssuredClient
 import io.restassured.internal.ResponseSpecificationImpl
 import io.restassured.internal.ValidatableResponseImpl
 import io.restassured.response.ExtractableResponse
@@ -35,6 +36,14 @@ import io.restassured.specification.RequestSpecification
  * @see given
  */
 fun Given(block: RequestSpecification.() -> RequestSpecification): RequestSpecification = given().run(block)
+
+/**
+ * A wrapper around [given] with a client, that starts building the request part of the test with the defaults of
+ * [client] instead of the static settings.
+ * @see io.restassured.RestAssured.given
+ */
+fun Given(client: RestAssuredClient, block: RequestSpecification.() -> RequestSpecification): RequestSpecification =
+        given(client).run(block)
 
 /**
  * A wrapper around [RequestSpecification.when] that configures how the request is dispatched.

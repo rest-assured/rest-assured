@@ -2,6 +2,7 @@ package io.restassured.module.webtestclient.kotlin.extensions
 
 
 import io.restassured.module.webtestclient.RestAssuredWebTestClient
+import io.restassured.module.webtestclient.RestAssuredWebTestClientClient
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test;
@@ -103,6 +104,27 @@ class RestAssuredWebTestClientKotlinExtensionsTest {
         val id: Int =
         Given {
             standaloneSetup(GreetingController())
+            param("name", "Johan")
+        } When {
+            get("/greeting")
+        } Then {
+            body(
+                    "id", Matchers.equalTo(1),
+                    "content", Matchers.equalTo("Hello, Johan!")
+            )
+        } Extract {
+            path("id")
+        }
+
+        assertThat(id).isEqualTo(1)
+    }
+
+    @Test
+    fun uses_the_client_named_in_given() {
+        val client = RestAssuredWebTestClientClient.builder().standaloneSetup(GreetingController()).build()
+
+        val id: Int =
+        Given(client) {
             param("name", "Johan")
         } When {
             get("/greeting")

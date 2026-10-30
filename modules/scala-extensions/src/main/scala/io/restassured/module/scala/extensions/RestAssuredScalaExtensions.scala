@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 import scala.util.chaining.*
 
 import io.restassured.RestAssured.`given`
+import io.restassured.RestAssuredClient
 import io.restassured.internal.{ResponseSpecificationImpl, ValidatableResponseImpl}
 import io.restassured.response.{ExtractableResponse, Response, ValidatableResponse}
 import io.restassured.specification.RequestSpecification
@@ -54,6 +55,26 @@ def Given(block: RequestSpecification => RequestSpecification): RequestSpecifica
  */
 def Given(): RequestSpecification =
   `given`()
+
+/**
+ * A wrapper around [given] with a client, that starts building the request
+ * part of the test with the defaults of the client instead of the static
+ * settings.
+ * E.g.
+ * {{{
+ * Given(client)(_.params("firstName", "John"))
+ *  .When(_.post("/greetXML"))
+ *  .Then(_.statusCode(200))
+ * }}}
+ *
+ * @return
+ *   A request specification.
+ *
+ * @see
+ *   io.restassured.RestAssured.given
+ */
+def Given(client: RestAssuredClient)(block: RequestSpecification => RequestSpecification): RequestSpecification =
+  `given`(client).pipe(block)
 
 extension (spec: RequestSpecification)
   /**

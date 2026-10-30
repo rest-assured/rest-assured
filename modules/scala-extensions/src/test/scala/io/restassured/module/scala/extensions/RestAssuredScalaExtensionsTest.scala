@@ -17,6 +17,7 @@
 package io.restassured.module.scala.extensions
 
 import io.restassured.RestAssured
+import io.restassured.RestAssuredClient
 import io.restassured.builder.ResponseBuilder
 import io.restassured.http.ContentType.JSON
 import org.assertj.core.api.Assertions.assertThat
@@ -53,6 +54,28 @@ class RestAssuredScalaExtensionsTest:
       .Then(res =>
         res.statusCode(200)
         res.body("message", equalTo("Hello World"))
+      )
+
+  @Test
+  def `a client named in Given is used instead of the static settings`(): Unit =
+    val client = RestAssuredClient
+      .builder()
+      .port(7001)
+      .filters { (req, _, _) =>
+        new ResponseBuilder()
+          .setStatusCode(200)
+          .setContentType(JSON)
+          .setBody(s"""{ "message" : "Hello ${req.getPort}"}""")
+          .build()
+      }
+      .build()
+
+    Given(client)(_.header("Header", "Header"))
+      .When(
+        _.get("/the/path")
+      )
+      .Then(
+        _.body("message", equalTo("Hello 7001"))
       )
 
   @Test
