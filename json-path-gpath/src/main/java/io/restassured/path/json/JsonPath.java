@@ -108,6 +108,12 @@ import java.util.Map.Entry;
  */
 public class JsonPath {
 
+    /**
+     * The config of each JsonPath that has none of its own, shared by all threads. It's a standalone setting, never a
+     * setting of a request: the <code>jsonPath()</code> of a response, and its body expectations, use the config of the
+     * request instead, and a <code>RestAssuredClient</code> doesn't change it. To use another config for one JsonPath,
+     * use {@link #using(JsonPathConfig)}, for example <code>JsonPath.from(json).using(jsonPathConfig)</code>.
+     */
     public static volatile JsonPathConfig config = null;
 
     private final JsonParser jsonParser;
