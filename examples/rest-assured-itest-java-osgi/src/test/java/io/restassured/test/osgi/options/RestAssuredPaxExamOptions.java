@@ -31,9 +31,14 @@ public class RestAssuredPaxExamOptions {
      * (that does not contain all the nice hamcrest Matchers) by the ServiceMix Hamcrest bundle.
      *
      * https://groups.google.com/forum/#!topic/ops4j/zcow2vuOFJs
+     * <p>
+     * Hamcrest 3.0, which rest-assured imports, is installed first (at a lower start level). Its bundle imports org.hamcrest
+     * without a version, so installed after the ServiceMix Hamcrest 1.3 bundle it would bind to that one's package, and
+     * rest-assured wouldn't resolve.
      */
     public static Option restAssuredJunitBundles() {
-        return new DefaultCompositeOption(new JUnitBundlesOption(),
+        return new DefaultCompositeOption(mavenBundle("org.hamcrest", "hamcrest").versionAsInProject().startLevel(1),
+                new JUnitBundlesOption(),
                 systemProperty("pax.exam.invoker").value("junit"),
                 mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
                 bundle("link:classpath:META-INF/links/org.ops4j.pax.exam.invoker.junit.link"));
