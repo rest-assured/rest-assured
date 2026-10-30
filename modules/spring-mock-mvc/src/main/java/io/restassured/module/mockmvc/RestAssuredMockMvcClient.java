@@ -71,7 +71,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * {@link RestAssuredMockMvc#resetClient()} or {@link RestAssuredMockMvc#reset()} unbinds it:
  * <pre>
  * &#64;BeforeEach void useOwnMockMvc() { RestAssuredMockMvc.useClient(RestAssuredMockMvcClient.builder().mockMvc(mockMvc).build()); }
- * &#64;AfterEach void resetRestAssured() { RestAssuredMockMvc.reset(); }
+ * &#64;AfterEach void unbindClient() { RestAssuredMockMvc.resetClient(); }
  *
  * &#64;Test void greets() {
  *     get("/greeting").then().body("content", equalTo("Hello, World!"));
@@ -95,7 +95,8 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * <li>A client can be used from many threads at once. Its requests share its MockMvc instance, which is built once if
  * the client was given a builder or controllers.</li>
  * <li><code>given(client)</code> returns a new specification each time. Don't change one specification from several
- * threads at once.</li>
+ * threads at once. Sending one specification, or one built with
+ * {@link io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder}, from many threads is safe.</li>
  * <li>The result handlers and post processors of the client are used by all its requests and must be thread safe.</li>
  * </ul>
  * A specification built with {@link io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder} contains no
@@ -303,10 +304,10 @@ public final class RestAssuredMockMvcClient {
 
         /**
          * @param authentication The authentication scheme, such as {@link RestAssuredMockMvc#principal(Object)}, like
-         *                       {@link RestAssuredMockMvc#authentication}, or <code>null</code> for none
+         *                       {@link RestAssuredMockMvc#authentication}
          */
         public Builder authentication(MockMvcAuthenticationScheme authentication) {
-            this.authentication = authentication;
+            this.authentication = notNull(authentication, MockMvcAuthenticationScheme.class);
             return this;
         }
 
