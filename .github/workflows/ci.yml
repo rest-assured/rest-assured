@@ -21,9 +21,9 @@ jobs:
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v6
         with:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
@@ -41,9 +41,9 @@ jobs:
     name: Test Jayway JsonPath ${{ matrix.jayway }}, JDK 17
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v6
         with:
           java-version: 17
           distribution: 'zulu'
@@ -63,12 +63,33 @@ jobs:
     name: Test Apache HttpClient ${{ matrix.httpclient5 }}, JDK 17
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v6
         with:
           java-version: 17
           distribution: 'zulu'
           cache: 'maven'
       - name: Verify http-client-apache5 and the integration tests with Apache HttpClient 5 with Maven
         run: mvn verify -B -Papache5 -Dhttpclient5.version=${{ matrix.httpclient5 }} -pl modules/http-client-apache5,examples/rest-assured-itest-java -am
+
+  scala:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # scala-extensions is built with the Scala 3.3 LTS (scala3.version in the root pom), so that it works with every
+        # newer Scala 3. This job compiles and tests it with the latest Scala 3, so that a break shows up here first
+        scala: [3.10.0]
+      fail-fast: false
+    name: Test scala-extensions with Scala ${{ matrix.scala }}, JDK 17
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Verify scala-extensions with Maven
+        run: mvn verify -B -Dscala3.version=${{ matrix.scala }} -pl modules/scala-extensions -am
