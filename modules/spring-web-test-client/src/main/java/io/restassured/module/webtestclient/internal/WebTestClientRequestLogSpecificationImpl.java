@@ -22,6 +22,7 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.internal.LogSpecificationImpl;
 import io.restassured.internal.RequestSpecificationImpl;
+import io.restassured.internal.log.LogRepository;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 
@@ -90,10 +91,19 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 
     @Override
     public WebTestClientRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+        requestSpecification.setRequestLoggingFilter(ifValidationFailsFilter(logDetail, shouldPrettyPrint,
+                requestSpecification.getRestAssuredWebTestClientConfig().getLogConfig(), requestSpecification.getLogRepository()));
+        return requestSpecification;
+    }
+
+    /**
+     * @return A filter that logs the request to a stream of <code>logRepository</code>, which is printed if validation fails
+     */
+    static RequestLoggingFilter ifValidationFailsFilter(LogDetail logDetail, boolean shouldPrettyPrint, LogConfig logConfig, LogRepository logRepository) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        requestSpecification.getLogRepository().registerRequestLog(byteArrayOutputStream);
-        return logWith(logDetail, shouldPrettyPrint, printStream);
+        logRepository.registerRequestLog(byteArrayOutputStream);
+        return new RequestLoggingFilter(logDetail, shouldPrettyPrint, new PrintStream(byteArrayOutputStream), logConfig.shouldUrlEncodeRequestUri(),
+                logConfig.blacklistedHeaders());
     }
 
     public WebTestClientRequestSpecification params() {

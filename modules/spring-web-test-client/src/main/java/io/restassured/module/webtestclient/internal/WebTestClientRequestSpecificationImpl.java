@@ -63,6 +63,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static io.restassured.internal.MapCreator.CollisionStrategy.OVERWRITE;
+import static io.restassured.internal.RequestSpecificationImpl.copyParameters;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.multipart.MultiPartInternal.OCTET_STREAM;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -630,15 +631,19 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
     @Override
     public WebTestClientRequestSender when() {
+        // Sending doesn't change this specification, so it can be sent again, and from many threads: each send gets its
+        // own logs, and copies of the parameters and lists
+        LogRepository sendLogRepository = new LogRepository(logRepository);
+        RequestLoggingFilter sendRequestLoggingFilter = requestLoggingFilter;
         LogConfig logConfig = config.getLogConfig();
-        if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-            log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
-                    logConfig.isPrettyPrintingEnabled());
+        if (sendRequestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            sendRequestLoggingFilter = WebTestClientRequestLogSpecificationImpl.ifValidationFailsFilter(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
+                    logConfig.isPrettyPrintingEnabled(), logConfig, sendLogRepository);
         }
         WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
-        return new WebTestClientRequestSenderImpl(webTestClient, params, namedPathParams, queryParams, formParams, attributes, config, requestBody,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, basePath,
-                responseSpecification, logRepository);
+        return new WebTestClientRequestSenderImpl(webTestClient, copyParameters(params), copyParameters(namedPathParams), copyParameters(queryParams),
+                copyParameters(formParams), copyParameters(attributes), config, requestBody, requestHeaders, cookies, new ArrayList<>(multiParts),
+                sendRequestLoggingFilter, basePath, responseSpecification, sendLogRepository);
     }
 
     @Override

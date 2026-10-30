@@ -56,6 +56,7 @@ import java.net.URL;
 import java.security.Principal;
 import java.util.*;
 
+import static io.restassured.internal.RequestSpecificationImpl.copyParameters;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
@@ -593,14 +594,20 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestAsyncSender when() {
+        // Sending doesn't change this specification, so it can be sent again, and from many threads: each send gets its
+        // own logs, and copies of the parameters and lists
+        LogRepository sendLogRepository = new LogRepository(logRepository);
+        RequestLoggingFilter sendRequestLoggingFilter = requestLoggingFilter;
         LogConfig logConfig = cfg.getLogConfig();
-        if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-            log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
+        if (sendRequestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            sendRequestLoggingFilter = MockMvcRequestLogSpecificationImpl.ifValidationFailsFilter(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
+                    logConfig.isPrettyPrintingEnabled(), logConfig, sendLogRepository);
         }
         MockMvc mockMvc = mockMvcFactory.build(cfg.getMockMvcConfig());
-        return new MockMvcRequestSenderImpl(mockMvc, params, pathParams, queryParams, formParams, attributes, cfg, requestBody,
-                requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor, basePath, responseSpecification, authentication,
-                logRepository);
+        return new MockMvcRequestSenderImpl(mockMvc, copyParameters(params), copyParameters(pathParams), copyParameters(queryParams),
+                copyParameters(formParams), copyParameters(attributes), cfg, requestBody, requestHeaders, cookies, copyParameters(sessionAttributes),
+                new ArrayList<>(multiParts), sendRequestLoggingFilter, new ArrayList<>(resultHandlers), new ArrayList<>(requestPostProcessors), interceptor,
+                basePath, responseSpecification, authentication, sendLogRepository);
     }
 
     private String serializeIfNeeded(Object object) {
