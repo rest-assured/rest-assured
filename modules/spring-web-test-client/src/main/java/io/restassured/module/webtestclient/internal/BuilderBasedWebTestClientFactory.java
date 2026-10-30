@@ -30,7 +30,7 @@ public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
 	@Override
 	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
 		if (!isAssigned()) {
-			throw new IllegalStateException("You haven't configured a WebTestClient instance. You can do this statically\n\nRestAssuredWebTestClient.mockMvc(..)\nRestAssuredWebTestClient.standaloneSetup(..);\nRestAssuredWebTestClient.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
+			throw new IllegalStateException(NOT_CONFIGURED);
 		}
 		return builder.build();
 	}

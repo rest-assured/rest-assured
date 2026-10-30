@@ -50,7 +50,7 @@ public class MockMvcFactory {
     public synchronized MockMvc build(final MockMvcConfig config) {
         final MockMvc mockMvcToReturn;
         if (!isAssigned()) {
-            throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssuredMockMvc.mockMvc(..)\nRestAssuredMockMvc.standaloneSetup(..);\nRestAssuredMockMvc.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
+            throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssuredMockMvc.mockMvc(..)\nRestAssuredMockMvc.standaloneSetup(..);\nRestAssuredMockMvc.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n\nor, for a specification built by MockMvcRequestSpecBuilder that is sent on its own, on the builder:\n\nnew MockMvcRequestSpecBuilder().\n\t\tsetMockMvc(..). ..\n");
         } else if (mockMvc instanceof MockMvc) {
             mockMvcToReturn = (MockMvc) this.mockMvc;
         } else if (mockMvc instanceof AbstractMockMvcBuilder) {

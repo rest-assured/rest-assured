@@ -904,8 +904,9 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * <ul>
      * <li>Parameters</li>
      * <li>Attributes</li>
-     * <li>Cookies</li>
-     * <li>Headers</li>
+     * <li>Cookies (a cookie that is already present with the same value isn't added again)</li>
+     * <li>Headers (a header that is already present with the same value isn't added again)</li>
+     * <li>Result handlers and post processors (one that is already present isn't added again)</li>
      * </ul>
      * <p/>
      *

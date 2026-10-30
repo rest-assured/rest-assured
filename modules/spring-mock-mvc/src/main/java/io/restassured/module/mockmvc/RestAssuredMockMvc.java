@@ -120,7 +120,6 @@ public class RestAssuredMockMvc {
 
     private static final List<RequestPostProcessor> requestPostProcessors = new CopyOnWriteArrayList<>();
 
-    // MockMvcRequestSpecBuilder reads this field reflectively
     private static volatile MockMvcFactory mockMvcFactory = null;
 
     /**

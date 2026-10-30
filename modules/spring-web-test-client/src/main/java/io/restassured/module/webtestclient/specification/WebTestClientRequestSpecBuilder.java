@@ -25,7 +25,6 @@ import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
-import io.restassured.module.webtestclient.internal.WebTestClientFactory;
 import io.restassured.module.webtestclient.internal.WebTestClientRequestSpecificationImpl;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
@@ -34,33 +33,42 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
+/**
+ * You can use the builder to construct a request specification. The specification can be used as e.g.
+ * <pre>
+ * WebTestClientRequestSpecification requestSpec = new WebTestClientRequestSpecBuilder().addParam("parameter1", "value1").build();
+ *
+ * given().
+ *         spec(requestSpec).
+ * when().
+ *        get("/something").
+ * then().
+ *         body("x.y.z", equalTo("something")).
+ * </pre>
+ * <p>
+ * The builder doesn't read the static settings of {@link RestAssuredWebTestClient}, such as the WebTestClient instance,
+ * {@link RestAssuredWebTestClient#basePath}, {@link RestAssuredWebTestClient#config} or
+ * {@link RestAssuredWebTestClient#requestSpecification}. They apply when the specification is used, for example with
+ * <code>given().spec(requestSpec)</code>, so they're applied once, as they are at that time. To send the specification
+ * on its own, for example with <code>requestSpec.get("/something")</code>, set the WebTestClient instance on the builder,
+ * for example with {@link #setWebTestClient(WebTestClient)}.
+ * </p>
+ */
 public class WebTestClientRequestSpecBuilder {
 
 	private WebTestClientRequestSpecificationImpl spec;
 
+	/**
+	 * Starts with no WebTestClient instance or base path of its own, and a config with nothing configured.
+	 */
 	public WebTestClientRequestSpecBuilder() {
-		this.spec = new WebTestClientRequestSpecificationImpl(getConfiguredWebTestClientFactory(), RestAssuredWebTestClient.config,
-				RestAssuredWebTestClient.basePath, RestAssuredWebTestClient.requestSpecification,
-				RestAssuredWebTestClient.responseSpecification);
-	}
-
-	private static WebTestClientFactory getConfiguredWebTestClientFactory() {
-		try {
-			Field WebTestClientFactory = RestAssuredWebTestClient.class.getDeclaredField("webTestClientFactory");
-			WebTestClientFactory.setAccessible(true);
-			Object instance = WebTestClientFactory.get(RestAssuredWebTestClient.class);
-			WebTestClientFactory.setAccessible(false);
-			return (WebTestClientFactory) instance;
-		} catch (Exception e) {
-			throw new RuntimeException("Internal error: Cannot find WebTestClientFactory field in " + RestAssuredWebTestClient.class.getName());
-		}
+		this.spec = new WebTestClientRequestSpecificationImpl(null, null, null, null, null);
 	}
 
 	/**
@@ -620,8 +628,8 @@ public class WebTestClientRequestSpecBuilder {
 	 * The following settings are merged:
 	 * <ul>
 	 * <li>Parameters</li>
-	 * <li>Cookies</li>
-	 * <li>Headers</li>
+	 * <li>Cookies (a cookie that is already present with the same value isn't added again)</li>
+	 * <li>Headers (a header that is already present with the same value isn't added again)</li>
 	 * </ul>
 	 *
 	 * @param specification The specification to add

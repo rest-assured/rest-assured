@@ -33,6 +33,7 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.spring.commons.BodyHelper;
 import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.MergeHelper;
 import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
@@ -592,8 +593,10 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         if (otherWebTestClientFactory != null && otherWebTestClientFactory.isAssigned()) {
             webTestClientFactory = otherWebTestClientFactory;
         }
-        cookies(specificationToMerge.getCookies());
-        headers(specificationToMerge.getRequestHeaders());
+        // A header or cookie that is already present with the same value isn't added again, so merging a specification
+        // made by given(), which contains the static ones already, doesn't add them twice
+        cookies(MergeHelper.cookiesNotIn(cookies, specificationToMerge.getCookies()));
+        headers(MergeHelper.headersNotIn(requestHeaders, specificationToMerge.getRequestHeaders(), config.getHeaderConfig()));
         mergeConfig(this, specificationToMerge);
         formParams(specificationToMerge.getFormParams());
         pathParams(specificationToMerge.getPathParams());

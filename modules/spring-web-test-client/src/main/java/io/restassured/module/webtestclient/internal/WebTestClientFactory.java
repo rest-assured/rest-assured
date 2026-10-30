@@ -20,6 +20,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 public interface WebTestClientFactory {
 
+	String NOT_CONFIGURED = "You haven't configured a WebTestClient instance. You can do this statically\n\nRestAssuredWebTestClient.webTestClient(..)\n" +
+			"RestAssuredWebTestClient.standaloneSetup(..);\nRestAssuredWebTestClient.webAppContextSetup(..);\n\nor using the DSL:\n\n" +
+			"given().\n\t\twebTestClient(..). ..\n\nor, for a specification built by WebTestClientRequestSpecBuilder that is sent on its own, " +
+			"on the builder:\n\nnew WebTestClientRequestSpecBuilder().\n\t\tsetWebTestClient(..). ..\n";
+
 	/**
 	 * Builds and returns a {@link WebTestClient} instance based on provided configuration
 	 * @param webTestClientConfig configuration to be used during WebTestClient instantiation

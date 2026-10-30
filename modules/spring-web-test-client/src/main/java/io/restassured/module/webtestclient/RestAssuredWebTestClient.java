@@ -99,7 +99,6 @@ public class RestAssuredWebTestClient {
      */
     public static volatile String basePath = "/";
 
-    // WebTestClientRequestSpecBuilder reads this field reflectively
     private static volatile WebTestClientFactory webTestClientFactory = null;
 
     /**

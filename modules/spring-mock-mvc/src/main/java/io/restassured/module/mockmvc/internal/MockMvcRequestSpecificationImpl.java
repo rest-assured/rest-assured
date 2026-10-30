@@ -34,6 +34,7 @@ import io.restassured.module.mockmvc.specification.*;
 import io.restassured.module.spring.commons.BodyHelper;
 import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.MergeHelper;
 import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
@@ -519,9 +520,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.changeMockMvcFactoryTo(otherMockMvcFactory);
         }
 
-        this.cookies(that.getCookies());
+        // A header, cookie, result handler or post processor that is already present isn't added again, so merging a
+        // specification made by given(), which contains the static ones already, doesn't add them twice
+        this.cookies(MergeHelper.cookiesNotIn(cookies, that.getCookies()));
 
-        this.headers(that.getRequestHeaders());
+        this.headers(MergeHelper.headersNotIn(requestHeaders, that.getRequestHeaders(), cfg.getHeaderConfig()));
 
         mergeConfig(this, that);
 
@@ -537,8 +540,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.attributes(that.getAttributes());
 
         this.multiParts.addAll(that.getMultiParts());
-        this.resultHandlers.addAll(that.getResultHandlers());
-        this.requestPostProcessors.addAll(that.getRequestPostProcessors());
+        this.resultHandlers.addAll(MergeHelper.sameNotIn(resultHandlers, that.getResultHandlers()));
+        this.requestPostProcessors.addAll(MergeHelper.sameNotIn(requestPostProcessors, that.getRequestPostProcessors()));
 
         RequestLoggingFilter otherRequestLoggingFilter = that.getRequestLoggingFilter();
         if (otherRequestLoggingFilter != null) {
