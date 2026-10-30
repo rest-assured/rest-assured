@@ -734,9 +734,7 @@ public class RestAssured {
      * It's the same as <code>given().spec(requestSpecification).expect().spec(responseSpecification)</code>: the two
      * specifications are merged into the static settings, or those of the client bound to the thread with
      * {@link #useClient(RestAssuredClient)}, as they are when this method is called. So {@link #responseSpecification}
-     * applies too. A <code>requestSpecification</code> made by {@link #given()} already contains the static settings, so
-     * merging it adds its static headers, cookies and multipart parts a second time. Use one built by
-     * {@link io.restassured.builder.RequestSpecBuilder} instead.
+     * applies too.
      *
      * @return A test io.restassured.specification.
      */

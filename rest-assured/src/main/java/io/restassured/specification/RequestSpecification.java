@@ -1336,9 +1336,9 @@ public interface RequestSpecification extends RequestSender {
      * The following settings are merged:
      * <ul>
      * <li>Parameters, query parameters, form parameters and path parameters (a parameter of the supplied specification replaces one with the same name)</li>
-     * <li>Multi-part form data parameters</li>
-     * <li>Cookies</li>
-     * <li>Headers (a Content-Type or Accept header of the supplied specification replaces the current one by default, see {@link io.restassured.config.HeaderConfig})</li>
+     * <li>Multi-part form data parameters (the same part isn't added again, but an equal part made separately is)</li>
+     * <li>Cookies (a cookie that is already present with the same value isn't added again)</li>
+     * <li>Headers (a header that is already present with the same value isn't added again, and a Content-Type or Accept header of the supplied specification replaces the current one by default, see {@link io.restassured.config.HeaderConfig})</li>
      * <li>Filters (a filter that is already present isn't added again, and an authentication filter replaces the current ones)</li>
      * </ul>
      * <p/>

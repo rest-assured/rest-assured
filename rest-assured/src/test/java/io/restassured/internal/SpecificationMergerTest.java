@@ -327,6 +327,19 @@ class SpecificationMergerTest {
     }
 
     @Test
+    void a_multipart_that_is_already_present_is_not_added_again_but_an_equal_one_is() {
+        byte[] content = new byte[0];
+        RequestSpecificationImpl with = request(new RequestSpecBuilder().addMultiPart("controlName1", "fileName1", content));
+        RequestSpecificationImpl merge = RequestSpecificationImpl.copyOf(with);
+        with.multiPart("controlName2", "fileName2", content).multiPart("controlName1", "fileName1", content);
+
+        SpecificationMerger.merge(merge, with);
+
+        assertThat(merge.getMultiPartParams()).extracting(MultiPartSpecification::getFileName).containsExactly("fileName1", "fileName2", "fileName1");
+        assertThat(merge.getMultiParts().get(2)).isEqualTo(merge.getMultiParts().get(0)).isNotSameAs(merge.getMultiParts().get(0));
+    }
+
+    @Test
     void restAssuredConfigurationIsOverwritten() {
         RequestSpecificationImpl merge = request(new RequestSpecBuilder().setConfig(new RestAssuredConfig()));
         RequestSpecificationImpl with = request(new RequestSpecBuilder().setConfig(newConfig().redirect(redirectConfig().allowCircularRedirects(false))));
@@ -403,6 +416,14 @@ class SpecificationMergerTest {
         RequestSpecificationImpl with = request(new RequestSpecBuilder().addCookie("second", "value2").addCookie("same", "2"));
         SpecificationMerger.merge(merge, with);
         assertThat(merge.getCookies().asList()).extracting(Cookie::toString).containsExactly("first=value1", "same=1", "second=value2", "same=2");
+    }
+
+    @Test
+    void a_cookie_that_is_already_present_with_the_same_value_is_not_added_again() {
+        RequestSpecificationImpl merge = request(new RequestSpecBuilder().addCookie("a", "1").addCookie("b", "1"));
+        RequestSpecificationImpl with = request(new RequestSpecBuilder().addCookie("a", "1").addCookie("b", "2").addCookie("c", "1"));
+        SpecificationMerger.merge(merge, with);
+        assertThat(merge.getCookies().asList()).extracting(Cookie::toString).containsExactly("a=1", "b=1", "b=2", "c=1");
     }
 
     @Test
@@ -732,6 +753,27 @@ class SpecificationMergerTest {
 
         assertThat(merge.getHeaders().asList()).extracting(Header::toString)
                 .containsExactly("X=1", "X=2", "accept=b", "Content-Type=application/json");
+    }
+
+    @Test
+    void a_header_that_is_already_present_with_the_same_value_is_not_added_again() {
+        RequestSpecificationImpl merge = request(new RequestSpecBuilder().addHeader("X", "1").addHeader("Y", "1"));
+        RequestSpecificationImpl with = request(new RequestSpecBuilder().addHeader("X", "1").addHeader("X", "2").addHeader("Y", "2").addHeader("Z", "1"));
+
+        SpecificationMerger.merge(merge, with);
+
+        assertThat(merge.getHeaders().asList()).extracting(Header::toString).containsExactly("X=1", "Y=1", "X=2", "Y=2", "Z=1");
+    }
+
+    @Test
+    void a_header_that_the_header_config_overwrites_replaces_the_current_ones_also_when_one_has_the_same_value() {
+        RequestSpecificationImpl merge = request(new RequestSpecBuilder().addHeader("X", "1").addHeader("X", "2"));
+        RequestSpecificationImpl with = request(new RequestSpecBuilder().setConfig(newConfig().headerConfig(headerConfig().overwriteHeadersWithName("X")))
+                .addHeader("X", "1"));
+
+        SpecificationMerger.merge(merge, with);
+
+        assertThat(merge.getHeaders().asList()).extracting(Header::toString).containsExactly("X=1");
     }
 
     @Test

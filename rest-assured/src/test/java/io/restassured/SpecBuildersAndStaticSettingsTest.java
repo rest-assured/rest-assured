@@ -19,6 +19,7 @@ package io.restassured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.common.spi.http.HttpHeader;
+import io.restassured.common.spi.http.HttpRequest;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.http.ContentType;
@@ -30,11 +31,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.with;
 import static io.restassured.config.HttpClientConfig.httpClientConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SessionConfig.sessionConfig;
@@ -79,6 +85,21 @@ class SpecBuildersAndStaticSettingsTest {
         assertThat(FakeHttpClients.sent).hasSize(3).allSatisfy(request -> {
             assertThat(request.headers()).filteredOn(header -> !header.name().startsWith("Accept") && !header.name().startsWith("Content"))
                     .containsExactly(new HttpHeader("Cookie", "static=1"), new HttpHeader("X-Static", "1"), new HttpHeader("X-Spec", "1"));
+        });
+    }
+
+    @Test
+    void static_headers_cookies_and_multipart_parts_are_sent_once_with_a_specification_made_by_given() {
+        RestAssured.requestSpecification = new RequestSpecBuilder().addHeader("X-Static", "1").addCookie("static", "1")
+                .addMultiPart("static", "s").build();
+
+        given(with().header("X", "1"), expect().statusCode(200)).post("/path");
+        given().spec(given().header("X", "1")).post("/path");
+
+        assertThat(FakeHttpClients.sent).hasSize(2).allSatisfy(request -> {
+            assertThat(request.headers()).filteredOn(header -> !header.name().startsWith("Accept") && !header.name().startsWith("Content"))
+                    .containsExactly(new HttpHeader("Cookie", "static=1"), new HttpHeader("X-Static", "1"), new HttpHeader("X", "1"));
+            assertThat(body(request)).containsOnlyOnce("name=\"static\"");
         });
     }
 
@@ -132,5 +153,15 @@ class SpecBuildersAndStaticSettingsTest {
         expect().spec(spec).spec(specWithRootPath).when().get("/path");
         given(new RequestSpecBuilder().build(), spec).get("/path");
         given(new RequestSpecBuilder().build(), specWithRootPath).get("/path");
+    }
+
+    private static String body(HttpRequest request) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            request.body().getWriter().writeTo(out);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return out.toString(StandardCharsets.UTF_8);
     }
 }
