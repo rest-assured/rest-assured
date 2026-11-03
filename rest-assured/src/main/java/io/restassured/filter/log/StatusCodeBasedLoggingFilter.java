@@ -41,6 +41,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
     // null to pretty print as the log config of the request says
     private final Boolean shouldPrettyPrint;
     private final Set<String> blacklistedHeaders;
+    private final boolean skipStreamingBody;
 
     /**
      * Log to system out
@@ -69,7 +70,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher   The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher) {
-        this(null, logDetail, stream, matcher, Collections.emptySet());
+        this(null, logDetail, stream, matcher, Collections.emptySet(), false);
     }
 
     /**
@@ -94,10 +95,18 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
-        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, blacklistedHeaders);
+        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, blacklistedHeaders, false);
     }
 
-    private StatusCodeBasedLoggingFilter(Boolean prettyPrint, LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
+    /**
+     * @param skipStreamingBody <code>true</code> to log a placeholder instead of the body of a streaming response, so
+     *                          that logging doesn't wait for a body that may never end
+     */
+    StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, boolean skipStreamingBody) {
+        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, Collections.emptySet(), skipStreamingBody);
+    }
+
+    private StatusCodeBasedLoggingFilter(Boolean prettyPrint, LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders, boolean skipStreamingBody) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
@@ -110,6 +119,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
         this.stream = stream;
         this.matcher = matcher;
         this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
+        this.skipStreamingBody = skipStreamingBody;
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -118,9 +128,9 @@ class StatusCodeBasedLoggingFilter implements Filter {
         if (matcher.matches(statusCode)) {
             RestAssuredConfig config = requestSpec.getConfig();
             boolean prettyPrint = shouldPrettyPrint != null ? shouldPrettyPrint : config == null || config.getLogConfig().isPrettyPrintingEnabled();
-            ResponsePrinter.print(response, response, stream, logDetail, prettyPrint, blacklistedHeaders);
+            ResponsePrinter.print(response, response, stream, logDetail, prettyPrint, blacklistedHeaders, skipStreamingBody);
             final byte[] responseBody;
-            if (logDetail == LogDetail.BODY || logDetail == LogDetail.ALL) {
+            if ((logDetail == LogDetail.BODY || logDetail == LogDetail.ALL) && !(skipStreamingBody && ResponsePrinter.isStreaming(response))) {
                 responseBody = response.asByteArray();
             } else {
                 responseBody = null;
