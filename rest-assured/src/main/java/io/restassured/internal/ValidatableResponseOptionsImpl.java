@@ -408,7 +408,9 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         responseSpec.getLogRepository().registerResponseLog(baos);
-        return logResponse(logDetail, shouldPrettyPrint, ps);
+        // Like the filter of logging if validation fails, doesn't wait for a streaming body that may never end
+        ResponsePrinter.print(response, response, ps, logDetail, shouldPrettyPrint, config.getLogConfig().blacklistedHeaders(), true);
+        return (T) this;
     }
 
     private T logResponse(LogDetail logDetail) {

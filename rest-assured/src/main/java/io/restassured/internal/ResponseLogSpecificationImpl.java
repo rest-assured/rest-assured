@@ -19,6 +19,7 @@ package io.restassured.internal;
 
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.internal.log.IfValidationFailsResponseLoggingFilter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseLogSpecification;
@@ -98,7 +99,7 @@ public class ResponseLogSpecificationImpl extends LogSpecificationImpl implement
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         logRepository.registerResponseLog(baos);
-        return logWith(logDetail, shouldPrettyPrint, ps);
+        return logWith(new IfValidationFailsResponseLoggingFilter(logDetail, shouldPrettyPrint, ps));
     }
 
     @Override

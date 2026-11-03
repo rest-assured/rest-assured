@@ -29,6 +29,7 @@ import java.util.Set;
 
 import static io.restassured.filter.log.LogDetail.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.substringBefore;
 
 /**
  * A response printer can be used to print a response.
@@ -37,6 +38,8 @@ public class ResponsePrinter {
 
     private static final String BLACKLISTED = "[ BLACKLISTED ]";
     private static final String HEADER_NAME_AND_VALUE_SEPARATOR = ": ";
+    private static final String STREAMING_BODY_NOT_LOGGED = "<streaming body not logged>";
+    private static final String EVENT_STREAM = "text/event-stream";
 
     /**
      * Prints the response to the print stream
@@ -44,6 +47,18 @@ public class ResponsePrinter {
      * @return A string of representing the response
      */
     public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blacklistedHeaders) {
+        return print(responseOptions, responseBody, stream, logDetail, shouldPrettyPrint, blacklistedHeaders, false);
+    }
+
+    /**
+     * Prints the response to the print stream
+     *
+     * @param skipStreamingBody <code>true</code> to print a placeholder instead of the body of a streaming response
+     *                          (see {@link #isStreaming(ResponseOptions)}), so that printing doesn't wait for a body
+     *                          that may never end
+     * @return A string of representing the response
+     */
+    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blacklistedHeaders, boolean skipStreamingBody) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == STATUS) {
             builder.append(responseOptions.statusLine());
@@ -61,7 +76,9 @@ public class ResponsePrinter {
         }
         if (logDetail == ALL || logDetail == BODY) {
             String responseBodyToAppend;
-            if (shouldPrettyPrint) {
+            if (skipStreamingBody && isStreaming(responseOptions)) {
+                responseBodyToAppend = STREAMING_BODY_NOT_LOGGED;
+            } else if (shouldPrettyPrint) {
                 responseBodyToAppend = new Prettifier().getPrettifiedBodyIfPossible(responseOptions, responseBody);
             } else {
                 responseBodyToAppend = responseBody.asString();
@@ -75,6 +92,15 @@ public class ResponsePrinter {
         String response = builder.toString();
         stream.println(response);
         return response;
+    }
+
+    /**
+     * @return <code>true</code> if the response is a stream of server-sent events (<code>text/event-stream</code>),
+     * whose body may never end
+     */
+    public static boolean isStreaming(ResponseOptions responseOptions) {
+        String contentType = responseOptions.contentType();
+        return contentType != null && substringBefore(contentType, ";").trim().equalsIgnoreCase(EVENT_STREAM);
     }
 
     private static String toString(Headers headers, Set<String> blacklistedHeaders) {

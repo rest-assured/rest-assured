@@ -166,6 +166,20 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
     }
 
     /**
+     * Instantiate a logger using a specific print stream for all status codes, which logs a placeholder instead of the
+     * body of a streaming response (<code>text/event-stream</code>) if <code>skipStreamingBody</code> is
+     * <code>true</code>, as the filter of logging if validation fails does.
+     *
+     * @param logDetail         The log detail
+     * @param prettyPrint       Enable or disable pretty printing of the body
+     * @param stream            The stream to log to.
+     * @param skipStreamingBody <code>true</code> to log a placeholder instead of the body of a streaming response
+     */
+    protected ResponseLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, boolean skipStreamingBody) {
+        super(logDetail, prettyPrint, stream, Matchers.any(Integer.class), skipStreamingBody);
+    }
+
+    /**
      * Create a new logging filter without using the "new" operator.
      * Will make the DSL look nicer.
      *
