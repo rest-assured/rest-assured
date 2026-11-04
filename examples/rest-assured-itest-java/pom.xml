@@ -136,12 +136,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.scribejava</groupId>
-            <artifactId>scribejava-apis</artifactId>
-            <version>${scribe.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.littleshoot</groupId>
             <artifactId>littleproxy</artifactId>
             <version>1.0.0-beta7</version>

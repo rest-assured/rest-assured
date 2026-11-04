@@ -144,7 +144,7 @@ public interface AuthenticationSpecification {
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     * REST Assured signs the request itself with HMAC-SHA1 (<a href="https://www.rfc-editor.org/rfc/rfc5849">RFC 5849</a>), so no OAuth library is needed.
      *
      * @param consumerKey
      * @param consumerSecret
@@ -159,7 +159,7 @@ public interface AuthenticationSpecification {
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     * REST Assured signs the request itself with HMAC-SHA1 (<a href="https://www.rfc-editor.org/rfc/rfc5849">RFC 5849</a>), so no OAuth library is needed.
      *
      * @param consumerKey
      * @param consumerSecret

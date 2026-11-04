@@ -90,6 +90,7 @@
              CI also tests scala-extensions with the latest Scala 3 (the scala job) -->
         <scala3.version>3.3.9</scala3.version>
         <assertj-core.version>3.27.7</assertj-core.version>
+        <!-- Only for a test of rest-assured that compares its OAuth 1 signatures with those of scribejava -->
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.7.2-jre</guava.version>
         <dokka.version>2.2.0</dokka.version>
