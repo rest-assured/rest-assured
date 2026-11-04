@@ -17,6 +17,8 @@
 package io.restassured.itest.java;
 
 import com.jayway.jsonpath.InvalidJsonException;
+import groovy.json.JsonException;
+import groovy.lang.GroovySystem;
 import io.restassured.common.config.NumberReturnType;
 import io.restassured.internal.path.jayway.JsonParser;
 import io.restassured.internal.path.json.ConfigurableJsonSlurper;
@@ -48,7 +50,11 @@ public class JsonParserParityITest {
             "[01]",                                // a leading zero
             "\"\t\"",                              // a control character in a string
             "{\"a\":1}garbage", "{} x", "[1] [2]", // anything after the document
-            "\"a", "\"\\x\"", "\"\\u12\"");         // a broken string as the document, which GPath reads as null
+            "\"a");                                // a broken string as the document, which GPath reads as null
+
+    // A string with an invalid escape as the document. GPath reads it as null on Groovy 5 and older, and fails on it on Groovy 6,
+    // like json-path-jayway
+    private static final List<String> INVALID_ESCAPE_AS_THE_DOCUMENT = List.of("\"\\x\"", "\"\\u12\"");
 
     @Test
     public void valid_json_gives_the_same_values_and_number_types() {
@@ -63,6 +69,15 @@ public class JsonParserParityITest {
     public void known_differences() {
         for (String json : ONLY_GPATH_READS) {
             gpath(json, NumberReturnType.FLOAT_AND_DOUBLE);
+            assertThatThrownBy(() -> jayway(json, NumberReturnType.FLOAT_AND_DOUBLE)).as(json).isInstanceOf(InvalidJsonException.class);
+        }
+        boolean groovy6OrLater = Integer.parseInt(GroovySystem.getVersion().split("\\.")[0]) >= 6;
+        for (String json : INVALID_ESCAPE_AS_THE_DOCUMENT) {
+            if (groovy6OrLater) {
+                assertThatThrownBy(() -> gpath(json, NumberReturnType.FLOAT_AND_DOUBLE)).as(json).isInstanceOf(JsonException.class);
+            } else {
+                assertThat(gpath(json, NumberReturnType.FLOAT_AND_DOUBLE)).as(json).isNull();
+            }
             assertThatThrownBy(() -> jayway(json, NumberReturnType.FLOAT_AND_DOUBLE)).as(json).isInstanceOf(InvalidJsonException.class);
         }
     }

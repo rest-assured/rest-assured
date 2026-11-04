@@ -18,6 +18,7 @@ package io.restassured.test.osgi;
 
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
 import org.junit.Test;
 
@@ -55,6 +56,16 @@ public class RestAssuredBundleManifestTest {
                 .filteredOn(clause -> clause.startsWith("org.hamcrest"))
                 .isNotEmpty()
                 .allSatisfy(clause -> assertThat(clause).contains("version=\"[2.2,4)\""));
+    }
+
+    @Test
+    public void the_gpath_bundles_import_groovy_4_0_to_6_x() throws Exception {
+        for (Class<?> type : List.of(JsonPath.class, XmlPath.class)) {
+            assertThat(clauses(header(type, "Import-Package")))
+                    .filteredOn(clause -> clause.startsWith("groovy.") || clause.startsWith("org.apache.groovy.") || clause.startsWith("org.codehaus.groovy."))
+                    .isNotEmpty()
+                    .allSatisfy(clause -> assertThat(clause).contains("version=\"[4.0,7.0)\""));
+        }
     }
 
     @Test

@@ -93,3 +93,27 @@ jobs:
           cache: 'maven'
       - name: Verify scala-extensions with Maven
         run: mvn verify -B -Dscala3.version=${{ matrix.scala }} -pl modules/scala-extensions -am
+
+  groovy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # json-path-gpath and xml-path-gpath are built with Groovy 5.1.3 (groovy.version in the root pom), which the test job
+        # tests, and support Groovy 4.0 to 6.x. Each entry runs their tests and the integration tests on that Groovy with the
+        # classes built with 5.1.3, which is what users run. Spring Boot 3.5 manages Groovy 4.0.x, and Spring Boot 4.0 5.0.x
+        groovy: [4.0.33, 5.0.8, 6.0.0]
+      fail-fast: false
+    name: Test Groovy ${{ matrix.groovy }}, JDK 17
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Build the GPath modules and the integration tests with the build's Groovy with Maven
+        run: mvn verify -B -DskipTests -pl json-path-gpath,xml-path-gpath,examples/rest-assured-itest-java -am
+      - name: Verify the GPath modules and the integration tests on Groovy ${{ matrix.groovy }}, without compiling the main code again
+        run: mvn verify -B -Pgroovy-runtime -Dmaven.main.skip -Dgroovy.version=${{ matrix.groovy }} -pl json-path-gpath,xml-path-gpath,examples/rest-assured-itest-java -am
