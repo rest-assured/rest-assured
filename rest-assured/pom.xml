@@ -171,12 +171,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.scribejava</groupId>
-            <artifactId>scribejava-apis</artifactId>
-            <version>${scribe.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
         </dependency>
@@ -265,6 +259,14 @@
                     <artifactId>hamcrest-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- CoreOAuthSignerScribeJavaComparisonTest checks that OAuth 1 requests are signed as with scribejava, which
+             REST Assured signed them with before 7.0 -->
+        <dependency>
+            <groupId>com.github.scribejava</groupId>
+            <artifactId>scribejava-apis</artifactId>
+            <version>${scribe.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

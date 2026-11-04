@@ -85,6 +85,11 @@ public class RestAssuredBundleManifestTest {
     }
 
     @Test
+    public void scribejava_isnt_imported_since_rest_assured_signs_oauth_1_itself() throws Exception {
+        assertThat(clauses(header(RestAssured.class, "Import-Package"))).noneMatch(clause -> clause.startsWith("com.github.scribejava"));
+    }
+
+    @Test
     public void the_service_loader_requirements_are_optional() throws Exception {
         assertThat(clauses(header(RestAssured.class, "Require-Capability"))).contains(
                 "osgi.extender;filter:=\"(osgi.extender=osgi.serviceloader.processor)\";resolution:=optional",

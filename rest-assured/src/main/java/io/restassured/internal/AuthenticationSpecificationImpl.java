@@ -134,7 +134,7 @@ public class AuthenticationSpecificationImpl implements AuthenticationSpecificat
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For More information on how to achieve this, see the <a href="https://github.com/mttkay/signpost/blob/master/docs/GettingStarted.md#using-signpost">Signpost documentation</a>.
+     * REST Assured signs the request itself with HMAC-SHA1 (<a href="https://www.rfc-editor.org/rfc/rfc5849">RFC 5849</a>), so no OAuth library is needed.
      *
      * @param consumerKey
      * @param consumerSecret
