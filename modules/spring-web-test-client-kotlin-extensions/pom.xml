@@ -161,6 +161,8 @@
                         <arg>-Xjsr305=strict</arg>
                     </args>
                     <jvmTarget>17</jvmTarget>
+                    <languageVersion>${kotlin.language.version}</languageVersion>
+                    <apiVersion>${kotlin.language.version}</apiVersion>
                 </configuration>
             </plugin>
         </plugins>

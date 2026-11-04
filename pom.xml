@@ -80,7 +80,12 @@
         <jakarta.json.version>2.1.3</jakarta.json.version>
         <maven-javadoc.version>3.12.0</maven-javadoc.version>
         <surefire.version>3.6.1</surefire.version>
-        <kotlin.version>2.2.21</kotlin.version>
+        <!-- The Kotlin compiler (kotlin-maven-plugin) that the Kotlin modules are built with -->
+        <kotlin.version>2.4.21</kotlin.version>
+        <!-- The oldest Kotlin that the Kotlin modules support. They're compiled with this language and API version
+             and depend on this kotlin-stdlib, so a Kotlin 2.2 build can read them. kotlin-example is built with it. -->
+        <kotlin.language.version>2.2</kotlin.language.version>
+        <kotlin-stdlib.version>2.2.21</kotlin-stdlib.version>
         <!-- The Scala 3 version scala-extensions is built with: the Scala 3.3 LTS, so that it works with every newer Scala 3.
              CI also tests scala-extensions with the latest Scala 3 (the scala job) -->
         <scala3.version>3.3.9</scala3.version>
@@ -546,7 +551,7 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib</artifactId>
-                <version>${kotlin.version}</version>
+                <version>${kotlin-stdlib.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>

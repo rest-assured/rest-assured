@@ -43,9 +43,10 @@
                 <groupId>org.basepom.maven</groupId>
                 <artifactId>duplicate-finder-maven-plugin</artifactId>
             </plugin>
+            <!-- Built with the oldest Kotlin that the Kotlin modules support, to check that it can use them -->
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
+                <version>${kotlin-stdlib.version}</version>
                 <executions>
                     <execution>
                         <id>compile</id>
