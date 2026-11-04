@@ -59,8 +59,10 @@
         <!-- The revision of the HTTP client SPI in rest-assured-common (HttpClientSpi.REVISION), written to the version files of
              rest-assured and the HTTP client modules in META-INF/rest-assured -->
         <rest-assured.http-spi.revision>1</rest-assured.http-spi.revision>
-        <groovy.version>5.0.8</groovy.version>
-        <groovy.range>[5.0,6.0)</groovy.range>
+        <!-- The Groovy version the GPath modules are built with. They support Groovy 4.0 to 6.x (groovy.range), which the groovy
+             CI job tests: code compiled by Groovy 6 doesn't run on Groovy 4 and 5, code compiled by Groovy 5 runs on all three -->
+        <groovy.version>5.1.3</groovy.version>
+        <groovy.range>[4.0,7.0)</groovy.range>
         <!-- The Jayway JsonPath version json-path-jayway is built with. It supports 2.8.0 and later, which it checks when it loads -->
         <jayway.version>3.0.0</jayway.version>
         <!-- The Apache HttpClient 5 version http-client-apache5 is built with. It supports 5.2.1 and later, which it checks when
@@ -399,6 +401,28 @@
                         </executions>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Runs the tests on another Groovy (-Dgroovy.version=X) without compiling the main code again, so that they test
+                 the classes built with the build's Groovy, which is what users run. Use it with -Dmaven.main.skip, after a build
+                 without this profile and with no clean in between -->
+            <id>groovy-runtime</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.gmavenplus</groupId>
+                            <artifactId>gmavenplus-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>default</id>
+                                    <phase>none</phase>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
             </build>
         </profile>
     </profiles>
