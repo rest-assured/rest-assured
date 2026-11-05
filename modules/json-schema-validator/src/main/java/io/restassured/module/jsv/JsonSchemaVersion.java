@@ -21,44 +21,44 @@ import java.util.Locale;
 /**
  * The JSON Schema specification version (draft) that the {@link JsonSchemaValidator} should validate against.
  * <p>
- * The version is selected like this:
- * </p>
- * <ol>
- * <li>A <code>$schema</code> declaring draft-03 or draft-04 is validated by the
- * <a href="https://github.com/java-json-tools/json-schema-validator">java-json-tools json-schema-validator</a>, exactly as in previous
- * versions of REST Assured.</li>
- * <li>A <code>$schema</code> declaring draft-06, draft-07, 2019-09 or 2020-12 is validated according to that draft by the
- * <a href="https://github.com/networknt/json-schema-validator">networknt json-schema-validator</a>.</li>
- * <li>Schemas without <code>$schema</code> (or with an unknown <code>$schema</code>) are validated according to the version configured by
- * {@link JsonSchemaValidatorSettings#schemaVersion(JsonSchemaVersion)} or {@link JsonSchemaValidator#using(JsonSchemaVersion)}.
- * If no version is configured they're validated as draft-04 by the java-json-tools validator, as before.</li>
- * </ol>
- * <p>
- * So a configured version never overrides a <code>$schema</code> declared by the schema. It's useful when your schemas don't declare
- * <code>$schema</code> but use newer keywords such as <code>const</code> or <code>if</code>/<code>then</code>/<code>else</code>:
+ * The version is taken from the <code>$schema</code> keyword of the schema. Schemas without <code>$schema</code> (or with an unknown
+ * <code>$schema</code>) are validated according to the version configured by {@link JsonSchemaValidatorSettings#schemaVersion(JsonSchemaVersion)}
+ * or {@link JsonSchemaValidator#using(JsonSchemaVersion)}, and as draft-04 if none is configured. A configured version never overrides
+ * a <code>$schema</code> declared by the schema. It's useful when your schemas don't declare <code>$schema</code> but use newer keywords
+ * such as <code>const</code> or <code>if</code>/<code>then</code>/<code>else</code>:
  * </p>
  * <pre>
  * get("/products").then().body(matchesJsonSchemaInClasspath("products-schema.json").using(JsonSchemaVersion.DRAFT_2020_12));
  * </pre>
  * <p>
- * Things to be aware of for draft-06, draft-07, 2019-09 and 2020-12 (validated by networknt):
+ * Which validator is used:
+ * </p>
+ * <ul>
+ * <li>Draft-06, draft-07, 2019-09 and 2020-12 are validated by the <a href="https://github.com/networknt/json-schema-validator">networknt
+ * json-schema-validator</a>.</li>
+ * <li>Draft-04 is validated by the <a href="https://github.com/java-json-tools/json-schema-validator">java-json-tools json-schema-validator</a>
+ * if it's on the classpath, exactly as in REST Assured 6, and otherwise by the networknt json-schema-validator.</li>
+ * <li>Draft-03 requires the java-json-tools json-schema-validator. Add <code>com.github.java-json-tools:json-schema-validator:2.2.14</code>
+ * to validate it.</li>
+ * </ul>
+ * <p>
+ * Things to be aware of:
  * </p>
  * <ul>
  * <li>The {@link com.github.fge.jsonschema.main.JsonSchemaFactory} and {@link JsonSchemaValidatorSettings#checkedValidation(boolean) checked validation}
- * settings only apply to the java-json-tools validator. They can't be honored for these drafts since that validator doesn't understand them
- * (newer keywords would silently be ignored).</li>
+ * settings only apply to the java-json-tools validator.</li>
  * <li>As mandated by the 2019-09 and 2020-12 specifications, <code>format</code> is only an annotation for these drafts, i.e. it's not validated.</li>
- * <li>Schemas loaded from a remote URL or URI (for example <code>http</code>) are only inspected for <code>$schema</code> if
- * {@link JsonSchemaValidatorSettings#parseUriAndUrlsAsJsonNode(boolean)} is <code>true</code> or a version is configured, so that the schema
- * isn't downloaded twice. Classpath and file schemas are always inspected.</li>
+ * <li>Schemas loaded from a remote URL or URI (for example <code>http</code>) are only inspected for <code>$schema</code> when they're
+ * parsed anyway, so that the schema isn't downloaded twice: when java-json-tools isn't on the classpath,
+ * {@link JsonSchemaValidatorSettings#parseUriAndUrlsAsJsonNode(boolean)} is <code>true</code> or a version other than draft-04 is configured.
+ * Classpath and file schemas are always inspected.</li>
  * <li>Relative <code>$ref</code>'s are resolved against the location of the schema, so they require the schema to be loaded from the classpath,
  * a File, URL or URI (not from a String, InputStream or Reader).</li>
  * </ul>
  */
 public enum JsonSchemaVersion {
     /**
-     * JSON Schema draft-04, validated by the java-json-tools validator (using the {@link com.github.fge.jsonschema.main.JsonSchemaFactory}
-     * configured in {@link JsonSchemaValidatorSettings}). This is the default for schemas without <code>$schema</code>.
+     * JSON Schema draft-04, the default for schemas without <code>$schema</code>.
      */
     DRAFT_4("http://json-schema.org/draft-04/schema"),
     /**
@@ -115,18 +115,10 @@ public enum JsonSchemaVersion {
 
     /**
      * @param schemaKeywordValue The value of the <code>$schema</code> keyword.
-     * @return <code>true</code> if the value identifies draft-03 or draft-04, which are validated by the java-json-tools validator.
+     * @return <code>true</code> if the value identifies draft-03, which only the java-json-tools validator supports.
      */
-    static boolean isLegacyMetaSchemaUri(String schemaKeywordValue) {
-        if (schemaKeywordValue == null) {
-            return false;
-        }
-        String normalized = normalize(schemaKeywordValue);
-        return normalized.equals(normalize(DRAFT_4.metaSchemaUri)) || normalized.equals(normalize(DRAFT_3_META_SCHEMA_URI));
-    }
-
-    boolean isLegacy() {
-        return this == DRAFT_4;
+    static boolean isDraft3MetaSchemaUri(String schemaKeywordValue) {
+        return schemaKeywordValue != null && normalize(schemaKeywordValue).equals(normalize(DRAFT_3_META_SCHEMA_URI));
     }
 
     private static String normalize(String uri) {
