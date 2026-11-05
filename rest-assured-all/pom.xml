@@ -25,7 +25,7 @@
 
     <artifactId>rest-assured-all</artifactId>
     <name>rest-assured-all</name>
-    <description>REST Assured, rest-assured-common and the GPath path engines (json-path-gpath and xml-path-gpath) in one jar. It depends on Groovy, which the path engines need.</description>
+    <description>rest-assured-common and the GPath path engines (json-path-gpath and xml-path-gpath) in one jar, for use next to rest-assured. It depends on Groovy, which the path engines need.</description>
     <packaging>jar</packaging>
 
     <build>
