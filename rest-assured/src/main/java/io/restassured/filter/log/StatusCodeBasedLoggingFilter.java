@@ -30,8 +30,8 @@ import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 class StatusCodeBasedLoggingFilter implements Filter {
 
@@ -40,6 +40,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
     private final LogDetail logDetail;
     // null to pretty print as the log config of the request says
     private final Boolean shouldPrettyPrint;
+    // null to hide the headers that the log config of the request blacklists
     private final Set<String> blacklistedHeaders;
 
     /**
@@ -69,7 +70,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher   The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher) {
-        this(null, logDetail, stream, matcher, Collections.emptySet());
+        this(null, logDetail, stream, matcher, null);
     }
 
     /**
@@ -81,7 +82,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher) {
-        this(logDetail, prettyPrint, stream, matcher, Collections.emptySet());
+        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, null);
     }
 
 
@@ -94,14 +95,13 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
-        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, blacklistedHeaders);
+        this(Boolean.valueOf(prettyPrint), logDetail, stream, matcher, Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null"));
     }
 
     private StatusCodeBasedLoggingFilter(Boolean prettyPrint, LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
-        Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null");
         if (logDetail == LogDetail.PARAMS || logDetail == LogDetail.URI || logDetail == LogDetail.METHOD) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", logDetail, LogDetail.class.getSimpleName()));
         }
@@ -109,7 +109,12 @@ class StatusCodeBasedLoggingFilter implements Filter {
         this.logDetail = logDetail;
         this.stream = stream;
         this.matcher = matcher;
-        this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
+        if (blacklistedHeaders == null) {
+            this.blacklistedHeaders = null;
+        } else {
+            this.blacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            this.blacklistedHeaders.addAll(blacklistedHeaders);
+        }
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -118,6 +123,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
         if (matcher.matches(statusCode)) {
             RestAssuredConfig config = requestSpec.getConfig();
             boolean prettyPrint = shouldPrettyPrint != null ? shouldPrettyPrint : config == null || config.getLogConfig().isPrettyPrintingEnabled();
+            Set<String> blacklistedHeaders = this.blacklistedHeaders != null ? this.blacklistedHeaders : config == null ? Collections.emptySet() : config.getLogConfig().blacklistedHeaders();
             ResponsePrinter.print(response, response, stream, logDetail, prettyPrint, blacklistedHeaders);
             final byte[] responseBody;
             if (logDetail == LogDetail.BODY || logDetail == LogDetail.ALL) {

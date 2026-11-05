@@ -29,7 +29,9 @@ import static org.hamcrest.Matchers.equalTo;
  * A filter that'll print the response body if the response matches a given status code.
  * <p>
  * A filter created without a pretty-print argument pretty prints the body if the log config of the request has pretty
- * printing enabled ({@link io.restassured.config.LogConfig#isPrettyPrintingEnabled()}), which it is by default.
+ * printing enabled ({@link io.restassured.config.LogConfig#isPrettyPrintingEnabled()}), which it is by default. It hides
+ * the values of the headers that the log config of the request blacklists
+ * ({@link io.restassured.config.LogConfig#blacklistHeader(String, String...)}).
  * </p>
  */
 public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {

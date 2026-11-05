@@ -188,7 +188,8 @@ public class LogConfig implements Config {
     }
 
     /**
-     * Blacklist one or more headers. If these headers show up during logging they will be replaced with 'HIDDEN'. The purpose of a blacklist is to prevent sensitive information
+     * Blacklist one or more headers. If these headers show up in the request or response log, their values are replaced with
+     * <code>[ BLACKLISTED ]</code>. Header names are matched ignoring case. The purpose of a blacklist is to prevent sensitive information
      * to be included in the log.
      *
      * @param header       The header to include in the blacklist
@@ -220,7 +221,7 @@ public class LogConfig implements Config {
     }
 
     /**
-     * Add the following sensitive headers to be excluded from the request log:
+     * Add the following sensitive headers to be excluded from the request and response log:
      * <table>
      *     <tr><td>Authorization</td></tr>
      *     <tr><td>Cookie</td></tr>
@@ -230,10 +231,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig blacklistDefaultSensitiveHeaders() {
-        headerBlacklist.add("Authorization");
-        headerBlacklist.add("Proxy-Authorization");
-        headerBlacklist.add("Cookie");
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+        return blacklistHeader("Authorization", "Proxy-Authorization", "Cookie");
     }
 
     /**

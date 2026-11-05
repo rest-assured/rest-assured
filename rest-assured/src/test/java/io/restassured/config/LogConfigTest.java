@@ -42,4 +42,15 @@ class LogConfigTest {
         assertThat(config.isPrettyPrintingEnabled()).isTrue();
         assertThat(config.defaultStream()).isSameAs(stream);
     }
+
+    @Test
+    void blacklist_default_sensitive_headers_doesnt_change_the_config_it_is_called_on() {
+        LogConfig original = logConfig().blacklistHeader("X-Secret");
+
+        LogConfig withDefaults = original.blacklistDefaultSensitiveHeaders();
+
+        assertThat(original.blacklistedHeaders()).containsExactly("X-Secret");
+        assertThat(withDefaults.blacklistedHeaders()).containsExactlyInAnyOrder("Authorization", "Cookie", "Proxy-Authorization", "X-Secret");
+        assertThat(withDefaults.isUserConfigured()).isTrue();
+    }
 }
