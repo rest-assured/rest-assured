@@ -289,4 +289,45 @@ class UpgradeToRestAssured7Test implements RewriteTest {
                 )
         );
     }
+
+    @Test
+    void renames_the_root_path_methods_deprecated_since_rest_assured_4() {
+        rewriteRun(
+                RecipeTestSupport::defaultsWithRestAssured6RootPathMethods,
+                java(
+                        """
+                        import io.restassured.path.json.JsonPath;
+
+                        import static io.restassured.RestAssured.get;
+                        import static org.hamcrest.Matchers.equalTo;
+
+                        class A {
+                            void validates() {
+                                get("/x").then().root("a").body("b", equalTo(1)).noRoot();
+                            }
+
+                            String author(JsonPath jsonPath) {
+                                return jsonPath.setRoot("store.book").getString("author");
+                            }
+                        }
+                        """,
+                        """
+                        import io.restassured.path.json.JsonPath;
+
+                        import static io.restassured.RestAssured.get;
+                        import static org.hamcrest.Matchers.equalTo;
+
+                        class A {
+                            void validates() {
+                                get("/x").then().rootPath("a").body("b", equalTo(1)).noRootPath();
+                            }
+
+                            String author(JsonPath jsonPath) {
+                                return jsonPath.setRootPath("store.book").getString("author");
+                            }
+                        }
+                        """
+                )
+        );
+    }
 }

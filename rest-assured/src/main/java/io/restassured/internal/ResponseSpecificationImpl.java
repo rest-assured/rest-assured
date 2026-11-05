@@ -520,10 +520,6 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         return this;
     }
 
-    public ResponseSpecification root(String rootPath, List<Argument> arguments) {
-        return this.rootPath(rootPath, arguments);
-    }
-
     public boolean hasBodyAssertionsDefined() {
         return bodyMatchers.containsMatchers();
     }

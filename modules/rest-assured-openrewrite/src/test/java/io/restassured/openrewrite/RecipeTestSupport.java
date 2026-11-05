@@ -52,7 +52,8 @@ final class RecipeTestSupport {
 
     /**
      * Stubs of the HttpClient 4 types that code written for REST Assured 6 uses, and of REST Assured 6's HTTPBuilder.
-     * REST Assured 7 has neither, so the recipes are tested against these.
+     * REST Assured 7 has neither, so the recipes are tested against these. And stubs of the response types of
+     * spring-mock-mvc and spring-web-test-client, which aren't on the test classpath.
      */
     private static final String[] REST_ASSURED_6_TYPES = {
             "package org.apache.http.entity.mime;\n" +
@@ -97,7 +98,21 @@ final class RecipeTestSupport {
             "    String DATE_PATTERNS = \"http.protocol.cookie-datepatterns\";\n" +
             "}",
             "package io.restassured.internal.http;\n" +
-            "public class HTTPBuilder { }"
+            "public class HTTPBuilder { }",
+            "package io.restassured.module.mockmvc.response;\n" +
+            "import io.restassured.response.ResponseBody;\n" +
+            "import io.restassured.response.ResponseOptions;\n" +
+            "public interface MockMvcResponse extends ResponseBody<MockMvcResponse>, ResponseOptions<MockMvcResponse> { }",
+            "package io.restassured.module.mockmvc.response;\n" +
+            "import io.restassured.response.ValidatableResponseOptions;\n" +
+            "public interface ValidatableMockMvcResponse extends ValidatableResponseOptions<ValidatableMockMvcResponse, MockMvcResponse> { }",
+            "package io.restassured.module.webtestclient.response;\n" +
+            "import io.restassured.response.ResponseBody;\n" +
+            "import io.restassured.response.ResponseOptions;\n" +
+            "public interface WebTestClientResponse extends ResponseBody<WebTestClientResponse>, ResponseOptions<WebTestClientResponse> { }",
+            "package io.restassured.module.webtestclient.response;\n" +
+            "import io.restassured.response.ValidatableResponseOptions;\n" +
+            "public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse, WebTestClientResponse> { }"
     };
 
     /**
@@ -155,6 +170,52 @@ final class RecipeTestSupport {
             "}"
     };
 
+    /**
+     * REST Assured 6's ValidatableResponseOptions, ResponseSpecification, JsonPath and XmlPath with the root path
+     * methods deprecated since 4.0.0, which 7.0 removed, and the other methods the tests call. They replace the types of
+     * REST Assured 7 when the sources are parsed.
+     */
+    private static final String[] REST_ASSURED_6_ROOT_PATH_METHODS = {
+            "package io.restassured.response;\n" +
+            "import io.restassured.specification.Argument;\n" +
+            "import java.util.List;\n" +
+            "import org.hamcrest.Matcher;\n" +
+            "public interface ValidatableResponseOptions<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> {\n" +
+            "    T body(String path, Matcher<?> matcher, Object... additionalKeyMatcherPairs);\n" +
+            "    T root(String rootPath);\n" +
+            "    T root(String rootPath, List<Argument> arguments);\n" +
+            "    T noRoot();\n" +
+            "    T appendRoot(String pathToAppend);\n" +
+            "    T appendRoot(String pathToAppend, List<Argument> arguments);\n" +
+            "    T detachRoot(String pathToDetach);\n" +
+            "}",
+            "package io.restassured.specification;\n" +
+            "import java.util.List;\n" +
+            "import org.hamcrest.Matcher;\n" +
+            "public interface ResponseSpecification {\n" +
+            "    ResponseSpecification body(String path, Matcher<?> matcher, Object... additionalKeyMatcherPairs);\n" +
+            "    RequestSender when();\n" +
+            "    ResponseSpecification root(String rootPath);\n" +
+            "    ResponseSpecification root(String rootPath, List<Argument> arguments);\n" +
+            "    ResponseSpecification noRoot();\n" +
+            "    ResponseSpecification appendRoot(String pathToAppend);\n" +
+            "    ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments);\n" +
+            "    ResponseSpecification detachRoot(String pathToDetach);\n" +
+            "}",
+            "package io.restassured.path.json;\n" +
+            "public class JsonPath {\n" +
+            "    public JsonPath(String text) { }\n" +
+            "    public JsonPath setRoot(String rootPath) { return this; }\n" +
+            "    public String getString(String path) { return null; }\n" +
+            "}",
+            "package io.restassured.path.xml;\n" +
+            "public class XmlPath {\n" +
+            "    public XmlPath(String text) { }\n" +
+            "    public XmlPath setRoot(String rootPath) { return this; }\n" +
+            "    public String getString(String path) { return null; }\n" +
+            "}"
+    };
+
     // Emptied first, so that a stub removed from the arrays doesn't stay on the classpath. In the target directory of
     // the module, wherever the tests are run from.
     private static final Path OUTPUT = emptyDirectory("recipe-test-support");
@@ -162,6 +223,7 @@ final class RecipeTestSupport {
     // before REST Assured 7 on the classpath, so they replace its classes.
     private static final List<Path> WITH_TYPES = classpath(compile("rest-assured-6-types", REST_ASSURED_6_TYPES, CLASSPATH), CLASSPATH);
     private static final List<Path> WITH_CONFIGURATION = classpath(compile("rest-assured-6-configuration", REST_ASSURED_6_CONFIGURATION, WITH_TYPES), WITH_TYPES);
+    private static final List<Path> WITH_ROOT_PATH_METHODS = classpath(compile("rest-assured-6-root-path-methods", REST_ASSURED_6_ROOT_PATH_METHODS, WITH_TYPES), WITH_TYPES);
 
     private RecipeTestSupport() {
     }
@@ -181,6 +243,14 @@ final class RecipeTestSupport {
      */
     static void defaultsWithRestAssured6Configuration(RecipeSpec spec) {
         defaults(spec, WITH_CONFIGURATION);
+    }
+
+    /**
+     * {@link #defaults(RecipeSpec)} for code that calls the root path methods deprecated since REST Assured 4.0.0, which
+     * 7.0 removed: parses the sources with REST Assured 6's types that have them.
+     */
+    static void defaultsWithRestAssured6RootPathMethods(RecipeSpec spec) {
+        defaults(spec, WITH_ROOT_PATH_METHODS);
     }
 
     private static void defaults(RecipeSpec spec, List<Path> classpath) {

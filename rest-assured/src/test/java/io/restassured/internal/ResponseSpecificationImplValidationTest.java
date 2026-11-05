@@ -367,7 +367,7 @@ class ResponseSpecificationImplValidationTest {
     void root_path_with_arguments_and_body_with_only_arguments() {
         then().rootPath("a.%s", withArgs("d")).body("e", equalTo("x"))
                 .rootPath("a.%s.%s", withArgs("d")).body(withArgs("e"), equalTo("x"))
-                .root("a.%s", withArgs("d")).body("e", equalTo("x"));
+                .rootPath("a.%s", withArgs("d")).body("e", equalTo("x"));
 
         assertThatThrownBy(() -> then().rootPath("a.%s.%s", withArgs("d")).body(withArgs("e"), equalTo("y"), withArgs("e"), equalTo("z")))
                 .hasMessage("2 expectations failed.\n"

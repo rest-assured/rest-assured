@@ -656,7 +656,7 @@ public class RestAssured {
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * get("/x").then().assertThat().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          rootPath("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
      *          body(withArgs(0), hasItem("first")).
      *          body(withArgs(1), hasItem("second")).
      *          ..
@@ -683,9 +683,9 @@ public class RestAssured {
      * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
      * <pre>
      * get("/jsonStore").then().
-     *          root("store.%s", withArgs("book")).
+     *          rootPath("store.%s", withArgs("book")).
      *          body("category.size()", equalTo(4)).
-     *          appendRoot("%s.%s", withArgs("author", "size()")).
+     *          appendRootPath("%s.%s", withArgs("author", "size()")).
      *          body(withNoArgs(), equalTo(4));
      *
      * @return A list of no arguments.

@@ -188,24 +188,6 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     }
 
 
-    public T root(String rootPath, List<Argument> arguments) {
-        responseSpec.root(rootPath, arguments);
-        return (T) this;
-    }
-
-
-    public T root(String rootPath) {
-        responseSpec.rootPath(rootPath);
-        return (T) this;
-    }
-
-
-    public T noRoot() {
-        responseSpec.noRootPath();
-        return (T) this;
-    }
-
-
     public T noRootPath() {
         responseSpec.noRootPath();
         return (T) this;
