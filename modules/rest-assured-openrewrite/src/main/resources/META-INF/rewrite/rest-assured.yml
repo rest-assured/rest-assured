@@ -21,11 +21,12 @@ description: >-
   Upgrade to REST Assured ${project.version}. It migrates code from the APIs deprecated in REST Assured 6.3.0, changes
   json-path and xml-path to their new names, json-path-gpath and xml-path-gpath, upgrades the io.rest-assured
   dependencies of Maven and Gradle builds, and adds json-path-gpath (and xml-path-gpath) where the code uses paths,
-  since REST Assured 7 no longer includes a path engine. It also removes the SSL port settings, which REST Assured 7
-  no longer has.
+  since REST Assured 7 no longer includes a path engine. It also removes the SSL port settings and renames the root
+  path methods deprecated since REST Assured 4.0.0, which REST Assured 7 no longer has.
 recipeList:
   - io.restassured.MigrateRestAssured6Deprecations
   - io.restassured.RemoveSslPortSettings
+  - io.restassured.RenameShortRootPathMethods
   - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
       oldGroupId: io.rest-assured
       oldArtifactId: json-path
@@ -91,6 +92,70 @@ recipeList:
   - org.openrewrite.java.DeleteMethodArgument:
       methodPattern: io.restassured.authentication.AuthenticationContext certificate(Object, String, String, java.security.KeyStore, Object, String, String, java.security.KeyStore, int, javax.net.ssl.HostnameVerifier, javax.net.ssl.SSLContext)
       argumentIndex: 8
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.restassured.RenameShortRootPathMethods
+displayName: Use the root path methods instead of the ones deprecated in REST Assured 4.0.0
+description: >-
+  Replace `root(..)`, `noRoot()`, `appendRoot(..)` and `detachRoot(..)` of `ResponseSpecification` and
+  `ValidatableResponse` (and of the MockMvc and WebTestClient responses), and `setRoot(..)` of `JsonPath` and
+  `XmlPath`, which were deprecated in REST Assured 4.0.0 and removed in 7.0.0, with `rootPath(..)`, `noRootPath()`,
+  `appendRootPath(..)`, `detachRootPath(..)` and `setRootPath(..)`.
+recipeList:
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.response.ValidatableResponseOptions root(String)
+      newMethodName: rootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.response.ValidatableResponseOptions root(String, java.util.List)
+      newMethodName: rootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.response.ValidatableResponseOptions noRoot()
+      newMethodName: noRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.response.ValidatableResponseOptions appendRoot(String)
+      newMethodName: appendRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.response.ValidatableResponseOptions appendRoot(String, java.util.List)
+      newMethodName: appendRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.response.ValidatableResponseOptions detachRoot(String)
+      newMethodName: detachRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.specification.ResponseSpecification root(String)
+      newMethodName: rootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.specification.ResponseSpecification root(String, java.util.List)
+      newMethodName: rootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.specification.ResponseSpecification noRoot()
+      newMethodName: noRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.specification.ResponseSpecification appendRoot(String)
+      newMethodName: appendRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.specification.ResponseSpecification appendRoot(String, java.util.List)
+      newMethodName: appendRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.specification.ResponseSpecification detachRoot(String)
+      newMethodName: detachRootPath
+      matchOverrides: true
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.path.json.JsonPath setRoot(String)
+      newMethodName: setRootPath
+  - org.openrewrite.java.ChangeMethodName:
+      methodPattern: io.restassured.path.xml.XmlPath setRoot(String)
+      newMethodName: setRootPath
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.restassured.ChangeObjectMapperFactoryPackage

@@ -494,18 +494,6 @@ public interface ResponseSpecification {
     ResponseSpecification rootPath(String rootPath, List<Argument> arguments);
 
     /**
-     * @param rootPath  The root path to use.
-     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
-     *
-     * @see #rootPath(String, List)
-     * @deprecated Use {@link #rootPath(String, List)} (String)} instead
-     */
-    @Deprecated
-    default ResponseSpecification root(String rootPath, List<Argument> arguments) {
-        return rootPath(rootPath);
-    }
-
-    /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
      * <p/>
@@ -537,16 +525,6 @@ public interface ResponseSpecification {
     ResponseSpecification rootPath(String rootPath);
 
     /**
-     * @param rootPath The root path.
-     * @see #rootPath(String)
-     * @deprecated Use {@link #rootPath(String)} (String)} instead
-     */
-    @Deprecated
-    default ResponseSpecification root(String rootPath) {
-        return rootPath(rootPath);
-    }
-
-    /**
      * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
      * For example:
      * <p/>
@@ -567,14 +545,6 @@ public interface ResponseSpecification {
      * @see #rootPath(String)
      */
     ResponseSpecification noRootPath();
-
-    /**
-     * @deprecated Use {@link #noRootPath()} instead
-     */
-    @Deprecated
-    default ResponseSpecification noRoot() {
-        return noRootPath();
-    }
 
     /**
      * Append the given path to the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -644,25 +614,6 @@ public interface ResponseSpecification {
     ResponseSpecification appendRootPath(String pathToAppend, List<Argument> arguments);
 
     /**
-     * @param pathToAppend The root path to append.
-     * @see #appendRootPath(String, List)
-     * @deprecated Use {@link #appendRootPath(String, List)} instead
-     */
-    default ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
-        return appendRootPath(pathToAppend, arguments);
-    }
-
-    /**
-     * @param pathToAppend The root path to append.
-     * @see #appendRootPath(String)
-     * @deprecated Use {@link #appendRootPath(String)} instead
-     */
-    @Deprecated
-    default ResponseSpecification appendRoot(String pathToAppend) {
-        return detachRootPath(pathToAppend);
-    }
-
-    /**
      * Detach the given path from the root path.
      * E.g. instead of writing:
      * <p/>
@@ -694,17 +645,6 @@ public interface ResponseSpecification {
      * @param pathToDetach The root path to detach.
      */
     ResponseSpecification detachRootPath(String pathToDetach);
-
-    /**
-     *
-     * @param pathToDetach The root path to detach.
-     * @see #detachRootPath(String)
-     * @deprecated Use {@link #detachRootPath(String)} instead
-     */
-    @Deprecated
-    default ResponseSpecification detachRoot(String pathToDetach) {
-        return detachRootPath(pathToDetach);
-    }
 
     /**
      * Set the response content type to be <code>contentType</code>.

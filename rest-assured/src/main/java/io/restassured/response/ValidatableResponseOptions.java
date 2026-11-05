@@ -53,7 +53,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * get("/x").then().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          rootPath("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
      *          body(withArgs(0), hasItem("first")).
      *          body(withArgs(1), hasItem("second")).
      *          ..
@@ -78,7 +78,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * For example:
      * <pre>
      *  get(..).then().
-     *            root("x.%s"). // Root path with a placeholder
+     *            rootPath("x.%s"). // Root path with a placeholder
      *            body(withArgs("firstName"), equalTo(..)).
      *            body(withArgs("lastName"), equalTo(..)).
      * </pre>
@@ -86,7 +86,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * Note that this is the same as doing:
      * <pre>
      *  get(..).then().
-     *            root("x.%s"). // Root path with a placeholder
+     *            rootPath("x.%s"). // Root path with a placeholder
      *            content(withArgs("firstName"), equalTo(..)).
      *            content(withArgs("lastName"), equalTo(..)).
      * </pre>
@@ -122,7 +122,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * when().
      *        get("/x").
      * then().
-     *        root("data.%s").
+     *        rootPath("data.%s").
      *        body(withArgs("user1"), new ResponseAwareMatcher<Response>() {
      *                       public Matcher<?> matcher(Response response) {
      *                           return equalTo("http://localhost:8080/" + response.path("userId"));
@@ -502,8 +502,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *            body("age", is(..)).
      *            body("gender", is(..));
      * </pre>
-     * <p/>
-     * Note that this method is exactly the same as {@link #root(String)}.
      *
      * @param rootPath The root path to use.
      */
@@ -511,80 +509,12 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
 
     /**
      * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
-     * <p/>
-     * Note that this method is exactly the same as {@link #root(String, java.util.List)}.
      *
      * @param rootPath  The root path to use.
      * @param arguments A list of arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * @see #rootPath(String)
      */
     T rootPath(String rootPath, List<Argument> arguments);
-
-    /**
-     * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
-     * <p/>
-     * Note that this method is exactly the same as {@link #rootPath(String, java.util.List)}.
-     *
-     * @param rootPath  The root path to use.
-     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
-     * @see #rootPath(String)
-     * @deprecated Use {@link #rootPath(String, List)} instead
-     */
-    @Deprecated
-    T root(String rootPath, List<Argument> arguments);
-
-    /**
-     * Set the root path of the response body so that you don't need to write the entire path for each expectation.
-     * E.g. instead of writing:
-     * <p/>
-     * <pre>
-     * get(..).then().
-     *          body("x.y.firstName", is(..)).
-     *          body("x.y.lastName", is(..)).
-     *          body("x.y.age", is(..)).
-     *          body("x.y.gender", is(..));
-     * </pre>
-     * <p/>
-     * you can use a root and do:
-     * <pre>
-     * get(..).then().
-     *          root("x.y").
-     *          body("firstName", is(..)).
-     *          body("lastName", is(..)).
-     *          body("age", is(..)).
-     *          body("gender", is(..)).
-     * </pre>
-     * <p/>
-     * Note that this method is exactly the same as {@link #rootPath(String)} but slightly shorter.
-     *
-     * @param rootPath The root path to use.
-     * @deprecated Use {@link #rootPath(String)} instead
-     */
-    @Deprecated
-    T root(String rootPath);
-
-    /**
-     * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
-     * For example:
-     * <p/>
-     * <pre>
-     * get(..).then().
-     *          root("x.y").
-     *          body("firstName", is(..)).
-     *          body("lastName", is(..)).
-     *          noRoot()
-     *          body("z.something1", is(..)).
-     *          body("w.something2", is(..));
-     * </pre>
-     * <p/>
-     * This is the same as calling <code>rootPath("")</code> but more expressive.
-     * Note that this method is exactly the same as {@link #noRootPath()} but slightly shorter.
-     *
-     * @see #root(String)
-     * @deprecated Use {@link #noRootPath()} instead
-     */
-    @Deprecated
-    T noRoot();
 
     /**
      * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -601,7 +531,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * </pre>
      * <p/>
      * This is the same as calling <code>rootPath("")</code> but more expressive.
-     * Note that this method is exactly the same as {@link #noRoot()} but slightly more expressive.
      *
      * @see #rootPath(String)
      */
@@ -613,7 +542,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * <p/>
      * <pre>
      * get(..).then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
      *          body("name.firstName", is(..)).
@@ -623,10 +552,10 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * you can use a append root and do:
      * <pre>
      * get(..).then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          appendRoot("name").
+     *          appendRootPath("name").
      *          body("firstName", is(..)).
      *          body("lastName", is(..));
      * </pre>
@@ -636,16 +565,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
     T appendRootPath(String pathToAppend);
 
     /**
-     * @param pathToAppend  The root path to append.
-     * @see #appendRootPath(String)
-     * @deprecated Use {@link #appendRootPath(String)} instead
-     */
-    @Deprecated
-    default T appendRoot(String pathToAppend) {
-        return appendRootPath(pathToAppend);
-    }
-
-    /**
      * Append the given path to the root path with arguments supplied of the response body so that you don't need to write the entire path for each expectation.
      * This is mainly useful when you have parts of the path defined in variables.
      * E.g. instead of writing:
@@ -653,7 +572,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * <pre>
      * String namePath = "name";
      * get(..).then().
-     *           root("x.y").
+     *           rootPath("x.y").
      *           body("age", is(..)).
      *           body("gender", is(..)).
      *           body(namePath + "first", is(..)).
@@ -664,10 +583,10 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * <pre>
      * String namePath = "name";
      * get(..).then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          appendRoot("%s", withArgs(namePath)).
+     *          appendRootPath("%s", withArgs(namePath)).
      *          body("first", is(..)).
      *          body("last", is(..)).
      * </pre>
@@ -677,16 +596,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
     T appendRootPath(String pathToAppend, List<Argument> arguments);
 
     /**
-     * @param pathToAppend  The root path to append.
-     * @see #appendRootPath(String, List)
-     * @deprecated Use {@link #appendRootPath(String, List)} instead
-     */
-    @Deprecated
-    default T appendRoot(String pathToAppend, List<Argument> arguments) {
-        return appendRootPath(pathToAppend, arguments);
-    }
-
-    /**
      * Detach the given path from the root path.
      * E.g. instead of writing:
      * <p/>
@@ -694,10 +603,10 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          root("x").
+     *          rootPath("x").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * </pre>
@@ -707,10 +616,10 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          detachRoot("y").
+     *          detachRootPath("y").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * </pre>
@@ -718,16 +627,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @param pathToDetach The root path to detach.
      */
     T detachRootPath(String pathToDetach);
-
-    /**
-     * @param pathToDetach  The root path to detach.
-     * @see #detachRootPath(String)
-     * @deprecated Use {@link #detachRootPath(String)} instead
-     */
-    @Deprecated
-    default T detachRoot(String pathToDetach) {
-        return detachRootPath(pathToDetach);
-    }
 
     /**
      * Set the response content type to be <code>contentType</code>.

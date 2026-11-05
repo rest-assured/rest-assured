@@ -349,10 +349,10 @@ public class ResponseSpecBuilder {
      *
      * @param rootPath  The root path to use.
      * @param arguments The arguments.
-     * @see ResponseSpecification#root(String, java.util.List)
+     * @see ResponseSpecification#rootPath(String, java.util.List)
      */
     public ResponseSpecBuilder rootPath(String rootPath, List<Argument> arguments) {
-        spec.root(rootPath, arguments);
+        spec.rootPath(rootPath, arguments);
         return this;
     }
 
@@ -362,7 +362,7 @@ public class ResponseSpecBuilder {
      * <p/>
      * <pre>
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
      *          body("name.firstName", is(..)).
@@ -374,10 +374,10 @@ public class ResponseSpecBuilder {
      * you can use a append root and do:
      * <pre>
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          appendRoot("name").
+     *          appendRootPath("name").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * when().
@@ -399,7 +399,7 @@ public class ResponseSpecBuilder {
      * <pre>
      * String namePath = "name";
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
      *          body(namePath + "first", is(..)).
@@ -412,10 +412,10 @@ public class ResponseSpecBuilder {
      * <pre>
      * String namePath = "name";
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          appendRoot("%s", withArgs(namePath)).
+     *          appendRootPath("%s", withArgs(namePath)).
      *          body("first", is(..)).
      *          body("last", is(..)).
      * when().
@@ -435,10 +435,10 @@ public class ResponseSpecBuilder {
      * <p/>
      * <pre>
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
-     *          noRoot()
+     *          noRootPath()
      *          body("z.something1", is(..)).
      *          body("w.something2", is(..)).
      * when().
@@ -462,10 +462,10 @@ public class ResponseSpecBuilder {
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          root("x").
+     *          rootPath("x").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * </pre>
@@ -475,10 +475,10 @@ public class ResponseSpecBuilder {
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          detachRoot("y").
+     *          detachRootPath("y").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * </pre>
@@ -576,7 +576,7 @@ public class ResponseSpecBuilder {
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * expect().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          rootPath("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
      *          body(withArgs(0), hasItem("first")).
      *          body(withArgs(1), hasItem("second")).
      *          ..
