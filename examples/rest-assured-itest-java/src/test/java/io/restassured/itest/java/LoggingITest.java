@@ -65,6 +65,7 @@ import static io.restassured.parsing.Parser.JSON;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class LoggingITest extends WithJetty {
@@ -1546,5 +1547,38 @@ public class LoggingITest extends WithJetty {
                 "MultiHeader: [ BLACKLISTED ]%n" +
                 "Content-Length: 0%n" +
                 "Server: Jetty(9.4.58.v20250814)%n"))));
+    }
+
+    @Test public void
+    its_possible_to_hide_response_headers_when_blacklist_is_defined_in_log_config_and_the_response_is_logged_with_expect() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor).blacklistHeader("MultiHeader"))).
+        expect().
+                log().all().
+        when().
+                get("/multiValueHeader");
+
+        // JDK differences table, header names and order
+        assertThat(writer.toString(), equalTo(ResponseLog.normalize(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: text/plain;charset=utf-8%n" +
+                "MultiHeader: [ BLACKLISTED ]%n" +
+                "MultiHeader: [ BLACKLISTED ]%n" +
+                "Content-Length: 0%n" +
+                "Server: Jetty(9.4.58.v20250814)%n"))));
+    }
+
+    @Test public void
+    its_possible_to_hide_response_headers_when_blacklist_is_defined_in_log_config_and_the_response_is_logged_because_validation_fails() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final LogConfig logConfig = logConfig().defaultStream(captor).blacklistHeader("MultiHeader").enableLoggingOfRequestAndResponseIfValidationFails();
+
+        assertThrows(AssertionError.class, () ->
+                given().config(config().logConfig(logConfig)).when().get("/multiValueHeader").then().statusCode(201));
+
+        assertThat(writer.toString(), allOf(containsStringIgnoringCase("MultiHeader: [ BLACKLISTED ]"), not(containsString("Value 1"))));
     }
 }

@@ -25,7 +25,8 @@ import static org.hamcrest.Matchers.*;
 /**
  * A filter that'll print the response body if an error occurred (status code is between 400 and 500). It pretty prints
  * the body if the log config of the request has pretty printing enabled
- * ({@link io.restassured.config.LogConfig#isPrettyPrintingEnabled()}), which it is by default.
+ * ({@link io.restassured.config.LogConfig#isPrettyPrintingEnabled()}), which it is by default. It hides the values of the
+ * headers that the log config of the request blacklists ({@link io.restassured.config.LogConfig#blacklistHeader(String, String...)}).
  */
 public class ErrorLoggingFilter extends StatusCodeBasedLoggingFilter {
 
