@@ -271,7 +271,7 @@ public class JsonSchemaVersionsTest {
 
     @Test
     void yaml_support_of_networknt_is_not_on_the_classpath() {
-        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.fasterxml.jackson.dataformat.yaml.YAMLFactory"));
+        assertThrows(ClassNotFoundException.class, () -> Class.forName("tools.jackson.dataformat.yaml.YAMLFactory"));
     }
 
     // Remote schemas are downloaded once

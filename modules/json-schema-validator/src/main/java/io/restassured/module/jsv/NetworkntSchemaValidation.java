@@ -16,7 +16,6 @@
 
 package io.restassured.module.jsv;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
@@ -24,6 +23,7 @@ import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
 import com.networknt.schema.path.PathType;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +32,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Validates JSON documents against draft-06, draft-07, 2019-09 and 2020-12 schemas using the networknt json-schema-validator.
- * <p>
- * All references to networknt classes are kept in this class so that the java-json-tools based (draft-03/draft-04)
- * validation keeps working even if the networknt library is excluded from the classpath.
- * </p>
+ * Validates JSON documents using the networknt json-schema-validator.
  */
 class NetworkntSchemaValidation {
 
@@ -53,7 +49,7 @@ class NetworkntSchemaValidation {
      * @param schemaNode     The schema
      * @param schemaLocation The location the schema was loaded from (used to resolve relative <code>$ref</code>'s) or <code>null</code> if unknown.
      * @param content        The JSON document to validate
-     * @return The validation error messages, empty if the document is valid.
+     * @return The validation error messages, each ending with a line break, empty if the document is valid.
      */
     static List<String> validate(JsonSchemaVersion version, JsonNode schemaNode, String schemaLocation, JsonNode content) {
         SchemaRegistry schemaRegistry = SCHEMA_REGISTRIES.computeIfAbsent(version, NetworkntSchemaValidation::createSchemaRegistry);
@@ -70,7 +66,7 @@ class NetworkntSchemaValidation {
         }
         List<String> messages = new ArrayList<>(errors.size());
         for (Error error : errors) {
-            messages.add(error.toString());
+            messages.add(error + "\n");
         }
         return messages;
     }
