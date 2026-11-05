@@ -330,4 +330,50 @@ class UpgradeToRestAssured7Test implements RewriteTest {
                 )
         );
     }
+
+    @Test
+    void replaces_context_authentication_scheme_with_authentication_scheme() {
+        rewriteRun(
+                java(
+                        """
+                        import io.restassured.RestAssured;
+                        import io.restassured.authentication.AuthenticationContext;
+                        import io.restassured.authentication.ContextAuthenticationScheme;
+
+                        class ApiKeyScheme implements ContextAuthenticationScheme {
+                            @Override
+                            public void authenticate(AuthenticationContext context) {
+                                context.header("X-Api-Key", "secret");
+                            }
+                        }
+
+                        class A {
+                            void authenticate() {
+                                ContextAuthenticationScheme scheme = context -> context.oauth2("token");
+                                RestAssured.authentication = scheme;
+                            }
+                        }
+                        """,
+                        """
+                        import io.restassured.RestAssured;
+                        import io.restassured.authentication.AuthenticationContext;
+                        import io.restassured.authentication.AuthenticationScheme;
+
+                        class ApiKeyScheme implements AuthenticationScheme {
+                            @Override
+                            public void authenticate(AuthenticationContext context) {
+                                context.header("X-Api-Key", "secret");
+                            }
+                        }
+
+                        class A {
+                            void authenticate() {
+                                AuthenticationScheme scheme = context -> context.oauth2("token");
+                                RestAssured.authentication = scheme;
+                            }
+                        }
+                        """
+                )
+        );
+    }
 }

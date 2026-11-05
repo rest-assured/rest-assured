@@ -22,11 +22,16 @@ description: >-
   json-path and xml-path to their new names, json-path-gpath and xml-path-gpath, upgrades the io.rest-assured
   dependencies of Maven and Gradle builds, and adds json-path-gpath (and xml-path-gpath) where the code uses paths,
   since REST Assured 7 no longer includes a path engine. It also removes the SSL port settings and renames the root
-  path methods deprecated since REST Assured 4.0.0, which REST Assured 7 no longer has.
+  path methods deprecated since REST Assured 4.0.0, which REST Assured 7 no longer has, and replaces
+  `ContextAuthenticationScheme`, deprecated in REST Assured 7, with `AuthenticationScheme`.
 recipeList:
   - io.restassured.MigrateRestAssured6Deprecations
   - io.restassured.RemoveSslPortSettings
   - io.restassured.RenameShortRootPathMethods
+  # Not in MigrateRestAssured6Deprecations: in REST Assured 6, AuthenticationScheme still has authenticate(HTTPBuilder)
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: io.restassured.authentication.ContextAuthenticationScheme
+      newFullyQualifiedTypeName: io.restassured.authentication.AuthenticationScheme
   - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
       oldGroupId: io.rest-assured
       oldArtifactId: json-path

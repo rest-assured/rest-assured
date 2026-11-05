@@ -20,7 +20,8 @@ package io.restassured.authentication;
  * An {@link AuthenticationScheme} that only implements {@link #authenticate(AuthenticationContext)}. Since REST Assured
  * 7.0.0 that's the only method of {@link AuthenticationScheme}, so this interface adds nothing.
  *
- * @deprecated Implement {@link AuthenticationScheme} instead.
+ * @deprecated Implement {@link AuthenticationScheme} instead, which takes the same lambda. This interface is removed in
+ * REST Assured 8.0.0. The OpenRewrite recipe io.restassured.UpgradeToRestAssured7 makes this change in Java code.
  */
 @Deprecated
 @FunctionalInterface
