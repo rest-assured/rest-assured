@@ -229,7 +229,11 @@ public class JsonPathConfig {
     }
 
     /**
-     * Creates an json path configuration that uses the specified parser type as default.
+     * Creates an json path configuration that uses the specified parser type as default, for example in
+     * {@link io.restassured.path.json.JsonPath#getObject(String, Class)}. With no parser type, JsonPath uses the first of
+     * Jackson 3, Jackson 2, Gson, Johnzon and JSON-B (Yasson) in the classpath, like the object mapping of REST Assured.
+     * To keep Jackson 2 when both Jacksons are in the classpath, use <code>defaultParserType(JsonParserType.JACKSON_2)</code>.
+     * A custom object mapper factory in this config takes precedence and chooses its own parser.
      *
      * @param defaultParserType The parser type to use. If <code>null</code> then classpath scanning will be used.
      */

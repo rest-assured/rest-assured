@@ -16,8 +16,11 @@
 
 package io.restassured.internal;
 
+import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.path.json.JsonPath;
+import io.restassured.path.json.config.JsonParserType;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.XmlPath.CompatibilityMode;
@@ -35,12 +38,38 @@ final class GPathResponseViews {
     private GPathResponseViews() {
     }
 
+    /**
+     * The JsonPath of a response deserializes with the object mapper type and factories of the request's
+     * {@link ObjectMapperConfig}, so that its <code>getObject(..)</code> and the response's <code>as(..)</code> agree.
+     * There's no Johnzon factory to pass: neither config can set one.
+     */
     static JsonPath jsonPath(String body, String charset, RestAssuredConfig config) {
+        ObjectMapperConfig objectMapperConfig = config.getObjectMapperConfig();
         return jsonPath(body, jsonPathConfig().charset(charset).
-                jackson2ObjectMapperFactory(config.getObjectMapperConfig().jackson2ObjectMapperFactory()).
-                jackson3ObjectMapperFactory(config.getObjectMapperConfig().jackson3ObjectMapperFactory()).
-                gsonObjectMapperFactory(config.getObjectMapperConfig().gsonObjectMapperFactory()).
+                defaultParserType(jsonParserType(objectMapperConfig.defaultObjectMapperType())).
+                jackson2ObjectMapperFactory(objectMapperConfig.jackson2ObjectMapperFactory()).
+                jackson3ObjectMapperFactory(objectMapperConfig.jackson3ObjectMapperFactory()).
+                gsonObjectMapperFactory(objectMapperConfig.gsonObjectMapperFactory()).
+                jsonbObjectMapperFactory(objectMapperConfig.jsonbObjectMapperFactory()).
                 numberReturnType(config.getJsonConfig().numberReturnType()));
+    }
+
+    /**
+     * @return The parser type of the object mapper type, or <code>null</code>, so that JsonPath picks one from the
+     * classpath, for no type and for JAXB and Jakarta EE, which only map XML.
+     */
+    private static JsonParserType jsonParserType(ObjectMapperType objectMapperType) {
+        if (objectMapperType == null) {
+            return null;
+        }
+        return switch (objectMapperType) {
+            case JACKSON_3 -> JsonParserType.JACKSON_3;
+            case JACKSON_2 -> JsonParserType.JACKSON_2;
+            case GSON -> JsonParserType.GSON;
+            case JOHNZON -> JsonParserType.JOHNZON;
+            case JSONB -> JsonParserType.JSONB;
+            case JAXB, JAKARTA_EE -> null;
+        };
     }
 
     static JsonPath jsonPath(String body, JsonPathConfig config) {
