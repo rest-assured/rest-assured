@@ -108,7 +108,9 @@ public class ObjectMapperConfig implements Config {
     }
 
     /**
-     * Creates an object mapper configuration that uses the specified object mapper as default.
+     * Creates an object mapper configuration that uses the specified object mapper as default. The
+     * <code>getObject(..)</code> methods of <code>response.jsonPath()</code> use it too, except JAXB and Jakarta EE,
+     * which only map XML.
      *
      * @param defaultObjectMapperType The object mapper to use. If <code>null</code> then classpath scanning will be used.
      */

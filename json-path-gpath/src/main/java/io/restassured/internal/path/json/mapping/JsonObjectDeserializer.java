@@ -50,10 +50,10 @@ public class JsonObjectDeserializer {
             return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, jsonPathConfig);
         }
 
-        if (ObjectMapperResolver.isJackson2InClassPath()) {
-            return (T) deserializeWithJackson2(deserializationCtx, jsonPathConfig.jackson2ObjectMapperFactory());
-        } else if (ObjectMapperResolver.isJackson3InClassPath()) {
+        if (ObjectMapperResolver.isJackson3InClassPath()) {
             return (T) deserializeWithJackson3(deserializationCtx, jsonPathConfig.jackson3ObjectMapperFactory());
+        } else if (ObjectMapperResolver.isJackson2InClassPath()) {
+            return (T) deserializeWithJackson2(deserializationCtx, jsonPathConfig.jackson2ObjectMapperFactory());
         } else if (ObjectMapperResolver.isGsonInClassPath()) {
             return (T) deserializeWithGson(deserializationCtx, jsonPathConfig.gsonObjectMapperFactory());
         } else if (ObjectMapperResolver.isJohnzonInClassPath()) {
