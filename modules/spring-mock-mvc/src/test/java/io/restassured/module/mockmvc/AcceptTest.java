@@ -21,12 +21,12 @@ import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.http.HttpHeaders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,10 +44,7 @@ public class AcceptTest {
                 accept(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        HttpHeaders headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (String header : headers.get("Accept")) {
-                            accept.add(String.valueOf(header));
-                        }
+                        accept.addAll(acceptHeaders(requestBuilder));
                     }
                 }).
         when().
@@ -69,10 +66,7 @@ public class AcceptTest {
                 accept("application/json, application/javascript").
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        HttpHeaders headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (String header : headers.get("Accept")) {
-                            accept.add(String.valueOf(header));
-                        }
+                        accept.addAll(acceptHeaders(requestBuilder));
                     }
                 }).
         when().
@@ -94,10 +88,7 @@ public class AcceptTest {
                 accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        HttpHeaders headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (String header : headers.get("Accept")) {
-                            accept.add(String.valueOf(header));
-                        }
+                        accept.addAll(acceptHeaders(requestBuilder));
                     }
                 }).
         when().
@@ -106,5 +97,9 @@ public class AcceptTest {
                 statusCode(200);
 
         assertThat(accept.get(0)).isEqualTo("application/json, application/x-www-form-urlencoded");
+    }
+
+    private static List<String> acceptHeaders(MockHttpServletRequestBuilder requestBuilder) {
+        return Collections.list(requestBuilder.buildRequest(new MockServletContext()).getHeaders("Accept"));
     }
 }

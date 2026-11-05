@@ -51,6 +51,32 @@ jobs:
       - name: Verify json-path-jayway, the Spring modules and the integration tests with Maven
         run: mvn verify -B -Djayway.version=${{ matrix.jayway }} -pl modules/json-path-jayway,modules/spring-mock-mvc,modules/spring-web-test-client,examples/rest-assured-itest-java -am
 
+  spring:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # The Spring modules are built with Spring Framework 7.0 (spring.version in their poms) and also support 6.2. Each entry
+        # compiles and tests them with one Spring line: 6.2 with the Spring Security, REST Docs and servlet API versions that
+        # Spring Boot 3.5 manages, and the build's versions
+        include:
+          - spring: 6.2.19
+            overrides: -Dspring.version=6.2.19 -Dspring.security.version=6.5.11 -Dspring.restdocs.version=3.0.6 -Dservlet-api.version=6.0.0
+          - spring: 7.0.10
+            overrides: ''
+      fail-fast: false
+    name: Test Spring Framework ${{ matrix.spring }}, JDK 17
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Verify the Spring modules and their Kotlin extensions with Maven
+        run: mvn verify -B ${{ matrix.overrides }} -pl modules/spring-mock-mvc,modules/spring-web-test-client,modules/spring-mock-mvc-kotlin-extensions,modules/spring-web-test-client-kotlin-extensions -am
+
   apache5:
     runs-on: ubuntu-latest
     strategy:

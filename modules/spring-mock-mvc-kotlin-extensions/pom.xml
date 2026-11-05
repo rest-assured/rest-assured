@@ -30,6 +30,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>7.0.10</spring.version>
+        <servlet-api.version>6.1.0</servlet-api.version>
     </properties>
 
     <dependencies>
@@ -51,7 +52,7 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
+            <version>${servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
