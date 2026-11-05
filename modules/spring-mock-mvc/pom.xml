@@ -30,6 +30,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>7.0.10</spring.version>
         <spring.security.version>7.1.2</spring.security.version>
+        <servlet-api.version>6.1.0</servlet-api.version>
+        <spring.restdocs.version>4.0.2</spring.restdocs.version>
         <java.version>17</java.version>
     </properties>
 
@@ -97,7 +99,7 @@
         <dependency>
           <groupId>jakarta.servlet</groupId>
           <artifactId>jakarta.servlet-api</artifactId>
-          <version>6.1.0</version>
+          <version>${servlet-api.version}</version>
           <scope>provided</scope>
         </dependency>
 
@@ -132,7 +134,7 @@
         <dependency>
             <groupId>org.springframework.restdocs</groupId>
             <artifactId>spring-restdocs-mockmvc</artifactId>
-            <version>4.0.2</version>
+            <version>${spring.restdocs.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
