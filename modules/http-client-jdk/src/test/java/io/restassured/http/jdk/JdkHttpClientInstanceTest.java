@@ -266,6 +266,26 @@ class JdkHttpClientInstanceTest {
     }
 
     @Test
+    void a_host_header_that_names_the_host_and_port_of_the_uri_is_sent_once() throws IOException {
+        URI uri = server.uri("/");
+        String host = uri.getHost() + ":" + uri.getPort();
+
+        send(request("GET", uri, null, new HttpHeader("host", host.toUpperCase())));
+
+        assertThat(server.requests().get(0).headerLines()).filteredOn(line -> line.regionMatches(true, 0, "Host:", 0, 5))
+                .containsExactly("Host: " + host);
+    }
+
+    @Test
+    void the_host_header_of_a_uri_leaves_out_the_default_port() {
+        assertThat(JdkHttpClientInstance.hostHeader(URI.create("http://example.com/"))).isEqualTo("example.com");
+        assertThat(JdkHttpClientInstance.hostHeader(URI.create("http://example.com:80/"))).isEqualTo("example.com");
+        assertThat(JdkHttpClientInstance.hostHeader(URI.create("https://example.com:443/"))).isEqualTo("example.com");
+        assertThat(JdkHttpClientInstance.hostHeader(URI.create("https://example.com:80/"))).isEqualTo("example.com:80");
+        assertThat(JdkHttpClientInstance.hostHeader(URI.create("http://[::1]:8080/"))).isEqualTo("[::1]:8080");
+    }
+
+    @Test
     void ntlm_is_unsupported() {
         RequestOptions ntlm = new RequestOptions(null, false, new NtlmCredentials("localhost", -1, "user", "password", "workstation", "domain"));
 
