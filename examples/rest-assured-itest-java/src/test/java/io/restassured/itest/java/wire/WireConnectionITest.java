@@ -444,9 +444,11 @@ public class WireConnectionITest extends WireTest {
         }
 
         static UnresponsiveServer start() throws IOException {
+            // On macOS a connect to a full accept queue may succeed and then be reset instead of waiting
+            Assumptions.assumeTrue(System.getProperty("os.name").startsWith("Linux"), "Only Linux reliably drops connection attempts when the accept queue is full");
             UnresponsiveServer server = new UnresponsiveServer(new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")));
             try {
-                // Linux queues backlog + 1 connections, other systems may queue a few more
+                // Linux queues backlog + 1 connections
                 while (server.queued.size() < 64) {
                     Socket socket = new Socket();
                     server.queued.add(socket);
