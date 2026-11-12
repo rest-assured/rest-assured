@@ -444,9 +444,11 @@ public class WireConnectionITest extends WireTest {
         }
 
         static UnresponsiveServer start() throws IOException {
+            // On macOS a connect to a full accept queue may succeed and then be reset instead of waiting
+            Assumptions.assumeTrue(System.getProperty("os.name").startsWith("Linux"), "Only Linux reliably drops connection attempts when the accept queue is full");
             UnresponsiveServer server = new UnresponsiveServer(new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")));
             try {
-                // Linux queues backlog + 1 connections, other systems queue more or reset the connections that don't fit
+                // Linux queues backlog + 1 connections
                 while (server.queued.size() < 64) {
                     Socket socket = new Socket();
                     server.queued.add(socket);
@@ -458,7 +460,7 @@ public class WireConnectionITest extends WireTest {
                         Assumptions.abort("This system refuses connections when the accept queue is full instead of dropping them");
                     }
                 }
-                return Assumptions.abort("This system doesn't drop connection attempts when the accept queue is full");
+                throw new IllegalStateException("Couldn't fill the accept queue of the server socket");
             } catch (IOException | RuntimeException e) {
                 server.close();
                 throw e;

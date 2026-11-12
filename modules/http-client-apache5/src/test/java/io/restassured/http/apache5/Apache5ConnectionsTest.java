@@ -236,7 +236,9 @@ class Apache5ConnectionsTest {
     }
 
     private static void fillAcceptQueue(ServerSocket server, List<Socket> queued) throws IOException {
-        // Linux queues backlog + 1 connections, other systems queue more or reset the connections that don't fit
+        // On macOS a connect to a full accept queue may succeed and then be reset instead of waiting
+        Assumptions.assumeTrue(System.getProperty("os.name").startsWith("Linux"), "Only Linux reliably drops connection attempts when the accept queue is full");
+        // Linux queues backlog + 1 connections
         while (queued.size() < 64) {
             Socket socket = new Socket();
             queued.add(socket);
@@ -248,7 +250,7 @@ class Apache5ConnectionsTest {
                 Assumptions.abort("This system refuses connections when the accept queue is full instead of dropping them");
             }
         }
-        Assumptions.abort("This system doesn't drop connection attempts when the accept queue is full");
+        throw new IllegalStateException("Couldn't fill the accept queue of the server socket");
     }
 
     @Test
