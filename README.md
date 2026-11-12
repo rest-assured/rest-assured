@@ -80,6 +80,7 @@ Add `rest-assured` to your test dependencies, and the modules for what your test
 ## Documentation
 
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
+* [Which module do I need](https://github.com/rest-assured/rest-assured/wiki/Modules)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
 * [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/7.0.0-RC1)
 * [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/7.0.0-RC1/io/restassured/RestAssured.html)
