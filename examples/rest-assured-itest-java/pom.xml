@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>7.0.0-RC1</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -49,41 +49,41 @@
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-example</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-gpath</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>xml-path-gpath</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-jayway</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
         </dependency>
         <!-- JsonSchemaValidationITest validates draft-03 schemas and uses a JsonSchemaFactory -->
         <dependency>
@@ -187,7 +187,7 @@
                 <dependency>
                     <groupId>io.rest-assured</groupId>
                     <artifactId>http-client-apache5</artifactId>
-                    <version>7.0.0-RC1</version>
+                    <version>7.0.0-SNAPSHOT</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

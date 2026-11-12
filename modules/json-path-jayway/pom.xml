@@ -20,11 +20,11 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>7.0.0-RC1</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>json-path-jayway</artifactId>
     <packaging>bundle</packaging>
-    <version>7.0.0-RC1</version>
+    <version>7.0.0-SNAPSHOT</version>
     <name>json-path-jayway</name>
     <description>The Jayway JsonPath engine for JSON paths in REST Assured, such as $.store.book[?(@.price &lt; 10)].title. It doesn't depend on Groovy.</description>
     <url>https://rest-assured.io/</url>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
         </dependency>
         <!-- Brings json-smart, which Jayway's filter compiler uses for literals such as [?(@.tag in ['a','b'])]. Bodies are
              parsed by this module's own parser, so that numbers follow JsonConfig -->
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>

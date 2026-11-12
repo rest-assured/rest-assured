@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>7.0.0-RC1</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -48,23 +48,23 @@
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-example</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-gpath</artifactId>
-            <version>7.0.0-RC1</version>
+            <version>7.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>

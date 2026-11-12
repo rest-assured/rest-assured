@@ -24,12 +24,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>7.0.0-RC1</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>xml-path</artifactId>
     <packaging>pom</packaging>
-    <version>7.0.0-RC1</version>
+    <version>7.0.0-SNAPSHOT</version>
     <name>xml-path</name>
     <description>The name of xml-path-gpath before REST Assured 7.0.0. It relocates to xml-path-gpath and is removed in 8.0.0.</description>
     <url>https://rest-assured.io/</url>
