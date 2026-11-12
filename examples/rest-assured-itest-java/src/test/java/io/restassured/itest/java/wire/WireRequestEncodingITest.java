@@ -894,6 +894,14 @@ public class WireRequestEncodingITest extends WireTest {
         assertThat(server.onlyRequest().headers("X-Int")).containsExactly("5");
     }
 
+    @Test public void
+    host_header_with_the_host_and_port_of_the_url_is_sent_once() {
+        // The JDK client refuses a Host header, so one that it would send anyway is left out
+        given().header("Host", "localhost:" + server.port()).get(server.url("/h"));
+
+        assertThat(server.onlyRequest().headers("Host")).containsExactly("localhost:" + server.port());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"Host", "Connection", "Upgrade"})
     @Tag(TestClient.APACHE5_ONLY)

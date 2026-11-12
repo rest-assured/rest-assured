@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* The JDK HTTP client (http-client-jdk) no longer refuses a Host header that equals the one it sends itself, such as given().header("Host", "localhost:" + port) for a request to localhost on that port. It leaves the header out instead. Another Host still needs http-client-apache5 or -Djdk.httpclient.allowRestrictedHeaders=host
+
 Changelog 7.0.0-RC1 (2026-11-12)
 -------------------------------
 * Fix ConnectionConfig.dontCloseIdleConnectionsAfterEachResponse(), which always threw an IllegalArgumentException. It now returns a config that doesn't close idle connections after each response (issue #2016)

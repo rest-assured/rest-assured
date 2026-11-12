@@ -251,6 +251,9 @@ final class JdkHttpClientInstance implements HttpClientInstance {
                     throw new UnsupportedFeatureException("send the header Expect: " + header.value() + ", only Expect: 100-continue", null);
                 }
                 expectContinue = true;
+            } else if (header.name().equalsIgnoreCase("Host") && header.value().equalsIgnoreCase(hostHeader(request.uri()))) {
+                // The JDK client sends this Host header itself, and refuses to be given one
+                continue;
             } else {
                 hasContentType |= header.name().equalsIgnoreCase("Content-Type");
                 setHeader(builder, header.name(), header.value());
@@ -281,6 +284,13 @@ final class JdkHttpClientInstance implements HttpClientInstance {
             builder.method(method, BodyPublishers.noBody());
         }
         return builder.build();
+    }
+
+    // The Host header that the JDK client sends for the URI
+    static String hostHeader(URI uri) {
+        int port = uri.getPort();
+        boolean defaultPort = port == -1 || port == ("https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80);
+        return defaultPort ? uri.getHost() : uri.getHost() + ":" + port;
     }
 
     private static void setHeader(java.net.http.HttpRequest.Builder builder, String name, String value) {
