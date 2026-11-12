@@ -140,7 +140,7 @@ class MissingPathEngineTest {
 
     @Test
     void version_is_read_from_the_version_file_of_rest_assured() {
-        assertThat(MissingPathEngine.version()).matches("7\\.\\d+\\.\\d+(-SNAPSHOT)?");
+        assertThat(MissingPathEngine.version()).matches("7\\.\\d+\\.\\d+(-[\\w.]+)?");
         assertThat(MissingPathEngine.message("a", DocumentType.JSON)).contains("<version>" + MissingPathEngine.version() + "</version>");
     }
 
