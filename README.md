@@ -74,6 +74,8 @@ Node category = from(xml).get("shopping.category[0]");
 
 REST Assured supports any HTTP method but has explicit support for *POST*, *GET*, *PUT*, *DELETE*, *OPTIONS*, *PATCH* and *HEAD* and includes specifying and validating e.g. parameters, headers, cookies and body easily.
 
+## Modules
+Add `rest-assured` to your test dependencies, and the modules for what your tests do: a path engine (`json-path-gpath`, `xml-path-gpath` or `json-path-jayway`) if they use paths, `http-client-apache5` to send the requests with Apache HttpClient 5 instead of the JDK's HTTP client, `json-schema-validator`, or the Spring, Kotlin and Scala modules. See [Which module do I need](https://github.com/rest-assured/rest-assured/wiki/Modules), and import `io.rest-assured:rest-assured-bom` to keep their versions in line.
 
 ## Documentation
 
