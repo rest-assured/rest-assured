@@ -103,7 +103,7 @@ class OnlyJaywayTest {
         assertThatThrownBy(() -> response().then().body("lotto.winners.winnerId", contains(23, 54)))
                 .isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessageMatching("\\QJSONPath (Jayway) can't evaluate lotto.winners.winnerId: lotto.winners is a list, so use lotto.winners[*].winnerId. "
-                        + "If this is a GPath path from REST Assured 6.x, add io.rest-assured:json-path-gpath:\\E7\\.\\d+\\.\\d+(-SNAPSHOT)?\\Q to your test dependencies.\\E");
+                        + "If this is a GPath path from REST Assured 6.x, add io.rest-assured:json-path-gpath:\\E7\\.\\d+\\.\\d+(-[\\w.]+)?\\Q to your test dependencies.\\E");
     }
 
     @Test
