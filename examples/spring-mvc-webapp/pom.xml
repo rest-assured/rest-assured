@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.0.0-RC1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -54,13 +54,13 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-mock-mvc</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-gpath</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

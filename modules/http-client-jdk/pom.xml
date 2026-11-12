@@ -20,11 +20,11 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.0.0-RC1</version>
     </parent>
     <artifactId>http-client-jdk</artifactId>
     <packaging>bundle</packaging>
-    <version>7.0.0-SNAPSHOT</version>
+    <version>7.0.0-RC1</version>
     <name>http-client-jdk</name>
     <description>Sends REST Assured's requests with the HTTP client of the JDK (java.net.http.HttpClient).</description>
     <url>https://rest-assured.io/</url>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
         </dependency>
 
         <!-- Test. Not rest-assured, which uses this module in its own tests -->

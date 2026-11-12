@@ -20,11 +20,11 @@
     <parent>
         <artifactId>modules</artifactId>
         <groupId>io.rest-assured</groupId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.0.0-RC1</version>
     </parent>
 
     <artifactId>spring-mock-mvc-kotlin-extensions</artifactId>
-    <version>7.0.0-SNAPSHOT</version>
+    <version>7.0.0-RC1</version>
     <name>spring-mock-mvc-kotlin-extensions</name>
     <url>https://rest-assured.io/</url>
     <properties>
@@ -41,12 +41,12 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-mock-mvc</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-gpath</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

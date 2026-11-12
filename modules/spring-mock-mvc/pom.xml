@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.0.0-RC1</version>
     </parent>
     <artifactId>spring-mock-mvc</artifactId>
-    <version>7.0.0-SNAPSHOT</version>
+    <version>7.0.0-RC1</version>
     <name>spring-mock-mvc</name>
     <url>https://rest-assured.io/</url>
     <properties>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <exclusions>
                 <exclusion>
                     <!-- Spring provides its own JCL implementation -->
@@ -51,25 +51,25 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-gpath</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path-jayway</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>xml-path-gpath</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-commons</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

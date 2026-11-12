@@ -20,12 +20,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.0.0-RC1</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>json-path-gpath</artifactId>
     <packaging>bundle</packaging>
-    <version>7.0.0-SNAPSHOT</version>
+    <version>7.0.0-RC1</version>
     <name>json-path-gpath</name>
     <description>JsonPath and the GPath path engine for JSON, the path syntax REST Assured has always used. It depends on Groovy.</description>
     <url>https://rest-assured.io/</url>
@@ -119,7 +119,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>7.0.0-SNAPSHOT</version>
+            <version>7.0.0-RC1</version>
         </dependency>
 
         <!-- Test -->
