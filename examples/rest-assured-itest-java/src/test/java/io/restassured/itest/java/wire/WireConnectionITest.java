@@ -446,7 +446,7 @@ public class WireConnectionITest extends WireTest {
         static UnresponsiveServer start() throws IOException {
             UnresponsiveServer server = new UnresponsiveServer(new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1")));
             try {
-                // Linux queues backlog + 1 connections, other systems may queue a few more
+                // Linux queues backlog + 1 connections, other systems queue more or reset the connections that don't fit
                 while (server.queued.size() < 64) {
                     Socket socket = new Socket();
                     server.queued.add(socket);
@@ -458,7 +458,7 @@ public class WireConnectionITest extends WireTest {
                         Assumptions.abort("This system refuses connections when the accept queue is full instead of dropping them");
                     }
                 }
-                throw new IllegalStateException("Couldn't fill the accept queue of the server socket");
+                return Assumptions.abort("This system doesn't drop connection attempts when the accept queue is full");
             } catch (IOException | RuntimeException e) {
                 server.close();
                 throw e;

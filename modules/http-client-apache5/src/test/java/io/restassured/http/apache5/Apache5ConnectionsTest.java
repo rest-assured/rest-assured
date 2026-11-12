@@ -30,12 +30,14 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.ConnectionRequestTimeoutException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -211,20 +213,11 @@ class Apache5ConnectionsTest {
 
     @Test
     void the_connect_timeout_fires_when_the_server_doesnt_accept_the_connection() throws IOException {
-        // A full backlog leaves the next connection waiting
+        // A full accept queue makes the kernel drop further connection attempts, so the next connect waits
         try (ServerSocket full = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
             List<Socket> backlog = new ArrayList<>();
             try {
-                for (int i = 0; i < 3; i++) {
-                    Socket socket = new Socket();
-                    try {
-                        socket.connect(full.getLocalSocketAddress(), 200);
-                    } catch (IOException e) {
-                        socket.close();
-                        break;
-                    }
-                    backlog.add(socket);
-                }
+                fillAcceptQueue(full, backlog);
                 HttpClientInstance timingOut = new Apache5HttpClientProvider().newClient(new ClientSettings(null, null, HttpVersion.HTTP_1_1,
                         Duration.ofMillis(300), null, List.of()));
                 try {
@@ -240,6 +233,22 @@ class Apache5ConnectionsTest {
                 }
             }
         }
+    }
+
+    private static void fillAcceptQueue(ServerSocket server, List<Socket> queued) throws IOException {
+        // Linux queues backlog + 1 connections, other systems queue more or reset the connections that don't fit
+        while (queued.size() < 64) {
+            Socket socket = new Socket();
+            queued.add(socket);
+            try {
+                socket.connect(server.getLocalSocketAddress(), 200);
+            } catch (SocketTimeoutException e) {
+                return;
+            } catch (ConnectException e) {
+                Assumptions.abort("This system refuses connections when the accept queue is full instead of dropping them");
+            }
+        }
+        Assumptions.abort("This system doesn't drop connection attempts when the accept queue is full");
     }
 
     @Test
