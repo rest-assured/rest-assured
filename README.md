@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News
+* 2026-11-12: REST Assured 7.0.0-RC1 is released. It's the release candidate for 7.0.0, a new major release. REST Assured now sends requests with the JDK's HTTP client by default, with Apache HttpClient 5 in the new `http-client-apache5` module, and no longer depends on Groovy. You pick a path engine for `body(..)` paths and `jsonPath()`: `json-path-gpath`, `xml-path-gpath` or `json-path-jayway`. Java 17 is required. This release contains several non-backward compatible changes, so please read the [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes70) and [which module do I need](https://github.com/rest-assured/rest-assured/wiki/Modules) before upgrading. The `rest-assured-openrewrite` recipe moves most code over. Please try it and report what breaks! See the [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2026-10-23: REST Assured 6.3.0 is released. It prepares for REST Assured 7.0.0, which drops Apache HttpClient 4 and Groovy from the default dependencies. Every API that 7.0.0 removes now has a replacement, the old ones are deprecated, and the new `rest-assured-openrewrite` module has a recipe that moves your code over. Among the replacements are timeouts as `Duration` in `HttpClientConfig`, `SSLContext` support in `SSLConfig` and `followRedirectsForAllMethods(..)` in `RedirectConfig`. Form authentication now also uses the config and proxy of your request for all its requests. See [Preparing for REST Assured 7.0](https://github.com/rest-assured/rest-assured/wiki/PreparingFor70), the [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes63) and the [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2026-10-16: REST Assured 6.2.0 is released. The `rest-assured` module is now written entirely in Java and no longer depends on Groovy directly. Tests that run in parallel no longer fail because of races in the static configuration, and `auth().certificate(..)` now sends the client certificate to servers that ask for one (mutual TLS). Many failures that used to show up as Groovy exceptions or a `NullPointerException` now give a clear error message, and `scala-support` is upgraded to a Scala version that fixes CVE-2022-36944. This release contains several non-backward compatible changes, so please read the [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes62) before upgrading. See also the [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
-* 2026-10-09: REST Assured 6.1.0 is released. It adds support for the HTTP QUERY method, JSON Schema draft-06, draft-07, 2019-09 and 2020-12, and `java.time` values as parameters. Authorization and Cookie headers are no longer sent along when a redirect goes to a different host. There are also many bug fixes, several of them from the community. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes61) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
@@ -79,11 +79,11 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/6.2.0)
-* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/6.2.0/io/restassured/RestAssured.html)
-* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/6.2.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/6.2.0/io/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/6.2.0/io/restassured/path/json/JsonPath.html)
+* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/7.0.0-RC1)
+* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/7.0.0-RC1/io/restassured/RestAssured.html)
+* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/7.0.0-RC1/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/7.0.0-RC1/io/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/7.0.0-RC1/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
