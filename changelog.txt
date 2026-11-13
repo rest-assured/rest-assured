@@ -1,5 +1,6 @@
 Changelog next version
 ----------------------
+* The error you get when no path engine is on the classpath now links to the path engines section of the new documentation at rest-assured.io instead of the wiki
 * The JDK HTTP client (http-client-jdk) no longer refuses a Host header that equals the one it sends itself, such as given().header("Host", "localhost:" + port) for a request to localhost on that port. It leaves the header out instead. Another Host still needs http-client-apache5 or -Djdk.httpclient.allowRestrictedHeaders=host
 
 Changelog 7.0.0-RC1 (2026-11-12)

@@ -100,7 +100,7 @@ public final class MissingPathEngine {
                 + "  mvn org.openrewrite.maven:rewrite-maven-plugin:run -Drewrite.recipeArtifactCoordinates=io.rest-assured:rest-assured-openrewrite:"
                 + version + " -Drewrite.activeRecipes=io.restassured.UpgradeToRestAssured7" + NL
                 + NL
-                + "More: https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes70#path-engines";
+                + "More: https://rest-assured.io/docs/usage/setup/#path-engines";
     }
 
     /**

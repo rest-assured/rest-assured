@@ -75,7 +75,7 @@ class MissingPathEngineTest {
                 "  mvn org.openrewrite.maven:rewrite-maven-plugin:run -Drewrite.recipeArtifactCoordinates=io.rest-assured:rest-assured-openrewrite:7.0.1 "
                         + "-Drewrite.activeRecipes=io.restassured.UpgradeToRestAssured7",
                 "",
-                "More: https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes70#path-engines"));
+                "More: https://rest-assured.io/docs/usage/setup/#path-engines"));
     }
 
     @Test
@@ -99,7 +99,7 @@ class MissingPathEngineTest {
                 "  mvn org.openrewrite.maven:rewrite-maven-plugin:run -Drewrite.recipeArtifactCoordinates=io.rest-assured:rest-assured-openrewrite:7.0.1 "
                         + "-Drewrite.activeRecipes=io.restassured.UpgradeToRestAssured7",
                 "",
-                "More: https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes70#path-engines"));
+                "More: https://rest-assured.io/docs/usage/setup/#path-engines"));
     }
 
     @Test

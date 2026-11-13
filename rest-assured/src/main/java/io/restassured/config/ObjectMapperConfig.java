@@ -39,7 +39,7 @@ public class ObjectMapperConfig implements Config {
 
     /**
      * Default object mapper configuration that uses no explicit object mapper. An object mapper
-     * will be found automatically in classpath if available. For more details see <a href="http://code.google.com/p/rest-assured/wiki/Usage#Object_Mapping">documentation</a>.
+     * will be found automatically in classpath if available. For more details see <a href="https://rest-assured.io/docs/usage/object-mapping/">documentation</a>.
      * <p/>
      * Also default object mapper factories will be used.
      */
